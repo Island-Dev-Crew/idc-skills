@@ -1,0 +1,84 @@
+---
+name: transport-complete
+description: Ship a change and babysit it until it is verifiably live — commit, push, watch CI, confirm the deploy promoted the exact SHA, and prove production serves it — fixing failures along the way. Use after the user gives an explicit go-ahead and says "push", "ship it", "deploy", "push to prod", or "get this live". Differentiator - "done" means a health check passes for the exact pushed SHA, not that the push succeeded; pushing always requires the user's explicit go-ahead first.
+---
+
+# Transport Complete — pushed-and-verified or not done
+
+The covenant: **transport is not complete until the exact change is verifiably live.** A green push is not done. A green CI is not done. Done is a health check passing for the *exact SHA* you pushed. This fuses David Ondrej's *prod-push* babysitting loop with IDC's transport covenant: a report of "shipped" without a live check is the precise defect the fleet exists to prevent.
+
+**Never push without the user's explicit go-ahead.** This skill is the procedure for *after* they give it. Never force-push. Never push side branches unless that is the repo's model.
+
+## State check — how does this repo ship?
+
+Before touching git, learn the repo's actual shipping model — do not assume:
+
+```bash
+git branch --show-current
+ls .github/workflows/ 2>/dev/null           # what CI runs, what gate is required
+git remote -v                                # where main lands
+```
+
+Identify: the required CI check name, whether deploy is push-triggered (Vercel-style) or manual, and the production health endpoint. If you can't name all three, ask — shipping blind is how the exact-SHA guarantee is lost.
+
+## The loop — repeat until the exact change is live
+
+```bash
+# 0. Fail closed before touching git. Ship from the primary checkout, on the ship branch.
+[ "$(git branch --show-current)" = "main" ] || { echo "transport: not on main" >&2; exit 1; }
+gd=$(git rev-parse --path-format=absolute --git-dir)
+gc=$(git rev-parse --path-format=absolute --git-common-dir)
+[ "$gd" = "$gc" ] || { echo "transport: linked-worktree pushes are forbidden" >&2; exit 1; }
+# (Worktree pushes carry a stale branch hook — see the worktree-fleet island.)
+
+# 1. Commit ONLY your files. Never `git add -A` / `git add .` / `commit -a` when a
+#    shared checkout may hold another seat's WIP. The tree must be clean between pushes.
+git add <your files> && git commit
+[ -z "$(git status --porcelain --untracked-files=no)" ] || { echo "transport: tree not clean" >&2; exit 1; }
+
+# 2. Sync + push. --autostash is BANNED (replaying dirty edits onto fresh upstream = UU
+#    conflicts + orphaned stashes). Never --no-verify. Never weaken a check to go green.
+git pull --rebase origin main
+git push origin main
+SHA=$(git rev-parse HEAD)                     # THIS is the SHA everything below must track
+
+# 3. Find the CI run for this exact SHA, then let it stream to completion.
+RUN_ID=""
+for i in 1 2 3 4 5 6; do
+  RUN_ID=$(gh run list --branch=main --limit=10 --json headSha,databaseId \
+    --jq ".[] | select(.headSha==\"$SHA\") | .databaseId")
+  [ -n "$RUN_ID" ] && break; sleep 5
+done
+[ -n "$RUN_ID" ] || { echo "transport: CI run not found for $SHA" >&2; exit 1; }
+gh run watch "$RUN_ID" --exit-status
+
+# 4. CI green -> confirm the deploy promoted THIS SHA (not a neighbour).
+#    Verify the deployment even for "docs-only" commits — never skip on a judgment call.
+gh api "repos/<org>/<repo>/deployments?sha=$SHA&environment=Production&per_page=1" --jq '.[0].id'
+# poll the deployment status until it reaches success
+
+# 5. Prove production serves it.
+curl -sS -m 15 https://<prod-host>/<health-path>
+```
+
+**Done = green CI + a successful Production deployment + a healthy check, all for the exact `$SHA`.** Then report what shipped.
+
+## Landing work from a worktree
+
+Agents build in worktrees; the loop refuses to run there (a worktree carries its own branch hook and may hold stale safety code). To land it: commit on the worktree's own branch (never commit to main from a worktree), then in the primary checkout — clean tree required — `git pull --rebase`, merge or cherry-pick **your** branch (one at a time, never two seats' branches in one pass), resolve conflicts in the hub, then run the loop from step 2.
+
+## Failure modes
+
+- **CI failed** — `gh run view <id> --log-failed`, reproduce locally (run the failing step), fix, commit, restart the loop. The new push gets a **new SHA** — track that one.
+- **CI green but deploy `failure`** — the build itself broke. Reproduce with the repo's build command; if it's platform-side (env vars, limits), stop and hand the user the deploy logs.
+- **CI `cancelled`** — a newer push superseded yours; your commit will never deploy alone. Confirm the newer SHA contains your change (`git merge-base --is-ancestor $SHA <newer>`) and track that SHA.
+- **Health returns not-ok / 503** — often migration drift: deployed code expects a migration not yet applied to prod. The deploy still succeeded. Agents never write to prod — tell the user which migration to apply and stop looping; say health will stay red until they do.
+- **Push rejected (non-fast-forward)** — someone pushed meanwhile. `git pull --rebase origin main` and push again.
+
+## Hard rules
+
+- Never push without the user's explicit go-ahead. Never force-push. Never push side branches (unless that is the repo's model).
+- Never weaken CI to go green: no deleting/skipping tests, no `--no-verify`, no merging around a red check.
+- If the change includes a DB migration, the user applies it to prod manually — expect health red until they do, and say so in the report.
+
+**No authority without evidence. A push is not done until production serves the exact SHA.**

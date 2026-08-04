@@ -1,0 +1,22 @@
+# Catastrophic-command denylist — one POSIX-ERE (grep -E) regex per line.
+# Use [[:space:]], never \s. Block only IRREVERSIBLE / CATASTROPHIC commands.
+# Recoverable-but-destructive commands (git clean, rm -rf node_modules) stay ALLOWED.
+
+# Filesystem wipes
+rm[[:space:]]+(-[a-zA-Z]*[[:space:]]+)*(-[a-zA-Z]*r[a-zA-Z]*f|[a-zA-Z]*f[a-zA-Z]*r)[[:space:]]+(/|~|\$HOME)([[:space:]]|/|$)
+sudo[[:space:]]+rm[[:space:]]+-[a-zA-Z]*r
+\bdd[[:space:]]+.*of=/dev/(disk|sd|nvme|rdisk)
+\bmkfs(\.[a-z0-9]+)?[[:space:]]
+:\(\)\{[[:space:]]*:\|:&[[:space:]]*\};:
+
+# Remote code execution from the network
+curl[[:space:]]+.*\|[[:space:]]*(sudo[[:space:]]+)?(ba)?sh
+wget[[:space:]]+.*\|[[:space:]]*(sudo[[:space:]]+)?(ba)?sh
+
+# Irreversible git / repo destruction
+git[[:space:]]+push[[:space:]]+.*--force(-with-lease)?
+git[[:space:]]+push[[:space:]]+.*-f($|[[:space:]])
+gh[[:space:]]+repo[[:space:]]+delete
+
+# Credential / token exfiltration
+cat[[:space:]]+.*(\.env|\.aws/credentials|\.ssh/id_|\.netrc).*\|[[:space:]]*(curl|nc|wget)

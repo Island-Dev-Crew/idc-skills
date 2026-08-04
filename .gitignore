@@ -1,0 +1,22 @@
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.vscode/
+.idea/
+*.swp
+
+# Env / secrets — never commit
+.env
+.env.*
+!.env.example
+
+# Node (if any island grows tooling)
+node_modules/
+*.log
+
+# Scratch / runtime mission state (per-consumer, not part of the pack)
+ops/mission/
+ops/lanes/
+.scratch/
