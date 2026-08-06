@@ -1,0 +1,3 @@
+interface:
+  display_name: "Diagnose"
+  short_description: "The loop before the theory; operation counts, not wall-clock"

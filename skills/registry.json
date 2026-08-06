@@ -1,12 +1,15 @@
 {
   "version": 1,
+  "release": "1.2.0",
   "name": "idc-skills-forge",
   "bundleName": "idc-skills-forge",
   "staging": "Navigata1/idc-skills-forge",
   "promotesTo": "Island-Dev-Crew",
   "anchor": "No authority without evidence. The skills demonstrate their own discipline.",
+  "dualHarness": "Every island ships an agents/openai.yaml sidecar; user-invoked islands carry policy.allow_implicit_invocation: false so disable-model-invocation travels to Codex.",
   "buildOrder": [
     "idc-skill-authoring",
+    "writing-for-agents",
     "cross-family-review",
     "worktree-fleet",
     "grill",
@@ -20,6 +23,12 @@
     "deep-modules",
     "diagnose",
     "archipelago",
+    "domain-wire",
+    "console-as-code",
+    "evidence-packet",
+    "wizard",
+    "to-questionnaire",
+    "wait-what",
     "short",
     "teach"
   ],
@@ -27,114 +36,319 @@
     {
       "name": "idc-skill-authoring",
       "path": "idc-skill-authoring",
-      "provenance": "fusion: Ondrej effective-agent-skills + Pocock writing-great-skills + IDC fleet distribution",
-      "summary": "The IDC canon for authoring, editing, reviewing, and distributing agent skills — anatomy, progressive disclosure, the two loads, leading words, failure modes, and one-authored-skill fleet distribution. It authors every other island.",
-      "triggers": ["create a skill", "new skill", "improve this skill", "why isn't my skill triggering", "distribute this skill"]
+      "invocation": "model",
+      "provenance": "fusion: Ondrej effective-agent-skills + Pocock writing-great-skills (v1.2 refactor) + IDC fleet distribution",
+      "summary": "The skill layer of the canon — folder anatomy, progressive disclosure, invocation and router skills, the Codex openai.yaml sidecar, fleet distribution, and the evidence discipline. Points to writing-for-agents for the universal levers.",
+      "triggers": [
+        "create a skill",
+        "new skill",
+        "improve this skill",
+        "why isn't my skill triggering",
+        "distribute this skill"
+      ]
+    },
+    {
+      "name": "writing-for-agents",
+      "path": "writing-for-agents",
+      "invocation": "model",
+      "provenance": "NEW v1.2 — Pocock writing-for-agents; the universal source of truth the canon points to",
+      "summary": "The universal levers for any document an agent reads — context pointers, the two loads, information hierarchy, completion criteria, leading words, pruning, and failure modes. Fires when editing AGENTS.md / CLAUDE.md / rules files.",
+      "triggers": [
+        "editing AGENTS.md",
+        "editing CLAUDE.md",
+        "modifying a rules file",
+        "make this agent doc read better",
+        "de-frontload the agent instructions"
+      ]
     },
     {
       "name": "cross-family-review",
       "path": "cross-family-review",
+      "invocation": "model",
       "provenance": "CROWN — fusion: Ondrej fable/gpt-review + Pocock code-review two-axis + Garnet review ceremony",
       "summary": "The crown ceremony: an independent reviewer from a different model family reviews a diff at an exact head along Standards and Spec axes and returns a named-seat verdict that voids on move. The author never reviews their own work.",
-      "triggers": ["cross-family review", "fable review", "gpt review", "review this branch", "review before merge", "second opinion before shipping"]
+      "triggers": [
+        "cross-family review",
+        "fable review",
+        "gpt review",
+        "review this branch",
+        "review before merge",
+        "second opinion before shipping"
+      ]
     },
     {
       "name": "worktree-fleet",
       "path": "worktree-fleet",
+      "invocation": "user",
       "provenance": "fusion: Ondrej git-worktree + IDC §02 admissibility boundary",
       "summary": "Git worktrees for same-machine parallel agents, with the IDC boundary: adopted for drafts, forbidden for evidence. Worktree artifacts are inadmissible as gate evidence until re-derived from a fresh clone.",
-      "triggers": ["worktree", "parallel agents", "one worktree per task", "agents overwriting each other"]
+      "triggers": [
+        "worktree",
+        "parallel agents",
+        "one worktree per task",
+        "agents overwriting each other"
+      ]
     },
     {
       "name": "grill",
       "path": "grill",
-      "provenance": "fusion: Pocock grill-me/grilling/batch-grill-me + Ondrej prompt-me + IDC ADR emission",
+      "invocation": "model",
+      "provenance": "fusion: Pocock grill-me/grilling/batch-grill-me (v1.2 rounds + emoji scan) + Ondrej prompt-me + IDC ADR emission",
       "summary": "Relentless interview to reach shared understanding before building, in three modes (ambush, drill, batch), emitting settled decisions as ADRs. Facts are looked up; only decisions are asked.",
-      "triggers": ["grill me", "grill", "interview me", "prompt me", "ask me questions", "stress-test this plan"]
+      "triggers": [
+        "grill me",
+        "grill",
+        "interview me",
+        "prompt me",
+        "ask me questions",
+        "stress-test this plan"
+      ]
     },
     {
       "name": "agent-guardrails",
       "path": "agent-guardrails",
+      "invocation": "model",
       "provenance": "fusion: Ondrej global-agent-guardrails + Pocock git-guardrails/setup-pre-commit + read-only db role",
       "summary": "Four mechanical layers under an AI fleet — shell denylist, git block, pre-commit gate, read-only data role — mechanizing the covenants beneath the prompts.",
-      "triggers": ["guardrails", "command guard", "pre-commit", "block dangerous git", "read-only db role", "harden this machine"]
+      "triggers": [
+        "guardrails",
+        "command guard",
+        "pre-commit",
+        "block dangerous git",
+        "read-only db role",
+        "harden this machine"
+      ]
     },
     {
       "name": "handoff",
       "path": "handoff",
+      "invocation": "user",
       "provenance": "fusion: Ondrej handoff + Pocock handoff/claude-handoff + IDC wake protocol",
       "summary": "Compact a session into a state-based handoff a fresh agent resumes from with zero memory, plus the wake protocol the receiver runs — re-reading verdicts and register state from the tree before trusting the summary.",
-      "triggers": ["handoff", "hand this off", "compact for a fresh agent", "hitting context limits"]
+      "triggers": [
+        "handoff",
+        "hand this off",
+        "compact for a fresh agent",
+        "hitting context limits"
+      ]
     },
     {
       "name": "lane-claim",
       "path": "lane-claim",
+      "invocation": "model",
       "provenance": "IDC-ONLY — Garnet boot step 6 (declare-and-halt fleet coordination)",
       "summary": "Declare-and-halt coordination for agents working one repo across many machines: claim a lane before touching it, halt if already claimed, release when done. Cures the cross-machine collisions worktrees cannot.",
-      "triggers": ["lane", "lane claim", "fleet coordination", "two machines on one lane", "agents colliding across machines"]
+      "triggers": [
+        "lane",
+        "lane claim",
+        "fleet coordination",
+        "two machines on one lane",
+        "agents colliding across machines"
+      ]
     },
     {
       "name": "transport-complete",
       "path": "transport-complete",
+      "invocation": "model",
       "provenance": "fusion: Ondrej prod-push + IDC transport covenant",
       "summary": "Ship a change and babysit it until verifiably live — commit, push, watch CI, confirm the deploy promoted the exact SHA, prove production serves it. Done means a health check for the exact SHA, not a successful push.",
-      "triggers": ["push", "ship it", "deploy", "push to prod", "get this live"]
+      "triggers": [
+        "push",
+        "ship it",
+        "deploy",
+        "push to prod",
+        "get this live"
+      ]
     },
     {
       "name": "spec-pipeline",
       "path": "spec-pipeline",
+      "invocation": "model",
       "provenance": "fusion: Pocock to-spec/to-tickets/implement + Ondrej goal-loop as persistent runner",
-      "summary": "One pipeline from a discussed feature to shipped code: spec (synthesis) → tracer-bullet tickets with blocking edges → implement at pre-agreed seams with TDD → optional persistent goal loop.",
-      "triggers": ["spec this", "break into tickets", "implement the spec", "tracer bullets", "run this as a goal"]
+      "summary": "One pipeline from a discussed feature to shipped code: spec (synthesis) then tracer-bullet tickets with blocking edges, implement at pre-agreed seams with TDD, then an optional persistent goal loop.",
+      "triggers": [
+        "spec this",
+        "break into tickets",
+        "implement the spec",
+        "tracer bullets",
+        "run this as a goal"
+      ]
     },
     {
       "name": "research",
       "path": "research",
+      "invocation": "model",
       "provenance": "fusion: Ondrej deep-research/research-prompt + Pocock research (primary-source discipline)",
       "summary": "Investigate a question against high-trust primary sources and capture findings as a cited Markdown file — every claim sourced or explicitly flagged unverified. DeepAPI is an optional backend.",
-      "triggers": ["research", "deep research", "gather docs/API facts", "delegate the reading"]
+      "triggers": [
+        "research a topic against docs/APIs/specs",
+        "deep research",
+        "gather primary-source facts into a cited file"
+      ]
     },
     {
       "name": "finding-register",
       "path": "finding-register",
+      "invocation": "model",
       "provenance": "IDC-ONLY — the U-series discipline",
       "summary": "A durable register of findings each enumerated at an exact SHA (not a running count), provenance-marked in both directions, and given a collision-free id swept before allocation.",
-      "triggers": ["finding register", "the register", "U-series", "allocate a finding id", "reconcile counts"]
+      "triggers": [
+        "finding register",
+        "the register",
+        "U-series",
+        "allocate a finding id",
+        "reconcile counts"
+      ]
     },
     {
       "name": "deep-modules",
       "path": "deep-modules",
+      "invocation": "model",
       "provenance": "Pocock codebase-design + setup-ts-deep-modules, adapted",
       "summary": "Shared vocabulary and enforcement for deep modules — a lot of behaviour behind a small interface at a clean seam — with the dependency-cruiser rules that make entry points the only way in.",
-      "triggers": ["design this module's interface", "where does the seam go", "make this testable", "enforce package boundaries", "deep module"]
+      "triggers": [
+        "design this module's interface",
+        "where does the seam go",
+        "make this testable",
+        "enforce package boundaries",
+        "deep module"
+      ]
     },
     {
       "name": "diagnose",
       "path": "diagnose",
+      "invocation": "model",
       "provenance": "Pocock diagnosing-bugs + IDC operation-counts law",
       "summary": "A disciplined loop for hard bugs: build a tight red-capable feedback loop first, reproduce and minimise, hypothesise, instrument, fix with a regression test, post-mortem. Performance is judged by operation counts, not wall-clock.",
-      "triggers": ["diagnose", "debug this", "something is broken/throwing/failing", "it got slow", "performance regression"]
+      "triggers": [
+        "diagnose",
+        "debug this",
+        "something is broken/throwing/failing",
+        "it got slow",
+        "performance regression"
+      ]
     },
     {
       "name": "archipelago",
       "path": "archipelago",
+      "invocation": "model",
       "provenance": "Jon's existing protocol (Navigata1/archipelago), reviewed against the canon",
       "summary": "The full-cycle, evidence-gated build protocol — typed contracts at every seam, gates that must be able to fail, loopback routing, a tamper-evident ledger, and band caps you cannot talk your way past.",
-      "triggers": ["arch build", "archipelago", "run this through archipelago", "under my arch workflow"]
+      "triggers": [
+        "arch build",
+        "archipelago",
+        "run this through archipelago",
+        "under my arch workflow"
+      ]
+    },
+    {
+      "name": "domain-wire",
+      "path": "domain-wire",
+      "invocation": "model",
+      "provenance": "IDC-NATIVE — the IDC domain doctrine (three-lane model, graduation, governance rules)",
+      "summary": "Wire a domain the IDC way — the three-lane model (story / product / AI-native), one canonical per venture with siblings 308-redirecting to it, automatic graduation when a brand deed exists, and canonicals moving in the same commit.",
+      "triggers": [
+        "wire a domain",
+        "graduate a domain",
+        "308 redirect",
+        "apex record",
+        "domain doctrine",
+        "set up DNS for a venture"
+      ]
+    },
+    {
+      "name": "console-as-code",
+      "path": "console-as-code",
+      "invocation": "model",
+      "provenance": "IDC-NATIVE — named in the Garnet×Buzz synthesis as the first IDC-skills candidate to graduate into Garnet ops",
+      "summary": "Assemble an agent's operating prompt from versioned in-repo blocks (BOOT, covenants, lanes, seats), stamped with the assembly SHA, so every prompt is an auditable artifact and the same console assembles identically on every seat.",
+      "triggers": [
+        "console-as-code",
+        "prompt drift",
+        "prompt assembler",
+        "BOOT block",
+        "version the control plane"
+      ]
+    },
+    {
+      "name": "evidence-packet",
+      "path": "evidence-packet",
+      "invocation": "model",
+      "provenance": "IDC-NATIVE — the Contributor-Road artifact from the Two Roads synthesis",
+      "summary": "Assemble a byte-verifiable evidence packet — the diff, the verification-ladder commands, and their captured outputs — so a reviewer recomputes every claim instead of trusting the author. A weak and a frontier author are equally mergeable when both can run the ladder.",
+      "triggers": [
+        "evidence packet",
+        "evidence bundle",
+        "prove this change",
+        "assemble evidence for review",
+        "make acceptance mechanical"
+      ]
+    },
+    {
+      "name": "wizard",
+      "path": "wizard",
+      "invocation": "model",
+      "provenance": "NEW v1.2 — Pocock wizard (bundled template.sh library)",
+      "summary": "Generate an interactive bash wizard that walks a human through steps only they can perform — opening each URL, saying what to click, capturing values, and writing them into .env files and GitHub Actions secrets. Ships a fixed template.sh UX library.",
+      "triggers": [
+        "provision infrastructure",
+        "set up credentials or CI secrets",
+        "walk a third-party dashboard",
+        "one-off migration or cutover",
+        "wizard"
+      ]
+    },
+    {
+      "name": "to-questionnaire",
+      "path": "to-questionnaire",
+      "invocation": "user",
+      "provenance": "NEW v1.2 — Pocock to-questionnaire (the inverse of grill)",
+      "summary": "Turn a decision you can't answer alone into a Markdown questionnaire for the one person who can — filled in async or worked through together. Grills you about the send (who it goes to, what you need back), not the subject.",
+      "triggers": [
+        "to questionnaire",
+        "make a questionnaire",
+        "I need someone else to answer this",
+        "turn this into a doc for a stakeholder"
+      ]
+    },
+    {
+      "name": "wait-what",
+      "path": "wait-what",
+      "invocation": "user",
+      "provenance": "NEW v1.2 — Pocock wait-what, grounded in the forge CONTEXT.md ubiquitous language",
+      "summary": "Stop — that last message did not land. Re-pitch it with the missing context, in ASD-STE100 Simplified Technical English, grounded in the project's own CONTEXT.md ubiquitous language.",
+      "triggers": [
+        "wait what",
+        "that went over my head",
+        "re-pitch that",
+        "say that simpler",
+        "I don't follow"
+      ]
     },
     {
       "name": "short",
       "path": "short",
+      "invocation": "user",
       "provenance": "adopt: Ondrej short",
       "summary": "Compress the current answer — strip filler, simplify wording, cut length while keeping substance.",
-      "triggers": ["short", "shorter", "simpler", "too long", "tl;dr"]
+      "triggers": [
+        "short",
+        "shorter",
+        "too long",
+        "tl;dr"
+      ]
     },
     {
       "name": "teach",
       "path": "teach",
+      "invocation": "user",
       "provenance": "adopt/dedupe: Pocock teach (attributed)",
       "summary": "A stateful multi-session teaching workspace — mission-grounded lessons from high-trust sources, delivered as beautiful self-contained HTML with tight feedback loops and learning records.",
-      "triggers": ["teach me", "help me learn", "study this topic over sessions"]
+      "triggers": [
+        "teach me",
+        "help me learn",
+        "study this topic over sessions"
+      ]
     }
   ]
 }

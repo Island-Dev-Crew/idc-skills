@@ -1,0 +1,3 @@
+interface:
+  display_name: "Domain Wire"
+  short_description: "Wire a domain the IDC way; lane model and graduation"

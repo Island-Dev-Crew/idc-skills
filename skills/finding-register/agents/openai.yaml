@@ -1,0 +1,3 @@
+interface:
+  display_name: "Finding Register"
+  short_description: "Findings enumerated at a SHA, id swept before allocation"

@@ -9,6 +9,8 @@ The discipline is one rule: **every claim is either backed by a primary source o
 
 Follow the primary-source law: investigate against **official docs, source code, specs, first-party APIs** — not a secondary write-up of them. Follow every claim back to the source that owns it. Separate fact from inference — say which is which.
 
+Boundary — the bare word "research" is wide, so route the specialist cases to their island: a bug investigation is [`diagnose`](../diagnose/SKILL.md) (build a red-capable loop, don't write a report); domain setup is [`domain-wire`](../domain-wire/SKILL.md); multi-session learning with source-gathering is [`teach`](../teach/SKILL.md). This island is for investigating a question or topic against external docs, APIs, or specs and producing one cited file.
+
 ## The default path — delegate and keep working
 
 Spin up a **background agent** to do the reading so you keep working while it reads:

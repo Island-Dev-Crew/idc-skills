@@ -11,6 +11,8 @@ Map the work as a **design tree**: every decision branches into the decisions th
 
 The one law across all modes: **facts are your job, decisions are the user's.** If a fact can be found by exploring the environment (filesystem, tools, git), look it up — never ask the user for something you could find. Put each *decision* to the user and wait. For every question, give your **recommended answer**.
 
+Boundary: if the answers live with **someone else** — a stakeholder, not the user in front of you — stop. Interrogating a user who cannot answer is wasted; that is the [`to-questionnaire`](../to-questionnaire/SKILL.md) island, which mines a third party instead. Grill mines *you*; to-questionnaire mines *them*.
+
 ## Three modes
 
 Pick by how the user wants to be interrogated. When unsure, ask which — or default to **drill**.
@@ -19,7 +21,9 @@ Pick by how the user wants to be interrogated. When unsure, ask which — or def
 Walk the decision tree depth-first, resolving dependencies one by one. Ask **one question at a time**, each with your recommended answer, and wait for the answer before the next. Asking several at once is bewildering. Use when decisions are tightly coupled and each answer reshapes the next question.
 
 ### Batch (frontier per round)
-Work the tree in **rounds**. Ask the *whole frontier* in one round — number each question, give each a recommended answer — then wait. Each round's answers push the frontier outward and unblock downstream questions; recompute the frontier and ask the next round. A question depending on another still-open question belongs to a *later* round. Use when the frontier is wide and the user prefers throughput.
+Work the tree in **rounds**. Ask the *whole frontier* in one round, then wait. Each round's answers push the frontier outward and unblock downstream questions; recompute the frontier and ask the next round. A question depending on another still-open question belongs to a *later* round. Use when the frontier is wide and the user prefers throughput — it cures the drag of the public one-at-a-time grill, where the tail of the session is easy questions answered "yes, yes, yes" one slow turn each.
+
+Format each round for **fast visual scan** (the user is often dictating): number every question, prefix each with an emoji marker for the eye to catch (`1️⃣`, `2️⃣`, `3️⃣`…), and give each its recommended answer inline, so the user can blast back "Q1 agree, Q2 change to X, Q3 agree" in one pass.
 
 ### Ambush (extract what's in their head)
 The user hasn't told you what matters yet. Interview to surface **priorities, avoided work, and importance** — what remains, what's being dodged, what really matters and what doesn't. Trigger shape: *"start prompting me to figure out what other work needs doing, what we're avoiding, what has importance and what doesn't."* Use at the start of a project, before there's even a plan to drill.

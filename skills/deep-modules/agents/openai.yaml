@@ -1,0 +1,3 @@
+interface:
+  display_name: "Deep Modules"
+  short_description: "Leverage behind a small interface, boundaries enforced"

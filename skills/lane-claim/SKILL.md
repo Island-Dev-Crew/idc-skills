@@ -9,6 +9,8 @@ An IDC-only island. It exists because the collisions the fleet actually suffered
 
 A **lane** is a unit of parallelizable work with one owner at a time — a subsystem, a repair, a review round. The rule is **declare-and-halt**: claim the lane before touching it; if it's already claimed by someone else, **halt** — do not proceed, do not "just take a look."
 
+This is an **advisory, cooperative** protocol — a halt-on-honor coordination, not a lock: nothing here mechanically blocks a colliding write, because the collision it prevents is *cross-machine* and no single machine can bar another. The pushed claim is the evidence every seat reads before acting; the enforcement is each seat honoring it. State that plainly — a reader must not infer a mechanical lock the protocol does not provide.
+
 ## The claim record
 
 Claims live in the repo (the shared memory every machine can fetch), not in any one agent's context. A claim is a small file or a row keyed by lane id:

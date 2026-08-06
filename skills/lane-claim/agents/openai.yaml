@@ -1,0 +1,3 @@
+interface:
+  display_name: "Lane Claim"
+  short_description: "Declare-and-halt coordination across machines"

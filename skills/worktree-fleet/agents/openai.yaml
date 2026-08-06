@@ -1,0 +1,5 @@
+interface:
+  display_name: "Worktree Fleet"
+  short_description: "Worktrees for drafts, forbidden for evidence"
+policy:
+  allow_implicit_invocation: false

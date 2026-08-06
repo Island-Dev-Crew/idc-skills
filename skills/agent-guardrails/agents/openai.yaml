@@ -1,0 +1,3 @@
+interface:
+  display_name: "Agent Guardrails"
+  short_description: "Four mechanical layers: shell, git, commit, data"

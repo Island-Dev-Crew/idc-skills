@@ -1,39 +1,48 @@
 # IDC Skills · The Forge
 
-**An archipelago of agent skills.** Each skill is an island; the repo is the navigable chain that connects them. Fused from David Ondrej's and Matt Pocock's public canons, welded to the discipline Island Development Crew earned shipping agent-built software: **no authority without evidence — the skills demonstrate their own discipline.**
+**An archipelago of agent skills.** Each skill is an island; the repo is the navigable chain that connects them. Fused from David Ondrej's and Matt Pocock's public canons (through Pocock v1.2), welded to the discipline Island Development Crew earned shipping agent-built software: **no authority without evidence — the skills demonstrate their own discipline.**
 
 > *"In the multitude of counsellors there is safety."* — Proverbs 11:14
 
-This is the **staging forge** (`Navigata1/idc-skills-forge`). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
+This is the **staging forge** (`Navigata1/idc-skills-forge`, release 1.2.0). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
+
+**Dual-harness:** every island ships an `agents/openai.yaml` sidecar, so the set works in Claude Code, Pi, Hermes **and** Codex from one source. User-invoked islands carry `policy.allow_implicit_invocation: false` — the Codex analog of `disable-model-invocation`.
 
 ---
 
-## The chain — sixteen islands, in build order
+## The chain — twenty-three islands, in build order
 
-The order is the bootstrap: island 1 authors the rest; the crown ships with a week of receipts; the two IDC-only islands exist nowhere else.
+The order is the bootstrap: island 1 authors the rest and rests on island 2 (the universal levers); the crown ships with a week of receipts; five islands exist nowhere else.
 
 | # | Island | Kind | What it does |
 |---|--------|------|--------------|
-| 1 | [`idc-skill-authoring`](skills/idc-skill-authoring/SKILL.md) | canon | Authors every other island — anatomy, progressive disclosure, the two loads, leading words, failure modes, fleet distribution. |
-| 2 | [`cross-family-review`](skills/cross-family-review/SKILL.md) | 👑 crown | A different model family reviews a diff at an exact head; the verdict names its seats and voids on move. The author never reviews their own work. |
-| 3 | [`worktree-fleet`](skills/worktree-fleet/SKILL.md) | fusion | Worktrees for same-machine parallelism — adopted for drafts, forbidden for evidence. The version that knows when *not* to use itself. |
-| 4 | [`grill`](skills/grill/SKILL.md) | fusion | Relentless interview in three modes (ambush · drill · batch), emitting settled decisions as ADRs. |
-| 5 | [`agent-guardrails`](skills/agent-guardrails/SKILL.md) | fusion | Four mechanical layers — shell · git · commit · data — under the whole fleet. |
-| 6 | [`handoff`](skills/handoff/SKILL.md) | fusion | State-based handoff + the wake protocol: re-read verdicts and register from the tree before trusting the summary. |
-| 7 | [`lane-claim`](skills/lane-claim/SKILL.md) | 💠 IDC-only | Declare-and-halt coordination across machines — the collisions worktrees can't touch. |
-| 8 | [`transport-complete`](skills/transport-complete/SKILL.md) | fusion | Pushed-and-verified-live or not done — a health check for the exact SHA. |
-| 9 | [`spec-pipeline`](skills/spec-pipeline/SKILL.md) | fusion | Spec → tracer tickets → implement at seams → optional persistent goal loop. |
-| 10 | [`research`](skills/research/SKILL.md) | fusion | Primary-source investigation; every claim sourced or flagged unverified. |
-| 11 | [`finding-register`](skills/finding-register/SKILL.md) | 💠 IDC-only | Findings enumerated at a SHA (not a count), provenance both ways, id swept before allocation. |
-| 12 | [`deep-modules`](skills/deep-modules/SKILL.md) | adapt | The deep-module vocabulary + the boundary rules that make entry points the only way in. |
-| 13 | [`diagnose`](skills/diagnose/SKILL.md) | adapt | The loop before the theory; performance judged by operation counts, not wall-clock. |
-| 14 | [`archipelago`](skills/archipelago/SKILL.md) | Jon's | The evidence-gated build protocol — gates that must be able to fail, band caps you can't talk past. |
-| 15 | [`short`](skills/short/SKILL.md) | adopt | Compress the current answer. |
-| 16 | [`teach`](skills/teach/SKILL.md) | adopt | A stateful multi-session teaching workspace. |
+| 1 | [`idc-skill-authoring`](skills/idc-skill-authoring/SKILL.md) | canon | Authors every island — skill anatomy, invocation, the Codex sidecar, fleet distribution, evidence discipline. |
+| 2 | [`writing-for-agents`](skills/writing-for-agents/SKILL.md) | fusion · v1.2 | The universal levers for any agent doc — pointers, the two loads, hierarchy, leading words, pruning. The canon points here. |
+| 3 | [`cross-family-review`](skills/cross-family-review/SKILL.md) | 👑 crown | A different model family reviews a diff at an exact head; the verdict names its seats and voids on move. The author never reviews their own work. |
+| 4 | [`worktree-fleet`](skills/worktree-fleet/SKILL.md) | fusion | Worktrees for same-machine parallelism — adopted for drafts, forbidden for evidence. The version that knows when *not* to use itself. |
+| 5 | [`grill`](skills/grill/SKILL.md) | fusion · v1.2 | Relentless interview in three modes (ambush · drill · batch), rounds with emoji-scan, emitting decisions as ADRs. |
+| 6 | [`agent-guardrails`](skills/agent-guardrails/SKILL.md) | fusion | Four mechanical layers — shell · git · commit · data — under the whole fleet. |
+| 7 | [`handoff`](skills/handoff/SKILL.md) | fusion | State-based handoff + the wake protocol: re-read verdicts and register from the tree before trusting the summary. |
+| 8 | [`lane-claim`](skills/lane-claim/SKILL.md) | 💠 IDC-only | Declare-and-halt coordination across machines — the collisions worktrees can't touch. |
+| 9 | [`transport-complete`](skills/transport-complete/SKILL.md) | fusion | Pushed-and-verified-live or not done — a health check for the exact SHA. |
+| 10 | [`spec-pipeline`](skills/spec-pipeline/SKILL.md) | fusion | Spec → tracer tickets → implement at seams → optional persistent goal loop. |
+| 11 | [`research`](skills/research/SKILL.md) | fusion | Primary-source investigation; every claim sourced or flagged unverified. |
+| 12 | [`finding-register`](skills/finding-register/SKILL.md) | 💠 IDC-only | Findings enumerated at a SHA (not a count), provenance both ways, id swept before allocation. |
+| 13 | [`deep-modules`](skills/deep-modules/SKILL.md) | adapt | The deep-module vocabulary + the boundary rules that make entry points the only way in. |
+| 14 | [`diagnose`](skills/diagnose/SKILL.md) | adapt | The loop before the theory; performance judged by operation counts, not wall-clock. |
+| 15 | [`archipelago`](skills/archipelago/SKILL.md) | Jon's | The evidence-gated build protocol — gates that must be able to fail, band caps you can't talk past. |
+| 16 | [`domain-wire`](skills/domain-wire/SKILL.md) | 💠 IDC-native | Wire a domain the IDC way — three-lane model, one canonical, siblings 308, graduation in the same commit. |
+| 17 | [`console-as-code`](skills/console-as-code/SKILL.md) | 💠 IDC-native | Assemble the operating prompt from versioned, SHA-stamped in-repo blocks — the cure for prompt drift. |
+| 18 | [`evidence-packet`](skills/evidence-packet/SKILL.md) | 💠 IDC-native | The byte-verifiable packet a reviewer recomputes — acceptance on evidence the author cannot fake. |
+| 19 | [`wizard`](skills/wizard/SKILL.md) | fusion · v1.2 | Generate an interactive bash wizard for human-only steps — dashboards, credentials, CI secrets. Ships `template.sh`. |
+| 20 | [`to-questionnaire`](skills/to-questionnaire/SKILL.md) | fusion · v1.2 | Turn a decision you can't answer alone into a questionnaire for the one person who can. The inverse of grill. |
+| 21 | [`wait-what`](skills/wait-what/SKILL.md) | fusion · v1.2 | Re-pitch a message that didn't land — plain language, grounded in the project's own words. |
+| 22 | [`short`](skills/short/SKILL.md) | adopt | Compress the current answer. |
+| 23 | [`teach`](skills/teach/SKILL.md) | adopt | A stateful multi-session teaching workspace. |
 
 ## The moat, stated plainly
 
-Three of these exist nowhere else — [`lane-claim`](skills/lane-claim/SKILL.md), [`finding-register`](skills/finding-register/SKILL.md), and the ceremony layer inside [`cross-family-review`](skills/cross-family-review/SKILL.md). Anyone can fuse two public repos. Only IDC can ship the review ceremony with receipts: named seats, provenance corrected in both directions, verdicts bound to exact heads. **That is the product.**
+Five standalone islands exist nowhere else — [`lane-claim`](skills/lane-claim/SKILL.md), [`finding-register`](skills/finding-register/SKILL.md), [`domain-wire`](skills/domain-wire/SKILL.md), [`console-as-code`](skills/console-as-code/SKILL.md), [`evidence-packet`](skills/evidence-packet/SKILL.md) — plus the review-ceremony layer inside the otherwise-fused [`cross-family-review`](skills/cross-family-review/SKILL.md). Anyone can fuse two public repos. Only IDC can ship the review ceremony with receipts — named seats, provenance corrected in both directions, verdicts bound to exact heads — and the doctrine that wires a 73-deed estate. **That is the product.**
 
 ## Design palette
 
@@ -50,7 +59,7 @@ The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust
 
 ## Provenance & the pending inputs
 
-The fusion recipe is `IDC-SKILLS-FUSION-REPORT-v1`. Two companion inputs — the Buzz conversations and the owner transcripts — arrived empty at authoring time; nothing here was reconstructed from them, and no claim in these skills represents Buzz's analysis or the owners' commentary. The Garnet ceremony layer rests on IDC's own verified production record.
+The fusion recipe is `IDC-SKILLS-FUSION-REPORT-v1`. Release **1.2.0** folds in Matt Pocock's skills v1.2 — `writing-for-agents` (the universal levers the canon now points to), the `wizard` + `to-questionnaire` + `wait-what` productivity islands, the fixed grill rounds, and the Codex `agents/openai.yaml` sidecars — plus three IDC-native islands drawn from IDC's own work: `domain-wire` (the domain doctrine), `console-as-code` (named in the Garnet×Buzz synthesis as the first candidate to graduate into Garnet ops), and `evidence-packet` (the Contributor-Road artifact). Two companion inputs — the Buzz conversations and the owner transcripts — arrived empty at the original authoring time; nothing here was reconstructed from them, and no claim in these skills represents Buzz's analysis or the owners' commentary. The Garnet ceremony layer rests on IDC's own verified production record.
 
 ## Pipeline — staging to official
 

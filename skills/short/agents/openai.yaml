@@ -1,0 +1,5 @@
+interface:
+  display_name: "Short"
+  short_description: "Compress the current answer"
+policy:
+  allow_implicit_invocation: false

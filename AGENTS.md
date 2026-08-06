@@ -7,4 +7,4 @@ This repo is an **archipelago of agent skills**. Each island under `skills/<name
 - **The registry** — [`skills/registry.json`](skills/registry.json) lists every island, its provenance, summary, and trigger phrases.
 - **Distribution** — `./scripts/install.sh` fans every island across the four fleet skill folders (Codex/Claude/Pi/Hermes) and validates frontmatter.
 
-Skills compose at runtime — one concern per island, loops over menus. Don't bundle; don't duplicate meaning across islands; keep every reference one level deep.
+Skills compose at runtime — one concern per island, loops over menus. Don't bundle; don't duplicate meaning across islands; keep every reference one level deep. (The one-level rule governs a skill's own progressive-disclosure chain — never `SKILL.md → a.md → b.md`. A link up to a repo-root substrate file like `../../CONTEXT.md` is a single hop to shared ground, not a chain, and is fine.)

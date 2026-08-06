@@ -1,0 +1,3 @@
+interface:
+  display_name: "Console as Code"
+  short_description: "Assemble the operating prompt from versioned, SHA-stamped blocks"

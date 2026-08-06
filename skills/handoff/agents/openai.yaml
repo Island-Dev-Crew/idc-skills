@@ -1,0 +1,5 @@
+interface:
+  display_name: "Handoff"
+  short_description: "State-based handoff plus the wake protocol"
+policy:
+  allow_implicit_invocation: false

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Spec Pipeline"
+  short_description: "Spec, tracer tickets, implement, optional goal loop"
