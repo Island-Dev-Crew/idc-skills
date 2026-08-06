@@ -1,0 +1,3 @@
+interface:
+  display_name: "Workspace Audit"
+  short_description: "Check the ICM map still matches the tree; catch drift"

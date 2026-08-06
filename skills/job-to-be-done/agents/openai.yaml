@@ -1,0 +1,3 @@
+interface:
+  display_name: "Job To Be Done"
+  short_description: "Triage whether a thing should be built or automated at all"

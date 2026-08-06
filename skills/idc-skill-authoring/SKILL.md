@@ -1,6 +1,6 @@
 ---
 name: idc-skill-authoring
-description: The IDC canon for skills specifically — folder anatomy, progressive disclosure, the invocation choice and router skills, the Codex openai.yaml sidecar, fleet distribution across Codex/Claude/Pi/Hermes, and the evidence discipline. Read whenever a SKILL.md is being created, edited, reviewed, distributed, or debugged, or the user says "create a skill", "new skill", "improve this skill", "why isn't my skill triggering", or "distribute this skill". Differentiator - the skill-only mechanics live here; for the universal levers that apply to any agent doc, this points to writing-for-agents.
+description: The IDC canon for skills specifically — folder anatomy, progressive disclosure, the invocation choice and router skills, the Codex openai.yaml sidecar, fleet distribution across Codex/Claude/Pi/Hermes, and the evidence discipline. Read whenever a SKILL.md is being created, edited, reviewed, distributed, or debugged, or the user says "create a skill", "new skill", "restructure a skill", "why isn't my skill triggering", or "distribute this skill". Differentiator - the skill-only mechanics live here (authoring and structure); to improve a skill against measured evals, route to skill-tune; for the universal levers that apply to any agent doc, this points to writing-for-agents.
 ---
 
 # IDC Skill Authoring — the skill layer

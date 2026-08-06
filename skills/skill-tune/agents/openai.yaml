@@ -1,0 +1,3 @@
+interface:
+  display_name: "Skill Tune"
+  short_description: "Empirically improve a skill; keep an edit only if the score rose"

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "release": "1.2.0",
+  "release": "1.3.0",
   "name": "idc-skills-forge",
   "bundleName": "idc-skills-forge",
   "staging": "Navigata1/idc-skills-forge",
@@ -26,6 +26,12 @@
     "domain-wire",
     "console-as-code",
     "evidence-packet",
+    "job-to-be-done",
+    "folder-workspace",
+    "workspace-scaffold",
+    "productionize-opinion",
+    "skill-tune",
+    "workspace-audit",
     "wizard",
     "to-questionnaire",
     "wait-what",
@@ -42,7 +48,7 @@
       "triggers": [
         "create a skill",
         "new skill",
-        "improve this skill",
+        "restructure a skill",
         "why isn't my skill triggering",
         "distribute this skill"
       ]
@@ -127,6 +133,7 @@
       "summary": "Compact a session into a state-based handoff a fresh agent resumes from with zero memory, plus the wake protocol the receiver runs — re-reading verdicts and register state from the tree before trusting the summary.",
       "triggers": [
         "handoff",
+        "pickup",
         "hand this off",
         "compact for a fresh agent",
         "hitting context limits"
@@ -282,6 +289,89 @@
         "prove this change",
         "assemble evidence for review",
         "make acceptance mechanical"
+      ]
+    },
+    {
+      "name": "job-to-be-done",
+      "path": "job-to-be-done",
+      "invocation": "model",
+      "provenance": "ICM-NATIVE — Jake Van Clief (job-to-be-done, 90/10, augment-don't-automate)",
+      "summary": "The pre-build triage that asks whether a thing should be built or automated at all, and where the human stays in the loop — delegation/complexity/outcome, the 90/10 rule. Its best outcome is often 'don't build it'.",
+      "triggers": [
+        "should I build this",
+        "job to be done",
+        "is this worth automating",
+        "do I need an agent",
+        "about to over-engineer"
+      ]
+    },
+    {
+      "name": "folder-workspace",
+      "path": "folder-workspace",
+      "invocation": "model",
+      "provenance": "ICM-NATIVE flagship — Jake Van Clief's Interpretable Context Methodology, welded to the evidence discipline",
+      "summary": "Structure a repo as an ICM workspace — folders and markdown as agent architecture, routed by a three-layer map (map/rooms/workspace) so one agent becomes the agent each task needs, without agent swarms. The map is an auditable routing contract.",
+      "triggers": [
+        "folder as workspace",
+        "ICM",
+        "interpretable context methodology",
+        "route my AI",
+        "map / router",
+        "become the agent"
+      ]
+    },
+    {
+      "name": "workspace-scaffold",
+      "path": "workspace-scaffold",
+      "invocation": "model",
+      "provenance": "ICM-NATIVE — the workspace-creator generator (ships scaffold.sh)",
+      "summary": "Scaffold a new ICM workspace for a domain — generate the root map, the rooms, the naming conventions — then prove a fresh agent routes through it before declaring done.",
+      "triggers": [
+        "make me a workspace",
+        "scaffold an ICM",
+        "workspace creator",
+        "convert this folder into a workspace"
+      ]
+    },
+    {
+      "name": "productionize-opinion",
+      "path": "productionize-opinion",
+      "invocation": "model",
+      "provenance": "ICM-NATIVE — Jake Van Clief's core thesis (productionize your opinion / the ingest agent)",
+      "summary": "Distill an operator's own raw material — transcripts, notes, decisions, chat history — into durable workspace context that carries their voice and process. Mines you, not external sources; inferences are marked as inferences.",
+      "triggers": [
+        "productionize my opinion",
+        "ingest agent",
+        "distill my voice",
+        "capture how I think",
+        "second brain"
+      ]
+    },
+    {
+      "name": "skill-tune",
+      "path": "skill-tune",
+      "invocation": "model",
+      "provenance": "ICM-NATIVE — Microsoft SkillOpt + Karpathy auto-research, welded to the band-cap law",
+      "summary": "Empirically improve a skill or context file — run it on representative tasks, judge each output, edit, re-run, and keep an edit only when a measured score rises. The most efficient files are small (500-800 tokens); a tuned file is usually a shorter file.",
+      "triggers": [
+        "skill-opt",
+        "optimize this skill",
+        "tune this markdown",
+        "make this prompt better",
+        "auto-research loop for skills"
+      ]
+    },
+    {
+      "name": "workspace-audit",
+      "path": "workspace-audit",
+      "invocation": "model",
+      "provenance": "ICM-NATIVE — the verify side of folder-workspace (drift detection, ships audit.sh)",
+      "summary": "Audit an ICM workspace for drift — check every path the map claims exists in the tree, and that no live room is missing from the map. The map is a claim; the tree is the evidence; drift is a claim the evidence contradicts.",
+      "triggers": [
+        "audit my workspace",
+        "check the map",
+        "workspace drift",
+        "does the map still match"
       ]
     },
     {

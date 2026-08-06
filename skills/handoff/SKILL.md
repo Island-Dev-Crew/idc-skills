@@ -1,6 +1,6 @@
 ---
 name: handoff
-description: Compact the current session into a state-based handoff a fresh agent can resume from with zero prior memory — plus the IDC wake protocol the receiving agent runs before trusting any summary. Use when hitting context limits, switching focus, ending a work session, partitioning a task across fresh contexts, or when the user says "handoff", "hand this off", or "compact this for a fresh agent". Differentiator - fuses both public handoff formats and adds a wake protocol; the receiver re-reads verdicts and register state from the tree before trusting the handoff.
+description: Compact the current session into a state-based handoff a fresh agent can resume from with zero prior memory — plus the wake protocol (ICM "pickup") the receiving agent runs before trusting any summary. Use when hitting context limits, switching focus, ending a work session, partitioning a task across fresh contexts, or when the user says "handoff", "pickup", "hand this off", or "compact this for a fresh agent". Differentiator - fuses both public handoff formats with ICM's pickup/handoff pair; the receiver re-reads verdicts and register state from the tree before trusting the handoff.
 disable-model-invocation: true
 ---
 
@@ -8,7 +8,12 @@ disable-model-invocation: true
 
 Fuses David Ondrej's detailed handoff and Matt Pocock's suggested-skills handoff, and adds the IDC **wake protocol** — the discipline that closes the failure mode handoffs actually die on: a fresh agent trusting a stale summary instead of the tree.
 
-Two halves: **writing** a handoff (state, not instructions), and **waking** from one (re-read the ground truth before you trust the handoff).
+Two halves — Jake Van Clief's ICM names them **handoff** and **pickup**, and they work as a pair of code words:
+
+- **handoff** (leaving): write the session's state to a file so the work survives the context ending.
+- **pickup** (arriving): a *read-only continuity brief* — read the handoff and the tree, verify, orient — **and change nothing until the user says proceed**.
+
+Writing a handoff is state-not-instructions; a pickup is the wake protocol below. In a [`folder-workspace`](../folder-workspace/SKILL.md), these become the standing session ritual — say "handoff" on the way out, "pickup" on the way in, and the workspace carries the state between them so no session starts lost.
 
 ## Writing the handoff
 
@@ -55,8 +60,8 @@ This is the IDC half, and it is where continuity survives. Verdicts land and fin
 1. **Read the tree, not the summary.** Fetch and read the actual files under "Files & Pointers" — do not paraphrase from the handoff.
 2. **Re-read verdicts and register state at the current head.** A `cross-family-review` verdict is void the moment its head moved; a `finding-register` id may have been allocated since. Re-enumerate from the tree, don't trust the handoff's snapshot.
 3. **Re-fetch lane claims.** A lane the handoff says is yours may have been released or re-claimed. Check `ops/lanes/` before acting.
-4. **Only then act.** The handoff oriented you; the tree is the truth.
+4. **Then orient, and wait.** A pickup is read-only: surface where things stand and what the best next move is, but **change nothing until the user says proceed.** The handoff oriented you; the tree is the truth; the user still decides the action.
 
-**Done when** the receiver has read the pointed-to files and re-derived verdict/register/lane state from the current head — not from the handoff's snapshot.
+**Done when** the receiver has read the pointed-to files, re-derived verdict/register/lane state from the current head (not from the handoff's snapshot), and reported orientation without mutating anything — the work resumes only on the user's go-ahead.
 
 **No authority without evidence. The handoff orients; the tree is the truth.**

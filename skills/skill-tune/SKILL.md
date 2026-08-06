@@ -1,0 +1,59 @@
+---
+name: skill-tune
+description: Empirically improve a skill or markdown context file against a measured score — an edit survives only on a measured gain, reverted otherwise. Use when a skill underperforms, a CLAUDE.md or context file needs tightening, or the user mentions "skill-opt", "optimize this skill", "tune this markdown", "make this prompt better", or "auto-research loop for skills". Differentiator - no-authority-without-evidence applied to skills; the gain is measured, never asserted, and a tuned file is usually a shorter file.
+---
+
+# Skill Tune — keep the edit only if the score moved
+
+The empirical counterpart to [`idc-skill-authoring`](../idc-skill-authoring/SKILL.md): authoring is how you *write* a skill; tuning is how you *improve* one against evidence. It fuses Microsoft's **SkillOpt** and Andrej Karpathy's **auto-research** loops with the forge's law — an edit is kept **only when a measured score rises**, which is the archipelago's band-cap discipline applied to a markdown file. You cannot tune your way to "better" by conviction; you can only evidence your way there.
+
+The one finding that anchors the whole method: **the most efficient context files are small — roughly 500–800 tokens — and it is better to split a big one than to pad it.** Separating thought is what lets the model work; a tuned file is usually a *shorter* file.
+
+## The loop
+
+```
+build an eval set → run the skill → judge each output → edit → re-run → keep iff score rose
+```
+
+### 1. Build a red-capable eval set
+
+You cannot tune without a score that can go down. Assemble 5–20 representative tasks the skill should handle — the ones it fails on today are the most valuable. Each task has an input and a checkable expectation. A tuning run with no failing case is like a [`diagnose`](../diagnose/SKILL.md) loop that never goes red: it proves nothing. Record the tasks in `tune/<skill>/tasks.md`.
+
+**Done when** you have tasks the *current* skill measurably fails or under-serves, with a stated expectation per task.
+
+### 2. Baseline
+
+Run the current skill across every task and **judge each output** — ideally with a different model family via [`cross-family-review`](../cross-family-review/SKILL.md), so the judge is not the author. Score each 0–1 (or against a rubric); record the baseline in `tune/<skill>/results.tsv`:
+
+```
+# results.tsv — one row per run
+iter   sha        tokens   pass   mean_score   note
+0      <baseline> 1240     6/12   0.58         baseline
+```
+
+Record **token count** too — a tune that raises the score but doubles the tokens is a trade, not a win; name it.
+
+### 3. Edit — toward smaller
+
+Make one focused change and re-run. The edits that pay, in order:
+
+- **Prune no-ops** (per [`writing-for-agents`](../writing-for-agents/SKILL.md)): delete any sentence the model already obeys by default. This is where most of the gain and most of the shrink live.
+- **Split** an over-800-token file into a lean `SKILL.md` plus a pointer to disclosed reference — the model attends better to a short top.
+- **Sharpen a leading word** that is too weak to beat the default.
+- **Collapse restatements** into one token.
+
+One change per iteration, so the score delta is attributable.
+
+### 4. Keep iff the score rose
+
+Re-run the eval set, re-judge, append a `results.tsv` row. **Keep the edit only if `mean_score` rose (or held while `tokens` fell).** If it dropped, revert — the file reads better to you, but the evidence says it performs worse, and the evidence wins. Loop until the score plateaus or the file is as small as it can be while holding the score.
+
+Enforced-vs-advisory: the **score-must-rise gate is the enforced part** — `results.tsv` is the evidence, and an edit that didn't raise the score does not stay. *Which* edit to attempt (§3) is advisory judgement. Say which; never imply the loop enforces good taste.
+
+**Done when** the final `results.tsv` shows a run whose score beats the baseline (or matches it at fewer tokens), every kept edit is backed by a row where the score did not fall, and the reverted edits are visible in the log so the next tuner does not retry them.
+
+## What this is not
+
+Not a way to make a skill *sound* better — that is the hollow-output failure Jake names, where polished steps rest on nothing. Substance comes from the eval set, not the prose. Not a one-shot: the value is the loop. And not a replacement for authoring — tune a skill that already does one thing (per idc-skill-authoring); tuning cannot rescue a skill that bundles three concerns.
+
+**No authority without evidence. The edit that raises the score stays; the one that only reads better goes.**

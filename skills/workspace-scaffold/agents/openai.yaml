@@ -1,0 +1,3 @@
+interface:
+  display_name: "Workspace Scaffold"
+  short_description: "Generate an ICM workspace and prove a fresh agent routes through it"

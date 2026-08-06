@@ -1,0 +1,3 @@
+interface:
+  display_name: "Folder Workspace"
+  short_description: "Structure a repo as an ICM workspace routed by a three-layer map"
