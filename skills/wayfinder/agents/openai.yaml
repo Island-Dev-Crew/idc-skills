@@ -1,0 +1,5 @@
+interface:
+  display_name: "Wayfinder"
+  short_description: "Plan work too big for one session as a map of decision tickets"
+policy:
+  allow_implicit_invocation: false

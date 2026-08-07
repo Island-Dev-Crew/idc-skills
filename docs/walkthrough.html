@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>The Forge — a walkthrough of all 33 skills</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0a0a0f;--panel:#12121a;--panel2:#171722;--line:#25252f;--line2:#2f2f3b;
+--garnet:#9b1b30;--rust:#b4541e;--ruby:#d64550;--gold:#c9a227;--jade:#2e7d5b;--teal:#3a9d8c;
+--steel:#7d8794;--ink:#e8e6e3;--dim:#9a97a3;--dim2:#6f6c78}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:
+radial-gradient(1200px 700px at 82% -10%,rgba(155,27,48,.16),transparent 60%),
+radial-gradient(900px 600px at 4% 2%,rgba(201,162,39,.06),transparent 55%),
+radial-gradient(700px 500px at 50% 108%,rgba(46,125,91,.08),transparent 60%),
+var(--bg);color:var(--ink);line-height:1.62;
+font-family:"DM Sans",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+.wrap{max-width:1000px;margin:0 auto;padding:0 20px}
+a{color:inherit}
+/* hero */
+.hero{padding:64px 0 26px;text-align:center}
+.kick{font-family:"JetBrains Mono",monospace;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin-bottom:16px}
+h1{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:clamp(46px,8vw,86px);margin:0 0 8px;letter-spacing:-.02em;line-height:.98}
+h1 .g{color:var(--ruby)}
+.tag{color:var(--dim);font-size:16px;max-width:60ch;margin:0 auto 22px}
+.facet{display:flex;gap:8px;justify-content:center;margin:0 0 26px}
+.facet i{display:block;width:11px;height:11px;transform:rotate(45deg);border:1px solid var(--garnet)}
+.facet i:nth-child(2){border-color:var(--rust)}.facet i:nth-child(3){border-color:var(--gold)}
+.facet i:nth-child(4){border-color:var(--jade)}.facet i:nth-child(5){border-color:var(--steel)}
+/* laws */
+.laws{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:6px 0 8px}
+.law{border:1px solid var(--line);border-radius:14px;padding:18px 20px;background:linear-gradient(180deg,var(--panel2),rgba(18,18,26,.5))}
+.law .l{font-family:"JetBrains Mono",monospace;font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--dim2);margin-bottom:8px}
+.law b{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:22px;display:block;margin-bottom:6px;letter-spacing:-.01em}
+.law.gold{border-color:rgba(201,162,39,.4)} .law.gold b{color:var(--gold)}
+.law.jade{border-color:rgba(58,157,140,.4)} .law.jade b{color:var(--teal)}
+.law p{font-size:13.5px;color:var(--dim);margin:0}
+/* sticky nav */
+.nav{position:sticky;top:0;z-index:20;background:rgba(10,10,15,.82);backdrop-filter:blur(12px);
+border-bottom:1px solid var(--line);margin:30px 0 0}
+.navin{max-width:1000px;margin:0 auto;padding:11px 20px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.pill{font-family:"JetBrains Mono",monospace;font-size:11px;padding:5px 10px;border:1px solid var(--line2);
+border-radius:20px;color:var(--dim);text-decoration:none;transition:.16s;white-space:nowrap}
+.pill:hover{color:var(--ink);border-color:var(--gold)}
+.search{margin-left:auto;flex:1;min-width:160px;max-width:280px}
+.search input{width:100%;background:var(--panel);border:1px solid var(--line2);border-radius:20px;
+color:var(--ink);font-family:"DM Sans";font-size:13px;padding:6px 13px;outline:none}
+.search input:focus{border-color:var(--gold)}
+.search input::placeholder{color:var(--dim2)}
+/* acts */
+.act{padding:48px 0 8px;scroll-margin-top:60px}
+.acthead{display:flex;align-items:baseline;gap:16px;border-bottom:1px solid var(--line);padding-bottom:14px;margin-bottom:6px}
+.actn{font-family:"Instrument Serif",Georgia,serif;font-size:52px;color:var(--garnet);line-height:1;font-style:italic}
+.acttitle{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:30px;letter-spacing:-.01em}
+.actcount{margin-left:auto;font-family:"JetBrains Mono",monospace;font-size:11px;color:var(--dim2);align-self:center}
+.lede{font-size:15.5px;color:#d3cfc9;max-width:74ch;margin:16px 0 24px}
+/* skill row */
+.skill{display:grid;grid-template-columns:220px 1fr;gap:20px;padding:20px 18px;border:1px solid var(--line);
+border-radius:14px;background:var(--panel);margin-bottom:11px;transition:transform .16s cubic-bezier(.16,1,.3,1),border-color .16s,background .16s}
+.skill:hover{transform:translateY(-2px);border-color:var(--line2);background:var(--panel2)}
+.skill .rail{border-right:1px solid var(--line);padding-right:18px}
+.skill .idx{font-family:"JetBrains Mono",monospace;font-size:10.5px;color:var(--dim2);margin-bottom:8px}
+.skill .nm{font-family:"JetBrains Mono",monospace;font-weight:600;font-size:15px;text-decoration:none;color:var(--ink);word-break:break-word}
+.skill .nm:hover{color:var(--gold)}
+.skill .kd{display:inline-block;margin-top:9px;font-family:"JetBrains Mono",monospace;font-size:10px;
+letter-spacing:.03em;padding:2px 8px;border-radius:5px;border:1px solid}
+.k-canon{color:var(--steel);border-color:rgba(125,135,148,.4);background:rgba(125,135,148,.09)}
+.k-crown{color:var(--gold);border-color:rgba(201,162,39,.45);background:rgba(201,162,39,.08)}
+.k-idc{color:#ff8095;border-color:rgba(214,69,80,.42);background:rgba(214,69,80,.08)}
+.k-icm{color:#5fd0bd;border-color:rgba(58,157,140,.42);background:rgba(58,157,140,.09)}
+.k-fus{color:#5fc79a;border-color:rgba(46,125,91,.4);background:rgba(46,125,91,.08)}
+.k-adapt{color:#d98a5b;border-color:rgba(180,84,30,.4);background:rgba(180,84,30,.08)}
+.k-jon{color:var(--gold);border-color:rgba(201,162,39,.35);background:rgba(201,162,39,.06)}
+.skill .body .q{display:block;font-family:"JetBrains Mono",monospace;font-size:9.5px;letter-spacing:.11em;
+text-transform:uppercase;color:var(--dim2);margin:0 0 3px}
+.skill .body .what{font-size:15px;color:var(--ink);margin:0 0 12px}
+.skill .body .when{font-size:13.5px;color:var(--dim);margin:0 0 12px}
+.skill .body .move{font-size:13.5px;color:#cfc9d6;border-left:2px solid var(--gold);padding-left:12px;margin:0}
+.nores{color:var(--dim);font-size:14px;padding:20px;text-align:center;display:none}
+/* closing */
+.close{margin:56px 0 0;border-top:1px solid var(--line);padding-top:30px}
+.close h2{font-family:"Instrument Serif",Georgia,serif;font-weight:400;font-size:26px;margin:0 0 8px}
+.close p{font-size:14.5px;color:var(--dim);max-width:76ch}
+.close b{color:var(--ink)}
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px;margin:18px 0 0}
+.step{background:var(--panel);border:1px solid var(--line);border-radius:11px;padding:12px 14px}
+.step .s{font-family:"JetBrains Mono",monospace;font-size:10px;color:var(--gold);letter-spacing:.1em}
+.step .t{font-size:13.5px;font-weight:600;margin:3px 0 2px}
+.step .d{font-size:11.5px;color:var(--dim)}
+.foot{margin:44px 0 90px;padding-top:18px;border-top:1px solid var(--line);font-size:12.5px;color:var(--dim);text-align:center}
+.sig{font-family:"Instrument Serif",Georgia,serif;font-style:italic;color:var(--steel);margin-top:6px}
+@media(max-width:640px){.laws{grid-template-columns:1fr}.skill{grid-template-columns:1fr}
+.skill .rail{border-right:none;border-bottom:1px solid var(--line);padding-right:0;padding-bottom:12px}
+.acthead{flex-wrap:wrap}.actn{font-size:40px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="hero">
+    <div class="kick">Island Development Crew · a walkthrough</div>
+    <h1>The <span class="g">Forge</span></h1>
+    <div class="tag">Thirty-three agent skills, told as one journey. Each skill is an island; together they take a task from "should we even build this?" all the way to "it is verifiably live." Read it top to bottom, or jump to the act you need.</div>
+    <div class="facet"><i></i><i></i><i></i><i></i><i></i></div>
+    <div class="laws">
+      <div class="law gold"><div class="l">The first law</div><b>No authority without evidence.</b><p>A claim is not done until a check that could have failed proves it. The forge says which rules are enforced and which are advice — and never dresses a guess up as a fact.</p></div>
+      <div class="law jade"><div class="l">The second law</div><b>The repo is the memory.</b><p>State lives in files, not in a chat window. A fresh agent, given only the folder, can pick the work up — because the folder routes it and the tree holds the truth.</p></div>
+    </div>
+  </header>
+</div>
+
+<nav class="nav"><div class="navin" id="nav">
+  <span style="font-family:'JetBrains Mono',monospace;font-size:11px;color:var(--dim2)">acts:</span>
+  <div class="search"><input id="q" type="text" placeholder="filter skills… (try 'evidence' or 'workspace')" autocomplete="off"></div>
+</div></nav>
+
+<div class="wrap" id="acts"></div>
+
+<div class="wrap">
+  <div class="close">
+    <h2>Where the eleven come from</h2>
+    <p>Most of these islands are <b>fused</b> from two public canons — David Ondrej's and Matt Pocock's — and from Jake Van Clief's Interpretable Context Methodology. That is why the source repos feel redundant now: the forge absorbed them. But <b>twelve islands are IDC's own.</b> Five exist nowhere else — <b>lane-claim</b>, <b>finding-register</b>, <b>domain-wire</b>, <b>console-as-code</b>, <b>evidence-packet</b>. Seven more ship nowhere else in this welded form — the ICM cluster, where a public methodology is bound to <i>no authority without evidence</i> so the map becomes a contract, not a convenience. Add the review ceremony inside <b>cross-family-review</b>, run in production with receipts. That weld is the product.</p>
+    <h2 style="margin-top:30px">How a skill becomes official</h2>
+    <div class="steps">
+      <div class="step"><div class="s">01</div><div class="t">Author</div><div class="d">under the idc-skill-authoring canon</div></div>
+      <div class="step"><div class="s">02</div><div class="t">Stage</div><div class="d">here, in Navigata1/idc-skills-forge</div></div>
+      <div class="step"><div class="s">03</div><div class="t">Vet</div><div class="d">live fleet use — evidence, not confidence</div></div>
+      <div class="step"><div class="s">04</div><div class="t">Promote</div><div class="d">to Island-Dev-Crew, with its record</div></div>
+    </div>
+  </div>
+  <div class="foot">
+    IDC Skills · The Forge · release 1.3.1 · 33 islands · staging <code style="font-family:'JetBrains Mono',monospace;font-size:11px">Navigata1/idc-skills-forge</code>
+    <div class="sig">No authority without evidence. The repo is the memory. — Roll Tide 💎</div>
+  </div>
+</div>
+
+<script>
+const ACTS=[
+ {n:"I",title:"Set the ground",lede:"Before an agent does anything, it needs to know where things are. ICM makes the folder the architecture: the agent reads its way to what it needs and becomes the agent that task requires — no swarm of bots, no vector database. The workspace is layer zero. Everything else routes within it.",skills:[
+  ["folder-workspace","🧭 ICM · layer 0","k-icm","The folder is the architecture. A three-layer map — floor plan, rooms, files — sends one agent to exactly what a task needs.","You're organizing a project for an AI, or an agent keeps reading everything and burning tokens.","One agent becomes the agent each task needs, by reading its way there. The map is a contract, not a suggestion."],
+  ["workspace-scaffold","🧭 ICM","k-icm","Generates a working workspace from a short brief — the map, the rooms, the naming rules.","You want to set one up and not hand-build it.","It isn't done when the folders exist. It's done when a fresh agent routes through them correctly."],
+  ["data-source-map","🧭 ICM","k-icm","Wires a live database or drive into the workspace with a short markdown descriptor.","Your data lives in SQL, BigQuery, or a Drive, and you don't want to build a vector store.","Describe the data; don't copy it. Tell the agent where it is and what to ask. Jake's OKF."],
+  ["productionize-opinion","🧭 ICM","k-icm","Turns your transcripts, notes, and decisions into context files that carry your voice.","You want an agent to work the way you think, not the industry average.","It mines you, not the web. A guessed line is marked as a guess — never dressed up as a fact."],
+  ["workspace-audit","🧭 ICM","k-icm","Checks the map still matches the tree, and flags where it drifted.","The workspace grew and the map might be stale.","The map is a claim; the tree is the evidence. Fix the drift — never delete the check to make it pass."],
+ ]},
+ {n:"II",title:"Decide what's worth doing",lede:"The fastest way to fail is to build the wrong thing well. These islands decide what deserves the effort, plan the foggy work, gather the facts, and pin down what you actually mean — before a single line is written.",skills:[
+  ["job-to-be-done","🧭 ICM","k-icm","The gate that asks whether a thing should be built or automated at all.","You're about to build an automation, an agent, or a tool.","Don't build a better drill — ask why they need a hole. 'Don't build it' is a win here, not a failure."],
+  ["wayfinder","⛰ earned","k-adapt","Plans work too big for one session as a map of decision tickets.","A loose, foggy idea is bigger than a single spec.","Chart the way; don't charge the destination. Clear the fog into the frontier, one decision per session."],
+  ["grill","fusion","k-fus","Interviews you hard until the plan is genuinely shared understanding.","You're about to build something under-specified.","Facts are the agent's job to find; decisions are yours. Every settled decision becomes an ADR."],
+  ["research","fusion","k-fus","Investigates a question against primary sources and writes a cited file.","You need the facts a decision is waiting on.","Every claim is sourced or flagged unverified. There is no third state."],
+  ["domain-modeling","⛰ earned","k-adapt","Sharpens the project's shared language — one term, one meaning.","You're pinning down terminology or recording a real architectural decision.","Challenge 'account' until it means one thing. The glossary lives in CONTEXT.md and holds nothing else."],
+  ["to-questionnaire","fusion","k-fus","Turns a decision you can't answer alone into a document for the one person who can.","The answer lives with a stakeholder, not with you.","The inverse of grill. It grills the send — who it goes to, what you need back — not the subject."],
+ ]},
+ {n:"III",title:"Author the instructions",lede:"The agent runs on documents you write. These islands make those documents predictable — the same process every run — and improve them against evidence rather than taste.",skills:[
+  ["writing-for-agents","fusion","k-fus","The universal levers for any document an agent reads — a skill, an AGENTS.md, a rules file.","You're writing or editing anything the agent loads.","The pointer's wording, not its target, decides what the agent reaches. Hunt the no-ops and cut them."],
+  ["idc-skill-authoring","canon","k-canon","The canon for skills — anatomy, invocation, the Codex sidecar, and distributing one skill to every seat.","You're creating, editing, or distributing a skill.","The description routes; the body executes. Get both right, separately. It authors every island here."],
+  ["skill-tune","🧭 ICM","k-icm","Improves a skill against a measured score, not a hunch.","A skill underperforms, or a context file needs tightening.","Keep an edit only when the score rises. A tuned file is usually a shorter file. Band caps, for markdown."],
+ ]},
+ {n:"IV",title:"Build it",lede:"Now the work. Spec to tickets to code, at seams you agreed on first. Prototype the risky idea before you commit to it. Keep parallel agents from colliding. And hand the human the clicks no agent should make.",skills:[
+  ["spec-pipeline","fusion","k-fus","One path from a discussed feature to shipped code — spec, tracer tickets, implement, loop.","You want to plan and build a feature end to end.","Each ticket is a tracer bullet: a thin slice that runs end to end, green, before the next one starts."],
+  ["prototype","⛰ earned","k-adapt","Throwaway code that answers one design question fast.","You're unsure a state model feels right, or what a UI should look like.","Keep the answer, throw the code. A prototype you can run beats a paragraph you have to trust."],
+  ["deep-modules","adapt","k-adapt","Designs a lot of behavior behind a small interface, at a clean seam.","You're shaping a module's interface or deciding where a seam goes.","One adapter is a hypothesis; two adapters is a seam. The interface is the test surface."],
+  ["worktree-fleet","fusion","k-fus","Git worktrees so parallel agents on one machine don't overwrite each other.","You're running more than one agent in a shared repo.","Adopted for drafts, forbidden for evidence. It's the worktree skill that knows when not to use itself."],
+  ["lane-claim","💠 IDC-only","k-idc","Declare-and-halt coordination for agents spread across many machines.","Two machines could wake on the same work.","Claim the lane before you touch it; halt if it's taken. This is the collision worktrees can't reach."],
+  ["wizard","fusion","k-fus","Generates an interactive bash wizard for the steps only a human can do.","You're provisioning infra, setting up credentials, or walking a dashboard.","Work an agent can do, an agent should do. The wizard is for the clicks you'd never hand one."],
+ ]},
+ {n:"V",title:"Prove it",lede:"A claim is not done until evidence a check could have failed proves it. This is the heart of the forge — the crown ceremony, the tight debugging loop, the packet a reviewer recomputes, and the register that never drifts.",skills:[
+  ["cross-family-review","👑 crown","k-crown","A reviewer from a different model family reviews your diff at an exact commit.","You want a real second opinion before you merge.","The author never reviews their own work. The verdict names its seats and voids the moment the head moves."],
+  ["diagnose","adapt","k-adapt","A disciplined loop for hard bugs — the loop before the theory.","Something is broken, throwing, failing, or slow.","Build a check that goes red on this exact bug first. Performance is operation counts, not wall-clock."],
+  ["evidence-packet","💠 IDC-native","k-idc","Bundles a change so a reviewer recomputes every claim instead of trusting you.","You're preparing work for review or merge.","Acceptance rests on evidence the author cannot fake. A weak and a strong author are equally mergeable."],
+  ["finding-register","💠 IDC-only","k-idc","A durable register of findings, each pinned to an exact commit.","You're tracking bugs or verdicts across sessions and machines.","Enumerate at a SHA, never a running count. Sweep for a used id before you allocate a new one."],
+ ]},
+ {n:"VI",title:"Ship it, then compound",lede:"Shipping is not a green push — it's a health check for the exact commit. Then the work compounds: the domain wired the doctrine's way, the build gated by evidence, the session's state carried forward so the next one starts oriented.",skills:[
+  ["transport-complete","fusion","k-fus","Ships a change and watches it until it is verifiably live.","You've given the go-ahead to push or deploy.","Done means a health check passes for the exact commit — not that the push succeeded."],
+  ["domain-wire","💠 IDC-native","k-idc","Wires a domain the IDC way — the three-lane model and automatic graduation.","You're connecting a domain or setting up DNS for a venture.","One canonical per venture; siblings redirect to it. No link appears in code before it resolves."],
+  ["archipelago","Jon's","k-jon","The evidence-gated build protocol — gates that must be able to fail, a tamper-evident ledger.","A build has a definition of done worth proving.","Nothing crosses a gate on claims alone. You can't talk your way to a 5; you evidence your way there."],
+  ["handoff","fusion","k-fus","Compacts a session so a fresh agent resumes with zero memory — plus the wake protocol it runs first.","You're hitting context limits or ending a work session.","Handoff leaves state; pickup reads it and changes nothing until you say go. State, not instructions."],
+  ["console-as-code","💠 IDC-native","k-idc","Assembles the agent's operating prompt from versioned blocks, stamped with a SHA.","Your fleet's prompt drifts between machines.","The prompt is an artifact, not a paste. Edit a block, re-stamp — never hand-edit the lock."],
+ ]},
+ {n:"VII",title:"Under everything",lede:"Two islands hold the whole thing up — one mechanical, one about clarity — and two small utilities earn their keep. The last one, wait-what, is the skill that read this very page for you.",skills:[
+  ["agent-guardrails","fusion","k-fus","Four mechanical layers under the fleet — shell, git, commit, data.","You're hardening a machine or repo against agent accidents.","Prompts ask an agent to behave; guardrails make misbehavior impossible. They sit beneath the prompt."],
+  ["wait-what","user","k-canon","Re-pitches a message that didn't land — plainer, grounded in the project's own words.","An answer went over your head or drifted into model-speak.","The cure for verbose isn't 'be simpler' — it's 'use my language.' This walkthrough was read through it."],
+  ["short","user","k-canon","Compresses the current answer — strips the filler, keeps the substance.","You want it briefer.","Shorter, same meaning. Nothing else."],
+  ["teach","user","k-canon","A stateful teaching workspace — mission-grounded lessons across many sessions.","You want to learn a topic over time.","Knowledge from trusted sources, skills through tight feedback loops. It never trusts its own memory."],
+ ]},
+];
+
+const acts=document.getElementById('acts'), nav=document.getElementById('nav');
+let idx=0;
+ACTS.forEach((a,ai)=>{
+  const id='act'+a.n;
+  const pill=document.createElement('a'); pill.className='pill'; pill.href='#'+id;
+  pill.textContent=a.n+' · '+a.title; nav.insertBefore(pill, nav.querySelector('.search'));
+  const sec=document.createElement('section'); sec.className='act'; sec.id=id;
+  sec.innerHTML=`<div class="acthead"><div class="actn">${a.n}</div><div class="acttitle">${a.title}</div><div class="actcount">${a.skills.length} skills</div></div><div class="lede">${a.lede}</div>`;
+  a.skills.forEach(s=>{
+    idx++;
+    const [nm,kind,kc,what,when,move]=s;
+    const el=document.createElement('div'); el.className='skill';
+    el.dataset.blob=(nm+' '+what+' '+when+' '+move+' '+kind).toLowerCase();
+    el.innerHTML=`<div class="rail"><div class="idx">${String(idx).padStart(2,'0')} / 33</div>
+      <a class="nm" href="../skills/${nm}/SKILL.md">${nm}</a><div><span class="kd ${kc}">${kind}</span></div></div>
+      <div class="body"><span class="q">what it is</span><p class="what">${what}</p>
+      <span class="q">when you reach for it</span><p class="when">${when}</p>
+      <span class="q">the move</span><p class="move">${move}</p></div>`;
+    sec.appendChild(el);
+  });
+  acts.appendChild(sec);
+});
+const nores=document.createElement('div'); nores.className='nores'; nores.textContent='No island matches that. Try a shorter word.';
+acts.appendChild(nores);
+
+const q=document.getElementById('q');
+q.addEventListener('input',()=>{
+  const t=q.value.trim().toLowerCase(); let shown=0;
+  document.querySelectorAll('.skill').forEach(el=>{
+    const hit=!t||el.dataset.blob.includes(t); el.style.display=hit?'':'none'; if(hit)shown++;
+  });
+  document.querySelectorAll('.act').forEach(sec=>{
+    const any=[...sec.querySelectorAll('.skill')].some(e=>e.style.display!=='none');
+    sec.style.display=any?'':'none';
+  });
+  nores.style.display=shown?'none':'block';
+});
+</script>
+</body>
+</html>

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "release": "1.3.0",
+  "release": "1.3.1",
   "name": "idc-skills-forge",
   "bundleName": "idc-skills-forge",
   "staging": "Navigata1/idc-skills-forge",
@@ -13,14 +13,17 @@
     "cross-family-review",
     "worktree-fleet",
     "grill",
+    "wayfinder",
     "agent-guardrails",
     "handoff",
     "lane-claim",
     "transport-complete",
     "spec-pipeline",
+    "prototype",
     "research",
     "finding-register",
     "deep-modules",
+    "domain-modeling",
     "diagnose",
     "archipelago",
     "domain-wire",
@@ -29,6 +32,7 @@
     "job-to-be-done",
     "folder-workspace",
     "workspace-scaffold",
+    "data-source-map",
     "productionize-opinion",
     "skill-tune",
     "workspace-audit",
@@ -111,6 +115,20 @@
       ]
     },
     {
+      "name": "wayfinder",
+      "path": "wayfinder",
+      "invocation": "user",
+      "provenance": "earned add — Pocock wayfinder (multi-session decision-ticket planning)",
+      "summary": "Plan a chunk of work too big for one agent session — chart it as a shared map of decision tickets on the issue tracker, then resolve them one at a time until the way to the destination is clear. Plans across sessions by resolving decisions, not slices of a build.",
+      "triggers": [
+        "wayfinder",
+        "help me plan this big thing",
+        "chart this",
+        "I don't know where to start",
+        "too big for one session"
+      ]
+    },
+    {
       "name": "agent-guardrails",
       "path": "agent-guardrails",
       "invocation": "model",
@@ -182,6 +200,21 @@
       ]
     },
     {
+      "name": "prototype",
+      "path": "prototype",
+      "invocation": "model",
+      "provenance": "earned add — Pocock prototype v1.2 (the prototype is a primary source)",
+      "summary": "Build a throwaway prototype to answer one design question — a single shareable HTML file for a logic/state question, or several switchable UI variants for a look question — then capture the answer and discard the code.",
+      "triggers": [
+        "prototype",
+        "mock this up",
+        "spike it",
+        "let's see it",
+        "does this state model feel right",
+        "what should this look like"
+      ]
+    },
+    {
       "name": "research",
       "path": "research",
       "invocation": "model",
@@ -219,6 +252,20 @@
         "make this testable",
         "enforce package boundaries",
         "deep module"
+      ]
+    },
+    {
+      "name": "domain-modeling",
+      "path": "domain-modeling",
+      "invocation": "model",
+      "provenance": "earned add — Pocock domain-modeling (ubiquitous language, glossary, ADRs)",
+      "summary": "Actively build and sharpen a project's domain model — challenge terms, invent edge-case scenarios, and write the glossary and decisions down the moment they crystallise. The active discipline that changes the model, distinct from reading CONTEXT.md.",
+      "triggers": [
+        "domain model",
+        "ubiquitous language",
+        "pin down terminology",
+        "record an architectural decision",
+        "glossary"
       ]
     },
     {
@@ -331,6 +378,21 @@
         "scaffold an ICM",
         "workspace creator",
         "convert this folder into a workspace"
+      ]
+    },
+    {
+      "name": "data-source-map",
+      "path": "data-source-map",
+      "invocation": "model",
+      "provenance": "earned add — Jake Van Clief's OKF (Open Knowledge Format), welded to the evidence discipline",
+      "summary": "Wire an external data source into a workspace with a markdown descriptor — describe where a SQL/BigQuery/Drive/Oracle store lives, what it holds, and what to ask it, so an agent queries it on demand instead of ingesting it into a vector store. The descriptor is a map to live data, not a copy.",
+      "triggers": [
+        "OKF",
+        "open knowledge format",
+        "connect a database",
+        "data source",
+        "big query",
+        "describe my data for the AI"
       ]
     },
     {

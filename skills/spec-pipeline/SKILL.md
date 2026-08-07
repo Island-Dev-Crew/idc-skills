@@ -11,7 +11,7 @@ Two leading words carry the pipeline: a **tracer bullet** (a thin vertical slice
 
 ## Stage 1 — Spec (synthesis, not interview)
 
-Take the current conversation and codebase understanding and produce a spec (a PRD). **Do not interview** — synthesize what you already know; if the understanding isn't there yet, run the `grill` island first, not this one.
+Take the current conversation and codebase understanding and produce a spec (a PRD). **Do not interview** — synthesize what you already know; if the understanding isn't there yet, run the `grill` island first, not this one. If the effort is *too big for a single spec* — foggy, spanning many sessions — chart it with [`wayfinder`](../wayfinder/SKILL.md) first and let each resolved decision feed a spec here. (Stage 2's ticket **frontier** is the tracer-bullet build analogue of wayfinder's decision-frontier — same leading word, one referent for build slices, the other for decisions.)
 
 1. Explore the repo. Use the project's domain glossary throughout; respect ADRs in the area you touch.
 2. Sketch the **seams** at which you'll test the feature. Prefer existing seams; use the highest seam possible; the fewer new seams, the better — ideal is one. **Confirm the seams with the user** before writing the spec.

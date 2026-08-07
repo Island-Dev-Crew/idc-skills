@@ -66,12 +66,12 @@ border:1px solid var(--line);border-radius:13px;padding:15px 16px;transition:tra
   <div class="law"><b>No authority without evidence.</b> A claim is not done until a captured piece of evidence — from a check that could have failed — proves it. Enforced-vs-advisory is stated, never implied. The skills demonstrate their own discipline; that is the product.</div>
 
   <h2><span class="n">01</span>Walk the chain</h2>
-  <div class="hint">Twenty-nine islands, in build order — the order is the bootstrap. Islands 19–24 are the ICM cluster: the folder-as-workspace architecture the whole chain routes within.</div>
+  <div class="hint">Thirty-three islands, in build order — the order is the bootstrap. Islands 22–28 are the ICM cluster: the folder-as-workspace architecture the whole chain routes within.</div>
   <div class="chain" id="chain"></div>
 
   <div class="moat">
     <h3>The moat, stated plainly</h3>
-    Eleven islands are IDC's own. Five exist nowhere else — the IDC-origin islands (<b>lane-claim</b>, <b>finding-register</b>, <b>domain-wire</b>, <b>console-as-code</b>, <b>evidence-packet</b>). Six more ship nowhere else <i>in this welded form</i> — the ICM cluster (<b>job-to-be-done</b>, <b>folder-workspace</b>, <b>workspace-scaffold</b>, <b>productionize-opinion</b>, <b>skill-tune</b>, <b>workspace-audit</b>), where Jake Van Clief's public methodology is fused with the forge's evidence law. Add the ceremony layer inside <b>cross-family-review</b>. Anyone can fuse public repos. Only IDC ships the review ceremony with receipts, the doctrine that wires a 73-deed estate, and ICM welded to <i>no authority without evidence</i> — so the map is a routing contract, not a convenience.
+    Twelve islands are IDC's own. Five exist nowhere else — the IDC-origin islands (<b>lane-claim</b>, <b>finding-register</b>, <b>domain-wire</b>, <b>console-as-code</b>, <b>evidence-packet</b>). Seven more ship nowhere else <i>in this welded form</i> — the ICM cluster (<b>job-to-be-done</b>, <b>folder-workspace</b>, <b>workspace-scaffold</b>, <b>data-source-map</b>, <b>productionize-opinion</b>, <b>skill-tune</b>, <b>workspace-audit</b>), where Jake Van Clief's public methodology is fused with the forge's evidence law. Add the ceremony layer inside <b>cross-family-review</b>. Anyone can fuse public repos. Only IDC ships the review ceremony with receipts, the doctrine that wires a 73-deed estate, and ICM welded to <i>no authority without evidence</i> — so the map is a routing contract, not a convenience.
   </div>
 
   <h2><span class="n">02</span>Staging to official</h2>
@@ -84,7 +84,7 @@ border:1px solid var(--line);border-radius:13px;padding:15px 16px;transition:tra
   </div>
 
   <div class="foot">
-    IDC Skills · The Forge · release 1.3.0 · staging <code>Navigata1/idc-skills-forge</code> → validated <code>Island-Dev-Crew</code> · pairs with IDC-SKILLS-FUSION-REPORT-v1
+    IDC Skills · The Forge · release 1.3.1 · staging <code>Navigata1/idc-skills-forge</code> → validated <code>Island-Dev-Crew</code> · pairs with IDC-SKILLS-FUSION-REPORT-v1
     <div class="sig">No authority without evidence. The skills demonstrate their own discipline. — Roll Tide 💎</div>
   </div>
 </div>
@@ -95,14 +95,17 @@ const islands=[
  ["cross-family-review","👑 crown","k-crown","A different family reviews at an exact head; the verdict names its seats and voids on move.","crown"],
  ["worktree-fleet","fusion","k-fusion","Worktrees for drafts, forbidden for evidence. Knows when not to use itself."],
  ["grill","fusion · v1.2","k-fusion","Relentless interview — ambush · drill · batch — rounds with emoji-scan, emitting ADRs."],
+ ["wayfinder","adapt · earned","k-adapt","Plan work too big for one session as a map of decision tickets — resolve decisions one at a time until the way is clear."],
  ["agent-guardrails","fusion","k-fusion","Four mechanical layers: shell · git · commit · data."],
  ["handoff","fusion","k-fusion","State-based handoff + the wake protocol: re-read the tree before trusting the summary."],
  ["lane-claim","💠 IDC-only","k-idc","Declare-and-halt across machines — the collisions worktrees can't touch.","idc"],
  ["transport-complete","fusion","k-fusion","Pushed-and-verified-live or not done — a health check for the exact SHA."],
  ["spec-pipeline","fusion","k-fusion","Spec → tracer tickets → implement at seams → persistent goal loop."],
+ ["prototype","adapt · earned","k-adapt","Throwaway code that answers one design question — a shareable HTML demo or switchable UI variants. The prototype is a primary source."],
  ["research","fusion","k-fusion","Primary-source investigation; every claim sourced or flagged unverified."],
  ["finding-register","💠 IDC-only","k-idc","Findings enumerated at a SHA, provenance both ways, id swept before allocation.","idc"],
  ["deep-modules","adapt","k-adapt","Leverage behind a small interface, plus the rules that make entry points the only way in."],
+ ["domain-modeling","adapt · earned","k-adapt","Actively sharpen the ubiquitous language — challenge terms, invent edge cases, write the glossary as it crystallises."],
  ["diagnose","adapt","k-adapt","The loop before the theory; performance by operation counts, not wall-clock."],
  ["archipelago","Jon's","k-jon","The evidence-gated build protocol — gates that must be able to fail, band caps you can't talk past."],
  ["domain-wire","💠 IDC-native","k-idc","Wire a domain the IDC way — three-lane model, one canonical, siblings 308, graduation.","idc"],
@@ -111,6 +114,7 @@ const islands=[
  ["job-to-be-done","🧭 ICM-native","k-idc","Should this be built or automated at all? The pre-build triage. 90/10, augment don't just automate.","idc"],
  ["folder-workspace","🧭 ICM-native","k-idc","Folders as agent architecture, routed by a three-layer map. One agent becomes the agent each task needs. Layer 0.","idc"],
  ["workspace-scaffold","🧭 ICM-native","k-idc","Generate an ICM workspace from a brief — then prove a fresh agent routes through it.","idc"],
+ ["data-source-map","🧭 ICM-native","k-idc","Wire an external data source (SQL, BigQuery, Drive) via a markdown descriptor — a map to live data, not a copy. Jake's OKF.","idc"],
  ["productionize-opinion","🧭 ICM-native","k-idc","Distill your transcripts and decisions into durable context that carries your voice. Mines you, not the web.","idc"],
  ["skill-tune","🧭 ICM-native","k-idc","Empirically improve a skill — keep an edit only when a measured score rises. Band caps, for markdown.","idc"],
  ["workspace-audit","🧭 ICM-native","k-idc","The map is a claim, the tree is the evidence — catch drift between them.","idc"],

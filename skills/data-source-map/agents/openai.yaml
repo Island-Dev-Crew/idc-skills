@@ -1,0 +1,3 @@
+interface:
+  display_name: "Data Source Map"
+  short_description: "Wire an external data source into a workspace via a markdown descriptor (OKF)"

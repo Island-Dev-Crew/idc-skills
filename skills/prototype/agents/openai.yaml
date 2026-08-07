@@ -1,0 +1,3 @@
+interface:
+  display_name: "Prototype"
+  short_description: "Throwaway code that answers one design question; the prototype is a primary source"
