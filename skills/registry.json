@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "release": "1.7.0",
+  "release": "2.0.0",
   "name": "idc-skills-forge",
   "bundleName": "idc-skills-forge",
   "staging": "Navigata1/idc-skills-forge",
@@ -51,7 +51,13 @@
     "delegated-authority-prompt",
     "model-routing",
     "batch-sample-curate",
-    "self-contained-ship"
+    "self-contained-ship",
+    "computer-use-smoke",
+    "skill-supply-chain-review",
+    "ai-humanizer",
+    "exposure-audit",
+    "skill-duel",
+    "connected-fix-prompt"
   ],
   "skills": [
     {
@@ -658,6 +664,84 @@
         "does it phone home",
         "zero-egress gate"
       ]
+    },
+    {
+      "name": "computer-use-smoke",
+      "invocation": "model",
+      "provenance": "sweep-find (NBB-canonical) — behavioral UI runtime evidence, backend-abstracted",
+      "summary": "Drive a real UI through a scripted smoke path and assert observable outcomes (Playwright/browser-use/computer-use) — the runtime primitive that produces the band-4 evidence archipelago demands but nothing else makes. A verdict is an assertion; a screenshot is triage.",
+      "triggers": [
+        "smoke test the UI",
+        "does it work for a real user",
+        "runtime proof it works",
+        "verify the build behaviorally"
+      ],
+      "path": "computer-use-smoke"
+    },
+    {
+      "name": "skill-supply-chain-review",
+      "invocation": "model",
+      "provenance": "sweep-find (NBB-canonical) — third-party skill adoption gate",
+      "summary": "Audit a third-party agent skill before adopting it — provenance, hidden/implicit invocation, dangerous instructions, prompt-injection surface, unresolved pointers — and emit a trust verdict bound to a pinned version. No authority without evidence, applied to the supply chain.",
+      "triggers": [
+        "review this skill before I adopt it",
+        "is this skill safe to use",
+        "audit a third-party skill",
+        "vendor this skill"
+      ],
+      "path": "skill-supply-chain-review"
+    },
+    {
+      "name": "ai-humanizer",
+      "invocation": "model",
+      "provenance": "sweep-find (clawd) — AI-slop detector/scorer with a bundled analyzer",
+      "summary": "Detect and SCORE AI-writing tells in prose — a bundled statistical + pattern scorer emitting a deterministic 0-100 AI-likeness number — so a de-slop pass yields byte-verifiable before/after evidence (the score dropped), not a claim. The prose cluster's failing check.",
+      "triggers": [
+        "AI slop",
+        "does this sound like AI",
+        "humanize this",
+        "AI-likeness score"
+      ],
+      "path": "ai-humanizer"
+    },
+    {
+      "name": "exposure-audit",
+      "invocation": "model",
+      "provenance": "adapt: David Ondrej cyber-audit, de-personalized — read-only exposure audit",
+      "summary": "Read-only exposure audit of any target machine or repo against a NAMED advisory (CVE/breach/malicious-package/supply-chain) — enumerate what is installed and reachable, decide affected-or-not on captured evidence, write a structured report. Read-only; never remediate.",
+      "triggers": [
+        "are we affected by",
+        "scan for this CVE",
+        "check if vulnerable to",
+        "exposure audit"
+      ],
+      "path": "exposure-audit"
+    },
+    {
+      "name": "skill-duel",
+      "invocation": "user",
+      "provenance": "IDC-native — the 50-cap displacement governor",
+      "summary": "Run an incumbent skill against a challenger through ONE identical gauntlet (same executor cases, same defect-tied critic, same seat) and return a swap/no-swap verdict welded to the scores — a challenger displaces only by strictly beating the incumbent; a tie keeps the seat. The mechanical governor of the capped pack.",
+      "triggers": [
+        "skill duel",
+        "does this beat the incumbent",
+        "challenge this skill",
+        "should we swap this skill"
+      ],
+      "path": "skill-duel"
+    },
+    {
+      "name": "connected-fix-prompt",
+      "invocation": "user",
+      "provenance": "design-video derived — findings to a dependency-ordered fix mandate",
+      "summary": "Compose ONE dependency-ordered refinement prompt from a set of findings — rank N interdependent defects root-cause-before-symptom and by impact, each carrying recomputable evidence, so a fixer clears them in a single correct-order pass instead of thrashing. The composer between finding-register and the fixer.",
+      "triggers": [
+        "compose a fix prompt",
+        "order these fixes",
+        "turn these findings into a fix mandate",
+        "batch these findings"
+      ],
+      "path": "connected-fix-prompt"
     }
   ]
 }

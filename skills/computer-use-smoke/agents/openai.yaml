@@ -1,0 +1,3 @@
+interface:
+  display_name: "Computer-Use Smoke"
+  short_description: "Drive a real UI and assert observable state - a verdict, not a screenshot"

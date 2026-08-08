@@ -1,0 +1,3 @@
+interface:
+  display_name: "Exposure Audit"
+  short_description: "Read-only audit of a target against a named advisory; verdict on captured evidence"

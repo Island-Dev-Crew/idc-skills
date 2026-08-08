@@ -4,13 +4,13 @@
 
 > *"In the multitude of counsellors there is safety."* — Proverbs 11:14
 
-This is the **staging forge** (`Navigata1/idc-skills-forge`, release 1.7.0). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
+This is the **staging forge** (`Navigata1/idc-skills-forge`, release 2.0.0). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
 
 **Dual-harness:** every island ships an `agents/openai.yaml` sidecar, so the set works in Claude Code, Pi, Hermes **and** Codex from one source. User-invoked islands carry `policy.allow_implicit_invocation: false` — the Codex analog of `disable-model-invocation`.
 
 ---
 
-## The chain — forty-four islands, in build order
+## The chain — fifty islands, in build order
 
 The order is the bootstrap: island 1 authors the rest and rests on island 2 (the universal levers); the crown ships with a week of receipts; the ICM cluster (22–28) is the workspace architecture the whole chain routes within; twelve islands are IDC's own.
 
@@ -60,6 +60,12 @@ The order is the bootstrap: island 1 authors the rest and rests on island 2 (the
 | 42 | [`delegated-authority-prompt`](skills/delegated-authority-prompt/SKILL.md) | ⛰ earned | The inverse of grill — front-load the answers and grant decision rights, bounded by stop-condition tripwires. |
 | 43 | [`batch-sample-curate`](skills/batch-sample-curate/SKILL.md) | ⛰ earned | Draw N candidates from a stochastic generator and curate to the best on a scored keep/cut ledger. |
 | 44 | [`self-contained-ship`](skills/self-contained-ship/SKILL.md) | ⛰ earned | Prove an artifact ships with zero external requests — every asset inlined, a sealed-load runtime rung that phones home to nobody. |
+| 45 | [`computer-use-smoke`](skills/computer-use-smoke/SKILL.md) | ⛰ earned | Drive a real UI through a smoke path and assert outcomes — the band-4 runtime evidence archipelago demands. |
+| 46 | [`skill-supply-chain-review`](skills/skill-supply-chain-review/SKILL.md) | ⛰ earned | Audit a third-party skill before you adopt it — the adoption gate a fusion-built forge needs. |
+| 47 | [`ai-humanizer`](skills/ai-humanizer/SKILL.md) | ⛰ earned | Detect and score AI-writing tells (0-100) with a bundled scorer — a de-slop pass with byte-verifiable before/after. |
+| 48 | [`exposure-audit`](skills/exposure-audit/SKILL.md) | adapt · earned | Read-only exposure audit of a machine or repo against a named CVE/advisory → a structured report. |
+| 49 | [`skill-duel`](skills/skill-duel/SKILL.md) | 💠 IDC-native | Run an incumbent vs a challenger on identical gauntlet cases — swap only on a strict win. The 50-cap governor. |
+| 50 | [`connected-fix-prompt`](skills/connected-fix-prompt/SKILL.md) | fusion · earned | Compose N findings into one dependency-ordered fix mandate — root before symptom, single correct-order pass. |
 
 ## The ICM cluster — folder as workspace
 

@@ -1,0 +1,5 @@
+interface:
+  display_name: "Skill Duel"
+  short_description: "Incumbent vs challenger through one identical gauntlet; incumbent wins ties"
+policy:
+  allow_implicit_invocation: false

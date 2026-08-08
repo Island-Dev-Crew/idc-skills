@@ -66,7 +66,7 @@ border:1px solid var(--line);border-radius:13px;padding:15px 16px;transition:tra
   <div class="law"><b>No authority without evidence.</b> A claim is not done until a captured piece of evidence — from a check that could have failed — proves it. Enforced-vs-advisory is stated, never implied. The skills demonstrate their own discipline; that is the product.</div>
 
   <h2><span class="n">01</span>Walk the chain</h2>
-  <div class="hint">Forty-four islands, in build order — the order is the bootstrap. Islands 22–28 are the ICM cluster: the folder-as-workspace architecture the whole chain routes within.</div>
+  <div class="hint">Fifty islands, in build order — the order is the bootstrap. Islands 22–28 are the ICM cluster: the folder-as-workspace architecture the whole chain routes within.</div>
   <div class="chain" id="chain"></div>
 
   <div class="moat">
@@ -84,7 +84,7 @@ border:1px solid var(--line);border-radius:13px;padding:15px 16px;transition:tra
   </div>
 
   <div class="foot">
-    IDC Skills · The Forge · release 1.7.0 · staging <code>Navigata1/idc-skills-forge</code> → promoted <code>Island-Dev-Crew/idc-skills</code> · pairs with IDC-SKILLS-FUSION-REPORT-v1
+    IDC Skills · The Forge · release 2.0.0 · staging <code>Navigata1/idc-skills-forge</code> → promoted <code>Island-Dev-Crew/idc-skills</code> · pairs with IDC-SKILLS-FUSION-REPORT-v1
     <div class="sig">No authority without evidence. The skills demonstrate their own discipline. — Roll Tide 💎</div>
   </div>
 </div>
@@ -133,7 +133,13 @@ const islands=[
  ["model-routing","⛰ earned","k-adapt","Route a task to the cheapest model or tool that clears its cognitive-demand floor (vision / deep-reasoning / cheap-bulk). The only island that picks the model a step runs on."],
  ["delegated-authority-prompt","⛰ earned","k-adapt","The deliberate inverse of grill — front-load context and grant decision rights, bounded by explicit stop-condition tripwires, so an agent runs far unattended."],
  ["batch-sample-curate","⛰ earned","k-adapt","Draw N candidates from a probabilistic generator and curate to the best on a scored keep/cut ledger. Get-many-then-select, not refine-one-to-a-bar."],
- ["self-contained-ship","⛰ earned","k-adapt","Prove a deliverable ships with zero external requests — every asset inlined, a sealed-load runtime rung that phones home to nobody. The containment gate, distinct from transport-complete\u2019s liveness."]
+ ["self-contained-ship","⛰ earned","k-adapt","Prove a deliverable ships with zero external requests — every asset inlined, a sealed-load runtime rung that phones home to nobody. The containment gate, distinct from transport-complete's liveness."],
+ ["computer-use-smoke","⛰ earned","k-adapt","Drive a real UI through a scripted smoke path and assert observable outcomes (Playwright/browser-use/computer-use) — the band-4 runtime evidence primitive archipelago demands but nothing else makes."],
+ ["skill-supply-chain-review","⛰ earned","k-adapt","Audit a third-party skill before adopting it — provenance, hidden invocation, dangerous instructions, injection surface — a trust verdict bound to a pinned version."],
+ ["ai-humanizer","⛰ earned","k-adapt","Detect and score AI-writing tells with a bundled 0-100 scorer, so a de-slop pass yields byte-verifiable before/after evidence, not a claim."],
+ ["exposure-audit","adapt · earned","k-adapt","Read-only exposure audit of any machine or repo against a named CVE/breach/advisory — decide affected-or-not on captured evidence, write a report. Never remediate."],
+ ["skill-duel","💠 IDC-native","k-idc","Run an incumbent vs a challenger through one identical gauntlet — swap only on a strict win, a tie keeps the seat. The mechanical governor of the capped 50."],
+ ["connected-fix-prompt","fusion · earned","k-fusion","Compose N interdependent findings into one dependency-ordered fix mandate — root before symptom, each carrying its evidence, cleared in one correct-order pass."]
 ];
 const c=document.getElementById("chain");
 islands.forEach((s,i)=>{

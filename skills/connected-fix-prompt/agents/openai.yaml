@@ -1,0 +1,5 @@
+interface:
+  display_name: "Connected Fix Prompt"
+  short_description: "Order a set of findings root-before-symptom into one fixer mandate"
+policy:
+  allow_implicit_invocation: false
