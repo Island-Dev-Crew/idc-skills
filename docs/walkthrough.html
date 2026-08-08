@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Forge — a walkthrough of all 33 skills</title>
+<title>The Forge — a walkthrough of all 34 skills</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -103,7 +103,7 @@ text-transform:uppercase;color:var(--dim2);margin:0 0 3px}
   <header class="hero">
     <div class="kick">Island Development Crew · a walkthrough</div>
     <h1>The <span class="g">Forge</span></h1>
-    <div class="tag">Thirty-three agent skills, told as one journey. Each skill is an island; together they take a task from "should we even build this?" all the way to "it is verifiably live." Read it top to bottom, or jump to the act you need.</div>
+    <div class="tag">Thirty-four agent skills, told as one journey. Each skill is an island; together they take a task from "should we even build this?" all the way to "it is verifiably live." Read it top to bottom, or jump to the act you need.</div>
     <div class="facet"><i></i><i></i><i></i><i></i><i></i></div>
     <div class="laws">
       <div class="law gold"><div class="l">The first law</div><b>No authority without evidence.</b><p>A claim is not done until a check that could have failed proves it. The forge says which rules are enforced and which are advice — and never dresses a guess up as a fact.</p></div>
@@ -132,7 +132,7 @@ text-transform:uppercase;color:var(--dim2);margin:0 0 3px}
     </div>
   </div>
   <div class="foot">
-    IDC Skills · The Forge · release 1.3.1 · 33 islands · staging <code style="font-family:'JetBrains Mono',monospace;font-size:11px">Navigata1/idc-skills-forge</code>
+    IDC Skills · The Forge · release 1.4.0 · 34 islands · staging <code style="font-family:'JetBrains Mono',monospace;font-size:11px">Navigata1/idc-skills-forge</code>
     <div class="sig">No authority without evidence. The repo is the memory. — Roll Tide 💎</div>
   </div>
 </div>
@@ -162,6 +162,7 @@ const ACTS=[
  {n:"IV",title:"Build it",lede:"Now the work. Spec to tickets to code, at seams you agreed on first. Prototype the risky idea before you commit to it. Keep parallel agents from colliding. And hand the human the clicks no agent should make.",skills:[
   ["spec-pipeline","fusion","k-fus","One path from a discussed feature to shipped code — spec, tracer tickets, implement, loop.","You want to plan and build a feature end to end.","Each ticket is a tracer bullet: a thin slice that runs end to end, green, before the next one starts."],
   ["prototype","⛰ earned","k-adapt","Throwaway code that answers one design question fast.","You're unsure a state model feels right, or what a UI should look like.","Keep the answer, throw the code. A prototype you can run beats a paragraph you have to trust."],
+  ["gauntlet-loop","fusion · earned","k-fus","Fans out builder sub-agents, each shadowed by a blind critic, looping against a falsifiable bar.","You have an MVP or brief and want to warp-drive it to a wow-grade build — a game, a 3D world, a front-end.","Don't start cold, or it polishes the wrong thing. You can't wow past a bar the critic can't fail you on. Graduate to archipelago for a real gate."],
   ["deep-modules","adapt","k-adapt","Designs a lot of behavior behind a small interface, at a clean seam.","You're shaping a module's interface or deciding where a seam goes.","One adapter is a hypothesis; two adapters is a seam. The interface is the test surface."],
   ["worktree-fleet","fusion","k-fus","Git worktrees so parallel agents on one machine don't overwrite each other.","You're running more than one agent in a shared repo.","Adopted for drafts, forbidden for evidence. It's the worktree skill that knows when not to use itself."],
   ["lane-claim","💠 IDC-only","k-idc","Declare-and-halt coordination for agents spread across many machines.","Two machines could wake on the same work.","Claim the lane before you touch it; halt if it's taken. This is the collision worktrees can't reach."],
@@ -201,7 +202,7 @@ ACTS.forEach((a,ai)=>{
     const [nm,kind,kc,what,when,move]=s;
     const el=document.createElement('div'); el.className='skill';
     el.dataset.blob=(nm+' '+what+' '+when+' '+move+' '+kind).toLowerCase();
-    el.innerHTML=`<div class="rail"><div class="idx">${String(idx).padStart(2,'0')} / 33</div>
+    el.innerHTML=`<div class="rail"><div class="idx">${String(idx).padStart(2,'0')} / 34</div>
       <a class="nm" href="../skills/${nm}/SKILL.md">${nm}</a><div><span class="kd ${kc}">${kind}</span></div></div>
       <div class="body"><span class="q">what it is</span><p class="what">${what}</p>
       <span class="q">when you reach for it</span><p class="when">${when}</p>

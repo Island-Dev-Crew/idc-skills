@@ -1,0 +1,5 @@
+interface:
+  display_name: "Gauntlet Loop"
+  short_description: "Fan out builders + blind critics against a falsifiable bar"
+policy:
+  allow_implicit_invocation: false

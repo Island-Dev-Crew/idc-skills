@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Distribute every island across the four fleet skill folders and validate frontmatter.
-# Canonical: ~/.agents/skills/  (Claude + Pi are symlinks → auto-covered)
+# Canonical: ~/.agents/skills/  (Claude + Pi are symlinks → auto-covered when symlinked,
+#   or independent copies → distributed to directly; the script detects which).
 # Independent copy: ~/.hermes/skills/
 # See skills/idc-skill-authoring/SKILL.md §8 for the layout and traps.
 set -euo pipefail
@@ -23,14 +24,26 @@ done
 
 echo "== distribute =="
 mkdir -p "$AGENTS" "$HERMES"
+canonical_real="$(cd "$AGENTS" && pwd -P)"
+# Canonical + Hermes always get written. Claude/Pi are auto-covered ONLY when they are
+# symlinks resolving into the canonical tree; when they are independent directories
+# (a real setup on some machines) they must be distributed to directly, or they go stale.
+targets=("$AGENTS" "$HERMES")
+for s in "$HOME/.claude/skills" "$HOME/.pi/agent/skills"; do
+  [ -e "$s" ] || continue
+  if [ "$(cd "$s" && pwd -P)" = "$canonical_real" ]; then
+    echo "  $s → symlinked to canonical, auto-covered"
+  else
+    targets+=("$s"); echo "  $s → independent copy, distributing directly"
+  fi
+done
 for skill in "$SKILLS_DIR"/*/; do
   name="$(basename "$skill")"
-  rsync -a --delete "$skill" "$AGENTS/$name/"
-  rsync -a --delete "$skill" "$HERMES/$name/"
+  for t in "${targets[@]}"; do rsync -a --delete "$skill" "$t/$name/"; done
   echo "  installed $name"
 done
 
-echo "== verify byte counts across the fleet (Claude/Pi symlinks must match) =="
+echo "== verify byte counts across the fleet (every seat must match, symlinked or copied) =="
 for name in "$SKILLS_DIR"/*/; do
   n="$(basename "$name")"
   for p in "$AGENTS" "$HOME/.claude/skills" "$HOME/.pi/agent/skills" "$HERMES"; do

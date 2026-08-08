@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "release": "1.3.1",
+  "release": "1.4.0",
   "name": "idc-skills-forge",
   "bundleName": "idc-skills-forge",
   "staging": "Navigata1/idc-skills-forge",
@@ -40,7 +40,8 @@
     "to-questionnaire",
     "wait-what",
     "short",
-    "teach"
+    "teach",
+    "gauntlet-loop"
   ],
   "skills": [
     {
@@ -500,6 +501,19 @@
         "teach me",
         "help me learn",
         "study this topic over sessions"
+      ]
+    },
+    {
+      "name": "gauntlet-loop",
+      "path": "gauntlet-loop",
+      "invocation": "user",
+      "provenance": "fusion: Matt Schumer's gauntlet loop (attributed) + Anthropic evaluator-optimizer + IDC falsifiable-bar & no-cold-start",
+      "summary": "Convert any task into a fan-out of builder sub-agents each shadowed by a blind critic, looped against a falsifiable bar. The lightweight cousin of archipelago — wow-grade prototypes fast; graduate to archipelago when the bar must be a real gate. Ships build-prompt.sh, the deterministic task-to-prompt converter.",
+      "triggers": [
+        "gauntlet loop",
+        "gauntlet-loop",
+        "fan out sub-agents to build X",
+        "loop until it's wowed"
       ]
     }
   ]

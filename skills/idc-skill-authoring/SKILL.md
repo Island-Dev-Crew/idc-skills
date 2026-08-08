@@ -79,22 +79,24 @@ Author once at the canonical location; symlinks and one copy cover the rest.
 | Seat | Skills folder | Notes |
 |---|---|---|
 | Codex / OpenAI | `~/.agents/skills/` | **canonical** — author here first (reads the `agents/openai.yaml`) |
-| Claude Code | `~/.claude/skills/` | symlink → `~/.agents/skills/` — auto-covered |
-| Pi | `~/.pi/agent/skills/` | symlink → `~/.agents/skills/` — auto-covered (path is `/agent/` nested) |
-| Hermes | `~/.hermes/skills/` | independent copy — the only manual one |
+| Claude Code | `~/.claude/skills/` | symlink → `~/.agents/skills/` → auto-covered **when symlinked**; where it is an independent directory instead (a real setup on some machines), the installer writes it directly |
+| Pi | `~/.pi/agent/skills/` | same, with the `/agent/`-nested path — symlinked → auto-covered, independent copy → written directly |
+| Hermes | `~/.hermes/skills/` | always an independent copy — never a symlink |
 
 ```bash
 SKILL=<skill-name>
 # 1. author in ~/.agents/skills/$SKILL/ (SKILL.md + agents/openai.yaml)
-# 2. verify the .claude symlink once:  ls -la ~/.claude/skills  (expect -> ~/.agents/skills)
-# 3. copy to Hermes only (.claude and .pi are symlinks — already covered):
-rsync -a --delete ~/.agents/skills/$SKILL/ ~/.hermes/skills/$SKILL/
+# 2. check each seat's topology (symlinked into canonical, or an independent copy?):
+for s in ~/.claude/skills ~/.pi/agent/skills; do
+  [ "$(cd "$s" && pwd -P)" = "$(cd ~/.agents/skills && pwd -P)" ] && echo "$s symlinked" || echo "$s independent"; done
+# 3. copy to every independent seat (a symlinked seat is already covered; ./scripts/install.sh does this detection for you):
+rsync -a --delete ~/.agents/skills/$SKILL/ ~/.hermes/skills/$SKILL/   # Hermes is always an independent copy
 # 4. verify all four report identical byte counts:
 for p in ~/.agents/skills ~/.claude/skills ~/.pi/agent/skills ~/.hermes/skills; do
   echo "$p/$SKILL: $(wc -c < $p/$SKILL/SKILL.md) bytes"; done
 ```
 
-Traps: `~/.pi/skills/` is the wrong path (Pi loads `~/.pi/agent/skills/` only); `~/.claude/skills` is a symlink, not a folder (a `cp` into it errors "are identical" — skip it); Hermes snapshots skills at session start (restart to see a new one); `SKILL.md` casing matters on case-sensitive volumes. A Claude Code plugin-marketplace bundle is a read-only alternative that auto-pulls updates — offer it for consumers who shouldn't edit. Removing a skill globally is destructive — `rm -rf` from `~/.agents/skills/` (covers the symlinks) and `~/.hermes/skills/`, and confirm with the user first.
+Traps: `~/.pi/skills/` is the wrong path (Pi loads `~/.pi/agent/skills/` only); `~/.claude/skills` may be a symlink into canonical **or** an independent directory — check with `pwd -P` before assuming (a `cp` into a symlinked seat errors "are identical", an independent one genuinely needs the copy); Hermes snapshots skills at session start (restart to see a new one); `SKILL.md` casing matters on case-sensitive volumes. A Claude Code plugin-marketplace bundle is a read-only alternative that auto-pulls updates — offer it for consumers who shouldn't edit. Removing a skill globally is destructive — `rm -rf` from `~/.agents/skills/` (which also clears any seat symlinked into it), from `~/.hermes/skills/`, and from any seat that is an independent copy rather than a symlink, and confirm with the user first.
 
 ## 6. The universal levers — one pointer, not a copy
 
