@@ -42,13 +42,16 @@ You cannot talk your way to a 5; you can only evidence your way there. Mark unve
 Run everything **from the target repo root** (the scripts hardcode `ops/mission/*` relative to the working directory). Protocol gates `G0–G6` are conceptual (loopback routing, artifact typing); phase-gate ids like `P0-G1` are the **runnable commands** in `plan.lock`/`state.json` — same letter `G`, different namespaces, the single most error-prone point when driving this. `loop.py fail` does not auto-resolve a phase-gate id to its conceptual G-family, so `--route` is **required**, not optional — omit it and the failure silently routes to S2 regardless of what it actually falsifies.
 
 ```sh
-python3 scripts/validate_contracts.py                                  # S0/S1: locks are schema-valid
+python3 scripts/validate_contracts.py ops/mission/idea.lock.json ops/mission/plan.lock.json   # S0/S1: validate THE mission locks (explicit paths — see Honest boundaries)
 python3 scripts/kickoff.py --idea ops/mission/idea.lock.json \
     --plan ops/mission/plan.lock.json --repo <org>/<repo> --out ops/mission/state.json
 python3 scripts/loop.py status                                         # where am I, is the chain intact
 python3 scripts/loop.py run-gates P0                                   # run every pending gate in a phase
 python3 scripts/loop.py fail P1-G1 --reason "…" --route S1             # honest failure + loopback (route required)
+python3 scripts/loop.py verify-ledger                                  # CI-safe tamper gate — exits non-zero on a broken chain
 python3 scripts/loop.py close-phase P0                                 # only when all gates passed AND fresh
+python3 scripts/run_runtime_probes.py                                  # S6: capture the runtime evidence UI/behavior claims are scored against
+python3 scripts/dogfood_lanes.py                                       # S6: run the band-cap scorer — recomputes any hand-authored band-5 claim down to its evidenced band
 ```
 
 Kickoff *consumes* the locks — it refuses a plan that doesn't govern this idea, a blocked verdict, or overwriting an existing mission, because **the repo is the memory**: a cold agent session with zero context can resume from the tree alone.
@@ -56,10 +59,12 @@ Kickoff *consumes* the locks — it refuses a plan that doesn't govern this idea
 ## Honest boundaries
 
 - The ledger is tamper-evident local JSONL, not a hosted notary — and only entries *after* a given one prove it wasn't tampered with. The tip entry has nothing chained over it yet. For a gate-crossing tip (which carries an `evidenceSha256`), re-derive it from that raw gate evidence before trusting it at a phase-close or ship decision. For an event type with **no** evidence field (a phase-close or route event), re-derivation is undefined — distrust the unresumed tip outright and resume/append a subsequent entry to chain over it before relying on it.
+- `loop.py status` signals a tampered/broken chain **only in stdout text** (`ledger: tampered entry N`) — it still exits 0, so its exit code is not a CI-safe tamper gate; grep the output, don't trust the code. For an exit-code-bearing gate, use `loop.py verify-ledger` instead — it exits non-zero on a tampered entry and is the CI-safe check.
 - Runtime evidence proves the app worked *in that run, on that machine* — no more.
-- Every script *should* degrade honestly and **record the degradation as a finding** rather than skip silently — but one known gap violates this: `validate_contracts.py` resolves its schema/example siblings relative to its own location, so if they aren't co-located the glob matches zero files and it **exits 0 over nothing** (a gate passing on no input). Pass explicit lock paths and confirm a non-zero file count before trusting the S0/S1 green.
+- Every script *should* degrade honestly and **record the degradation as a finding** rather than skip silently — but one known gap violates this: `validate_contracts.py` resolves its schema/example siblings relative to its own location, so a bare invocation can **PASS on the co-located bundled example fixtures while never touching `ops/mission/*.lock.json`** — a green with a non-zero file count that says nothing about your mission. Always invoke with explicit lock paths and confirm the validated file list is the mission locks (not bundled fixtures) before trusting the S0/S1 green.
 - `loop.py fail` stamps the wrong provenance: it hard-codes the ledger's `fromGate` to `G2` for any id not starting with a capital `G`, and every phase-gate id is `P#-G#`, so `fromGate` reads `G2` no matter which gate failed — even with `--route` correct. Read the failing gate from the `--reason`/route you supplied, not from the ledger's `fromGate`, until the script parses the id.
 - Evidence files are named by gate-id + date only (no run counter), so a fix-and-rerun cycle **overwrites the prior run's evidence** and the ledger's `evidenceSha256` for a superseded run then matches nothing on disk. The tip re-derivation above only works for a gate's *latest* run — raw evidence for earlier runs is not retained under current naming.
+- `close-phase` does **not** block on an open loopback: `loop.py fail` only appends a ledger loopback and moves the loop stage — it never resets the named gate's `status`, so a previously-passed gate stays `passed` and `close-phase` closes the phase (gates 2/2, exit 0) with a recorded loopback still naming one of its gates as falsified. A recorded loopback is not an enforced block; resolve it (re-run the gate to fresh evidence) before closing, don't rely on close-phase to catch it.
 - Gate falsifiability (that a gate command can actually fail) is an author responsibility — the tooling validates schema shape, not whether a gate is decorative. Catch no-op gates (`exit 0` and the like) in G-review.
 
 ## Where this sits in the archipelago

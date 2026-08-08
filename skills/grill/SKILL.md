@@ -25,10 +25,12 @@ Work the tree in **rounds**. Ask the *whole frontier* in one round, then wait. E
 
 Format each round for **fast visual scan** (the user is often dictating): number every question, prefix each with an emoji marker for the eye to catch (`1️⃣`, `2️⃣`, `3️⃣`…), and give each its recommended answer inline, so the user can blast back "Q1 agree, Q2 change to X, Q3 agree" in one pass.
 
-Reconciling a round: within one reply, the user's last stated value for a question wins — echo any superseded value back in the next round's recap so the correction is on record. A duck ("whatever's easiest", "you pick") adopts your inline recommendation; echo it as "adopting: X (deferred)" and fold it into the completion recap below rather than re-asking it.
+Reconciling a round: within one reply, the user's last stated value for a question wins — echo any superseded value back in the next round's recap so the correction is on record. A duck ("whatever's easiest", "you pick") adopts your inline recommendation; echo it as "adopting: X (deferred)" and fold it into the completion recap below rather than re-asking it. A duck-adopted value counts as a settled answer for frontier computation — it unblocks downstream questions exactly like a stated one. A duck applies at whatever granularity it targets — the whole reply, one question within a multi-question reply, or one sub-attribute of a single question; in each case adopt the inline recommendation for the ducked scope only, echo it as deferred, and keep processing the rest of the reply.
 
 ### Ambush (extract what's in their head)
 The user hasn't told you what matters yet. Interview to surface **priorities, avoided work, and importance** — what remains, what's being dodged, what really matters and what doesn't. Trigger shape: *"start prompting me to figure out what other work needs doing, what we're avoiding, what has importance and what doesn't."* Use at the start of a project, before there's even a plan to drill.
+
+Ambush's yield is *diagnosis*, not decision — and ADRs only capture decisions, so for each confirmed diagnosis emit a short findings record (`Context` / `Finding` / `Implication`) beside the ADRs, or the surfaced understanding dies with the transcript.
 
 ## Facts are found, not asked
 
@@ -36,9 +38,9 @@ When a frontier question needs a fact from the environment, dispatch a sub-agent
 
 ## Completion — and the ADR emission
 
-A grill session is done when the **frontier is empty**: every branch visited, nothing left silently assumed. **Do not act on it until the user confirms shared understanding.** Confirm it with one consolidated recap of every settled decision (including any deferral-adopted values) and a single explicit yes/no — that answer, not the last per-question reply, is what satisfies this gate.
+A grill session is done when the **frontier is empty**: every branch visited, nothing left silently assumed. Ambush builds no decision-tree frontier, so it is instead done when a probe round surfaces **no new finding** — priorities, avoided work, and importance each probed at least once — confirmed by the same recap and yes/no gate below. Parked branches and named blockers are excluded from the frontier — completion means the *interviewable* frontier is empty, with the parks and blockers carried into the recap rather than blocking it. **Do not act on it until the user confirms shared understanding.** Confirm it with one consolidated recap of every settled decision (including any deferral-adopted values) and a single explicit yes/no — that answer, not the last per-question reply, is what satisfies this gate.
 
-Then emit the ADRs — this is the IDC step the public grill skills stop short of. For each material decision settled during the grill, write a short Architecture Decision Record so the *why* outlives the conversation:
+Then emit the ADRs — this is the IDC step the public grill skills stop short of. A decision is **material** if reversing it later would force revisiting other work or re-interviewing; a sub-choice that only parameterizes a material decision is recorded inside that decision's ADR (`Context` or `Decision` field), never dropped and never split into its own record. For each material decision settled during the grill, write a short Architecture Decision Record so the *why* outlives the conversation:
 
 ```
 # ADR <NNNN> — <decision title>
