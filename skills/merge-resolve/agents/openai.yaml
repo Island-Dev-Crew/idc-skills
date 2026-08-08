@@ -1,0 +1,3 @@
+interface:
+  display_name: "Merge Resolve"
+  short_description: "Resolve merge/rebase conflicts to traced intent; never abort"

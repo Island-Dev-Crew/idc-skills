@@ -1,0 +1,3 @@
+interface:
+  display_name: "Video Analysis"
+  short_description: "Transcript + frames — analyze what was said and what was shown"

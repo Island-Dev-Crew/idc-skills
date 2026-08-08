@@ -11,29 +11,34 @@ The insight both OKF and RAG chase is the same — get the right data into the m
 
 ## The descriptor
 
-A data source is a leaf in the workspace, reached from the map's routing table like any room. Its `CONTEXT.md` is a descriptor, not a dump:
+A data source is a leaf in the workspace, reached from the map's routing table like any room. Name it `data-<name>.md` when the source is a node in a map (the typed-file convention), or make it the leaf folder's `CONTEXT.md` when the source carries its own references or sub-structure — either way it is a descriptor, not a dump:
 
 ```markdown
+---
+type: data-asset
+kind: postgres        # postgres | bigquery | oracle | sqlite | google-sheet | drive | sharepoint
+freshness: live       # live | nightly | snapshot:<date>
+access: read-only
+---
 # Data source: <name>
-Kind: postgres | bigquery | oracle | sqlite | google-sheet | drive | sharepoint
 Reach: <connection detail, or a pointer to where the credential lives — never the secret itself>
 Holds: <what's in here, in the operator's own words — "orders, customers, refunds since 2019">
 Ask it: <the query path, or for file-store kinds the folder + naming convention — "orders live in public.orders; join customers on customer_id" or "current MSAs live in Contracts/, one PDF per customer, named MSA_<customer>_<year>">
-Freshness: <how current — live / nightly / a snapshot as of <date>>
 Do not: <what's out of bounds — write access, PII columns, tables to leave alone>
 ```
 
-The **Ask it** line is the whole point — it is the *request slip* in the library analogy: it saves the agent from ripping the schema apart to find where orders are. For a big warehouse you don't describe every table; you describe *where to look*, so a 10,000-table Oracle store becomes navigable from a paragraph.
+The frontmatter makes the source queryable and indexable — a dashboard or a generated file-map can list every data source by kind and freshness without opening one. The **Ask it** line is the whole point — it is the *request slip* in the library analogy: it saves the agent from ripping the schema apart to find where orders are. For a big warehouse you don't describe every table; you describe *where to look*, so a 10,000-table Oracle store becomes navigable from a paragraph.
 
 ## Wire it in
 
-1. **Describe, don't ingest.** Write the descriptor from what the operator knows about their own data (they know it better than any crawler). Do not copy the data into markdown — point at it.
+1. **Describe, don't ingest.** Write the descriptor from what the operator knows about their own data (they know it better than any crawler). Do not copy the data into markdown — point at it. A stage or process that uses this source names it once, here, and links to it (`consumes: [[data-<name>]]`) rather than restating its reach — one home per fact. The descriptor is the home of the data-asset node; the contracts that read it are edges into it.
 2. **Reach on demand.** The agent reads the descriptor only when the routing table sends it there, then queries the live source through the harness's own connector (a database MCP, a Drive integration) — no bespoke pipeline unless one is genuinely needed (ask [`job-to-be-done`](../job-to-be-done/SKILL.md) before building one).
 3. **Guard the reach.** Agents connect **read-only** by default. For SQL/BigQuery/Oracle kinds, pair this with `agent-guardrails` layer 4 (a read-only DB role); for drive/sharepoint/google-sheet kinds, use a read-only OAuth scope or viewer-only share link instead. Where no such enforced scope exists, the `Do not` line is advisory only — say so in the descriptor. The credential is referenced, never written into the descriptor.
 
 ## The evidence weld
 
 - **Enforced-vs-advisory:** the descriptor is **advisory** — nothing forces the live source to match what "Holds" and "Ask it" claim. The enforced check is a query that runs: for file-path kinds (drive, sharepoint, local), point [`workspace-audit`](../workspace-audit/SKILL.md) at the descriptor to confirm the named paths still exist, and list the folder to flag any file breaking a claimed naming convention. For SQL/BigQuery/Oracle kinds, workspace-audit has no connector — the confirming query runs through the harness's own connector, and its output is the evidence. A `Freshness` line that says "live" and a source that's actually a stale snapshot is drift.
+- **Source-guard vs egress-guard.** Separate the two: `Do not` bounds what the agent may *touch* (read-only, tables to leave alone); a distinct access boundary bounds what query *results* may leave the machine — raw PII rows vs aggregates and patterns only. State which is enforced (a read-only role, a scoped view) and which is advisory.
 - **Never launder.** If the descriptor is a guess (you haven't confirmed the schema), mark it `[UNVERIFIED]` until a query proves it — the same rule [`research`](../research/SKILL.md) holds for sourced claims.
 
 **Done when** the descriptor states kind / reach / holds / ask-it / freshness / do-not, the credential is referenced (never inlined), the reach is read-only, and every table, join, or path the "Ask it" line names has been exercised — not just confirmed to exist — by a query or listing, with `Freshness` confirmed or marked unverifiable — or the whole line is marked `[UNVERIFIED]`.

@@ -4,13 +4,13 @@
 
 > *"In the multitude of counsellors there is safety."* — Proverbs 11:14
 
-This is the **staging forge** (`Navigata1/idc-skills-forge`, release 1.4.0). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
+This is the **staging forge** (`Navigata1/idc-skills-forge`, release 1.5.0). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
 
 **Dual-harness:** every island ships an `agents/openai.yaml` sidecar, so the set works in Claude Code, Pi, Hermes **and** Codex from one source. User-invoked islands carry `policy.allow_implicit_invocation: false` — the Codex analog of `disable-model-invocation`.
 
 ---
 
-## The chain — thirty-four islands, in build order
+## The chain — forty islands, in build order
 
 The order is the bootstrap: island 1 authors the rest and rests on island 2 (the universal levers); the crown ships with a week of receipts; the ICM cluster (22–28) is the workspace architecture the whole chain routes within; twelve islands are IDC's own.
 
@@ -50,6 +50,12 @@ The order is the bootstrap: island 1 authors the rest and rests on island 2 (the
 | 32 | [`short`](skills/short/SKILL.md) | adopt | Compress the current answer. |
 | 33 | [`teach`](skills/teach/SKILL.md) | adopt | A stateful multi-session teaching workspace. |
 | 34 | [`gauntlet-loop`](skills/gauntlet-loop/SKILL.md) | fusion · earned | Convert any task into a fan-out of builders + blind critics against a falsifiable bar. The lightweight cousin of archipelago. |
+| 35 | [`video-analysis`](skills/video-analysis/SKILL.md) | 💠 IDC-native | Two channels — the transcript (what was said) + frames (what was shown); every claim cited to a line or a frame. |
+| 36 | [`arch-survey`](skills/arch-survey/SKILL.md) | adapt · earned | Proactively survey a codebase for refactor opportunities — churn hot-spots + the deletion test, ranked. |
+| 37 | [`merge-resolve`](skills/merge-resolve/SKILL.md) | adapt · earned | Resolve a merge/rebase by tracing each hunk to its intent; keep both, record the trade-off, never abort. |
+| 38 | [`issue-triage`](skills/issue-triage/SKILL.md) | adapt · earned | Move an inbound queue of issues you didn't create through a triage state machine to agent-ready briefs. |
+| 39 | [`agent-schedule`](skills/agent-schedule/SKILL.md) | adapt · earned | Run an unattended agent on a wall-clock — and verify it actually fired before trusting it. |
+| 40 | [`prose-craft`](skills/prose-craft/SKILL.md) | fusion · earned | Author original prose in two phases — explore fragments and coin the leading word, then build grounded beats. |
 
 ## The ICM cluster — folder as workspace
 
@@ -74,7 +80,7 @@ The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust
 
 ## Provenance & the pending inputs
 
-The fusion recipe is `IDC-SKILLS-FUSION-REPORT-v1`. Release **1.4.0** adds one earned island — `gauntlet-loop` (Matt Schumer's fan-out-with-blind-critic technique, attributed, with the IDC edits: a *falsifiable* bar and a no-cold-start rule) — after all 33 prior islands cleared confidence ≥9 under a defect-tied vet and the pack was promoted to `Island-Dev-Crew`. Release **1.3.1** adds four earned islands — `data-source-map` (Jake's OKF, the ICM external-data leaf), `prototype`, `wayfinder`, and `domain-modeling` — chosen because they fill genuine gaps, not to hit a count; growth stops when a cut stops earning its place. Release **1.3.0** adds the six ICM-native islands, fusing Jake Van Clief's Interpretable Context Methodology (folder-as-workspace, the three-layer routing map, become-the-agent, model-agnostic, survives-updates) — grounded in his own talks and cross-checked against the public ICM community templates — with the forge's evidence discipline. Release **1.2.0** folds in Matt Pocock's skills v1.2 — `writing-for-agents` (the universal levers the canon now points to), the `wizard` + `to-questionnaire` + `wait-what` productivity islands, the fixed grill rounds, and the Codex `agents/openai.yaml` sidecars — plus three IDC-native islands drawn from IDC's own work: `domain-wire` (the domain doctrine), `console-as-code` (named in the Garnet×Buzz synthesis as the first candidate to graduate into Garnet ops), and `evidence-packet` (the Contributor-Road artifact). Two companion inputs — the Buzz conversations and the owner transcripts — arrived empty at the original authoring time; nothing here was reconstructed from them, and no claim in these skills represents Buzz's analysis or the owners' commentary. The Garnet ceremony layer rests on IDC's own verified production record.
+The fusion recipe is `IDC-SKILLS-FUSION-REPORT-v1`. Release **1.5.0** adds six earned islands after a full re-review of the David-Ondrej and Matt-Pocock source canons against the exact ICM-architect skill — `video-analysis` (transcript + frames), `arch-survey`, `merge-resolve`, `issue-triage`, `agent-schedule`, and `prose-craft` — each gauntleted to 9/10 with a value-check (86 source skills triaged: 51 already covered, 25 out of scope, only these earned a slot); the 7 ICM-cluster islands were also strengthened from Jake Van Clief's canonical `RinDig/icm-architect` repo. Release **1.4.0** adds one earned island — `gauntlet-loop` (Matt Schumer's fan-out-with-blind-critic technique, attributed, with the IDC edits: a *falsifiable* bar and a no-cold-start rule) — after all 33 prior islands cleared confidence ≥9 under a defect-tied vet and the pack was promoted to `Island-Dev-Crew`. Release **1.3.1** adds four earned islands — `data-source-map` (Jake's OKF, the ICM external-data leaf), `prototype`, `wayfinder`, and `domain-modeling` — chosen because they fill genuine gaps, not to hit a count; growth stops when a cut stops earning its place. Release **1.3.0** adds the six ICM-native islands, fusing Jake Van Clief's Interpretable Context Methodology (folder-as-workspace, the three-layer routing map, become-the-agent, model-agnostic, survives-updates) — grounded in his own talks and cross-checked against the public ICM community templates — with the forge's evidence discipline. Release **1.2.0** folds in Matt Pocock's skills v1.2 — `writing-for-agents` (the universal levers the canon now points to), the `wizard` + `to-questionnaire` + `wait-what` productivity islands, the fixed grill rounds, and the Codex `agents/openai.yaml` sidecars — plus three IDC-native islands drawn from IDC's own work: `domain-wire` (the domain doctrine), `console-as-code` (named in the Garnet×Buzz synthesis as the first candidate to graduate into Garnet ops), and `evidence-packet` (the Contributor-Road artifact). Two companion inputs — the Buzz conversations and the owner transcripts — arrived empty at the original authoring time; nothing here was reconstructed from them, and no claim in these skills represents Buzz's analysis or the owners' commentary. The Garnet ceremony layer rests on IDC's own verified production record.
 
 ## Pipeline — staging to official
 

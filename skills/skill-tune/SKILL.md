@@ -33,13 +33,13 @@ iter   sha       tokens   pass   mean_score   note
 0      a1b2c3d   1240     6/12   0.58         baseline
 ```
 
-Record **token count** too — a tune that raises the score but doubles the tokens is a trade, not a win; name it.
+Record **token count** too — a tune that raises the score but doubles the tokens is a trade, not a win; name it. The count that bites is the *per-load context* — the `SKILL.md` top plus whatever a task actually pulls in — not the byte total of the whole disclosed tree; that is why splitting detail behind a pointer can hold the score while tokens fall.
 
 ### 3. Edit — toward smaller
 
 Make one focused change and re-run. The edits that pay, in order:
 
-- **Prune no-ops** (per [`writing-for-agents`](../writing-for-agents/SKILL.md)): delete any sentence the model already obeys by default. This is where most of the gain and most of the shrink live.
+- **Prune no-ops** (per [`writing-for-agents`](../writing-for-agents/SKILL.md)): delete any sentence the model already obeys by default. This is where most of the gain and most of the shrink live — prevention, not compression: the gain is in what the step no longer loads, not in tighter wording of what stays.
 - **Split** an over-800-token file into a lean `SKILL.md` plus a pointer to disclosed reference — the model attends better to a short top.
 - **Sharpen a leading word** that is too weak to beat the default.
 - **Collapse restatements** into one token.
@@ -54,7 +54,7 @@ Any tasks you lean on for regression checking must appear as scored rows in `res
 
 Enforced-vs-advisory: the **score-must-rise gate is the enforced part** — `results.tsv` is the evidence, and an edit that didn't raise the score does not stay. For an over-cap trade-off, the enforced check is only that the logged trade-off note *exists*; whether the justification is *adequate* is advisory judgement, ideally reviewed by the cross-family judge when one is in use. *Which* edit to attempt (§3) is advisory judgement too. Say which; never imply the loop enforces good taste.
 
-**Done when** the final `results.tsv` shows a run whose score beats the baseline (or matches it at fewer tokens), every kept edit is backed by a row where the score did not fall, and the reverted edits are visible in the log so the next tuner does not retry them.
+**Done when** the final `results.tsv` shows a run whose score beats the baseline (or matches it at fewer tokens), every kept edit is backed by a row where the score did not fall, and the reverted edits are visible in the log so the next tuner does not retry them. Before shipping, a person reads the final kept diff — the score guards performance, not meaning or safety, and an edit that raised the proxy can still be wrong on something the proxy never measured. The evidence decides which edits stay; the human still owns whether the tuned file ships.
 
 ## What this is not
 

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "release": "1.4.0",
+  "release": "1.5.0",
   "name": "idc-skills-forge",
   "bundleName": "idc-skills-forge",
   "staging": "Navigata1/idc-skills-forge",
@@ -41,7 +41,13 @@
     "wait-what",
     "short",
     "teach",
-    "gauntlet-loop"
+    "gauntlet-loop",
+    "video-analysis",
+    "arch-survey",
+    "merge-resolve",
+    "issue-triage",
+    "agent-schedule",
+    "prose-craft"
   ],
   "skills": [
     {
@@ -514,6 +520,84 @@
         "gauntlet-loop",
         "fan out sub-agents to build X",
         "loop until it's wowed"
+      ]
+    },
+    {
+      "name": "video-analysis",
+      "path": "video-analysis",
+      "invocation": "model",
+      "provenance": "IDC-native: the transcript+frames media-analysis methodology (yt-dlp + ffmpeg)",
+      "summary": "Turn a video URL into a grounded analysis from two channels — the transcript (what was said) and frames sampled at a chosen cadence (what was shown); every claim cited to a transcript line or a frame number. Ships grab.sh.",
+      "triggers": [
+        "analyze this video",
+        "watch this",
+        "what's in this talk",
+        "pull the transcript and frames"
+      ]
+    },
+    {
+      "name": "arch-survey",
+      "path": "arch-survey",
+      "invocation": "model",
+      "provenance": "adapt: Pocock improve-codebase-architecture — proactive churn+deletion-test survey to a ranked report",
+      "summary": "Proactively survey a whole codebase for architectural refactor opportunities — mine change-history hot-spots, gate each through the deep-module deletion test, and rank them as a before/after report. The discovery scan that runs before deep-modules designs one chosen module.",
+      "triggers": [
+        "survey the architecture",
+        "where should we refactor",
+        "find refactor opportunities",
+        "architectural hot-spots"
+      ]
+    },
+    {
+      "name": "merge-resolve",
+      "path": "merge-resolve",
+      "invocation": "model",
+      "provenance": "adapt: Pocock resolving-merge-conflicts — trace-to-intent, never-abort, checks gate",
+      "summary": "Resolve an in-progress git merge or rebase by tracing every conflicting hunk to the intent that authored it (commit/PR/issue), keeping both intents where they compose and recording the trade-off where they collide, never aborting, and running the project checks before finishing.",
+      "triggers": [
+        "resolve conflicts",
+        "fix the merge",
+        "finish the rebase",
+        "merge conflict"
+      ]
+    },
+    {
+      "name": "issue-triage",
+      "path": "issue-triage",
+      "invocation": "model",
+      "provenance": "adapt: Pocock triage — inbound-queue state machine + agent-ready briefs + honesty disclaimer",
+      "summary": "Move a queue of issues you did NOT create (bug reports, incoming requests, external PRs) through a triage state machine, grill for missing info, and emit durable agent-ready briefs — every AI note carrying an honesty disclaimer. The inbound on-ramp job-to-be-done and grill don't cover.",
+      "triggers": [
+        "triage this issue",
+        "triage the queue",
+        "is this ready for an agent",
+        "move this to wontfix"
+      ]
+    },
+    {
+      "name": "agent-schedule",
+      "path": "agent-schedule",
+      "invocation": "model",
+      "provenance": "adapt: Ondrej agent-self-scheduling — wall-clock triggers + fire-verification, vendor-stripped",
+      "summary": "Schedule an unattended agent on a recurring wall-clock (cron/systemd/heartbeat/while-sleep vs a built-in scheduler), then verify the schedule actually fired before trusting it. The only island triggered by time; every loop sibling is condition-driven.",
+      "triggers": [
+        "run on a schedule",
+        "cron job",
+        "heartbeat",
+        "recurring agent",
+        "run every hour"
+      ]
+    },
+    {
+      "name": "prose-craft",
+      "path": "prose-craft",
+      "invocation": "user",
+      "provenance": "fusion: Pocock writing-fragments + writing-beats + writing-shape — explore then exploit, grounding discipline",
+      "summary": "Author original prose (article, essay, explainer) in two phases: EXPLORE mines fragments and coins the load-bearing leading word; EXPLOIT builds grounded beats where no beat leans on an ungrounded concept, optionally shaping each block's form. Distinct from short/wait-what/teach/writing-for-agents.",
+      "triggers": [
+        "write an article",
+        "draft an essay",
+        "help me write this piece"
       ]
     }
   ]

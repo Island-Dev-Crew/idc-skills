@@ -12,8 +12,8 @@ NAME="$(basename "$DIR")"
 # leading dash (blocks path traversal) and no collision with the reserved
 # top-level dirs this script also creates.
 for r in $ROOMS; do
-  if [[ ! "$r" =~ ^[A-Za-z0-9_-]+$ ]]; then
-    echo "error: invalid room name '$r' — must match [A-Za-z0-9_-]+ (no '/', '.', or leading '-')" >&2
+  if [[ ! "$r" =~ ^[A-Za-z0-9_][A-Za-z0-9_-]*$ ]]; then
+    echo "error: invalid room name '$r' — must start with [A-Za-z0-9_] then [A-Za-z0-9_-]* (no '/', '.', leading '-', or spaces)" >&2
     exit 1
   fi
   case "$r" in

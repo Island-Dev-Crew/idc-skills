@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Forge — a walkthrough of all 34 skills</title>
+<title>The Forge — a walkthrough of all 40 skills</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -103,7 +103,7 @@ text-transform:uppercase;color:var(--dim2);margin:0 0 3px}
   <header class="hero">
     <div class="kick">Island Development Crew · a walkthrough</div>
     <h1>The <span class="g">Forge</span></h1>
-    <div class="tag">Thirty-four agent skills, told as one journey. Each skill is an island; together they take a task from "should we even build this?" all the way to "it is verifiably live." Read it top to bottom, or jump to the act you need.</div>
+    <div class="tag">Forty agent skills, told as one journey. Each skill is an island; together they take a task from "should we even build this?" all the way to "it is verifiably live." Read it top to bottom, or jump to the act you need.</div>
     <div class="facet"><i></i><i></i><i></i><i></i><i></i></div>
     <div class="laws">
       <div class="law gold"><div class="l">The first law</div><b>No authority without evidence.</b><p>A claim is not done until a check that could have failed proves it. The forge says which rules are enforced and which are advice — and never dresses a guess up as a fact.</p></div>
@@ -132,7 +132,7 @@ text-transform:uppercase;color:var(--dim2);margin:0 0 3px}
     </div>
   </div>
   <div class="foot">
-    IDC Skills · The Forge · release 1.4.0 · 34 islands · staging <code style="font-family:'JetBrains Mono',monospace;font-size:11px">Navigata1/idc-skills-forge</code>
+    IDC Skills · The Forge · release 1.5.0 · 40 islands · staging <code style="font-family:'JetBrains Mono',monospace;font-size:11px">Navigata1/idc-skills-forge</code>
     <div class="sig">No authority without evidence. The repo is the memory. — Roll Tide 💎</div>
   </div>
 </div>
@@ -187,6 +187,14 @@ const ACTS=[
   ["short","user","k-canon","Compresses the current answer — strips the filler, keeps the substance.","You want it briefer.","Shorter, same meaning. Nothing else."],
   ["teach","user","k-canon","A stateful teaching workspace — mission-grounded lessons across many sessions.","You want to learn a topic over time.","Knowledge from trusted sources, skills through tight feedback loops. It never trusts its own memory."],
  ]},
+ {n:"VIII",title:"The re-review wave",lede:"Six islands earned after a full re-review of the David-Ondrej and Matt-Pocock source canons against Jake's exact ICM architecture — 86 skills triaged, and only these six gauntleted to 9/10 with a value-check. A video turned into notes, a codebase surveyed, a merge resolved, a queue triaged, an agent put on a clock, and a piece of prose grown from fragments.",skills:[
+  ["video-analysis","\ud83d\udca0 IDC-native","k-idc","Turns a video into notes from two channels — the transcript (what was said) and frames (what was shown).","You dropped a talk, demo, or tutorial and want it analyzed, not skimmed.","The frame is what the transcript drops. Cite every point to a line or a frame; invent nothing."],
+  ["arch-survey","adapt","k-adapt","Surveys a whole codebase for refactor opportunities before any bug is in play.","You want to know where to deepen the architecture, not fix a specific break.","Mine the churn, gate each hot-spot through the deletion test, rank them. A clean survey that finds nothing is a valid result."],
+  ["merge-resolve","adapt","k-adapt","Resolves an in-progress merge or rebase by tracing each hunk to the intent that authored it.","You are mid-conflict and want both intents honored, not one side blindly taken.","Trace to intent, keep both where they compose, record the trade-off where they collide. Never abort; the checks gate done."],
+  ["issue-triage","adapt","k-adapt","Moves a queue of issues you did NOT create through a triage state machine.","Bug reports, incoming requests, and external PRs are piling up.","Five states, a grill for missing info, and agent-ready briefs — every AI note carrying an honesty disclaimer."],
+  ["agent-schedule","adapt","k-adapt","Runs an unattended agent on a recurring wall-clock — and proves it fired.","An agent must run every N minutes or hourly, on its own.","The only island triggered by time, not a condition. Created is not fired — a schedule stays unverified until fire evidence proves it."],
+  ["prose-craft","user","k-canon","Authors original prose in two phases — explore fragments, then build grounded beats.","You are writing an article, essay, or explainer from raw noticings.","Coin the load-bearing leading word first, then let no beat lean on a concept not already grounded."],
+ ]},
 ];
 
 const acts=document.getElementById('acts'), nav=document.getElementById('nav');
@@ -202,7 +210,7 @@ ACTS.forEach((a,ai)=>{
     const [nm,kind,kc,what,when,move]=s;
     const el=document.createElement('div'); el.className='skill';
     el.dataset.blob=(nm+' '+what+' '+when+' '+move+' '+kind).toLowerCase();
-    el.innerHTML=`<div class="rail"><div class="idx">${String(idx).padStart(2,'0')} / 34</div>
+    el.innerHTML=`<div class="rail"><div class="idx">${String(idx).padStart(2,'0')} / 40</div>
       <a class="nm" href="../skills/${nm}/SKILL.md">${nm}</a><div><span class="kd ${kc}">${kind}</span></div></div>
       <div class="body"><span class="q">what it is</span><p class="what">${what}</p>
       <span class="q">when you reach for it</span><p class="when">${when}</p>

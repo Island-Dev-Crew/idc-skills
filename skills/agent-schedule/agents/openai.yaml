@@ -1,0 +1,3 @@
+interface:
+  display_name: "Agent Schedule"
+  short_description: "Recurring wall-clock for unattended agents, with verified fire"

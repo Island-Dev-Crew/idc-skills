@@ -23,6 +23,10 @@ Put every candidate through these before a line is built:
 
 Aim for **~90% ordinary process and code, ~10% AI on top**. The 90% is deterministic, inspectable, and cheap; the 10% is where the AI makes it feel like magic. Teams that invert this — AI doing everything — get hollow output and token burn. Engineers already work this way; it's why their pilots survive. A hard external constraint — regulatory, compliance, safety — can legitimately push the split past 90/10; when it does, record the constraint in the verdict reason alongside the split.
 
+## The ladder — how much structure is warranted
+
+Automation has rungs: **chat → saved prompt or skill → folders + one agent → framework code.** Climb only when the rung below is genuinely automated *and* repeating — a workflow done twice is scaffolding, not architecture, and if the whole job fits in one saved prompt, that prompt *is* the answer; don't build a workspace around it. The Complexity question is really "which rung does this actually need?", and the honest answer is usually one rung lower than what was proposed. (The ladder triages *which* rung; [`folder-workspace`](../folder-workspace/SKILL.md) owns how to build the top one.)
+
 ## Augment, don't just automate
 
 The goal is **augmentation** — amplify a human — not pure automation that removes them. If you automate everything, you built a tool, not a leverage system, and you lost the human judgement that was the durable value ([`productionize-opinion`](../productionize-opinion/SKILL.md)). Humans are compute-efficient: a $40k/year person copy-pasting can beat an API bill and a fragile pipeline. Keep the human in the compute layer where judgement matters; put the machine where the toil is.
@@ -33,6 +37,6 @@ The goal is **augmentation** — amplify a human — not pure automation that re
 
 This island is **entirely advisory** — nothing here is mechanically enforced; it is a thinking gate, and its only output is a recorded verdict a human weighs. Say so; don't imply a triage question blocks anything.
 
-**Done when** the candidate has a stated verdict — build / delegate / buy / don't-build — with the reason recorded, and (if building) the 90/10 split and the point where the human reviews are named. A "don't-build" verdict with its reason is a *successful* outcome of this island, not a failure.
+**Done when** the candidate has a stated verdict — build / delegate / buy / don't-build — with the reason recorded, and (if building) the 90/10 split, the rung on the ladder the build lands on (saved prompt / folder + one agent / framework), and the point where the human reviews are named. A "don't-build" verdict with its reason is a *successful* outcome of this island, not a failure.
 
 **No authority without evidence. The decision not to build is a decision — record it with its reason.**

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Issue Triage"
+  short_description: "Move an inbound issue queue through a triage state machine to agent-ready briefs"
