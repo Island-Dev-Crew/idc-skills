@@ -16,6 +16,12 @@ git diff --quiet && git diff --cached --quiet \
 dupes=$(git ls-files 'console/blocks/*.md' | xargs -n1 basename | tr 'A-Z' 'a-z' | sort | uniq -d)
 [ -z "$dupes" ] \
   || { echo "refusing to assemble: case-folded block name collision — $dupes" >&2; exit 1; }
+# Refuse on an UNTRACKED block: the `cat blocks/*.md` glob would bake it into the lock and
+# stamp it at a HEAD that does not contain it — a lying stamp. git diff misses untracked files,
+# so this is a separate enforced gate. Commit the block first.
+untracked=$(git ls-files --others --exclude-standard -- 'console/blocks/')
+[ -z "$untracked" ] \
+  || { echo "refusing to assemble: untracked block(s) not committed — $untracked" >&2; exit 1; }
 
 # Concatenate blocks in filename order, stamp the result.
 cat console/blocks/*.md > console/console.assembled

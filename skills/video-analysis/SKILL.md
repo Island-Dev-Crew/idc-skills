@@ -16,11 +16,14 @@ Auto-transcripts drop all visual signal and mangle names — a real capture rend
 [scripts/grab.sh](scripts/grab.sh) takes a URL, a frame count, and an out-dir; it writes `transcript.txt` and `frames/f_NNN.jpg`, choosing the frame cadence as count ÷ duration so the frames spread evenly across the whole runtime.
 
 ```bash
-<this-skill-dir>/scripts/grab.sh <video-url> [frame-count] [out-dir]
-# e.g. grab.sh https://youtu.be/ID 250 ./va-talk   # 250 frames for a dense whiteboard talk
+<this-skill-dir>/scripts/grab.sh <video-url> [frame-count] [out-dir] [dedup]
+# e.g. grab.sh https://youtu.be/ID 250 ./va-talk      # 250-frame cadence, near-duplicates dropped
+# e.g. grab.sh https://youtu.be/ID 250 ./va-talk 0    # keep the raw cadence (no dedup)
 ```
 
 Needs `yt-dlp`, `ffmpeg` (ships `ffprobe`), and `python3` — the script fails loudly if any is missing.
+
+**Dedup keeps only informative frames.** By default the script samples at the cadence, then `mpdecimate` drops any frame too visually similar to the last *kept* one — so a held slide sampled 60 times collapses to the one frame where it appeared, and the frame count reported is *informative frames*, not raw cadence. This is a **pixel-level** near-duplicate drop, not a semantic one: it removes visually-static repeats (held slides, a paused screen), but two frames that differ visually yet say the same thing still both survive — judging *relevance* stays yours. On a genuinely dynamic video (a moving whiteboard, constant camera motion) almost nothing is a duplicate and the set stays dense; that is correct, not a failure. Pass `dedup=0` to keep the raw cadence when you want a fixed, evenly-timed sample.
 
 ## Choose the frame count to the video, not a default
 

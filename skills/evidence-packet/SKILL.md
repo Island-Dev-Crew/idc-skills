@@ -45,8 +45,13 @@ git diff "$BASE"...HEAD > "evidence/$SLUG/diff.patch"
 # tolerates divergence that's purely machine-local, not behavioral.
 run_rung() {                       # run_rung <name> <command...>
   local name="$1"; shift
-  { "$@"; echo "EXIT=$?"; } > "evidence/$SLUG/out/$name.txt" 2>&1
-  echo "  captured $name -> out/$name.txt"
+  local rc=0
+  # a RED rung is evidence, not fatal: capture its non-zero exit without letting
+  # the ladder's `set -e` abort the loop, so later rungs still run and the packet
+  # still gets stamped. (`|| rc=$?` is a condition context, so errexit won't fire.)
+  { "$@"; } > "evidence/$SLUG/out/$name.txt" 2>&1 || rc=$?
+  printf 'EXIT=%s\n' "$rc" >> "evidence/$SLUG/out/$name.txt"
+  echo "  captured $name -> out/$name.txt (exit $rc)"
 }
 # EXAMPLE — substitute your stack's real typecheck/test/lint commands below.
 # A rung that fails because the tool is absent (ENOENT, no manifest) is noise,

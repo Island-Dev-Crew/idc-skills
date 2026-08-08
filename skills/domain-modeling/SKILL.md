@@ -9,7 +9,7 @@ Actively build and sharpen the project's domain model *as you design*. This is t
 
 ## The glossary lives in CONTEXT.md
 
-`CONTEXT.md` is a **glossary and nothing else** — totally devoid of implementation details. Not a spec, not a scratchpad, not a home for implementation decisions. Create files lazily: write `CONTEXT.md` when the first term resolves; create `docs/adr/` when the first ADR is needed. A repo with multiple bounded contexts carries a `CONTEXT-MAP.md` at the root pointing at each context's own `CONTEXT.md` and `docs/adr/`.
+A **project's** domain `CONTEXT.md` is a **glossary and nothing else** — totally devoid of implementation details. Not a spec, not a scratchpad, not a home for implementation decisions. (One exception: a repo-root *substrate* `CONTEXT.md` that also grounds architecture and composition — lane-claim paths, temp dirs, staging repo, how the islands compose — is exempt; keep this glossary discipline only for the terminology it owns.) Create files lazily: write `CONTEXT.md` when the first term resolves; create `docs/adr/` when the first ADR is needed. A repo with multiple bounded contexts carries a `CONTEXT-MAP.md` at the root pointing at each context's own `CONTEXT.md` and `docs/adr/`.
 
 ## During the session — five moves
 
