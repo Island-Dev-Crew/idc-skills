@@ -61,7 +61,7 @@ Twelve islands are IDC's own. **Five exist nowhere else** — the IDC-origin isl
 
 ## Design palette
 
-The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust · gold · jade · steel — with a faceted-gem motif. The landing experience is a journey across the chain, not a file listing: see [`docs/index.html`](docs/index.html). Repo-as-artifact, matching the thesis.
+The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust · gold · jade · steel — with a faceted-gem motif. The landing experience is a journey across the chain, not a file listing: see [`docs/index.html`](docs/index.html), the full seven-act tour in [`docs/walkthrough.html`](docs/walkthrough.html), and the live [`docs/report.html`](docs/report.html) — every island's validation record, generated from the vet, not the author's confidence. Repo-as-artifact, matching the thesis.
 
 ## Install
 
