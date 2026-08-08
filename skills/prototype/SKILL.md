@@ -11,10 +11,10 @@ A prototype is **throwaway code that answers a question.** The question decides 
 
 Identify which question is being answered, from the prompt, the surrounding code, or by asking if the user is around:
 
-- **"Does this logic / state model feel right?"** → build a **single shareable HTML file**: free-play buttons plus a few tabbed guided walkthroughs that push the state machine through the cases that are hard to reason about on paper, drivable by a non-developer. One file they double-click — no build step.
+- **"Does this logic / state model feel right?"** → build a **single shareable HTML file**: free-play buttons plus a few tabbed guided walkthroughs that push the state machine through the cases that are hard to reason about on paper, drivable by a non-developer. One file they double-click — no build step. That's the single-actor default; when the question is inherently about concurrent actors (collaborative cursors, presence, conflict resolution), use a minimal served harness instead — one local static-server command, driven from two tabs.
 - **"What should this look like?"** → generate **several radically different UI variants on one route**, switchable via a URL search param and a floating bottom bar, so the user flips between them and reacts.
 
-The two branches produce very different artifacts. If the question is genuinely ambiguous and the user isn't reachable, default by the surrounding code — a backend module leans logic, a page or component leans UI — and **state the assumption at the top of the prototype.**
+The two branches produce very different artifacts. If both readings are genuinely present, split into two prototypes — one per branch — or, if forced to pick one, prototype the harder-to-reason-about half and record the deferred half, at the top of the artifact and in the verdict. If the question is ambiguous and the user isn't reachable, default by the surrounding code — a backend module leans logic, a page or component leans UI; with no surrounding code to default from, state the assumed branch explicitly rather than silently dropping half the request. **State the assumption at the top of the prototype.**
 
 ## Rules for both branches (advisory — nothing here is mechanically checked)
 
@@ -29,7 +29,7 @@ The two branches produce very different artifacts. If the question is genuinely 
 This is the step that makes a prototype worth more than a sketch. When it's answered its question:
 
 1. **Fold the validated decision into the real code** — that's what main keeps.
-2. **Capture the prototype itself as a primary source**: commit it to a throwaway branch, *out of main*, and leave a context pointer to that branch on the implementation issue. A prototype that encodes a decision more precisely than prose (a state machine, a reducer, a real interaction) is evidence a reader can *run* — more trustworthy than a paragraph describing it.
+2. **Capture the prototype itself as a primary source**: commit it to a throwaway branch, *out of main*, and leave a context pointer to that branch where the work is tracked — the implementation issue, the PR, or (with no tracker) the commit message that folds the decision into main. A prototype that encodes a decision more precisely than prose (a state machine, a reducer, a real interaction) is evidence a reader can *run* — more trustworthy than a paragraph describing it.
 3. **Capture the answer**: the verdict and the question it settled, in the issue or a commit.
 
 Main keeps only the validated decision; the disposable code lives on its branch as the primary source, reachable but never merged.

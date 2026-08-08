@@ -15,24 +15,29 @@ for f in "$DIR/AGENTS.md" "$DIR/CLAUDE.md"; do [ -f "$f" ] && MAPFILES+=("$f"); 
 # Concatenate the map with URLs stripped, so a source URL is never mis-read as a path.
 map_text="$(cat "${MAPFILES[@]}" | sed -E 's~https?://[^ )]+~~g')"
 
+# ---- Path-like tokens the map references, extracted once as an exact-match index ----
+ref_tokens="$(printf '%s\n' "$map_text" \
+  | grep -oE '[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)+/?' \
+  | grep -vE '<|>|\*' | sed -E 's#/$##' | sort -u || true)"
+
 # ---- BROKEN CLAIMS: a path-like token the map names but the tree lacks ----
 broken=()
-while IFS= read -r p; do
-  [ -n "$p" ] || continue
-  rel="${p%/}"
+while IFS= read -r rel; do
+  [ -n "$rel" ] || continue
   [ -e "$DIR/$rel" ] || broken+=("$rel")
-done < <(printf '%s\n' "$map_text" \
-  | grep -oE '[A-Za-z0-9_.-]+(/[A-Za-z0-9_.-]+)+/?' \
-  | grep -vE '<|>|\*' | sort -u || true)
+done <<< "$ref_tokens"
 
 # ---- BLIND SPOTS: a live room/file the map never mentions ----
+# Exact-token membership against ref_tokens — never a substring/regex scan of raw map
+# text — so a sibling name (rooms/api vs rooms/api-gateway) can't suppress a real gap.
+is_referenced() { grep -qxF "$1" <<< "$ref_tokens"; }
 blind=()
 # rooms/**/CONTEXT.md not referenced by the map
 if [ -d "$DIR/rooms" ]; then
   while IFS= read -r ctx; do
     [ -n "$ctx" ] || continue
     rel="${ctx#"$DIR"/}"; room="$(basename "$(dirname "$ctx")")"
-    printf '%s' "$map_text" | grep -qE "$rel|rooms/$room" || blind+=("$rel")
+    if is_referenced "$rel" || is_referenced "rooms/$room"; then :; else blind+=("$rel"); fi
   done < <(find "$DIR/rooms" -name CONTEXT.md -type f 2>/dev/null | sort || true)
 fi
 # top-level *.md not referenced (the map files and README are not workspace content)

@@ -21,7 +21,7 @@ Every venture answers two questions: *who is it for?* and *does it own its own b
 ## The six governance rules
 
 1. **No link before it resolves.** A domain appears in production only after DNS answers. The doctrine registry is the allow-list; incubating deeds stay out of production HTML.
-2. **One primary per venture.** Every family elects exactly one canonical; siblings 308 to it. Split traffic is split equity.
+2. **One primary per venture.** Every family elects exactly one canonical; siblings 308 to it. Split traffic is split equity. *Exception: the parent's own three lane domains (`.com`/`.app`/`.ai`) are co-equal live surfaces by design, not siblings of one another — this rule governs each venture family riding the lanes or graduated onto its own deed. The parent's own shields (typo/variant domains) still 308 to its story domain.*
 3. **Graduation is automatic when the deed exists.** Own brand + live product → connecting them outranks new feature work.
 4. **Canonicals move in the same commit.** A domain flip carries OG tags, sitemaps, redirects, and cross-links together. The old `*.vercel.app` URL stays alive as a 308.
 5. **Clients and family never ride IDC lanes.** Kept fully separate.
@@ -31,14 +31,20 @@ These rules are **advisory** — this skill ships no hook, so nothing mechanical
 
 ## Wiring a domain
 
-### 1. Confirm the deed resolves and is owned
+### 1. Confirm the deed, in order
+
+**Gate A — registry membership.** Is the deed in the operator's doctrine registry, or has it been seen live inside the operator's own registrar account? If not, it rides a lane — full stop, regardless of what DNS says (rule 1). Do **not** put a bare brand domain in code on the strength of "I bought it."
+
+**Gate B — resolution and corroboration.**
 
 ```bash
-dig +short <domain> A            # does anything answer?
-whois <domain> | grep -iE 'registrar|expir'   # owned, and by whom?
+dig +short <domain> A                          # does anything answer, and to what?
+whois <domain> | grep -iE 'registrar|expir'    # corroboration only — NOT ownership proof
 ```
 
-Rule 1: if the deed isn't confirmed in the operator's registry, it rides a lane — do **not** put a bare brand domain in code on the strength of "I bought it." Confirm ownership first (a deed seen in the registrar account, not a claim).
+WHOIS redaction means whois can only name the registrar company, never the account holder — a resolving domain on a shared registrar is not evidence of ownership. Ownership is confirmed only by seeing the deed listed inside the operator's registrar account (a human dashboard trip — hand it to the [`wizard`](../wizard/SKILL.md) island, same as the record entry in §3) or by its presence in the doctrine registry. A domain resolving to someone else's infrastructure is evidence *against* ownership, not for it.
+
+Before wiring anything in a family, run Gate B against every domain the registry claims is live or shielded. Any domain whose observed state (parking IP, missing 308, wrong host) contradicts the registry is drift — record it and treat that entry as unverified until reconciled. Wire against observed DNS, never against the registry's description of it.
 
 ### 2. Pick the lane, or graduate
 

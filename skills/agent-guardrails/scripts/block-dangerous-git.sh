@@ -3,14 +3,18 @@
 # Reads hook JSON on stdin, exits 2 (with a stderr message) to block.
 set -euo pipefail
 
-cmd="$(cat | jq -r '.tool_input.command // .command // empty' 2>/dev/null || true)"
-[ -n "$cmd" ] || exit 0
+cmd="$(cat | jq -r '.tool_input.command // .toolInput.command // .command // empty' 2>/dev/null || true)"
+if [ -z "$cmd" ]; then
+  echo "block-dangerous-git: no command found in hook payload (guard OPEN)" >&2
+  exit 0
+fi
 
 # Destructive git operations agents should not perform without explicit human action.
+# Flag clusters exclude 'n' so dry runs (git clean -fdn / -ndf) are not blocked.
 DANGEROUS=(
   'git[[:space:]]+push'
   'git[[:space:]]+reset[[:space:]]+.*--hard'
-  'git[[:space:]]+clean[[:space:]]+-[a-zA-Z]*f'
+  'git[[:space:]]+clean[[:space:]]+-[a-mo-zA-MO-Z]*f[a-mo-zA-MO-Z]*([[:space:]]|$)'
   'git[[:space:]]+branch[[:space:]]+-D'
   'git[[:space:]]+checkout[[:space:]]+\.'
   'git[[:space:]]+restore[[:space:]]+\.'

@@ -23,9 +23,9 @@ Don't substitute "component," "service," "API," or "boundary." Consistent langua
 ## Principles
 
 - **Depth is a property of the interface, not the implementation.** A deep module can be internally composed of small, mockable parts — they just aren't part of the interface. A module has an **external seam** (its interface) and may have **internal seams** (private, used by its own tests).
-- **The deletion test.** Imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it earned its keep.
+- **The deletion test.** Imagine deleting the module. If complexity vanishes, it was a pass-through. If complexity reappears across N callers, it earned its keep. A seam kept solely so tests can inject a fake also passes, but only if faking it is materially cheaper than exercising the real dependency — otherwise delete it. When this conflicts with "accept dependencies, don't create them" below, the deletion test wins: testability doesn't justify a seam nothing else needs.
 - **The interface is the test surface.** Callers and tests cross the same seam. Wanting to test *past* the interface means the module is the wrong shape.
-- **One adapter is a hypothetical seam; two adapters is a real one.** Don't introduce a seam unless something actually varies across it.
+- **One adapter is a hypothetical seam; two adapters is a real one.** An adapter counts once it exists in code or is committed work — contracted, scheduled, staffed; a roadmap wish doesn't count. Don't introduce a seam unless something actually varies across it.
 
 ## Designing for testability
 
@@ -53,7 +53,9 @@ src/packages/<name>/
   tests/       ← co-located tests + fixtures (a subfolder, so private).
 ```
 
-Four `error` rules: (1) code outside a package imports only that package's entry points, never its subfolders; (2) a package's own files import each other freely; (3) tests reach any package's entry points and their own fixtures, never subfolder internals; (4) no dependency cycles. **Prove the rules bite** — the completion criterion for enforcement: run the boundary lint on a clean tree (pass), add a deep import to a test (must fail with the boundary rule), revert (pass again). A config that doesn't fail on a violation is worthless. Then link the packages README from `CLAUDE.md`/`AGENTS.md` so an agent discovers the boundary instead of tripping on it.
+Four `error` rules: (1) code outside a package imports only that package's entry points, never its subfolders; (2) a package's own files import each other freely; (3) tests reach any package's entry points and their own fixtures, never subfolder internals; (4) no dependency cycles. A verified-working config for these four is at [`references/dependency-cruiser.template.cjs`](references/dependency-cruiser.template.cjs) — start there rather than re-deriving it: dependency-cruiser only substitutes a captured `$1` into the `to.path`/`to.pathNot` of the *same rule*, never into `from.path`/`from.pathNot`, and a `$1` placed on the `from` side is a silent no-op that lets rule (1) contradict rule (2) with zero lint error. **Prove the rules bite** — the completion criterion for enforcement: run the boundary lint on a clean tree (pass), add a deep import to a test (must fail with the boundary rule), revert (pass again). A config that doesn't fail on a violation is worthless. Then link the packages README from `CLAUDE.md`/`AGENTS.md` so an agent discovers the boundary instead of tripping on it.
+
+This lint enforces the seam half only — entry points are the only way in. Depth (whether a module earned its seam via the deletion test) stays advisory: a design judgment made in review, not something a clean lint pass proves.
 
 ## Where this feeds
 

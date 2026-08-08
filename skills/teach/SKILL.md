@@ -15,9 +15,9 @@ Teaching happens in the lessons and reference documents — not in long chat rep
 
 ## The workspace
 
-- `MISSION.md` — *why* the user wants this topic. Grounds all teaching. If empty or unclear, your first job is to question them on why they want to learn it — ungrounded knowledge feels abstract and you'll have no way to judge what's next. Missions may change; confirm before changing, and log a learning record when they do.
+- `MISSION.md` — *why* the user wants this topic. Grounds all teaching. If no topic is named yet, ask what they want to learn; once named, ask why — a mission is sufficient once it names a topic plus a reason concrete enough to judge lesson relevance against. If they won't give a reason after one round of asking, offer 2-3 candidate angles to react to, or record a provisional exploratory mission and proceed — don't loop. Refuse plainly if the named topic's purpose is illegal or clearly harmful; no mission overrides that. Missions may change; confirm before changing, log a learning record when they do, and treat lesson/reference numbering as one continuing history across the switch — only the glossary and the zone of proximal development (below) are scoped to the active mission.
 - `RESOURCES.md` — high-trust resources to ground teaching in. **Never trust your parametric knowledge** — gather from trusted sources first.
-- `./reference/*.html` — compressed learnings: cheat sheets, algorithms, syntax, glossaries. Revisited often; make them beautiful and print-friendly. A glossary, once created, is adhered to in every lesson.
+- `./reference/*.html` — compressed learnings: cheat sheets, algorithms, syntax, glossaries. Revisited often; make them beautiful and print-friendly. A glossary, once created, is adhered to in every lesson within its mission.
 - `./lessons/*.html` — the primary unit of teaching. One self-contained, **beautiful** (Tufte-clean) HTML file per lesson, `0001-<dash-case>.html` incrementing. Short, completable fast (working memory is small), one tangible win, tied to the mission, in the user's zone of proximal development. Link via anchors to other lessons and references; recommend one primary source; remind the user they can ask followup questions.
 - `./learning-records/*.md` — what the user has learned, ADR-style, `0001-<dash-case>.md`. Used to calculate the zone of proximal development.
 - `NOTES.md` — user preferences and working notes.
@@ -34,7 +34,7 @@ Split two kinds of learning: **fluency strength** (in-the-moment retrieval, whic
 
 ## Zone of proximal development
 
-Each lesson should challenge 'just enough'. If the user names an exact thing, teach it. Otherwise read their learning records, weigh the mission, and teach the most relevant thing that fits their current reach.
+Each lesson should challenge 'just enough'. If the user names an exact thing, teach it. Otherwise read their learning records for the active mission, weigh the mission, and teach the most relevant thing that fits their current reach.
 
 ## Credit
 

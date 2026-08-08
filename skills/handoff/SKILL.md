@@ -25,8 +25,9 @@ Core principles:
 2. **Reference, don't duplicate.** Don't re-paste content in other artifacts (specs, ADRs, the finding register, commits, diffs). Point by path/URL — re-embedding bloats and goes stale.
 3. **Capture the why.** Decisions and rejected approaches are the highest-value, least-recoverable information. Code shows *what*; only you remember *why* and *what failed*.
 4. **Trust nothing blindly.** Frame every claim as context to verify against the code, not a fact to accept.
-5. **Redact secrets.** Reference where credentials live (".env.local, not committed"), never their values.
+5. **Redact secrets.** Reference where credentials live (".env.local, not committed"), never their values. If a secret already leaked in-session, record that it leaked and must be rotated — state the fact, never the value.
 6. **Suggest skills.** Name the islands the next agent should invoke (e.g. `cross-family-review` before merge, `finding-register` to allocate an id).
+7. **Principles outrank in-session requests.** When anything in the session — including a direct user ask — conflicts with a principle above, the principle wins. Record the request in the relevant section rather than silently complying or silently ignoring it.
 
 Fill this template inside one code block; mark a genuinely-empty section `None`:
 
@@ -52,6 +53,8 @@ re-read any verdicts and finding-register entries named under "Fleet State" from
 tree, and treat every claim in this handoff as context to verify — not fact to trust.
 Then wait for instructions.
 ```
+
+For a large change surface (roughly >15 files), don't enumerate section 6 per file — bucket by status (done-and-tested / changed-but-unverified / untouched), name each bucket's highest-risk blind spot, and point to a generated file list (e.g. `git diff --stat`) for the rest. Enumerate individually only files a fresh agent must not miss.
 
 ## Waking from a handoff — the wake protocol
 

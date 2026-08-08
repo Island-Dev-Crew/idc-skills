@@ -39,7 +39,7 @@ You cannot talk your way to a 5; you can only evidence your way there. Mark unve
 
 ## Operating procedure
 
-Run everything **from the target repo root** (the scripts hardcode `ops/mission/*` relative to the working directory). Protocol gates `G0–G6` are conceptual (loopback routing, artifact typing); phase-gate ids like `P0-G1` are the **runnable commands** in `plan.lock`/`state.json` — same letter `G`, different namespaces, the single most error-prone point when driving this.
+Run everything **from the target repo root** (the scripts hardcode `ops/mission/*` relative to the working directory). Protocol gates `G0–G6` are conceptual (loopback routing, artifact typing); phase-gate ids like `P0-G1` are the **runnable commands** in `plan.lock`/`state.json` — same letter `G`, different namespaces, the single most error-prone point when driving this. `loop.py fail` does not auto-resolve a phase-gate id to its conceptual G-family, so `--route` is **required**, not optional — omit it and the failure silently routes to S2 regardless of what it actually falsifies.
 
 ```sh
 python3 scripts/validate_contracts.py                                  # S0/S1: locks are schema-valid
@@ -47,7 +47,7 @@ python3 scripts/kickoff.py --idea ops/mission/idea.lock.json \
     --plan ops/mission/plan.lock.json --repo <org>/<repo> --out ops/mission/state.json
 python3 scripts/loop.py status                                         # where am I, is the chain intact
 python3 scripts/loop.py run-gates P0                                   # run every pending gate in a phase
-python3 scripts/loop.py fail P1-G1 --reason "…" [--route S1]           # honest failure + loopback
+python3 scripts/loop.py fail P1-G1 --reason "…" --route S1             # honest failure + loopback (route required)
 python3 scripts/loop.py close-phase P0                                 # only when all gates passed AND fresh
 ```
 
@@ -55,9 +55,10 @@ Kickoff *consumes* the locks — it refuses a plan that doesn't govern this idea
 
 ## Honest boundaries
 
-- The ledger is tamper-evident local JSONL, not a hosted notary.
+- The ledger is tamper-evident local JSONL, not a hosted notary — and only entries *after* a given one prove it wasn't tampered with. The tip entry has nothing chained over it yet; re-derive it from raw gate evidence before trusting it at a phase-close or ship decision.
 - Runtime evidence proves the app worked *in that run, on that machine* — no more.
 - Every script degrades honestly and **records the degradation as a finding** rather than skipping silently.
+- Gate falsifiability (that a gate command can actually fail) is an author responsibility — the tooling validates schema shape, not whether a gate is decorative. Catch no-op gates (`exit 0` and the like) in G-review.
 
 ## Where this sits in the archipelago
 

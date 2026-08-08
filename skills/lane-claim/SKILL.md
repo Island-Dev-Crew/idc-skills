@@ -23,11 +23,13 @@ ops/lanes/<lane-id>.claim.json
   "machine":   "nuc",                   // where — the physical machine holding the lane
   "head":      "<SHA the lane started from>",
   "claimed":   "<ISO-8601 UTC>",        // when — absolute, never "today"
-  "status":    "active"                 // active | released
+  "status":    "active"                 // active | released | reclaimed
 }
 ```
 
 The claim answers **who / where / from-what-head / since-when** for every lane in flight. That is exactly the shape a close-out report (and Buzz's dispatch loop) consumes.
+
+A claim file present but unparseable, or missing a required field above, is **active-unknown**: halt, do not claim over it, and surface it to a human (or the force-reclaim authority, see Stale claims below) with the file contents as evidence. Never silently overwrite or delete an unreadable claim.
 
 ## Procedure
 
@@ -46,7 +48,7 @@ Never claim from a stale tree — a claim written against week-old state is the 
 - **Lane free** (no active claim, or your own released claim) → write the claim file, commit it alone (`git add ops/lanes/<lane>.claim.json && git commit`), push it. The pushed claim is the declaration; an unpushed claim binds nobody.
 - **Lane already active under another seat/machine** → **halt.** Report who holds it and since when. Do not edit files on that lane. Pick a different free lane or wait for release. Two seats on one lane is split ownership, and split ownership is how the duplicate-ID and double-work incidents happened.
 
-**Done when** your push of the claim succeeds *and* a re-fetch shows no competing active claim landed first. If a competing claim raced you to the push, yield: release yours and halt.
+**Done when** your push of the claim succeeds *and* a re-fetch shows no competing active claim landed first. If a competing claim raced you to the push, yield: your rejected local commit holds the lone claim file and nothing else (per the rule above), so discard it safely — `git reset --hard origin/main` — then halt and report who won. If your local HEAD holds more than that one commit, do not reset; revert the claim file instead and reconcile by hand.
 
 ### 3. Work the lane
 
@@ -60,7 +62,13 @@ git add ops/lanes/<lane>.claim.json && git commit -m "release lane <lane>"
 git pull --ff-only origin main && git push origin main
 ```
 
+If the pull fails, rebase instead — `git pull --rebase origin main` is safe here because the release commit touches only the claim file — then push. If the claim file itself conflicts, stop and inspect before resolving.
+
 A released lane is free for the next seat. Leave the claim file in place (released, not deleted) so the lane's history stays legible — who held it, when, from what head.
+
+## Stale claims
+
+A claim nobody is releasing strands the lane — the halt rule is unconditional, and an abandoned machine will never push a release. Judge staleness by activity, not the clock alone: no commits on the lane since the claim's recorded head, past the fleet's normal work cycle. Only a human operator (or a designated dispatcher seat) may force-reclaim, and only after confirming the claiming machine is actually gone, not mid-work. To force-reclaim: set `status: reclaimed`, add `reclaimed_by` and `reclaimed_from`, commit alone, push, and notify. A force-reclaim without that provenance is a protocol violation, not a shortcut.
 
 ## The boundary with worktrees
 

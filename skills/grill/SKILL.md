@@ -11,7 +11,7 @@ Map the work as a **design tree**: every decision branches into the decisions th
 
 The one law across all modes: **facts are your job, decisions are the user's.** If a fact can be found by exploring the environment (filesystem, tools, git), look it up — never ask the user for something you could find. Put each *decision* to the user and wait. For every question, give your **recommended answer**.
 
-Boundary: if the answers live with **someone else** — a stakeholder, not the user in front of you — stop. Interrogating a user who cannot answer is wasted; that is the [`to-questionnaire`](../to-questionnaire/SKILL.md) island, which mines a third party instead. Grill mines *you*; to-questionnaire mines *them*.
+Boundary: if the answers live with **someone else** — a stakeholder, not the user in front of you — park that branch: name the stakeholder and the exact gap, and tell the user to invoke [`to-questionnaire`](../to-questionnaire/SKILL.md) themselves (it's user-invoked, not something you can trigger). Keep grilling the rest of the frontier. Grill mines *you*; to-questionnaire mines *them*.
 
 ## Three modes
 
@@ -25,16 +25,18 @@ Work the tree in **rounds**. Ask the *whole frontier* in one round, then wait. E
 
 Format each round for **fast visual scan** (the user is often dictating): number every question, prefix each with an emoji marker for the eye to catch (`1️⃣`, `2️⃣`, `3️⃣`…), and give each its recommended answer inline, so the user can blast back "Q1 agree, Q2 change to X, Q3 agree" in one pass.
 
+Reconciling a round: within one reply, the user's last stated value for a question wins — echo any superseded value back in the next round's recap so the correction is on record. A duck ("whatever's easiest", "you pick") adopts your inline recommendation; echo it as "adopting: X (deferred)" and fold it into the completion recap below rather than re-asking it.
+
 ### Ambush (extract what's in their head)
 The user hasn't told you what matters yet. Interview to surface **priorities, avoided work, and importance** — what remains, what's being dodged, what really matters and what doesn't. Trigger shape: *"start prompting me to figure out what other work needs doing, what we're avoiding, what has importance and what doesn't."* Use at the start of a project, before there's even a plan to drill.
 
 ## Facts are found, not asked
 
-When a frontier question needs a fact from the environment, dispatch a sub-agent (or just look) — don't ask. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions *downstream* of it wait; ask the rest of the frontier now.
+When a frontier question needs a fact from the environment, dispatch a sub-agent (or just look) — don't ask. Search the repo and whatever org context the user has already surfaced — no further. Don't block on it: a running exploration is an unsettled prerequisite, so only the questions *downstream* of it wait; ask the rest of the frontier now. If the lookup comes back empty, the fact-slot becomes a decision: report "no existing convention found for X" and ask it as a decision with your recommended answer.
 
 ## Completion — and the ADR emission
 
-A grill session is done when the **frontier is empty**: every branch visited, nothing left silently assumed. **Do not act on it until the user confirms shared understanding.**
+A grill session is done when the **frontier is empty**: every branch visited, nothing left silently assumed. **Do not act on it until the user confirms shared understanding.** Confirm it with one consolidated recap of every settled decision (including any deferral-adopted values) and a single explicit yes/no — that answer, not the last per-question reply, is what satisfies this gate.
 
 Then emit the ADRs — this is the IDC step the public grill skills stop short of. For each material decision settled during the grill, write a short Architecture Decision Record so the *why* outlives the conversation:
 

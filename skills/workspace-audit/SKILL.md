@@ -21,9 +21,9 @@ Run the bundled [scripts/audit.sh](scripts/audit.sh) against the workspace (it r
 <this-skill-dir>/scripts/audit.sh <workspace-dir>
 ```
 
-It strips URLs from the map, extracts every relative path the map references and checks each exists, then lists every `rooms/**/CONTEXT.md` and every top-level `*.md` (other than the map files and `README.md`) the map never mentions. It reports two lists: **broken claims** (mapped paths missing from the tree) and **blind spots** (tree paths missing from the map). A clean audit prints neither and exits 0; any drift exits 1.
+It strips URLs from the map, extracts every relative path the map references and checks each exists, then lists every `rooms/**/CONTEXT.md` and every top-level `*.md` (other than the map files and `README.md`) the map never mentions. It reports two lists: **broken claims** (mapped paths missing from the tree) and **blind spots** (tree paths missing from the map, matched by exact token — never substring — so a sibling name like `rooms/api` vs `rooms/api-gateway` can't hide a real gap). A clean audit prints neither and exits 0 — meaning no path-token mismatch was found, not that the map is correct; any drift exits 1.
 
-The script is a *heuristic* — it catches path-level drift, not semantic drift (a room whose `Process` no longer matches how you actually work). State that: the script is the enforced part; judging whether a room's *content* is still true is the advisory part, and it is yours.
+The script is a *heuristic* — it catches path-level drift, not semantic drift (a room whose `Process` no longer matches how you actually work), and its path extraction assumes the [`folder-workspace`](../folder-workspace/SKILL.md) naming convention (no spaces in a path segment); a path containing a space is outside what it can parse. State that: the script is the enforced part; judging whether a room's *content* is still true is the advisory part, and it is yours.
 
 ## Fix, don't hide
 

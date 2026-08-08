@@ -7,13 +7,13 @@ description: Investigate a question against high-trust primary sources and captu
 
 The discipline is one rule: **every claim is either backed by a primary source or explicitly flagged as unverified.** No third category. A confident sentence with no source is the exact defect this island exists to prevent — an unverified claim laundered into a fact caps trust, and a report that mixes the two is worse than no report.
 
-Follow the primary-source law: investigate against **official docs, source code, specs, first-party APIs** — not a secondary write-up of them. Follow every claim back to the source that owns it. Separate fact from inference — say which is which.
+Follow the primary-source law: investigate against **official docs, source code, specs, first-party APIs** — not a secondary write-up of them. Follow every claim back to the source that owns it. Separate fact from inference — say which is which. A primary source you found but couldn't open (paywall, fetch-size limit, tool failure) is still unread: the claim stays `[UNVERIFIED]`, annotated with the URL and the retrieval failure — secondary sources describing what it says never upgrade it.
 
-Boundary — the bare word "research" is wide, so route the specialist cases to their island: a bug investigation is [`diagnose`](../diagnose/SKILL.md) (build a red-capable loop, don't write a report); domain setup is [`domain-wire`](../domain-wire/SKILL.md); multi-session learning with source-gathering is [`teach`](../teach/SKILL.md). This island is for investigating a question or topic against external docs, APIs, or specs and producing one cited file.
+Boundary — the bare word "research" is wide, so route the specialist cases to their island: a bug investigation is [`diagnose`](../diagnose/SKILL.md) (build a red-capable loop, don't write a report); domain setup is [`domain-wire`](../domain-wire/SKILL.md); multi-session learning with source-gathering is [`teach`](../teach/SKILL.md). This island is for investigating a question or topic against external docs, APIs, or specs and producing one cited file. A single request can span islands — split it: route the diagnostic half to `diagnose` explicitly (name the handoff in your output), research only the part answerable from external sources. Cited generic documentation about what an error means is not a diagnosis of why *your* system just failed.
 
 ## The default path — delegate and keep working
 
-Spin up a **background agent** to do the reading so you keep working while it reads:
+If the harness offers a background research-delegation tool, spin one up to do the reading so you keep working while it reads. If it doesn't, do the reading yourself, synchronously — delegation is a throughput optimization, not the requirement; the numbered discipline below applies either way:
 
 1. Investigate the question against primary sources. Follow each claim to the source that owns it.
 2. Write findings to a single Markdown file, **citing each claim's source** inline. Any claim you couldn't source gets marked `[UNVERIFIED]` in place — never dropped, never smoothed over.

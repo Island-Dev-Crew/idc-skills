@@ -5,7 +5,7 @@ description: Reference for the universal levers of writing any document an agent
 
 # Writing for Agents — the universal levers
 
-The single source of truth for writing anything an agent consumes. The packaging differs — a skill, an `AGENTS.md`, a `CLAUDE.md`, a rules file, a pointer-reached doc — but the writing does not: the same levers make each one **predictable**, the agent taking the same *process* every run, not producing the same output. When the document is a **skill**, read [`idc-skill-authoring`](../idc-skill-authoring/SKILL.md) for the skill-only mechanics (folder anatomy, invocation, router skills, Codex sidecars, fleet distribution). Everything else is here.
+The single source of truth for how to write any one document an agent consumes. The packaging differs — a skill, an `AGENTS.md`, a `CLAUDE.md`, a rules file, a pointer-reached doc — but the writing does not: the same levers make each one **predictable**, the agent taking the same *process* every run, not producing the same output. When the document is a **skill**, read [`idc-skill-authoring`](../idc-skill-authoring/SKILL.md) for the skill-only mechanics (folder anatomy, invocation, router skills, Codex sidecars, fleet distribution). Everything else is here. Arbitration across two independently-authored documents that both fire on one event is out of scope — that precedence is the installation's own rule-priority convention to state, not a lever this skill supplies.
 
 Lineage: this fuses David Ondrej's and Matt Pocock's public canons and binds them to the IDC rule — *no authority without evidence*, stated enforced-vs-advisory, never implied.
 
@@ -17,6 +17,7 @@ A pointer does two jobs — state what the material is, and list the **branches*
 
 - **Front-load the leading word** — the pointer does its triggering work there.
 - **One trigger per branch.** Synonyms renaming a single branch are one branch written twice — collapse them.
+- **Branch is keyed to the condition, not the action.** N distinct recognizable conditions that share one downstream action are N branches, each keeping its own trigger — auth, authz, encryption, input-validation, and secrets-handling stay five triggers even though all five route to the same review skill. The collapse rule above fires only on true synonyms of one branch.
 - **Cut identity the body already carries.**
 
 ## The two loads
@@ -36,13 +37,13 @@ A document is **steps** (ordered actions the agent performs) and **reference** (
 2. **In-file reference** — consulted on demand; often a legitimately flat peer-set (every rule on one rung), a fine arrangement.
 3. **Disclosed reference** — pushed into a separate file, reached by a pointer, loaded only when the pointer fires — a sibling file through fully external reference any document can point at.
 
-Push too little down and the top bloats; push too much and you hide material the agent needs. That tension is the whole decision. **Progressive disclosure** is the move down the ladder so the top stays legible — not primarily a token optimisation but how the hierarchy is protected. Branching is the cleanest disclosure test: inline what every branch needs, push behind a pointer what only some reach. **Co-location** is the within-file companion: keep a concept's definition, rules, and caveats under one heading so reading one part brings its neighbours. The test — the document should read like documentation written for the agent.
+Push too little down and the top bloats; push too much and you hide material the agent needs. That tension is the whole decision. **Progressive disclosure** is the move down the ladder so the top stays legible — not primarily a token optimisation but how the hierarchy is protected. Branching is the cleanest disclosure test: inline what every branch needs, push behind a pointer what only some reach. **Co-location** is the within-file companion: keep a concept's definition, rules, and caveats under one heading so reading one part brings its neighbours. The test — the document should read like documentation written for the agent. That's a design heuristic for shaping the hierarchy, not a completion criterion; see the next section for how "done" actually gets decided.
 
 ## Steps and completion criteria
 
 Every step ends on a **completion criterion** — the condition that says the work is done. Two properties make it a lever:
 
-- **Clarity** — can the agent tell done from not-done? A vague bound ("understanding reached") invites **premature completion**: ending early, attention slipping to *being done*. The visible **post-completion steps** supply the pull; the criterion's clarity is the resistance. Defend in order — sharpen the bound first (local, cheap); only if it's irreducibly fuzzy *and* you see the rush, hide later steps by splitting across a real context boundary (a hand-off or subagent; an inline call clears nothing).
+- **Clarity** — can the agent tell done from not-done? A vague bound ("understanding reached") invites **premature completion**: ending early, attention slipping to *being done*. The visible **post-completion steps** supply the pull; the criterion's clarity is the resistance. Defend in order — sharpen the bound first (local, cheap); only if it's irreducibly fuzzy *and* you see the rush, hide later steps by splitting across a real context boundary (a hand-off or subagent; an inline call clears nothing). Some bars never reduce to a checkable bound — pick the nearest mechanical proxy you can verify (a checklist, a reviewer pass, a second read) and say plainly that the proxy stands in for the judgment call, not the reverse.
 - **Demand** — how much it requires. "Every modified model accounted for" forces thorough **legwork** where "produce a change list" does not — and demand is not step-bound: "every rule applied" binds a body of flat reference just as "every step done" binds a sequence.
 
 The strongest criteria are both checkable and exhaustive.

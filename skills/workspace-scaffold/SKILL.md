@@ -23,6 +23,8 @@ Run the bundled [scripts/scaffold.sh](scripts/scaffold.sh) — it creates the de
 scripts/scaffold.sh <workspace-dir> "room1 room2 room3"
 ```
 
+Room names are restricted to a single flat `[A-Za-z0-9_-]` segment — no slashes, dots, or leading dash — and cannot be `inbox`, `evidence`, or `rooms` (reserved for the top-level dirs the script also creates). The script rejects anything else before touching disk.
+
 **Done when** the skeleton exists: a root map, one `CONTEXT.md` per room, and the inbox/evidence dirs.
 
 ### 3. Fill in the judgment
@@ -38,13 +40,16 @@ A scaffold that doesn't route is worthless. Prove it before declaring done:
 1. From the workspace root, give a fresh agent one under-specified prompt that maps to a room ("I want to work on X").
 2. Confirm it reads the map, routes to the *right* room, and does **not** read the whole tree (progressive disclosure held).
 3. Give it a prompt matching *no* room. Confirm it falls back to the map rather than guessing.
+4. Give it a prompt that legitimately spans multiple rooms. Confirm the map tells it what to do — a dedicated multi-room/cross-cutting routing row naming an ordered read set, or an instruction to ask the user to split the task — rather than reading every room to cover its bases.
 
-If step 2 reads everything or step 3 strands the agent, the routing is wrong — fix the map before finishing. This is [`folder-workspace`](../folder-workspace/SKILL.md)'s completion criterion, applied to the thing you just generated.
+If any step reads everything, strands the agent, or leaves it to guess, the routing is wrong — fix the map before finishing. This is [`folder-workspace`](../folder-workspace/SKILL.md)'s completion criterion, applied to the thing you just generated.
 
-**Done when** you have observed a correct route to a room and a correct fallback on a no-match prompt.
+**Done when** you have observed a correct route to a room, a correct fallback on a no-match prompt, and correct handling of a multi-room prompt.
 
 ## Converting an existing folder
 
-Same flow, but step 2 reads what's already there first: map the existing folders to rooms, propose naming conventions that match files already present (don't rename en masse — describe what's there), and write the map *over* the existing structure. The point of ICM is you know your own files better than any agent; the scaffold just gives the agent the map to them.
+scripts/scaffold.sh is from-scratch only — do not point it at a folder that already holds real work. It always creates `rooms/<name>/` stubs, so pointed at an existing project it builds a parallel tree of empty CONTEXT.md placeholders while every real file stays unmapped — orphaning the actual content and failing step 4's routing gate immediately.
+
+For an existing folder, build the map by hand instead: write only `AGENTS.md`, `CLAUDE.md`, `inbox/`, and `evidence/` (skip `rooms/` entirely — use [scripts/scaffold.sh](scripts/scaffold.sh)'s stub text as a shape reference, not by running it), then add a `CONTEXT.md` inside each *existing* top-level folder that will act as a room. Point every routing-table row and every `Load:` line at that real folder (e.g. `Load: notes/`), never at a new `rooms/` copy. Propose naming conventions that match files already present — don't rename en masse, describe what's there. The point of ICM is you know your own files better than any agent; the scaffold just gives the agent the map to them.
 
 **No authority without evidence. A scaffold is done when a fresh agent routes through it, not when the folders exist.**

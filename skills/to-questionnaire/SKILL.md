@@ -12,9 +12,9 @@ The inverse of the [`grill`](../grill/SKILL.md) island. A grill interrogates *yo
 
 ## Process
 
-1. **Who is it going to?** In one exchange, get the recipient's role, expertise, and relationship to you — this fixes the questionnaire's tone and how much context it must carry. **Done when** you know who the recipient is and what they know that you don't.
-2. **What do you need back?** In one exchange, get the specific decisions or facts you can't resolve alone and need from this person. **Done when** you have a concrete list of what you must walk away able to do or decide.
-3. **Write the questionnaire.** Draft questions aimed at the gap from steps 1–2, using the structure below. Write it to `to-questionnaire-<slug>.md` in the current directory (slug from the topic) and report the path. **Done when** the file exists and every item named in step 2 is covered by a question.
+1. **Who is it going to?** In as few exchanges as it takes, get the recipient's role, expertise, and relationship to you — this fixes the questionnaire's tone and how much context it must carry. **Done when** you know who the recipient is and what they know that you don't; too vague to clear that bar? Ask one targeted follow-up naming exactly what's missing.
+2. **What do you need back?** In as few exchanges as it takes, get the specific decisions or facts you can't resolve alone and need from this person. **Done when** you have a concrete list of what you must walk away able to do or decide — same follow-up rule as step 1.
+3. **Write the questionnaire.** Draft questions aimed at the gap from steps 1–2, using the structure below. Write it to `to-questionnaire-<slug>.md` in the current directory (slug from the topic) and report the path. Several recipients with disjoint expertise? One file per recipient (`to-questionnaire-<slug>-<recipient>.md`), never a blended file. **Done when** the file(s) exist and every item named in step 2 is covered by a question.
 
 ## Document structure
 
@@ -45,6 +45,6 @@ A closing catch-all: anything we didn't ask that we should know?
 
 ## Why it exists
 
-This is a patch for agents being hard to collaborate with when a stakeholder isn't AI-native — no shared Slack thread to tag an agent into. A Markdown doc travels anywhere: paste it into a Google Doc, hand it over, pull the answers back into the [`grill`](../grill/SKILL.md) or [`spec-pipeline`](../spec-pipeline/SKILL.md) that needed them. A skill to someday delete, when collaboration gets easier.
+This is a patch for agents being hard to collaborate with when a stakeholder isn't AI-native — no shared Slack thread to tag an agent into. A Markdown doc travels anywhere: paste it into a Google Doc, hand it over, pull the answers back into the [`grill`](../grill/SKILL.md) or [`spec-pipeline`](../spec-pipeline/SKILL.md) that needed them. A recipient's answer is input, not a decision — feed their facts to grill as found facts, and their recommendations as options into a still-open decision the user must still make, never as a settled decision. A skill to someday delete, when collaboration gets easier.
 
 **No authority without evidence. Grill the send, not the subject.**

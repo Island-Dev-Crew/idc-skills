@@ -14,8 +14,9 @@ Two leading words carry the pipeline: a **tracer bullet** (a thin vertical slice
 Take the current conversation and codebase understanding and produce a spec (a PRD). **Do not interview** — synthesize what you already know; if the understanding isn't there yet, run the `grill` island first, not this one. If the effort is *too big for a single spec* — foggy, spanning many sessions — chart it with [`wayfinder`](../wayfinder/SKILL.md) first and let each resolved decision feed a spec here. (Stage 2's ticket **frontier** is the tracer-bullet build analogue of wayfinder's decision-frontier — same leading word, one referent for build slices, the other for decisions.)
 
 1. Explore the repo. Use the project's domain glossary throughout; respect ADRs in the area you touch.
-2. Sketch the **seams** at which you'll test the feature. Prefer existing seams; use the highest seam possible; the fewer new seams, the better — ideal is one. **Confirm the seams with the user** before writing the spec.
-3. Write the spec: Problem Statement · Solution · a LONG numbered list of User Stories (`As an <actor>, I want <feature>, so that <benefit>`) · Implementation Decisions (modules, interfaces, schema, contracts — no file paths or code snippets, they rot) · Testing Decisions (test external behaviour not implementation; which modules; prior art) · Out of Scope · Notes. Publish it where the repo keeps specs.
+2. Before sketching seams, list every Implementation Decision the spec will need. If any would be invented rather than derived from the conversation, the repo, or ADRs, **stop and run `grill` (or `wayfinder`)** — do not proceed. Unknowns that remain go into the spec's Open Questions, never as a fabricated decision.
+3. Sketch the **seams** at which you'll test the feature. Prefer existing seams; use the highest seam possible; the fewer new seams, the better — ideal is one. **Confirm the seams with the user** before writing the spec.
+4. Write the spec: Problem Statement · Solution · a LONG numbered list of User Stories (`As an <actor>, I want <feature>, so that <benefit>`) · Implementation Decisions (modules, interfaces, schema, contracts — no file paths or code snippets, they rot) · Testing Decisions (test external behaviour not implementation; which modules; prior art) · Out of Scope · Notes. Publish it where the repo keeps specs.
 
 **Done when** the seams are user-confirmed and the spec is published.
 
@@ -28,7 +29,7 @@ Break the spec into **tickets** — tracer-bullet vertical slices, each declarin
 - Give each ticket its **blocking edges** — the tickets that must finish first. A ticket with no blockers can start immediately.
 - **Prefactor first:** "make the change easy, then make the easy change."
 
-**Wide refactors are the exception.** A mechanical change whose blast radius fans across the codebase can't land as one green slice. Sequence it **expand → migrate → contract**: add the new form beside the old (nothing breaks), migrate call sites in batches sized by blast radius (each its own ticket, CI green batch to batch because the old form still exists), then delete the old form once no caller remains.
+**Wide refactors are the exception.** A mechanical change whose blast radius fans across the codebase can't land as one green slice. Sequence it **expand → migrate → contract**: add the new form beside the old (nothing breaks), migrate call sites in batches sized by blast radius (each its own ticket, CI green batch to batch because the old form still exists), then delete the old form once no caller remains. Advisory default for batch size: one batch per owning module or directory, capped at roughly 10-20 call sites — what one fresh context window can migrate and verify — shrunk further where call sites diverge in behavior; override with a stated reason.
 
 Present the breakdown as a numbered list (title · blocked-by · what it delivers), quiz the user on granularity and edges, iterate until approved, then publish one ticket per unit in dependency order — native blocking links on a real tracker, or one file per ticket locally. Work the **frontier**: any ticket whose blockers are all done.
 
@@ -38,11 +39,11 @@ Present the breakdown as a numbered list (title · blocked-by · what it deliver
 
 Implement each frontier ticket:
 
-- Use **TDD** at the pre-agreed seams — write the test at the seam, watch it fail, implement, watch it pass.
+- Use **TDD** at the pre-agreed seams — write the test at the seam, watch it fail, implement, watch it pass. **Migration tickets** (from an expand → migrate → contract sequence) use characterization tests instead — green before, green after, diff reviewed; the red-first discipline applies only to tickets introducing new behavior.
 - Run typechecking regularly and single test files regularly; run the full suite once at the end.
-- Commit to the current branch. Then hand the diff to the `cross-family-review` island — the seat that implemented never reviews itself.
+- Commit to the current branch. Then hand the diff to the `cross-family-review` island — the seat that implemented never reviews itself. If no second model family is reachable, mark the ticket `verdict-pending` — never verified — and record the gap in the commit; the review gate binds only when a second family exists, otherwise it is advisory.
 
-**Done when** the ticket's acceptance criteria are met, the suite is green, and a cross-family verdict has landed at the head.
+**Done when** the ticket's acceptance criteria are met, the suite is green, and a cross-family verdict has landed at the head — or, lacking a second family, the ticket is marked `verdict-pending` with that gap on record.
 
 ## Stage 4 — Loop (optional persistent runner)
 

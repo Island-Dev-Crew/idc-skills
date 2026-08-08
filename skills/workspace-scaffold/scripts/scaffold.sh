@@ -8,6 +8,22 @@ DIR="${1:?usage: scaffold.sh <workspace-dir> \"room1 room2 ...\"}"
 ROOMS="${2:?usage: scaffold.sh <workspace-dir> \"room1 room2 ...\"}"
 NAME="$(basename "$DIR")"
 
+# Room names must be a single flat [A-Za-z0-9_-] segment: no slashes, dots, or
+# leading dash (blocks path traversal) and no collision with the reserved
+# top-level dirs this script also creates.
+for r in $ROOMS; do
+  if [[ ! "$r" =~ ^[A-Za-z0-9_-]+$ ]]; then
+    echo "error: invalid room name '$r' — must match [A-Za-z0-9_-]+ (no '/', '.', or leading '-')" >&2
+    exit 1
+  fi
+  case "$r" in
+    inbox|evidence|rooms)
+      echo "error: '$r' is a reserved top-level name and cannot be used as a room name" >&2
+      exit 1
+      ;;
+  esac
+done
+
 mkdir -p "$DIR/rooms" "$DIR/inbox" "$DIR/evidence"
 
 # CLAUDE.md — redirect so every seat routes through one map

@@ -11,6 +11,7 @@ Git worktrees solve same-machine parallelism cleanly. IDC adopts them for that �
 ## Start here — where am I?
 
 ```bash
+git rev-parse --is-inside-work-tree >/dev/null 2>&1 || { echo "not a git repository"; exit 1; }
 [ "$(git rev-parse --path-format=absolute --git-dir)" = "$(git rev-parse --path-format=absolute --git-common-dir)" ] \
   && echo "primary checkout" || echo "worktree"
 ```
@@ -30,13 +31,13 @@ One repo, many folders. `git worktree add` makes an extra checkout on its own br
 - **Worktree branches are local and short-lived.** Never push them unless asked. Only main gets pushed. Rebase a stale worktree onto main before merging.
 
 ```bash
+git worktree list && git branch --list task-x    # check the name is free before claiming it
 git worktree add ../repo-task-x -b task-x main   # new worktree + branch off main
-git worktree list
 git worktree remove ../repo-task-x               # when merged or abandoned
 git worktree prune                               # clean stale registrations
 ```
 
-A branch can be checked out in only one worktree at a time (including main).
+A branch can be checked out in only one worktree at a time (including main). Two agents racing the same task name hit `fatal: cannot lock ref` — advisory, not enforced: pick a distinct name and `git worktree prune` any half-registered loser.
 
 ## Make the worktree complete
 
@@ -58,7 +59,7 @@ So the boundary sits here:
 
 - **Allowed:** draft worktrees, exploration, frozen-branch parking — on a development machine.
 - **Forbidden:** any machine whose job is measurement or native evidence; any reviewer clone (a reviewer's fresh clone *is* the independence claim — see `cross-family-review`).
-- **Inadmissible:** any gate-consumed artifact produced in a worktree is inadmissible until **re-derived from a fresh clone by a record seat.** A green from a worktree is a draft green, not an evidence green.
+- **Inadmissible:** any gate-consumed artifact produced in a worktree is inadmissible until **re-derived from a fresh clone by a record seat** — the fresh-clone seat that produces the `confirmed-by` evidence (see `finding-register`). A green from a worktree is a draft green, not an evidence green.
 
 State this boundary as `enforced` only where a hook actually enforces it; elsewhere it is `advisory` discipline — say which, never imply.
 

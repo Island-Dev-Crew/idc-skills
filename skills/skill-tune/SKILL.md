@@ -19,16 +19,18 @@ build an eval set → run the skill → judge each output → edit → re-run �
 
 You cannot tune without a score that can go down. Assemble 5–20 representative tasks the skill should handle — the ones it fails on today are the most valuable. Each task has an input and a checkable expectation. A tuning run with no failing case is like a [`diagnose`](../diagnose/SKILL.md) loop that never goes red: it proves nothing. Record the tasks in `tune/<skill>/tasks.md`.
 
+For subjective targets (tone, warmth, aesthetics) write the expectation as an observable proxy — required/banned phrases, structural markers, lead-with-the-fact ordering — and note in `tasks.md` that the proxy is the measured thing, not the quality itself; spot-check one kept iteration against the real quality before declaring the tune done.
+
 **Done when** you have tasks the *current* skill measurably fails or under-serves, with a stated expectation per task.
 
 ### 2. Baseline
 
-Run the current skill across every task and **judge each output** — ideally with a different model family via [`cross-family-review`](../cross-family-review/SKILL.md), so the judge is not the author. Score each 0–1 (or against a rubric); record the baseline in `tune/<skill>/results.tsv`:
+Run the current skill across every task and **judge each output** — ideally with a different model family via [`cross-family-review`](../cross-family-review/SKILL.md), so the judge is not the author. If no second model family is reachable, self-judge against a rubric written *before* seeing the outputs, and say so in the note (`judge: self`) — a downgrade, never silence. Score each 0–1 (or against a rubric); record the baseline in `tune/<skill>/results.tsv`. Each iteration is a git commit; `sha` is that commit's real SHA (the pin `cross-family-review` needs), not a placeholder:
 
 ```
 # results.tsv — one row per run
-iter   sha        tokens   pass   mean_score   note
-0      <baseline> 1240     6/12   0.58         baseline
+iter   sha       tokens   pass   mean_score   note
+0      a1b2c3d   1240     6/12   0.58         baseline
 ```
 
 Record **token count** too — a tune that raises the score but doubles the tokens is a trade, not a win; name it.
@@ -42,11 +44,11 @@ Make one focused change and re-run. The edits that pay, in order:
 - **Sharpen a leading word** that is too weak to beat the default.
 - **Collapse restatements** into one token.
 
-One change per iteration, so the score delta is attributable.
+One change per iteration, so the score delta is attributable. Exception: if baseline analysis turns up several independent defects at once, bundle them into one rewrite iteration — log it `note: bundle: N changes` so the delta is marked unattributable — and if the score then drops, ablate (revert one change at a time) rather than reverting wholesale. Return to single-change edits after that first rewrite.
 
 ### 4. Keep iff the score rose
 
-Re-run the eval set, re-judge, append a `results.tsv` row. **Keep the edit only if `mean_score` rose (or held while `tokens` fell).** If it dropped, revert — the file reads better to you, but the evidence says it performs worse, and the evidence wins. Loop until the score plateaus or the file is as small as it can be while holding the score.
+Re-run the eval set, re-judge, append a `results.tsv` row. **Keep the edit only if `mean_score` rose without `tokens` growing more than 20% (or `mean_score` held while `tokens` fell).** A rise paired with token growth past 20% only counts as kept if the note logs the trade-off (`note: trade-off — tokens +NN%, justified because …`); unjustified growth reverts like a score drop. If the score dropped outright, revert — the file reads better to you, but the evidence says it performs worse, and the evidence wins. Loop until the score plateaus or the file is as small as it can be while holding the score.
 
 Enforced-vs-advisory: the **score-must-rise gate is the enforced part** — `results.tsv` is the evidence, and an edit that didn't raise the score does not stay. *Which* edit to attempt (§3) is advisory judgement. Say which; never imply the loop enforces good taste.
 

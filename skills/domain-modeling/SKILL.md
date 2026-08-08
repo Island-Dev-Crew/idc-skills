@@ -15,21 +15,21 @@ Actively build and sharpen the project's domain model *as you design*. This is t
 
 - **Challenge against the glossary.** When a term conflicts with the existing language, call it out immediately: *"Your glossary defines 'cancellation' as X, but you seem to mean Y — which is it?"*
 - **Sharpen fuzzy language.** When a term is vague or overloaded, propose a precise canonical one: *"You're saying 'account' — do you mean the Customer or the User? Those are different things."*
-- **Discuss concrete scenarios.** Stress-test relationships with invented edge cases that force precision about the boundaries between concepts.
-- **Cross-reference with code.** When the user states how something works, check the code agrees — and surface any contradiction: *"Your code cancels entire Orders, but you just said partial cancellation is possible — which is right?"*
+- **Discuss concrete scenarios.** Stress-test relationships with invented edge cases that force precision about the boundaries between concepts. No live user to put the edge case to? Test it against the code and glossary instead of answering it yourself — record only contradictions you can point to, never a self-answered assertion.
+- **Cross-reference with code.** When the user states how something works, check the code agrees — and surface any contradiction: *"Your code cancels entire Orders, but you just said partial cancellation is possible — which is right?"* Also check the glossary's own citations: an ADR a term cites must resolve to a real file in `docs/adr/`; a dangling or fabricated reference gets surfaced the same way.
 - **Update CONTEXT.md inline.** When a term resolves, write it down *right there* — don't batch. Capture it as it happens.
 
 ## ADRs — the worthiness gate
 
-This island owns one thing about ADRs: **when** one is worth writing. Only offer an ADR when **all three** hold: it's **hard to reverse** (changing your mind later is costly), **surprising without context** (a future reader will ask "why this way?"), and **the result of a real trade-off** (genuine alternatives existed and you picked one for reasons). Miss any one, skip it.
+This island owns one thing about ADRs: **when** one is worth writing — and only for a term this session resolved. An architecture, technology, or infrastructure choice that didn't arise from resolving a term is out of jurisdiction here; skip it. Only offer an ADR when **all three** hold: it's **hard to reverse** (the higher of code-diff cost and team language-habit cost — a rename cheap in code but expensive for a team to unlearn still counts), **surprising without context** (a future reader will ask "why this way?"), and **the result of a real trade-off** (genuine alternatives existed and you picked one for reasons). Miss any one, skip it.
 
-The ADR **template, format, and emission ceremony** live in [`grill`](../grill/SKILL.md) — the single owner of *how* an ADR is written and its user-approval rule. When a term you resolve here clears all three tests, hand the emission to grill rather than restating the template; this island decides *whether*, grill does *how*.
+The ADR **template, format, and emission ceremony** live in [`grill`](../grill/SKILL.md) — the single owner of *how* an ADR is written and its user-approval rule. When a term you resolve here clears all three tests, hand the emission to grill rather than restating the template; this island decides *whether*, grill does *how*. No live user to approve it — this island also runs non-interactively, maintaining another skill's domain model — write the qualifying ADR as pending-approval and surface that upward to the caller instead of stalling.
 
 ## The evidence weld
 
 - **Enforced-vs-advisory:** this discipline is **advisory** — nothing mechanically forces a term to be used consistently; the cross-reference-with-code move is the closest thing to a check, and it only *surfaces* a contradiction for a human to resolve. Say so.
 - The glossary is the **single source of truth** for meaning — the same law [`writing-for-agents`](../writing-for-agents/SKILL.md) holds for every meaning in every doc. One term, one place, one definition.
 
-**Done when** every term resolved in the session is written to `CONTEXT.md` (as it happened, not batched), each ADR meets all three tests and had the user's approval, and no contradiction between the stated model and the code is left unsurfaced.
+**Done when** every term resolved in the session is written to `CONTEXT.md` (as it happened, not batched), each qualifying ADR has either the user's approval or is explicitly surfaced pending-approval to the caller, and no contradiction between the stated model and the code is left unsurfaced.
 
 **No authority without evidence. One term, one meaning — challenged against the code, not just asserted.**

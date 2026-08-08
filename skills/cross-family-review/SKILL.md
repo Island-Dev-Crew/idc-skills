@@ -12,8 +12,8 @@ The most valuable island, because it is the one IDC has run in production with r
 ## The three laws
 
 1. **The author never reviews their own work.** The seat that produced the diff does not launch, steer, or write its own reviewer. Independence is the product; a self-review destroys it. If you wrote the code, you set up the ceremony — you do not sit in the reviewer's chair.
-2. **A different family reviews.** The reviewer runs on a different model family from the author (Fable reviews Codex's work; Codex reviews Fable's). A sustained cross-family disagreement, resolved by principle rather than seniority, is how the ceremony locates the right answer — it beat single-family consensus twice in the production record.
-3. **The verdict binds an exact head, and voids on move.** A verdict names the SHA it reviewed. The moment `HEAD` moves, the verdict is void — not stale, void. Re-review the new head or do not claim review.
+2. **A different family reviews.** The reviewer runs on a different model family from the author (Fable reviews Codex's work; Codex reviews Fable's). A sustained cross-family disagreement, resolved by principle rather than seniority, is how the ceremony locates the right answer — it beat single-family consensus twice in the production record. If no second family is reachable, the ceremony halts — see Step 3.
+3. **The verdict binds an exact head, and voids on move.** A verdict names the SHA it reviewed. The moment `HEAD` moves, the verdict is void — not stale, void — including a message-only amend or reword; a new SHA always means a new ceremony, never a re-bind. Re-review the new head or do not claim review.
 
 ## Process
 
@@ -40,6 +40,8 @@ An empty diff or bad ref fails at this step. **Done when** you can state the rev
 - **Spec** — the diff faithfully implements the originating issue / PRD / spec. Find it via issue references in the commit messages, a path the user passed, or a spec file matching the branch. If there is genuinely no spec, the Spec axis reports "no spec available" — it does not invent one.
 
 ### 3. Launch the reviewer — from a fresh clone, cross-family
+
+**No second family reachable.** Confirm this before pinning the head, not after. If no different-family reviewer seat can be launched (single-seat environment, missing launch mechanics), halt and issue a `blocked` verdict with Reviewer seat recorded as `NONE AVAILABLE` and the reason stated — same-family review is never a substitute and must never be labeled as the reviewer seat. A single-seat mechanics rehearsal is fine for calibration only if marked `REHEARSAL — no independence claim, not a verdict`; it never enters `finding-register` and never gates a merge.
 
 The reviewer must see the code the way a stranger would. **A reviewer's clone is part of the independence claim** — it reads the exact head from a clean checkout, not the author's warm working tree, and never from a worktree (worktrees share `.git` state; see the `worktree-fleet` island). Give it the reviewed SHA, the diff command, the axis sources — and then get out of its way.
 
@@ -70,5 +72,6 @@ For verdicts, use **adversarial named-seat review**, not a consensus average. No
 - The launch mechanics (`fable-review` / `gpt-review`) are how step 3 spawns the reviewer; the seat that implements never launches its own.
 - Findings that survive the verdict enter the `finding-register` island — enumerated at the reviewed SHA, provenance-marked, swept for ID collisions before allocation.
 - A `changes-requested` verdict routes back through the author seat, never the reviewer, and the re-review binds the *new* head.
+- Before merging, registering findings, or otherwise relying on a verdict, recompute `git rev-parse HEAD` and compare it to the verdict's reviewed head — a mismatch means void, full stop; return to Step 1.
 
 **No authority without evidence. The verdict is void the moment the head moves.**

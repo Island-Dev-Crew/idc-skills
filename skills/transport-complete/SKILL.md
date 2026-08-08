@@ -19,7 +19,9 @@ ls .github/workflows/ 2>/dev/null           # what CI runs, what gate is require
 git remote -v                                # where main lands
 ```
 
-Identify: the required CI check name, whether deploy is push-triggered (Vercel-style) or manual, and the production health endpoint. If you can't name all three, ask — shipping blind is how the exact-SHA guarantee is lost.
+Identify: the required CI check name (capture it as `WORKFLOW` — step 3 filters on it), whether deploy is push-triggered (Vercel-style) or manual, and the production health endpoint. If you can't name all three, ask — shipping blind is how the exact-SHA guarantee is lost.
+
+This loop is GitHub Actions + `gh` CLI specific. If `ls .github/workflows` turns up nothing because the repo ships on GitLab CI, CircleCI, Jenkins, or anything else, STOP and tell the user — do not improvise an equivalent procedure or push blind.
 
 ## The loop — repeat until the exact change is live
 
@@ -42,14 +44,16 @@ git pull --rebase origin main
 git push origin main
 SHA=$(git rev-parse HEAD)                     # THIS is the SHA everything below must track
 
-# 3. Find the CI run for this exact SHA, then let it stream to completion.
+# 3. Find the CI run for this exact SHA on $WORKFLOW, then let it stream to completion.
+#    Multiple workflows can share a SHA (lint.yml + test.yml + deploy.yml all trigger on
+#    the same push) — filter on the required check name, not just the SHA, and take one run.
 RUN_ID=""
 for i in 1 2 3 4 5 6; do
-  RUN_ID=$(gh run list --branch=main --limit=10 --json headSha,databaseId \
-    --jq ".[] | select(.headSha==\"$SHA\") | .databaseId")
+  RUN_ID=$(gh run list --branch=main --limit=20 --json headSha,databaseId,workflowName \
+    --jq "[.[] | select(.headSha==\"$SHA\" and .workflowName==\"$WORKFLOW\")] | .[0].databaseId // empty")
   [ -n "$RUN_ID" ] && break; sleep 5
 done
-[ -n "$RUN_ID" ] || { echo "transport: CI run not found for $SHA" >&2; exit 1; }
+[ -n "$RUN_ID" ] || { echo "transport: CI run not found for $SHA on $WORKFLOW" >&2; exit 1; }
 gh run watch "$RUN_ID" --exit-status
 
 # 4. CI green -> confirm the deploy promoted THIS SHA (not a neighbour).

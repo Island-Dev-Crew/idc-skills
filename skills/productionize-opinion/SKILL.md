@@ -13,15 +13,15 @@ It mines *you* — which is what separates it from [`research`](../research/SKIL
 
 ### 1. Ingest — raw material to an inbox
 
-Drop the raw material into the workspace `inbox/` (created by [`workspace-scaffold`](../workspace-scaffold/SKILL.md) and documented in [folder-workspace's map template](../folder-workspace/references/map-template.md)): recorded thoughts, meeting transcripts, the chat turns where you corrected the AI, prior writing. Volume is fine — this stage does not judge, it collects. Redact secrets and third-party PII on the way in.
+Drop the raw material into the workspace `inbox/` (created by [`workspace-scaffold`](../workspace-scaffold/SKILL.md) and documented in [folder-workspace's map template](../folder-workspace/references/map-template.md)): recorded thoughts, meeting transcripts, the chat turns where you corrected the AI, prior writing. Volume is fine — this stage does not judge, it collects. Redact secrets, credentials, and third-party PII — including confidential business relationships like an NDA'd client name — on the way in; if any slipped through, scrub it during distill before it lands in a context file.
 
 ### 2. Distill — extract the patterns, not just the words
 
 Read the raw material and extract, in order:
 
-- **Stated preferences** — what you explicitly said you want ("don't use 'hey guys' energy," "always cite the source"). These are *facts you stated* — record them as such.
+- **Stated preferences** — what you explicitly said you want ("don't use 'hey guys' energy," "always cite the source"). These are *facts you stated* — record them as such, each dated to its source. When two stated preferences conflict across sources, keep both dated rather than silently picking one; mark which supersedes as an **inference**, never as a new stated fact.
 - **Revealed patterns** — the *why* under the words: why you talk a certain way, what you consistently reach for, what you reject. These are *inferences* — record them **marked as inferred**, not as stated fact. Distilling an inference and presenting it as your stated opinion is the laundering the forge forbids; a distilled voice file must say which lines you said and which the distiller guessed.
-- **Decisions and their reasons** — past choices *already made in the raw material*, with the *why*, so the process is repeatable. This island only *harvests* decisions already in the exhaust; for a decision being made **now**, [`grill`](../grill/SKILL.md) emits the ADR — don't duplicate that here.
+- **Decisions and their reasons** — past choices *already made in the raw material*, with the *why*, so the process is repeatable. This island only *harvests* decisions already in the exhaust; for a decision being made **now**, [`grill`](../grill/SKILL.md) emits the ADR — don't duplicate that here. On a repeat ingest, a decision still open at the last pass gets logged once it resolves in the exhaust — cross-reference any grill ADR already opened for it so the two don't diverge.
 
 Write the result to durable context files in the workspace — a `voice.md`, a `process.md`, a decision log — small and lean (a tuned context file is a short one; see [`skill-tune`](../skill-tune/SKILL.md)). **Cite the raw source beside each extracted line** (e.g. `voice.md ⟵ inbox/2026-06-call.txt`, or an inline `(source: …)` tag), so the traceability the completion criterion demands is actually checkable against the artifact.
 
@@ -29,9 +29,9 @@ Write the result to durable context files in the workspace — a `voice.md`, a `
 
 Every "no, you're off" in the chat history is a constraint. Convert them into positive rules (per [`writing-for-agents`](../writing-for-agents/SKILL.md) — steer toward the target, not away from the banned thing): "write clear declarative sentences" beats "don't be verbose." Each rule you add is a piece of your brain the agent now runs on.
 
-**Done when** the distilled context files carry stated preferences (as facts), revealed patterns (marked as inferences), and decisions with reasons — each line traceable to its raw source, and none of the inferred lines presented as something you stated.
+**Done when** the distilled context files carry stated preferences (as facts, conflicts dated and reconciled only as marked inference), revealed patterns (marked as inferences), and decisions with reasons — each line traceable to its raw source, and none of the inferred lines presented as something you stated.
 
-Enforced-vs-advisory: these rules are **advisory** — no script enforces the inference marking or the source citation; the done-when review is the gate, and [`workspace-audit`](../workspace-audit/SKILL.md) can only check the files exist, not that a line is honestly labelled. State that; the discipline lives in the review, not in a hook.
+Enforced-vs-advisory: these rules are **advisory** — no script enforces the inference marking, the source citation, or the redaction pass; the done-when review is the gate, and [`workspace-audit`](../workspace-audit/SKILL.md) can only check the files exist, not that a line is honestly labelled or that raw material was scrubbed. State that; the discipline lives in the review, not in a hook.
 
 ## The point
 
