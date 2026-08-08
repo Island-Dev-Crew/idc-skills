@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>The Forge — a walkthrough of all 43 skills</title>
+<title>The Forge — a walkthrough of all 44 skills</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
@@ -103,7 +103,7 @@ text-transform:uppercase;color:var(--dim2);margin:0 0 3px}
   <header class="hero">
     <div class="kick">Island Development Crew · a walkthrough</div>
     <h1>The <span class="g">Forge</span></h1>
-    <div class="tag">Forty-three agent skills, told as one journey. Each skill is an island; together they take a task from "should we even build this?" all the way to "it is verifiably live." Read it top to bottom, or jump to the act you need.</div>
+    <div class="tag">Forty-four agent skills, told as one journey. Each skill is an island; together they take a task from "should we even build this?" all the way to "it is verifiably live." Read it top to bottom, or jump to the act you need.</div>
     <div class="facet"><i></i><i></i><i></i><i></i><i></i></div>
     <div class="laws">
       <div class="law gold"><div class="l">The first law</div><b>No authority without evidence.</b><p>A claim is not done until a check that could have failed proves it. The forge says which rules are enforced and which are advice — and never dresses a guess up as a fact.</p></div>
@@ -132,7 +132,7 @@ text-transform:uppercase;color:var(--dim2);margin:0 0 3px}
     </div>
   </div>
   <div class="foot">
-    IDC Skills · The Forge · release 1.6.0 · 43 islands · staging <code style="font-family:'JetBrains Mono',monospace;font-size:11px">Navigata1/idc-skills-forge</code>
+    IDC Skills · The Forge · release 1.7.0 · 44 islands · staging <code style="font-family:'JetBrains Mono',monospace;font-size:11px">Navigata1/idc-skills-forge</code>
     <div class="sig">No authority without evidence. The repo is the memory. — Roll Tide 💎</div>
   </div>
 </div>
@@ -213,7 +213,7 @@ ACTS.forEach((a,ai)=>{
     const [nm,kind,kc,what,when,move]=s;
     const el=document.createElement('div'); el.className='skill';
     el.dataset.blob=(nm+' '+what+' '+when+' '+move+' '+kind).toLowerCase();
-    el.innerHTML=`<div class="rail"><div class="idx">${String(idx).padStart(2,'0')} / 43</div>
+    el.innerHTML=`<div class="rail"><div class="idx">${String(idx).padStart(2,'0')} / 44</div>
       <a class="nm" href="../skills/${nm}/SKILL.md">${nm}</a><div><span class="kd ${kc}">${kind}</span></div></div>
       <div class="body"><span class="q">what it is</span><p class="what">${what}</p>
       <span class="q">when you reach for it</span><p class="when">${when}</p>

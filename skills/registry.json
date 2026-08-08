@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "release": "1.6.0",
+  "release": "1.7.0",
   "name": "idc-skills-forge",
   "bundleName": "idc-skills-forge",
   "staging": "Navigata1/idc-skills-forge",
@@ -50,7 +50,8 @@
     "prose-craft",
     "delegated-authority-prompt",
     "model-routing",
-    "batch-sample-curate"
+    "batch-sample-curate",
+    "self-contained-ship"
   ],
   "skills": [
     {
@@ -641,6 +642,21 @@
         "generate N and pick",
         "best of N",
         "curate the candidates"
+      ]
+    },
+    {
+      "name": "self-contained-ship",
+      "path": "self-contained-ship",
+      "invocation": "model",
+      "provenance": "earned add — the containment leaf of the ship cluster (validated high-value; first script failed the gauntlet at 7 on egress-detection holes, authored correct here)",
+      "summary": "Prove a deliverable phones home to nobody before it ships — a static egress scanner (schemes wss/ws/ftp + fetch/WebSocket/XHR/EventSource/import/@import/url/src/href, per-hit bounded egress-ok waiver) paired with a sealed offline load asserting zero outbound. The containment gate; transport-complete proves liveness, not containment.",
+      "triggers": [
+        "self-contained",
+        "no external requests",
+        "inline everything",
+        "offline-safe",
+        "does it phone home",
+        "zero-egress gate"
       ]
     }
   ]

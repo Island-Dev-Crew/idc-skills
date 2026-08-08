@@ -1,0 +1,3 @@
+interface:
+  display_name: "Self-Contained Ship"
+  short_description: "Zero-egress gate: static scan + sealed offline load"
