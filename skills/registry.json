@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "release": "1.5.0",
+  "release": "1.6.0",
   "name": "idc-skills-forge",
   "bundleName": "idc-skills-forge",
   "staging": "Navigata1/idc-skills-forge",
@@ -47,7 +47,10 @@
     "merge-resolve",
     "issue-triage",
     "agent-schedule",
-    "prose-craft"
+    "prose-craft",
+    "delegated-authority-prompt",
+    "model-routing",
+    "batch-sample-curate"
   ],
   "skills": [
     {
@@ -598,6 +601,46 @@
         "write an article",
         "draft an essay",
         "help me write this piece"
+      ]
+    },
+    {
+      "name": "delegated-authority-prompt",
+      "path": "delegated-authority-prompt",
+      "invocation": "user",
+      "provenance": "ICM-NATIVE — the deliberate inverse of grill: front-load the answers as context + decision rights, granting an agent authority bounded by explicit stop conditions",
+      "summary": "Compose a minimum-question, maximum-authority delegation prompt in five slots (objective + definition of done, context pack, decision rights, stop conditions, evidence contract) so a delegated agent runs far without check-ins, made safe by the tripwires that bound it. The mirror of grill: grill front-loads the questions, this front-loads the answers.",
+      "triggers": [
+        "delegate this",
+        "write a delegation prompt",
+        "hand this off to run",
+        "let it run without checking in",
+        "minimum questions, maximum authority"
+      ]
+    },
+    {
+      "name": "model-routing",
+      "path": "model-routing",
+      "invocation": "model",
+      "provenance": "design-video derived (Kimi/Claude model-selection practice) — cognitive-demand vs cost-floor routing",
+      "summary": "Route one task to the cheapest model or tool that still clears its cognitive-demand floor (vision-native / deep-reasoning / cheap-bulk), and record why the pick clears the bar. The only island that selects the model a step runs on.",
+      "triggers": [
+        "which model",
+        "model routing",
+        "cheapest model that works",
+        "escalate to a bigger model"
+      ]
+    },
+    {
+      "name": "batch-sample-curate",
+      "path": "batch-sample-curate",
+      "invocation": "user",
+      "provenance": "design-video derived (probabilistic-generator sampling economics)",
+      "summary": "Draw N candidates from a probabilistic-output tool (image/video/design/copy) and curate to the best against a scored keep/cut ledger, recording why each was kept or cut. Distinct from gauntlet-loop (refine one to a bar) and prototype.",
+      "triggers": [
+        "batch sample",
+        "generate N and pick",
+        "best of N",
+        "curate the candidates"
       ]
     }
   ]

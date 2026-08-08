@@ -4,13 +4,13 @@
 
 > *"In the multitude of counsellors there is safety."* — Proverbs 11:14
 
-This is the **staging forge** (`Navigata1/idc-skills-forge`, release 1.5.0). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
+This is the **staging forge** (`Navigata1/idc-skills-forge`, release 1.6.0). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
 
 **Dual-harness:** every island ships an `agents/openai.yaml` sidecar, so the set works in Claude Code, Pi, Hermes **and** Codex from one source. User-invoked islands carry `policy.allow_implicit_invocation: false` — the Codex analog of `disable-model-invocation`.
 
 ---
 
-## The chain — forty islands, in build order
+## The chain — forty-three islands, in build order
 
 The order is the bootstrap: island 1 authors the rest and rests on island 2 (the universal levers); the crown ships with a week of receipts; the ICM cluster (22–28) is the workspace architecture the whole chain routes within; twelve islands are IDC's own.
 
@@ -56,6 +56,9 @@ The order is the bootstrap: island 1 authors the rest and rests on island 2 (the
 | 38 | [`issue-triage`](skills/issue-triage/SKILL.md) | adapt · earned | Move an inbound queue of issues you didn't create through a triage state machine to agent-ready briefs. |
 | 39 | [`agent-schedule`](skills/agent-schedule/SKILL.md) | adapt · earned | Run an unattended agent on a wall-clock — and verify it actually fired before trusting it. |
 | 40 | [`prose-craft`](skills/prose-craft/SKILL.md) | fusion · earned | Author original prose in two phases — explore fragments and coin the leading word, then build grounded beats. |
+| 41 | [`model-routing`](skills/model-routing/SKILL.md) | ⛰ earned | Route a task to the cheapest model that clears its cognitive-demand floor — the only island that picks the model a step runs on. |
+| 42 | [`delegated-authority-prompt`](skills/delegated-authority-prompt/SKILL.md) | ⛰ earned | The inverse of grill — front-load the answers and grant decision rights, bounded by stop-condition tripwires. |
+| 43 | [`batch-sample-curate`](skills/batch-sample-curate/SKILL.md) | ⛰ earned | Draw N candidates from a stochastic generator and curate to the best on a scored keep/cut ledger. |
 
 ## The ICM cluster — folder as workspace
 

@@ -1,0 +1,3 @@
+interface:
+  display_name: "Model Routing"
+  short_description: "Pick the cheapest model or tool that clears the task's floor"

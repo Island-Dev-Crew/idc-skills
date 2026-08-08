@@ -1,0 +1,5 @@
+interface:
+  display_name: "Delegated Authority Prompt"
+  short_description: "Front-load context + decision rights; bound with stop conditions"
+policy:
+  allow_implicit_invocation: false

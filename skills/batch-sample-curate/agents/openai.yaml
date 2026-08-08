@@ -1,0 +1,5 @@
+interface:
+  display_name: "Batch Sample & Curate"
+  short_description: "Draw N from a probabilistic generator, curate to the best on a scored keep/cut ledger"
+policy:
+  allow_implicit_invocation: false
