@@ -9,6 +9,13 @@
  *
  * Adjust the `src/packages` prefix below if your repo uses a different root.
  *
+ * INSTALL GOTCHA: install dependency-cruiser AND typescript as local
+ * devDependencies and run via node_modules/.bin/depcruise. Never
+ * `npx --yes dependency-cruiser` — its isolated cache lacks typescript, so
+ * every .ts import resolves couldNotResolve, zero rules fire, and it still
+ * prints a clean pass (the only clue is a buried missing-typescript-transpiler
+ * notice and low module counts).
+ *
  * GOTCHA this file exists to save you from: dependency-cruiser only
  * substitutes a captured `$1` into the `to.path` / `to.pathNot` of the SAME
  * rule that captured it in `from.path`. A `$1` written into `from.path` or

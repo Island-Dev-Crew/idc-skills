@@ -17,7 +17,7 @@ build an eval set → run the skill → judge each output → edit → re-run �
 
 ### 1. Build a red-capable eval set
 
-You cannot tune without a score that can go down. Assemble 5–20 representative tasks the skill should handle — the ones it fails on today are the most valuable. Each task has an input and a checkable expectation. A tuning run with no failing case is like a [`diagnose`](../diagnose/SKILL.md) loop that never goes red: it proves nothing. Record the tasks in `tune/<skill>/tasks.md`.
+You cannot tune without a score that can go down. Assemble 5–20 representative tasks the skill should handle — the ones it fails on today are the most valuable. If fewer than 5 tasks genuinely fail, keep the set small rather than padding it — but retain a handful of currently-passing tasks in the measured set as regression guards, so a kept edit must hold them green. Each task has an input and a checkable expectation. A tuning run with no failing case is like a [`diagnose`](../diagnose/SKILL.md) loop that never goes red: it proves nothing. Record the tasks in `tune/<skill>/tasks.md`.
 
 For subjective targets (tone, warmth, aesthetics) write the expectation as an observable proxy — required/banned phrases, structural markers, lead-with-the-fact ordering — and note in `tasks.md` that the proxy is the measured thing, not the quality itself; spot-check one kept iteration against the real quality before declaring the tune done.
 
@@ -50,7 +50,9 @@ One change per iteration, so the score delta is attributable. Exception: if base
 
 Re-run the eval set, re-judge, append a `results.tsv` row. **Keep the edit only if `mean_score` rose without `tokens` growing more than 20% (or `mean_score` held while `tokens` fell).** A rise paired with token growth past 20% only counts as kept if the note logs the trade-off (`note: trade-off — tokens +NN%, justified because …`); unjustified growth reverts like a score drop. If the score dropped outright, revert — the file reads better to you, but the evidence says it performs worse, and the evidence wins. Loop until the score plateaus or the file is as small as it can be while holding the score.
 
-Enforced-vs-advisory: the **score-must-rise gate is the enforced part** — `results.tsv` is the evidence, and an edit that didn't raise the score does not stay. *Which* edit to attempt (§3) is advisory judgement. Say which; never imply the loop enforces good taste.
+Any tasks you lean on for regression checking must appear as scored rows in `results.tsv` (or as a regression column on the iteration row) — a spot-check kept out of the log leaves no evidence, so a regression on it could not revert an edit.
+
+Enforced-vs-advisory: the **score-must-rise gate is the enforced part** — `results.tsv` is the evidence, and an edit that didn't raise the score does not stay. For an over-cap trade-off, the enforced check is only that the logged trade-off note *exists*; whether the justification is *adequate* is advisory judgement, ideally reviewed by the cross-family judge when one is in use. *Which* edit to attempt (§3) is advisory judgement too. Say which; never imply the loop enforces good taste.
 
 **Done when** the final `results.tsv` shows a run whose score beats the baseline (or matches it at fewer tokens), every kept edit is backed by a row where the score did not fall, and the reverted edits are visible in the log so the next tuner does not retry them.
 

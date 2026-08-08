@@ -48,7 +48,7 @@ Three rules borrowed from the reaction-video operator, welded to the forge:
 - **If it's not here, go back.** Every room ends by pointing home: *"For anything not in this room, return to the root map."* Recursive fallback — the agent is never stranded.
 - **The map is a routing contract, not decoration.** State enforced-vs-advisory: a routing rule is **advisory** unless a boundary lint (see [`deep-modules`](../deep-modules/SKILL.md)) actually forbids a cross-room import. Never imply the map is enforced when nothing enforces it — that is the laundering the archipelago forbids.
 - **Compound tasks decompose.** A task matching multiple rows is N phases; route each phase through its own row in table order, and apply each row's Skip column only within its phase — never to the whole task.
-- **When the map outgrows one table.** Past roughly 12–15 rows, split it: the root map routes to wing-level maps (`rooms/<wing>/AGENTS.md`), each wing routing its own rooms — one small map plus one sub-map per session, never the whole tree.
+- **When the map outgrows one table.** Past roughly 12–15 rows, split it: the root map routes to wing-level maps (`rooms/<wing>/AGENTS.md`), each wing routing its own rooms — one small map plus one sub-map per session, never the whole tree. Group rows into wings along the axis that minimizes cross-wing routing — rows sharing rooms, Skills-column entries, or naming conventions belong in one wing, and a compound task should ideally stay inside one. The taxonomy is operator judgment: record the chosen axis in the root map's floor plan so the next session inherits it instead of re-deriving it.
 
 A full map you can copy is in [references/map-template.md](references/map-template.md).
 

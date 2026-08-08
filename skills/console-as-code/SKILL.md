@@ -38,7 +38,10 @@ git diff --quiet && git diff --cached --quiet \
 # Refuse on case-folded block name collisions — a case-insensitive filesystem
 # (default macOS) collapses differently-cased names to one inode, so the same
 # blocks/ directory would silently assemble to a different console on such a seat.
-dupes=$(ls console/blocks/*.md | xargs -n1 basename | tr 'A-Z' 'a-z' | sort | uniq -d)
+# Ask git, not the working tree: git's index stays case-sensitive and reports both
+# entries even where the checkout already collapsed them — `ls` on a collapsed tree
+# sees one file and never fires, missing the exact seat this guard exists for.
+dupes=$(git ls-files 'console/blocks/*.md' | xargs -n1 basename | tr 'A-Z' 'a-z' | sort | uniq -d)
 [ -z "$dupes" ] \
   || { echo "refusing to assemble: case-folded block name collision — $dupes" >&2; exit 1; }
 # concatenate blocks in filename order, stamp the result
@@ -61,7 +64,7 @@ The `console.lock` is committed. A seat boots from `console.lock`, never from a 
 - **Ground the fleet's vocabulary here.** The blocks are where the [`CONTEXT.md`](../../CONTEXT.md) ubiquitous language lives for the operating prompt, so every seat speaks one tongue — the drift cure at the word level, not just the block level.
 - **The stamp proves integrity, not safety.** It attests the assembled text byte-matches the committed blocks — not that the blocks are safe content. Because the console becomes an agent's operating prompt, commit access to a block is a prompt-injection surface; review block diffs with the same scrutiny as any other prompt change.
 
-These rules are **advisory** — nothing mechanically blocks a hand-edit of `console.lock`; the only detection is recomputing the stamp from the blocks and comparing (the dirty-tree gate above is the one *enforced* step). State that plainly; a stamp whose blocks were bypassed is exactly the unverified-worn-as-verified failure the archipelago forbids. A seat that wants this mechanized rather than advisory can recompute `shasum -a 256` over the blocks at boot and compare to the embedded stamp before trusting the console.
+These rules are **advisory** — nothing mechanically blocks a hand-edit of `console.lock`; the only detection is recomputing the stamp from the blocks and comparing (the dirty-tree gate and the case-fold guard above are the *enforced* steps — both fail closed and exit non-zero). State that plainly; a stamp whose blocks were bypassed is exactly the unverified-worn-as-verified failure the archipelago forbids. A seat that wants this mechanized rather than advisory can recompute `shasum -a 256` over the blocks at boot and compare to the embedded stamp before trusting the console.
 
 ## Where this plugs in
 

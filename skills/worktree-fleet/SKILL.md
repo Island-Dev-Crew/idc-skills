@@ -37,7 +37,7 @@ git worktree remove ../repo-task-x               # when merged or abandoned
 git worktree prune                               # clean stale registrations
 ```
 
-A branch can be checked out in only one worktree at a time (including main). Two agents racing the same task name hit `fatal: cannot lock ref` — advisory, not enforced: pick a distinct name and `git worktree prune` any half-registered loser.
+A branch can be checked out in only one worktree at a time (including main). Two agents racing the same task name hard-fail — `fatal: a branch named 'task-x' already exists` for `-b`, or `fatal: 'task-x' is already used by worktree at ...` when checking out an existing branch. Advisory, not enforced: pick a distinct name and `git worktree prune` any half-registered loser.
 
 ## Make the worktree complete
 

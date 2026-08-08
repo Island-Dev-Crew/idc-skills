@@ -11,11 +11,11 @@ Map the work as a **design tree**: every decision branches into the decisions th
 
 The one law across all modes: **facts are your job, decisions are the user's.** If a fact can be found by exploring the environment (filesystem, tools, git), look it up — never ask the user for something you could find. Put each *decision* to the user and wait. For every question, give your **recommended answer**.
 
-Boundary: if the answers live with **someone else** — a stakeholder, not the user in front of you — park that branch: name the stakeholder and the exact gap, and tell the user to invoke [`to-questionnaire`](../to-questionnaire/SKILL.md) themselves (it's user-invoked, not something you can trigger). Keep grilling the rest of the frontier. Grill mines *you*; to-questionnaire mines *them*.
+Boundary: if the answers live with **someone else** — a stakeholder, not the user in front of you — park that branch: name the stakeholder and the exact gap, and tell the user to invoke [`to-questionnaire`](../to-questionnaire/SKILL.md) themselves (it's user-invoked, not something you can trigger). If the answer lives with **no one interviewable** — an external process, vendor, or clock — record it as a named blocker (owner/party, what unblocks it, expected timing), adopt a PROVISIONAL value if downstream questions depend on it, and carry it into the completion recap; blockers get no ADR, though a decision leaning on one should note it in that ADR's Context. Keep grilling the rest of the frontier. Grill mines *you*; to-questionnaire mines *them*.
 
 ## Three modes
 
-Pick by how the user wants to be interrogated. When unsure, ask which — or default to **drill**.
+Pick by how the user wants to be interrogated. When unsure, default to **drill**; ask which only if the user's message itself signals a throughput preference (dictating, a wide independent frontier).
 
 ### Drill (one at a time)
 Walk the decision tree depth-first, resolving dependencies one by one. Ask **one question at a time**, each with your recommended answer, and wait for the answer before the next. Asking several at once is bewildering. Use when decisions are tightly coupled and each answer reshapes the next question.

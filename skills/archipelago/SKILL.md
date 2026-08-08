@@ -57,7 +57,9 @@ Kickoff *consumes* the locks — it refuses a plan that doesn't govern this idea
 
 - The ledger is tamper-evident local JSONL, not a hosted notary — and only entries *after* a given one prove it wasn't tampered with. The tip entry has nothing chained over it yet; re-derive it from raw gate evidence before trusting it at a phase-close or ship decision.
 - Runtime evidence proves the app worked *in that run, on that machine* — no more.
-- Every script degrades honestly and **records the degradation as a finding** rather than skipping silently.
+- Every script *should* degrade honestly and **record the degradation as a finding** rather than skip silently — but one known gap violates this: `validate_contracts.py` resolves its schema/example siblings relative to its own location, so if they aren't co-located the glob matches zero files and it **exits 0 over nothing** (a gate passing on no input). Pass explicit lock paths and confirm a non-zero file count before trusting the S0/S1 green.
+- `loop.py fail` stamps the wrong provenance: it hard-codes the ledger's `fromGate` to `G2` for any id not starting with a capital `G`, and every phase-gate id is `P#-G#`, so `fromGate` reads `G2` no matter which gate failed — even with `--route` correct. Read the failing gate from the `--reason`/route you supplied, not from the ledger's `fromGate`, until the script parses the id.
+- Evidence files are named by gate-id + date only (no run counter), so a fix-and-rerun cycle **overwrites the prior run's evidence** and the ledger's `evidenceSha256` for a superseded run then matches nothing on disk. The tip re-derivation above only works for a gate's *latest* run — raw evidence for earlier runs is not retained under current naming.
 - Gate falsifiability (that a gate command can actually fail) is an author responsibility — the tooling validates schema shape, not whether a gate is decorative. Catch no-op gates (`exit 0` and the like) in G-review.
 
 ## Where this sits in the archipelago

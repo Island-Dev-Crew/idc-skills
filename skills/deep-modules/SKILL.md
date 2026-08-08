@@ -27,6 +27,8 @@ Don't substitute "component," "service," "API," or "boundary." Consistent langua
 - **The interface is the test surface.** Callers and tests cross the same seam. Wanting to test *past* the interface means the module is the wrong shape.
 - **One adapter is a hypothetical seam; two adapters is a real one.** An adapter counts once it exists in code or is committed work — contracted, scheduled, staffed; a roadmap wish doesn't count. Don't introduce a seam unless something actually varies across it.
 
+These gate different decisions, apply both in that order: the deletion test decides whether a seam exists at all (its test-fake carve-out can keep a thin seam even with only one real adapter), while the one/two-adapter rule decides whether to build variation logic behind it.
+
 ## Designing for testability
 
 1. **Accept dependencies, don't create them** — `processOrder(order, paymentGateway)`, not a `new StripeGateway()` inside.
@@ -43,7 +45,7 @@ When designing an interface, ask: can I reduce the methods? simplify the params?
 
 ## Enforcement — make entry points the only way in
 
-Vocabulary without enforcement is advisory. To make it `enforced`, wire [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) so each package's public surface is its **entry points** (its root files) and everything in subfolders is private:
+Vocabulary without enforcement is advisory. To make it `enforced`, wire [dependency-cruiser](https://github.com/sverweij/dependency-cruiser) — install it and `typescript` as local devDependencies, run via `node_modules/.bin/depcruise`, never `npx --yes dependency-cruiser` (its isolated cache lacks `typescript`, so every `.ts` import resolves `couldNotResolve`, zero rules fire, and it still prints a clean pass) — so each package's public surface is its **entry points** (its root files) and everything in subfolders is private:
 
 ```
 src/packages/<name>/
@@ -53,7 +55,7 @@ src/packages/<name>/
   tests/       ← co-located tests + fixtures (a subfolder, so private).
 ```
 
-Four `error` rules: (1) code outside a package imports only that package's entry points, never its subfolders; (2) a package's own files import each other freely; (3) tests reach any package's entry points and their own fixtures, never subfolder internals; (4) no dependency cycles. A verified-working config for these four is at [`references/dependency-cruiser.template.cjs`](references/dependency-cruiser.template.cjs) — start there rather than re-deriving it: dependency-cruiser only substitutes a captured `$1` into the `to.path`/`to.pathNot` of the *same rule*, never into `from.path`/`from.pathNot`, and a `$1` placed on the `from` side is a silent no-op that lets rule (1) contradict rule (2) with zero lint error. **Prove the rules bite** — the completion criterion for enforcement: run the boundary lint on a clean tree (pass), add a deep import to a test (must fail with the boundary rule), revert (pass again). A config that doesn't fail on a violation is worthless. Then link the packages README from `CLAUDE.md`/`AGENTS.md` so an agent discovers the boundary instead of tripping on it.
+Four `error` rules: (1) code outside a package imports only that package's entry points, never its subfolders; (2) a package's own files import each other freely; (3) tests reach any package's entry points and their own fixtures, never subfolder internals; (4) no dependency cycles. A verified-working config for these four is at [`references/dependency-cruiser.template.cjs`](references/dependency-cruiser.template.cjs) — start there rather than re-deriving it: dependency-cruiser only substitutes a captured `$1` into the `to.path`/`to.pathNot` of the *same rule*, never into `from.path`/`from.pathNot`, and a `$1` placed on the `from` side is a silent no-op that lets rule (1) contradict rule (2) with zero lint error. **Prove the rules bite** — the completion criterion for enforcement: run the boundary lint on a clean tree (pass), add a deep import to a test (must fail with the boundary rule), revert (pass again). If that step passes when it must fail, check the output for `couldNotResolve`/`missing-typescript-transpiler` before touching the rules — that's the `npx` trap above, not a broken rule. A config that doesn't fail on a violation is worthless. Then link the packages README from `CLAUDE.md`/`AGENTS.md` so an agent discovers the boundary instead of tripping on it.
 
 This lint enforces the seam half only — entry points are the only way in. Depth (whether a module earned its seam via the deletion test) stays advisory: a design judgment made in review, not something a clean lint pass proves.
 

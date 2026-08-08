@@ -47,6 +47,31 @@ enforced boundary, if wired, is the deep-modules boundary lint over rooms/. Stat
 plainly; never imply the routing is mechanically enforced when it is not.
 ```
 
+## Wing sub-map (`rooms/<wing>/AGENTS.md`)
+
+Copy this when the root map outgrows one table and splits into wings.
+
+```markdown
+# <Wing name> wing — sub-map
+
+## Start here
+You were routed here from the root map for a <wing> task. Read this sub-map,
+find your task in the table below, read ONLY what it names, then act.
+
+## Routing
+| When the task is…       | Read                  | Skip | Skills |
+|--------------------------|------------------------|------|--------|
+| <task in this wing>      | rooms/<wing>/<room>/CONTEXT.md | ... | ... |
+| anything NOT listed      | return to the root map (../../AGENTS.md) | | |
+
+## Enforcement
+Advisory: this sub-map has no hook — an agent honors the routing by reading it.
+Same enforcement boundary as the root map; never imply this table is
+mechanically enforced when it is not.
+
+For anything not routed here, return to the root map (../../AGENTS.md).
+```
+
 ## Each room (`rooms/<name>/CONTEXT.md`)
 
 ```markdown
