@@ -1,0 +1,892 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>State of the Forge — IDC Skills 2.0.0</title>
+<meta name="description" content="A high-detail review of the IDC agent-skills forge: 50 evidence-gated islands, release 2.0.0, every one gauntleted to 9 or better." />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Instrument+Serif:ital@0;1&family=DM+Sans:opsz,wght@9..40,300;9..40,400;9..40,500;9..40,600;9..40,700&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet" />
+<style>
+  :root{
+    --bg:#0a0a0f;
+    --bg-1:#101018;
+    --bg-2:#15151f;
+    --bg-3:#1c1c28;
+    --garnet:#9b1b30;
+    --garnet-lift:#c23048;
+    --rust:#b4541e;
+    --gold:#c9a227;
+    --jade:#2e7d5b;
+    --steel:#7d8794;
+    --ink:#e8e6e3;
+    --ink-dim:#b7b4af;
+    --ink-faint:#8a8781;
+    --line:rgba(232,230,227,0.10);
+    --line-strong:rgba(232,230,227,0.18);
+    --serif:"Instrument Serif",Georgia,serif;
+    --sans:"DM Sans",system-ui,-apple-system,sans-serif;
+    --mono:"JetBrains Mono",ui-monospace,monospace;
+    --maxw:1180px;
+    --facet:conic-gradient(from 210deg,#c23048,#9b1b30 25%,#b4541e 48%,#c9a227 70%,#9b1b30 92%,#c23048);
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  @media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+  body{
+    margin:0;background:var(--bg);color:var(--ink);
+    font-family:var(--sans);font-size:17px;line-height:1.6;
+    -webkit-font-smoothing:antialiased;text-rendering:optimizeLegibility;
+    overflow-x:hidden;
+  }
+  /* ambient facet grain */
+  body::before{
+    content:"";position:fixed;inset:0;z-index:0;pointer-events:none;
+    background:
+      radial-gradient(720px 520px at 82% -8%,rgba(155,27,48,0.16),transparent 60%),
+      radial-gradient(640px 480px at -6% 12%,rgba(180,84,30,0.10),transparent 58%),
+      radial-gradient(900px 700px at 50% 108%,rgba(201,162,39,0.06),transparent 62%);
+  }
+  .wrap{position:relative;z-index:1;max-width:var(--maxw);margin:0 auto;padding:0 26px}
+  a{color:var(--gold);text-decoration:none}
+  a:hover{text-decoration:underline;text-underline-offset:3px}
+  :focus-visible{outline:2px solid var(--gold);outline-offset:3px;border-radius:3px}
+
+  h1,h2,h3{font-family:var(--serif);font-weight:400;line-height:1.02;text-wrap:balance;margin:0}
+  .mono{font-family:var(--mono)}
+  .num{font-variant-numeric:tabular-nums lining-nums}
+
+  .eyebrow{
+    font-family:var(--mono);font-size:12px;letter-spacing:0.28em;text-transform:uppercase;
+    color:var(--gold);font-weight:500;
+  }
+  .rule{height:1px;background:linear-gradient(90deg,transparent,var(--line-strong) 12%,var(--line-strong) 88%,transparent);border:0;margin:0}
+
+  /* ---------- top bar ---------- */
+  .topbar{
+    position:sticky;top:0;z-index:50;backdrop-filter:blur(12px);
+    background:rgba(10,10,15,0.72);border-bottom:1px solid var(--line);
+  }
+  .topbar .wrap{display:flex;align-items:center;gap:18px;height:58px}
+  .brand{display:flex;align-items:center;gap:11px;font-family:var(--mono);font-size:13px;letter-spacing:0.14em;text-transform:uppercase;color:var(--ink)}
+  .brand svg{width:22px;height:22px;flex:none}
+  .navlinks{margin-left:auto;display:flex;gap:22px;font-size:13.5px}
+  .navlinks a{color:var(--ink-dim)}
+  .navlinks a:hover{color:var(--ink);text-decoration:none}
+  @media (max-width:760px){.navlinks{display:none}}
+
+  /* ---------- hero ---------- */
+  .hero{padding:88px 0 64px;position:relative}
+  .hero-grid{display:grid;grid-template-columns:1.55fr 1fr;gap:44px;align-items:center}
+  @media (max-width:900px){.hero-grid{grid-template-columns:1fr;gap:36px}}
+  .hero h1{font-size:clamp(3.4rem,2rem+6.2vw,7.4rem);letter-spacing:-0.01em}
+  .hero h1 em{font-style:italic;color:var(--gold)}
+  .hero .lede{margin-top:22px;max-width:56ch;font-size:1.22rem;color:var(--ink-dim);line-height:1.55}
+  .hero .lede b{color:var(--ink);font-weight:600}
+  .law{
+    margin-top:30px;display:inline-flex;align-items:center;gap:14px;
+    padding:14px 20px 14px 16px;border:1px solid var(--line-strong);border-radius:2px;
+    background:linear-gradient(180deg,rgba(155,27,48,0.10),rgba(155,27,48,0.02));
+  }
+  .law .gemdot{width:26px;height:26px;flex:none}
+  .law span{font-family:var(--serif);font-size:1.5rem;font-style:italic;color:var(--ink)}
+  .hero-gem{display:flex;justify-content:center;align-items:center}
+  .hero-gem svg{width:min(360px,78vw);height:auto;filter:drop-shadow(0 22px 60px rgba(155,27,48,0.35))}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .hero-gem .rotor{transform-origin:center;animation:spin 46s linear infinite}
+
+  /* ---------- stat band ---------- */
+  .band{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border:1px solid var(--line);border-radius:3px;overflow:hidden;margin-top:20px}
+  .band>div{padding:26px 22px;border-right:1px solid var(--line);background:var(--bg-1)}
+  .band>div:last-child{border-right:0}
+  @media (max-width:760px){.band{grid-template-columns:1fr 1fr}.band>div:nth-child(2){border-right:0}.band>div:nth-child(1),.band>div:nth-child(2){border-bottom:1px solid var(--line)}}
+  .band .k{font-family:var(--serif);font-size:3.1rem;line-height:1;color:var(--ink)}
+  .band .k em{font-style:normal;color:var(--gold)}
+  .band .l{margin-top:9px;font-family:var(--mono);font-size:11.5px;letter-spacing:0.13em;text-transform:uppercase;color:var(--ink-faint)}
+
+  /* ---------- section scaffold ---------- */
+  section{padding:74px 0;position:relative}
+  .sec-head{display:flex;align-items:baseline;gap:18px;margin-bottom:34px;flex-wrap:wrap}
+  .sec-head h2{font-size:clamp(2.1rem,1.3rem+2.6vw,3.4rem)}
+  .sec-head .idx{font-family:var(--mono);font-size:12px;color:var(--rust);letter-spacing:0.2em;padding-top:8px}
+  .sec-sub{max-width:70ch;color:var(--ink-dim);font-size:1.06rem;margin:-16px 0 30px}
+
+  /* ---------- arc timeline ---------- */
+  .arc{display:grid;gap:0;position:relative}
+  .arc::before{content:"";position:absolute;left:15px;top:12px;bottom:12px;width:2px;background:linear-gradient(180deg,var(--garnet),var(--rust) 40%,var(--gold));opacity:0.6}
+  @media (max-width:640px){.arc::before{left:11px}}
+  .rel{position:relative;padding:18px 0 26px 58px}
+  @media (max-width:640px){.rel{padding-left:44px}}
+  .rel .node{position:absolute;left:4px;top:22px;width:24px;height:24px}
+  @media (max-width:640px){.rel .node{left:0;width:22px;height:22px}}
+  .rel-top{display:flex;align-items:baseline;gap:14px;flex-wrap:wrap}
+  .rel-ver{font-family:var(--mono);font-size:13px;color:var(--gold);letter-spacing:0.08em}
+  .rel-delta{font-family:var(--mono);font-size:12px;color:var(--ink);background:var(--bg-3);border:1px solid var(--line-strong);border-radius:2px;padding:3px 9px}
+  .rel-title{font-family:var(--serif);font-size:1.5rem;color:var(--ink);flex-basis:100%;margin-top:2px}
+  .rel-body{margin-top:8px;color:var(--ink-dim);max-width:74ch;font-size:1rem}
+  .rel.lock .rel-ver{color:var(--garnet-lift)}
+  .rel.lock .rel-title{color:var(--gold)}
+
+  /* ---------- assessment ---------- */
+  .assess{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media (max-width:820px){.assess{grid-template-columns:1fr}}
+  .apanel{border:1px solid var(--line);border-radius:4px;background:var(--bg-1);padding:30px 28px}
+  .apanel.before{opacity:0.94}
+  .apanel h3{font-size:1.05rem;font-family:var(--mono);font-weight:500;letter-spacing:0.16em;text-transform:uppercase;color:var(--ink-faint)}
+  .apanel.after h3{color:var(--gold)}
+  .bigstat{font-family:var(--serif);font-size:5.2rem;line-height:0.92;margin:18px 0 4px}
+  .apanel.before .bigstat{color:var(--steel)}
+  .apanel.after .bigstat{color:var(--ink)}
+  .bigstat sub{font-size:1.4rem;color:var(--ink-faint);font-family:var(--sans);vertical-align:baseline}
+  .barrow{margin-top:20px}
+  .barrow .lab{display:flex;justify-content:space-between;font-family:var(--mono);font-size:11.5px;letter-spacing:0.08em;color:var(--ink-faint);text-transform:uppercase;margin-bottom:7px}
+  .track{height:12px;border-radius:2px;background:var(--bg-3);overflow:hidden;border:1px solid var(--line)}
+  .fill{height:100%;border-radius:1px}
+  .fill.dim{width:42%;background:linear-gradient(90deg,var(--steel),#5a626d)}
+  .fill.hot{width:89%;background:linear-gradient(90deg,var(--rust),var(--gold))}
+  .ratio{margin-top:24px;display:flex;align-items:center;gap:16px}
+  .ratio .rn{font-family:var(--serif);font-size:2.4rem;color:var(--ink)}
+  .apanel.before .ratio .rn{color:var(--steel)}
+  .apanel.after .ratio .rn{color:var(--jade)}
+  .ratio .rl{font-size:0.92rem;color:var(--ink-dim);line-height:1.4}
+  .assess-foot{margin-top:22px;padding:18px 22px;border:1px dashed var(--line-strong);border-radius:4px;background:rgba(46,125,91,0.06);color:var(--ink-dim);font-size:1rem}
+  .assess-foot b{color:var(--jade)}
+
+  /* ---------- islands ---------- */
+  .isl-controls{display:flex;gap:14px;align-items:center;flex-wrap:wrap;margin-bottom:8px}
+  .search{flex:1;min-width:240px;display:flex;align-items:center;gap:10px;background:var(--bg-1);border:1px solid var(--line-strong);border-radius:3px;padding:11px 15px}
+  .search svg{width:16px;height:16px;flex:none;opacity:0.6}
+  .search input{flex:1;background:none;border:0;color:var(--ink);font-family:var(--sans);font-size:15px;outline:none}
+  .search input::placeholder{color:var(--ink-faint)}
+  .countpill{font-family:var(--mono);font-size:12px;color:var(--ink-faint);letter-spacing:0.06em;white-space:nowrap}
+  .countpill b{color:var(--gold)}
+
+  .cluster{margin-top:40px}
+  .cluster-head{display:flex;align-items:baseline;gap:14px;border-bottom:1px solid var(--line-strong);padding-bottom:12px;margin-bottom:20px}
+  .cluster-head h3{font-size:1.7rem;color:var(--ink)}
+  .cluster-head .cn{font-family:var(--mono);font-size:12px;color:var(--rust);letter-spacing:0.14em}
+  .cluster-head .cc{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--ink-faint)}
+  .cluster-desc{color:var(--ink-faint);font-size:0.98rem;margin:-10px 0 18px;max-width:74ch}
+
+  .cards{display:grid;grid-template-columns:repeat(2,1fr);gap:14px}
+  @media (max-width:820px){.cards{grid-template-columns:1fr}}
+  .card{
+    border:1px solid var(--line);border-radius:4px;background:var(--bg-1);
+    padding:18px 19px;display:flex;flex-direction:column;gap:9px;position:relative;
+    transition:border-color .18s ease,transform .18s ease,background .18s ease;
+  }
+  .card:hover{border-color:var(--line-strong);transform:translateY(-2px);background:var(--bg-2)}
+  .card::before{content:"";position:absolute;left:0;top:14px;bottom:14px;width:3px;border-radius:3px;background:var(--steel);opacity:0.5}
+  .card.moat::before{background:var(--facet);opacity:1}
+  .card.crown::before{background:linear-gradient(180deg,var(--garnet-lift),var(--garnet));opacity:1}
+  .card-top{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .card h4{font-family:var(--mono);font-size:14.5px;font-weight:600;color:var(--ink);letter-spacing:0.01em;margin:0}
+  .card p{margin:0;color:var(--ink-dim);font-size:0.97rem;line-height:1.5}
+  .tag{font-family:var(--mono);font-size:10px;letter-spacing:0.08em;text-transform:uppercase;padding:2.5px 7px;border-radius:2px;border:1px solid var(--line-strong);color:var(--ink-faint);white-space:nowrap}
+  .tag.model{color:var(--steel)}
+  .tag.user{color:var(--rust);border-color:rgba(180,84,30,0.4)}
+  .tag.moat{color:#0a0a0f;background:var(--gold);border-color:var(--gold);font-weight:600}
+  .tag.icm{color:var(--jade);border-color:rgba(46,125,91,0.4)}
+  .empty{display:none;padding:40px 0;text-align:center;color:var(--ink-faint);font-family:var(--mono);font-size:13px}
+
+  /* ---------- moat ---------- */
+  .moat-grid{display:grid;grid-template-columns:1fr 1fr;gap:36px;align-items:start}
+  @media (max-width:820px){.moat-grid{grid-template-columns:1fr}}
+  .moat-list{display:grid;gap:11px}
+  .moat-item{display:flex;gap:14px;align-items:flex-start;padding:14px 16px;border:1px solid var(--line);border-radius:4px;background:var(--bg-1)}
+  .moat-item .mgem{width:18px;height:18px;flex:none;margin-top:3px}
+  .moat-item .mn{font-family:var(--mono);font-size:14px;color:var(--gold);font-weight:600}
+  .moat-item .md{color:var(--ink-dim);font-size:0.95rem;margin-top:3px}
+  .moat-prose p{color:var(--ink-dim);font-size:1.08rem;line-height:1.65;margin:0 0 16px}
+  .moat-prose p b{color:var(--ink)}
+  .moat-prose .pull{font-family:var(--serif);font-size:1.9rem;font-style:italic;color:var(--gold);line-height:1.2;border-left:2px solid var(--garnet);padding-left:20px;margin:22px 0}
+
+  /* ---------- governance ---------- */
+  .gov{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media (max-width:820px){.gov{grid-template-columns:1fr}}
+  .govcard{border:1px solid var(--line);border-radius:4px;background:var(--bg-1);padding:28px 26px}
+  .govcard h3{font-size:1.6rem;color:var(--ink);margin-bottom:6px}
+  .govcard .tagline{font-family:var(--mono);font-size:11.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--rust);margin-bottom:16px}
+  .govcard p{color:var(--ink-dim);font-size:1.02rem;margin:0 0 12px}
+  .govcard ul{margin:0;padding-left:0;list-style:none;display:grid;gap:10px}
+  .govcard li{display:flex;gap:11px;color:var(--ink-dim);font-size:0.98rem}
+  .govcard li::before{content:"◆";color:var(--gold);font-size:0.7rem;margin-top:5px;flex:none}
+
+  /* ---------- products ---------- */
+  .prod{display:grid;grid-template-columns:1fr 1fr;gap:22px}
+  @media (max-width:820px){.prod{grid-template-columns:1fr}}
+  .pcard{border:1px solid var(--line);border-radius:4px;background:var(--bg-1);padding:28px 26px}
+  .pcard-top{display:flex;align-items:baseline;justify-content:space-between;gap:14px}
+  .pcard h3{font-size:1.9rem;color:var(--ink)}
+  .pcard .ver{font-family:var(--mono);font-size:12px;color:var(--ink-faint)}
+  .score{display:flex;align-items:baseline;gap:10px;margin:16px 0 6px}
+  .score .sv{font-family:var(--serif);font-size:3.6rem;line-height:1}
+  .score .sd{font-family:var(--mono);font-size:13px;color:var(--ink-faint)}
+  .pcard.warn .score .sv{color:var(--rust)}
+  .pcard.good .score .sv{color:var(--gold)}
+  .meter{height:9px;border-radius:2px;background:var(--bg-3);border:1px solid var(--line);overflow:hidden;margin:12px 0 18px}
+  .meter i{display:block;height:100%}
+  .pcard.warn .meter i{width:50%;background:linear-gradient(90deg,var(--garnet),var(--rust))}
+  .pcard.good .meter i{width:85%;background:linear-gradient(90deg,var(--rust),var(--gold))}
+  .pcard p{color:var(--ink-dim);font-size:0.98rem;margin:0 0 12px}
+  .pcard p b{color:var(--ink)}
+  .pcard .state{font-family:var(--mono);font-size:11px;letter-spacing:0.1em;text-transform:uppercase;padding:3px 9px;border-radius:2px;border:1px solid var(--line-strong);color:var(--ink-faint)}
+  .prod-note{margin-top:20px;color:var(--ink-faint);font-size:0.96rem;max-width:78ch}
+
+  /* ---------- methodology ---------- */
+  .lenses{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:10px}
+  @media (max-width:820px){.lenses{grid-template-columns:1fr}}
+  .lens{border:1px solid var(--line);border-radius:4px;background:var(--bg-1);padding:26px 24px}
+  .lens .ln{font-family:var(--mono);font-size:11.5px;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold);margin-bottom:12px}
+  .lens h3{font-size:1.4rem;color:var(--ink);margin-bottom:10px}
+  .lens p{color:var(--ink-dim);font-size:0.98rem;margin:0 0 10px}
+  .lens .formula{font-family:var(--mono);font-size:12.5px;color:var(--jade);background:var(--bg-3);border:1px solid var(--line);border-radius:3px;padding:10px 12px;margin-top:8px}
+  .flow{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin:26px 0 6px;font-family:var(--mono);font-size:12.5px;color:var(--ink-dim)}
+  .flow .step{padding:9px 14px;border:1px solid var(--line-strong);border-radius:2px;background:var(--bg-1);color:var(--ink)}
+  .flow .arrow{color:var(--rust)}
+
+  /* ---------- footer ---------- */
+  footer{padding:56px 0 70px;border-top:1px solid var(--line);margin-top:30px}
+  .foot-grid{display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap}
+  .foot-grid .fl{color:var(--ink-faint);font-size:0.92rem;line-height:1.7}
+  .foot-grid .fl b{color:var(--ink-dim)}
+  .foot-mark{display:flex;align-items:center;gap:12px;font-family:var(--serif);font-size:1.5rem;color:var(--ink)}
+  .foot-mark svg{width:26px;height:26px}
+  .tide{color:var(--garnet-lift);font-family:var(--mono);font-size:11px;letter-spacing:0.2em;text-transform:uppercase}
+
+  .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);border:0}
+</style>
+</head>
+<body>
+
+<!-- reusable gem symbol -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="gA" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c23048"/><stop offset="1" stop-color="#9b1b30"/>
+    </linearGradient>
+    <linearGradient id="gB" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#c9a227"/><stop offset="1" stop-color="#b4541e"/>
+    </linearGradient>
+    <linearGradient id="gC" x1="0" y1="1" x2="1" y2="0">
+      <stop offset="0" stop-color="#b4541e"/><stop offset="1" stop-color="#9b1b30"/>
+    </linearGradient>
+    <symbol id="gem" viewBox="0 0 100 100">
+      <polygon points="50,4 78,30 50,96 22,30" fill="url(#gA)"/>
+      <polygon points="50,4 78,30 50,40 22,30" fill="url(#gB)" opacity="0.92"/>
+      <polygon points="22,30 50,40 50,96" fill="url(#gC)" opacity="0.85"/>
+      <polygon points="78,30 50,40 50,96" fill="url(#gA)" opacity="0.7"/>
+      <polyline points="50,4 50,40 50,96" fill="none" stroke="#0a0a0f" stroke-width="1.1" opacity="0.35"/>
+      <polyline points="22,30 50,40 78,30" fill="none" stroke="#0a0a0f" stroke-width="1.1" opacity="0.35"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="topbar">
+  <div class="wrap">
+    <div class="brand"><svg><use href="#gem"/></svg> Island Development Crew</div>
+    <nav class="navlinks" aria-label="Sections">
+      <a href="#arc">The Arc</a>
+      <a href="#assessment">Assessment</a>
+      <a href="#islands">The 50</a>
+      <a href="#moat">Moat</a>
+      <a href="#governance">Governance</a>
+      <a href="#products">Products</a>
+      <a href="#method">Method</a>
+    </nav>
+  </div>
+</div>
+
+<header class="hero wrap" id="top">
+  <div class="hero-grid">
+    <div>
+      <p class="eyebrow">State of the Forge · Release 2.0.0 · commit c4202cf</p>
+      <h1>Fifty islands,<br>one <em>law</em>.</h1>
+      <p class="lede">The IDC skills forge is an <b>archipelago of agent skills</b> — 50 self-contained islands, each demonstrating its own discipline. Fused from the David&nbsp;Ondrej and Matt&nbsp;Pocock skill canons and Jake&nbsp;Van&nbsp;Clief's Interpretable Context Methodology, then welded to a single covenant that everything else answers to.</p>
+      <div class="law">
+        <svg class="gemdot" aria-hidden="true"><use href="#gem"/></svg>
+        <span>No authority without evidence.</span>
+      </div>
+    </div>
+    <div class="hero-gem" aria-hidden="true">
+      <svg viewBox="0 0 200 200">
+        <g class="rotor">
+          <polygon points="100,14 168,62 100,190 32,62" fill="url(#gA)"/>
+          <polygon points="100,14 168,62 100,78 32,62" fill="url(#gB)" opacity="0.95"/>
+          <polygon points="32,62 100,78 100,190" fill="url(#gC)" opacity="0.85"/>
+          <polygon points="168,62 100,78 100,190" fill="url(#gA)" opacity="0.72"/>
+          <polygon points="100,14 134,44 168,62 130,58" fill="#c9a227" opacity="0.5"/>
+          <polyline points="100,14 100,78 100,190" fill="none" stroke="#0a0a0f" stroke-width="1.4" opacity="0.4"/>
+          <polyline points="32,62 100,78 168,62" fill="none" stroke="#0a0a0f" stroke-width="1.4" opacity="0.4"/>
+          <polygon points="100,14 168,62 100,190 32,62" fill="none" stroke="#c9a227" stroke-width="0.8" opacity="0.35"/>
+        </g>
+      </svg>
+    </div>
+  </div>
+
+  <div class="band" role="list">
+    <div role="listitem"><div class="k"><em>50</em>/50</div><div class="l">Islands, locked</div></div>
+    <div role="listitem"><div class="k">2.0.0</div><div class="l">Release · THE LOCK</div></div>
+    <div role="listitem"><div class="k">6</div><div class="l">IDC-native · nowhere else</div></div>
+    <div role="listitem"><div class="k">≥9</div><div class="l">Gauntlet floor, every island</div></div>
+  </div>
+</header>
+
+<main>
+
+<!-- ============ THE ARC ============ -->
+<section id="arc" class="wrap">
+  <div class="sec-head">
+    <span class="idx">01</span>
+    <h2>The arc of the build</h2>
+  </div>
+  <p class="sec-sub">The forge did not arrive at fifty. It grew island by island — each release adding only what earned a slot, and the growth stopping whenever the next candidate stopped adding real value. Eight releases, told as the deltas they actually were.</p>
+
+  <div class="arc">
+    <div class="rel">
+      <div class="node"><svg viewBox="0 0 100 100"><use href="#gem"/></svg></div>
+      <div class="rel-top"><span class="rel-ver">1.2.0</span><span class="rel-delta num">16 → 23</span></div>
+      <div class="rel-title">The canon lands</div>
+      <div class="rel-body">The founding fusion: the authoring canon, the cross-family review ceremony (the crown), and the first five IDC-native islands that exist nowhere else. Every island ships a Codex <span class="mono">openai.yaml</span> sidecar so invocation policy travels across families.</div>
+    </div>
+    <div class="rel">
+      <div class="node"><svg viewBox="0 0 100 100"><use href="#gem"/></svg></div>
+      <div class="rel-top"><span class="rel-ver">1.3.0</span><span class="rel-delta num">23 → 29</span></div>
+      <div class="rel-title">The ICM cluster</div>
+      <div class="rel-body">Jake Van Clief's Interpretable Context Methodology — folder-as-workspace, three-layer routing map, become-the-agent — fused with the evidence discipline across a full loop: triage → architect → scaffold → capture → tune → audit.</div>
+    </div>
+    <div class="rel">
+      <div class="node"><svg viewBox="0 0 100 100"><use href="#gem"/></svg></div>
+      <div class="rel-top"><span class="rel-ver">1.3.1</span><span class="rel-delta num">29 → 33</span></div>
+      <div class="rel-title">Four earned adds</div>
+      <div class="rel-body">Not padding to a cap — four islands that earned their place: the OKF external-data leaf, prototype, wayfinder, and active domain-modeling. Growth stops when a cut stops earning its slot.</div>
+    </div>
+    <div class="rel">
+      <div class="node"><svg viewBox="0 0 100 100"><use href="#gem"/></svg></div>
+      <div class="rel-top"><span class="rel-ver">1.4.0</span><span class="rel-delta num">33 → 34</span></div>
+      <div class="rel-title">The gauntlet loop</div>
+      <div class="rel-body">Matt Schumer's fan-out-with-blind-critic technique, attributed and IDC-edited (falsifiable bar + no cold start). The lightweight cousin of archipelago; ships the deterministic task-to-prompt converter.</div>
+    </div>
+    <div class="rel">
+      <div class="node"><svg viewBox="0 0 100 100"><use href="#gem"/></svg></div>
+      <div class="rel-top"><span class="rel-ver">1.5.0</span><span class="rel-delta num">34 → 40</span></div>
+      <div class="rel-title">Canon re-sweep + ICM hardened</div>
+      <div class="rel-body">All 86 source skills re-triaged; only six candidates cleared the value-check (video-analysis, arch-survey, merge-resolve, issue-triage, agent-schedule, prose-craft). The seven ICM islands were re-infused from Jake's canonical repo and re-vetted. Landed at 40, not 50 — quality over count.</div>
+    </div>
+    <div class="rel">
+      <div class="node"><svg viewBox="0 0 100 100"><use href="#gem"/></svg></div>
+      <div class="rel-top"><span class="rel-ver">1.6.0</span><span class="rel-delta num">40 → 43</span></div>
+      <div class="rel-title">Design-derived islands + the uniform re-vet</div>
+      <div class="rel-body">Three islands drawn from four world-class design videos (delegated-authority-prompt, model-routing, batch-sample-curate). The same release ran the uniform defect-tied re-vet that surfaced five real residuals and fixed them all.</div>
+    </div>
+    <div class="rel">
+      <div class="node"><svg viewBox="0 0 100 100"><use href="#gem"/></svg></div>
+      <div class="rel-top"><span class="rel-ver">1.7.0</span><span class="rel-delta num">43 → 44</span></div>
+      <div class="rel-title">The containment gate</div>
+      <div class="rel-body">self-contained-ship — proof a deliverable phones home to nobody. Its first draft failed the gauntlet at 7 on egress-detection holes; it was authored correct here before admission. Transport proves liveness; this proves containment.</div>
+    </div>
+    <div class="rel lock">
+      <div class="node"><svg viewBox="0 0 100 100"><use href="#gem"/></svg></div>
+      <div class="rel-top"><span class="rel-ver">2.0.0</span><span class="rel-delta num">44 → 50</span></div>
+      <div class="rel-title">THE LOCK</div>
+      <div class="rel-body">The final six, each gauntleted with a value-check: skill-supply-chain-review, computer-use-smoke, ai-humanizer, connected-fix-prompt, exposure-audit, and skill-duel — the governor. Fifty is now a living deadlock. Nothing changes except by a won duel or a deprecated-slot fill at ≥9.</div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- ============ ASSESSMENT ============ -->
+<section id="assessment" class="wrap">
+  <div class="sec-head">
+    <span class="idx">02</span>
+    <h2>What the vetting moved</h2>
+  </div>
+  <p class="sec-sub">A single uniform, defect-tied re-vet re-scored the pack against its own baseline. The number that matters is not the mean — it is how many islands could survive a blind adversary at full strength. Then every residual was fixed to clear the bar.</p>
+
+  <div class="assess">
+    <div class="apanel before">
+      <h3>Before the re-vet</h3>
+      <div class="bigstat num">4.2<sub>/10 mean</sub></div>
+      <div class="barrow">
+        <div class="lab"><span>Mean confidence</span><span class="num">4.2</span></div>
+        <div class="track"><div class="fill dim"></div></div>
+      </div>
+      <div class="ratio">
+        <div class="rn num">0<span style="color:var(--ink-faint);font-size:1.4rem"> / 33</span></div>
+        <div class="rl">islands standing at <b class="num">9+</b> under a blind, defect-tied critic</div>
+      </div>
+    </div>
+
+    <div class="apanel after">
+      <h3>After the re-vet</h3>
+      <div class="bigstat num">8.9<sub>/10 mean</sub></div>
+      <div class="barrow">
+        <div class="lab"><span>Mean confidence</span><span class="num">8.9</span></div>
+        <div class="track"><div class="fill hot"></div></div>
+      </div>
+      <div class="ratio">
+        <div class="rn num">37<span style="color:var(--ink-faint);font-size:1.4rem"> / 40</span></div>
+        <div class="rl">islands at <b class="num">9+</b> on the first uniform pass</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="assess-foot">
+    The re-vet surfaced five real residuals in the three that fell short — a catastrophe-bypass in the shell denylist, a lying stamp on an add-case, an aborting evidence rung, an argv-only contract read, and a glossary-scope contradiction. <b>All five were fixed and re-confirmed at ≥9.</b> The forge that shipped as 2.0.0 has every island past the bar — no unaddressed in-scope defects standing.
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- ============ THE 50 ISLANDS ============ -->
+<section id="islands" class="wrap">
+  <div class="sec-head">
+    <span class="idx">03</span>
+    <h2>The fifty islands</h2>
+  </div>
+  <p class="sec-sub">Every island is one concern, self-contained, composing with the rest at runtime — loops over menus, no bundling, no duplicated meaning. Grouped by theme below. The <span style="color:var(--gold);font-weight:600">gold rail</span> marks the six IDC-native islands that exist nowhere else.</p>
+
+  <div class="isl-controls">
+    <label class="search">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+      <input type="search" id="islandSearch" placeholder="Filter islands by name or discipline…" aria-label="Filter islands" autocomplete="off" />
+    </label>
+    <span class="countpill"><b id="visCount" class="num">50</b> of 50 shown</span>
+  </div>
+  <div class="empty" id="emptyState">No island matches that. Try a discipline — “evidence”, “workspace”, “deploy”.</div>
+
+  <!-- Cluster: Canon -->
+  <div class="cluster" data-cluster>
+    <div class="cluster-head"><span class="cn">A</span><h3>The Canon</h3><span class="cc num">5 islands</span></div>
+    <p class="cluster-desc">The skills that build, tune, and govern the skills themselves — the layer that keeps the archipelago honest about its own construction.</p>
+    <div class="cards">
+      <article class="card" data-name="idc-skill-authoring" data-terms="canon folder anatomy progressive disclosure sidecar fleet distribution">
+        <div class="card-top"><h4>idc-skill-authoring</h4><span class="tag model">model</span></div>
+        <p>The skill layer of the canon — folder anatomy, progressive disclosure, invocation and router skills, the Codex sidecar, fleet distribution, and the evidence discipline.</p>
+      </article>
+      <article class="card" data-name="writing-for-agents" data-terms="canon universal levers context pointers two loads hierarchy pruning AGENTS.md CLAUDE.md">
+        <div class="card-top"><h4>writing-for-agents</h4><span class="tag model">model</span></div>
+        <p>The universal levers for any document an agent reads — context pointers, the two loads, information hierarchy, completion criteria, leading words, pruning, failure modes.</p>
+      </article>
+      <article class="card" data-name="skill-tune" data-terms="canon skillopt optimize markdown auto-research measured score smaller files">
+        <div class="card-top"><h4>skill-tune</h4><span class="tag model">model</span><span class="tag icm">ICM</span></div>
+        <p>Empirically improve a skill or context file — run, judge, edit, re-run — and keep an edit only when a measured score rises. A tuned file is usually a shorter file.</p>
+      </article>
+      <article class="card" data-name="skill-supply-chain-review" data-terms="canon third-party adoption gate provenance prompt injection trust verdict pinned version">
+        <div class="card-top"><h4>skill-supply-chain-review</h4><span class="tag model">model</span></div>
+        <p>Audit a third-party skill before adopting it — provenance, hidden invocation, dangerous instructions, injection surface — and emit a trust verdict bound to a pinned version.</p>
+      </article>
+      <article class="card moat" data-name="skill-duel" data-terms="canon governor displacement incumbent challenger swap gauntlet idc-native deadlock">
+        <div class="card-top"><h4>skill-duel</h4><span class="tag user">user</span><span class="tag moat">IDC-native</span></div>
+        <p>Run an incumbent against a challenger through one identical gauntlet and return a swap / no-swap verdict welded to the scores. The mechanical governor of the capped pack.</p>
+      </article>
+    </div>
+  </div>
+
+  <!-- Cluster: Evidence & Review -->
+  <div class="cluster" data-cluster>
+    <div class="cluster-head"><span class="cn">B</span><h3>Evidence &amp; Review</h3><span class="cc num">7 islands</span></div>
+    <p class="cluster-desc">The one law made mechanical — checks that can actually fail, verdicts that void on move, and receipts a reviewer recomputes instead of trusting.</p>
+    <div class="cards">
+      <article class="card crown" data-name="cross-family-review" data-terms="evidence crown ceremony reviewer different model family standards spec axes named seat verdict void">
+        <div class="card-top"><h4>cross-family-review</h4><span class="tag model">model</span><span class="tag" style="color:var(--garnet-lift);border-color:rgba(194,48,72,0.45)">crown</span></div>
+        <p>The crown ceremony: an independent reviewer from a different model family reviews a diff at an exact head along Standards and Spec axes; the verdict voids on move. The author never reviews their own work.</p>
+      </article>
+      <article class="card moat" data-name="finding-register" data-terms="evidence u-series durable register exact sha provenance collision-free id idc-native">
+        <div class="card-top"><h4>finding-register</h4><span class="tag model">model</span><span class="tag moat">IDC-native</span></div>
+        <p>A durable register of findings each enumerated at an exact SHA — not a running count — provenance-marked both ways, with a collision-free id swept before allocation.</p>
+      </article>
+      <article class="card moat" data-name="evidence-packet" data-terms="evidence byte-verifiable diff verification ladder captured outputs recompute mergeable idc-native">
+        <div class="card-top"><h4>evidence-packet</h4><span class="tag model">model</span><span class="tag moat">IDC-native</span></div>
+        <p>Assemble a byte-verifiable packet — diff, verification-ladder commands, captured outputs — so a reviewer recomputes every claim. A weak and a frontier author are equally mergeable when both can run the ladder.</p>
+      </article>
+      <article class="card" data-name="connected-fix-prompt" data-terms="evidence dependency ordered fix mandate findings root cause impact single pass">
+        <div class="card-top"><h4>connected-fix-prompt</h4><span class="tag user">user</span></div>
+        <p>Compose one dependency-ordered refinement prompt from a set of findings — ranked root-cause-before-symptom, each carrying recomputable evidence — so a fixer clears them in a single correct-order pass.</p>
+      </article>
+      <article class="card" data-name="computer-use-smoke" data-terms="evidence runtime ui playwright browser-use band-4 assertion screenshot behavioral">
+        <div class="card-top"><h4>computer-use-smoke</h4><span class="tag model">model</span></div>
+        <p>Drive a real UI through a scripted smoke path and assert observable outcomes — the runtime primitive that produces the band-4 evidence archipelago demands. A verdict is an assertion; a screenshot is triage.</p>
+      </article>
+      <article class="card" data-name="self-contained-ship" data-terms="evidence egress scanner offline zero outbound containment gate phone home inline">
+        <div class="card-top"><h4>self-contained-ship</h4><span class="tag model">model</span></div>
+        <p>Prove a deliverable phones home to nobody — a static egress scanner paired with a sealed offline load asserting zero outbound. The containment gate; transport proves liveness, not containment.</p>
+      </article>
+      <article class="card" data-name="exposure-audit" data-terms="evidence read-only cve breach malicious package supply chain affected report never remediate">
+        <div class="card-top"><h4>exposure-audit</h4><span class="tag model">model</span></div>
+        <p>Read-only exposure audit of a machine or repo against a named advisory — enumerate what is installed and reachable, decide affected-or-not on captured evidence, write a structured report. Never remediate.</p>
+      </article>
+    </div>
+  </div>
+
+  <!-- Cluster: Build Protocols -->
+  <div class="cluster" data-cluster>
+    <div class="cluster-head"><span class="cn">C</span><h3>Build Protocols</h3><span class="cc num">7 islands</span></div>
+    <p class="cluster-desc">Evidence-gated construction, from a throwaway spike to a tamper-evident full-cycle build — with gates that must be able to fail and band caps you cannot talk past.</p>
+    <div class="cards">
+      <article class="card" data-name="archipelago" data-terms="build protocol typed contracts gates ledger loopback band caps evidence gated full cycle">
+        <div class="card-top"><h4>archipelago</h4><span class="tag model">model</span></div>
+        <p>The full-cycle, evidence-gated build protocol — typed contracts at every seam, gates that must be able to fail, loopback routing, a tamper-evident ledger, and band caps you cannot talk your way past.</p>
+      </article>
+      <article class="card" data-name="gauntlet-loop" data-terms="build fan-out builder sub-agents blind critic falsifiable bar prototype wow deterministic">
+        <div class="card-top"><h4>gauntlet-loop</h4><span class="tag user">user</span></div>
+        <p>Convert any task into a fan-out of builder sub-agents each shadowed by a blind critic, looped against a falsifiable bar. The lightweight cousin of archipelago; graduate up when the bar must be a real gate.</p>
+      </article>
+      <article class="card" data-name="spec-pipeline" data-terms="build spec tickets tracer bullets blocking edges implement tdd goal loop">
+        <div class="card-top"><h4>spec-pipeline</h4><span class="tag model">model</span></div>
+        <p>One pipeline from a discussed feature to shipped code: spec synthesis, then tracer-bullet tickets with blocking edges, implement at pre-agreed seams with TDD, then an optional persistent goal loop.</p>
+      </article>
+      <article class="card" data-name="prototype" data-terms="build throwaway design question shareable html ui variants capture discard spike">
+        <div class="card-top"><h4>prototype</h4><span class="tag model">model</span></div>
+        <p>Build a throwaway prototype to answer one design question — a shareable HTML file for a state question, or switchable UI variants for a look question — then capture the answer and discard the code.</p>
+      </article>
+      <article class="card" data-name="diagnose" data-terms="build debug bug feedback loop reproduce minimise hypothesise regression operation counts">
+        <div class="card-top"><h4>diagnose</h4><span class="tag model">model</span></div>
+        <p>A disciplined loop for hard bugs: build a tight red-capable feedback loop first, reproduce and minimise, hypothesise, instrument, fix with a regression test. Performance is judged by operation counts, not wall-clock.</p>
+      </article>
+      <article class="card" data-name="merge-resolve" data-terms="build merge rebase conflict trace intent commit pr never abort checks gate">
+        <div class="card-top"><h4>merge-resolve</h4><span class="tag model">model</span></div>
+        <p>Resolve an in-progress merge or rebase by tracing every conflicting hunk to the intent that authored it, keeping both where they compose, recording the trade-off where they collide, never aborting, checks before finishing.</p>
+      </article>
+      <article class="card" data-name="transport-complete" data-terms="build ship push deploy ci health check exact sha production serves liveness">
+        <div class="card-top"><h4>transport-complete</h4><span class="tag model">model</span></div>
+        <p>Ship a change and babysit it until verifiably live — commit, push, watch CI, confirm the deploy promoted the exact SHA, prove production serves it. Done means a health check for that SHA, not a successful push.</p>
+      </article>
+    </div>
+  </div>
+
+  <!-- Cluster: Planning & Delegation -->
+  <div class="cluster" data-cluster>
+    <div class="cluster-head"><span class="cn">D</span><h3>Planning &amp; Delegation</h3><span class="cc num">8 islands</span></div>
+    <p class="cluster-desc">Thinking before building — should this exist at all, who decides, and how a task travels between agents and humans without dropping its state.</p>
+    <div class="cards">
+      <article class="card" data-name="job-to-be-done" data-terms="planning triage should i build automate 90/10 augment human in the loop don't build">
+        <div class="card-top"><h4>job-to-be-done</h4><span class="tag model">model</span><span class="tag icm">ICM</span></div>
+        <p>The pre-build triage: should a thing be built or automated at all, and where does the human stay in the loop — delegation / complexity / outcome, the 90/10 rule. Its best outcome is often “don't build it”.</p>
+      </article>
+      <article class="card" data-name="grill" data-terms="planning interview shared understanding ambush drill batch adr decisions asked facts looked up">
+        <div class="card-top"><h4>grill</h4><span class="tag model">model</span></div>
+        <p>Relentless interview to reach shared understanding before building, in three modes — ambush, drill, batch — emitting settled decisions as ADRs. Facts are looked up; only decisions are asked.</p>
+      </article>
+      <article class="card" data-name="wayfinder" data-terms="planning multi-session decision tickets shared map issue tracker too big for one session">
+        <div class="card-top"><h4>wayfinder</h4><span class="tag user">user</span></div>
+        <p>Plan a chunk of work too big for one session — chart it as a shared map of decision tickets, then resolve them one at a time until the way to the destination is clear. Plans by resolving decisions, not slicing a build.</p>
+      </article>
+      <article class="card" data-name="to-questionnaire" data-terms="planning inverse grill markdown questionnaire stakeholder async decision someone else answer">
+        <div class="card-top"><h4>to-questionnaire</h4><span class="tag user">user</span></div>
+        <p>Turn a decision you can't answer alone into a Markdown questionnaire for the one person who can — filled async or together. Grills you about the send, not the subject. The inverse of grill.</p>
+      </article>
+      <article class="card" data-name="issue-triage" data-terms="planning inbound queue state machine bug reports external prs agent-ready briefs honesty disclaimer">
+        <div class="card-top"><h4>issue-triage</h4><span class="tag model">model</span></div>
+        <p>Move a queue of issues you did not create through a triage state machine, grill for missing info, and emit durable agent-ready briefs — every AI note carrying an honesty disclaimer. The inbound on-ramp.</p>
+      </article>
+      <article class="card" data-name="delegated-authority-prompt" data-terms="planning delegation authority decision rights stop conditions evidence contract front-load answers tripwires">
+        <div class="card-top"><h4>delegated-authority-prompt</h4><span class="tag user">user</span><span class="tag icm">ICM</span></div>
+        <p>Compose a minimum-question, maximum-authority delegation prompt in five slots so an agent runs far without check-ins, made safe by the tripwires that bound it. The mirror of grill — this front-loads the answers.</p>
+      </article>
+      <article class="card" data-name="handoff" data-terms="planning compact session state fresh agent zero memory wake protocol re-read verdicts">
+        <div class="card-top"><h4>handoff</h4><span class="tag user">user</span></div>
+        <p>Compact a session into a state-based handoff a fresh agent resumes from with zero memory, plus the wake protocol the receiver runs — re-reading verdicts and register state from the tree before trusting the summary.</p>
+      </article>
+      <article class="card" data-name="model-routing" data-terms="planning which model cognitive demand cost floor vision reasoning cheap bulk escalate record why">
+        <div class="card-top"><h4>model-routing</h4><span class="tag model">model</span></div>
+        <p>Route one task to the cheapest model or tool that still clears its cognitive-demand floor — vision-native, deep-reasoning, cheap-bulk — and record why the pick clears the bar. The only island that selects the model a step runs on.</p>
+      </article>
+    </div>
+  </div>
+
+  <!-- Cluster: ICM Workspaces & Architecture -->
+  <div class="cluster" data-cluster>
+    <div class="cluster-head"><span class="cn">E</span><h3>Workspaces &amp; Architecture</h3><span class="cc num">8 islands</span></div>
+    <p class="cluster-desc">Folders and markdown as agent architecture — scaffold a workspace, keep the map honest against the tree, model the domain, and find the seams worth deepening.</p>
+    <div class="cards">
+      <article class="card" data-name="folder-workspace" data-terms="workspace icm interpretable context methodology three-layer map rooms route become the agent">
+        <div class="card-top"><h4>folder-workspace</h4><span class="tag model">model</span><span class="tag icm">ICM</span></div>
+        <p>Structure a repo as an ICM workspace — folders and markdown as architecture, routed by a three-layer map so one agent becomes the agent each task needs, without agent swarms. The map is an auditable routing contract.</p>
+      </article>
+      <article class="card" data-name="workspace-scaffold" data-terms="workspace icm scaffold generator root map rooms naming conventions fresh agent routes">
+        <div class="card-top"><h4>workspace-scaffold</h4><span class="tag model">model</span><span class="tag icm">ICM</span></div>
+        <p>Scaffold a new ICM workspace for a domain — generate the root map, the rooms, the naming conventions — then prove a fresh agent routes through it before declaring done. Ships scaffold.sh.</p>
+      </article>
+      <article class="card" data-name="workspace-audit" data-terms="workspace icm drift map claims tree evidence audit.sh live room missing">
+        <div class="card-top"><h4>workspace-audit</h4><span class="tag model">model</span><span class="tag icm">ICM</span></div>
+        <p>Audit an ICM workspace for drift — every path the map claims exists in the tree, and no live room missing from the map. The map is a claim; the tree is the evidence; drift is a claim the evidence contradicts.</p>
+      </article>
+      <article class="card" data-name="data-source-map" data-terms="workspace okf open knowledge format database bigquery drive oracle descriptor query on demand">
+        <div class="card-top"><h4>data-source-map</h4><span class="tag model">model</span><span class="tag icm">ICM</span></div>
+        <p>Wire an external data source into a workspace with a markdown descriptor — where the store lives, what it holds, what to ask it — so an agent queries it on demand instead of ingesting it. A map to live data, not a copy.</p>
+      </article>
+      <article class="card" data-name="productionize-opinion" data-terms="workspace icm ingest agent distill voice transcripts notes second brain mines you inferences marked">
+        <div class="card-top"><h4>productionize-opinion</h4><span class="tag model">model</span><span class="tag icm">ICM</span></div>
+        <p>Distill an operator's own raw material — transcripts, notes, decisions — into durable workspace context that carries their voice and process. Mines you, not external sources; inferences are marked as inferences.</p>
+      </article>
+      <article class="card" data-name="domain-modeling" data-terms="workspace ubiquitous language glossary adr challenge terms edge cases active discipline">
+        <div class="card-top"><h4>domain-modeling</h4><span class="tag model">model</span></div>
+        <p>Actively build and sharpen a project's domain model — challenge terms, invent edge-case scenarios, write the glossary and decisions the moment they crystallise. The active discipline, distinct from reading CONTEXT.md.</p>
+      </article>
+      <article class="card" data-name="deep-modules" data-terms="workspace deep module interface seam testable dependency cruiser entry points package boundaries">
+        <div class="card-top"><h4>deep-modules</h4><span class="tag model">model</span></div>
+        <p>Shared vocabulary and enforcement for deep modules — a lot of behaviour behind a small interface at a clean seam — with the dependency-cruiser rules that make entry points the only way in.</p>
+      </article>
+      <article class="card" data-name="arch-survey" data-terms="workspace architecture churn deletion test hot-spots ranked report refactor opportunities">
+        <div class="card-top"><h4>arch-survey</h4><span class="tag model">model</span></div>
+        <p>Proactively survey a whole codebase for refactor opportunities — mine change-history hot-spots, gate each through the deep-module deletion test, rank them as a before/after report. The scan that runs before deep-modules designs one.</p>
+      </article>
+    </div>
+  </div>
+
+  <!-- Cluster: Fleet & Infrastructure -->
+  <div class="cluster" data-cluster>
+    <div class="cluster-head"><span class="cn">F</span><h3>Fleet &amp; Infrastructure</h3><span class="cc num">6 islands</span></div>
+    <p class="cluster-desc">The ground the fleet runs on — coordination across machines, the mechanical guardrails under the prompts, versioned consoles, wired domains, and the one time-triggered island.</p>
+    <div class="cards">
+      <article class="card" data-name="worktree-fleet" data-terms="fleet git worktree parallel agents admissibility boundary drafts forbidden evidence re-derive">
+        <div class="card-top"><h4>worktree-fleet</h4><span class="tag user">user</span></div>
+        <p>Git worktrees for same-machine parallel agents, with the IDC boundary — adopted for drafts, forbidden for evidence. Worktree artifacts are inadmissible as gate evidence until re-derived from a fresh clone.</p>
+      </article>
+      <article class="card moat" data-name="lane-claim" data-terms="fleet declare and halt coordination claim lane halt release cross-machine collisions idc-native">
+        <div class="card-top"><h4>lane-claim</h4><span class="tag model">model</span><span class="tag moat">IDC-native</span></div>
+        <p>Declare-and-halt coordination for agents working one repo across many machines — claim a lane before touching it, halt if already claimed, release when done. Cures the cross-machine collisions worktrees cannot.</p>
+      </article>
+      <article class="card" data-name="agent-guardrails" data-terms="fleet shell denylist git block pre-commit read-only db role mechanize covenants harden">
+        <div class="card-top"><h4>agent-guardrails</h4><span class="tag model">model</span></div>
+        <p>Four mechanical layers under an AI fleet — shell denylist, git block, pre-commit gate, read-only data role — mechanizing the covenants beneath the prompts.</p>
+      </article>
+      <article class="card moat" data-name="console-as-code" data-terms="fleet operating prompt versioned blocks boot covenants lanes seats assembly sha auditable idc-native">
+        <div class="card-top"><h4>console-as-code</h4><span class="tag model">model</span><span class="tag moat">IDC-native</span></div>
+        <p>Assemble an agent's operating prompt from versioned in-repo blocks, stamped with the assembly SHA — so every prompt is an auditable artifact and the same console assembles identically on every seat.</p>
+      </article>
+      <article class="card moat" data-name="domain-wire" data-terms="fleet three-lane story product ai-native canonical 308 redirect graduation apex idc-native dns">
+        <div class="card-top"><h4>domain-wire</h4><span class="tag model">model</span><span class="tag moat">IDC-native</span></div>
+        <p>Wire a domain the IDC way — the three-lane model, one canonical per venture with siblings 308-redirecting to it, automatic graduation when a brand deed exists, and canonicals moving in the same commit.</p>
+      </article>
+      <article class="card" data-name="agent-schedule" data-terms="fleet cron systemd heartbeat wall clock recurring verify fired time-triggered">
+        <div class="card-top"><h4>agent-schedule</h4><span class="tag model">model</span></div>
+        <p>Schedule an unattended agent on a recurring wall-clock — cron, systemd, heartbeat — then verify the schedule actually fired before trusting it. The only island triggered by time; every loop sibling is condition-driven.</p>
+      </article>
+    </div>
+  </div>
+
+  <!-- Cluster: Research, Prose & Communication -->
+  <div class="cluster" data-cluster>
+    <div class="cluster-head"><span class="cn">G</span><h3>Research, Prose &amp; Communication</h3><span class="cc num">9 islands</span></div>
+    <p class="cluster-desc">Everything that turns sources into grounded output and output into something a human actually understands — cited research, video, prose, teaching, and the small sharp compressors.</p>
+    <div class="cards">
+      <article class="card" data-name="research" data-terms="communication primary sources cited markdown claim sourced flagged unverified deepapi">
+        <div class="card-top"><h4>research</h4><span class="tag model">model</span></div>
+        <p>Investigate a question against high-trust primary sources and capture findings as a cited Markdown file — every claim sourced or explicitly flagged unverified. DeepAPI is an optional backend.</p>
+      </article>
+      <article class="card" data-name="video-analysis" data-terms="communication transcript frames yt-dlp ffmpeg cited line frame number grab.sh dedup two channels">
+        <div class="card-top"><h4>video-analysis</h4><span class="tag model">model</span></div>
+        <p>Turn a video URL into a grounded analysis from two channels — the transcript (what was said) and deduped frames (what was shown) — every claim cited to a transcript line or a frame number. Ships grab.sh.</p>
+      </article>
+      <article class="card" data-name="prose-craft" data-terms="communication article essay explainer explore exploit fragments leading word grounded beats shape">
+        <div class="card-top"><h4>prose-craft</h4><span class="tag user">user</span></div>
+        <p>Author original prose in two phases — EXPLORE mines fragments and coins the load-bearing leading word; EXPLOIT builds grounded beats where no beat leans on an ungrounded concept, optionally shaping each block's form.</p>
+      </article>
+      <article class="card" data-name="ai-humanizer" data-terms="communication ai slop detector score statistical pattern 0-100 likeness de-slop before after">
+        <div class="card-top"><h4>ai-humanizer</h4><span class="tag model">model</span></div>
+        <p>Detect and score AI-writing tells in prose — a bundled statistical + pattern scorer emitting a deterministic 0–100 AI-likeness number — so a de-slop pass yields byte-verifiable before/after evidence, not a claim.</p>
+      </article>
+      <article class="card" data-name="teach" data-terms="communication stateful multi-session teaching lessons high-trust self-contained html learning records">
+        <div class="card-top"><h4>teach</h4><span class="tag user">user</span></div>
+        <p>A stateful multi-session teaching workspace — mission-grounded lessons from high-trust sources, delivered as beautiful self-contained HTML with tight feedback loops and learning records.</p>
+      </article>
+      <article class="card" data-name="wizard" data-terms="communication interactive bash wizard human steps urls env files github secrets template.sh">
+        <div class="card-top"><h4>wizard</h4><span class="tag model">model</span></div>
+        <p>Generate an interactive bash wizard that walks a human through steps only they can perform — opening each URL, saying what to click, capturing values into .env files and CI secrets. Ships a fixed template.sh UX library.</p>
+      </article>
+      <article class="card" data-name="batch-sample-curate" data-terms="communication draw n candidates probabilistic image video design copy curate keep cut ledger best of n">
+        <div class="card-top"><h4>batch-sample-curate</h4><span class="tag user">user</span></div>
+        <p>Draw N candidates from a probabilistic-output tool and curate to the best against a scored keep/cut ledger, recording why each was kept or cut. Distinct from gauntlet-loop (refine one to a bar) and prototype.</p>
+      </article>
+      <article class="card" data-name="wait-what" data-terms="communication re-pitch missing context simplified technical english context.md ubiquitous language">
+        <div class="card-top"><h4>wait-what</h4><span class="tag user">user</span></div>
+        <p>Stop — that last message did not land. Re-pitch it with the missing context, in ASD-STE100 Simplified Technical English, grounded in the project's own CONTEXT.md ubiquitous language.</p>
+      </article>
+      <article class="card" data-name="short" data-terms="communication compress strip filler simplify cut length keep substance tldr">
+        <div class="card-top"><h4>short</h4><span class="tag user">user</span></div>
+        <p>Compress the current answer — strip filler, simplify wording, cut length while keeping substance.</p>
+      </article>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- ============ THE MOAT ============ -->
+<section id="moat" class="wrap">
+  <div class="sec-head">
+    <span class="idx">04</span>
+    <h2>The moat</h2>
+  </div>
+  <div class="moat-grid">
+    <div class="moat-prose">
+      <p>Most of the fifty are the best public technique, vendor-stripped and welded to the evidence law. That is valuable, but it is not defensible — anyone can re-fuse the same canons.</p>
+      <p><b>Six islands exist nowhere else.</b> They are not adaptations; they were invented for the way IDC actually runs — one repo, many machines, evidence over claims. Add the ICM cluster welded to the evidence law, and the cross-family review ceremony backed by production receipts, and the pack stops being a re-fusion anyone could copy.</p>
+      <div class="pull">The defensible core is not the techniques. It is the six that only IDC needed to build.</div>
+      <p>That is the moat: not breadth, but the handful of islands whose reason to exist is IDC's own operating reality — coordination across machines, a durable register at an exact SHA, the three-lane domain doctrine, the versioned console, the recomputable evidence packet, and the governor that keeps the fifty honest.</p>
+    </div>
+    <div class="moat-list">
+      <div class="moat-item"><svg class="mgem" aria-hidden="true"><use href="#gem"/></svg><div><div class="mn">lane-claim</div><div class="md">Cross-machine declare-and-halt — the collision worktrees cannot cure.</div></div></div>
+      <div class="moat-item"><svg class="mgem" aria-hidden="true"><use href="#gem"/></svg><div><div class="mn">finding-register</div><div class="md">Findings enumerated at an exact SHA, provenance both ways, collision-free ids.</div></div></div>
+      <div class="moat-item"><svg class="mgem" aria-hidden="true"><use href="#gem"/></svg><div><div class="mn">domain-wire</div><div class="md">The three-lane doctrine — one canonical, siblings 308, automatic graduation.</div></div></div>
+      <div class="moat-item"><svg class="mgem" aria-hidden="true"><use href="#gem"/></svg><div><div class="mn">console-as-code</div><div class="md">Operating prompts assembled from versioned blocks, stamped with the assembly SHA.</div></div></div>
+      <div class="moat-item"><svg class="mgem" aria-hidden="true"><use href="#gem"/></svg><div><div class="mn">evidence-packet</div><div class="md">A byte-verifiable bundle a reviewer recomputes instead of trusting.</div></div></div>
+      <div class="moat-item"><svg class="mgem" aria-hidden="true"><use href="#gem"/></svg><div><div class="mn">skill-duel</div><div class="md">The displacement governor — the fifty change only by a won duel.</div></div></div>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- ============ GOVERNANCE ============ -->
+<section id="governance" class="wrap">
+  <div class="sec-head">
+    <span class="idx">05</span>
+    <h2>Governance — the living deadlock</h2>
+  </div>
+  <p class="sec-sub">Fifty is a cap, and a cap only means something if it is mechanically enforced. The pack governs itself the same way it vets itself: nothing crosses on a claim.</p>
+  <div class="gov">
+    <div class="govcard">
+      <div class="tagline">The governor</div>
+      <h3>skill-duel</h3>
+      <p>A challenger cannot argue its way in. It enters exactly one identical gauntlet against a named incumbent — the same executor cases, the same defect-tied critic, the same seat — and the verdict is welded to the scores it earned.</p>
+      <ul>
+        <li>Same cases, same critic, same seat — no re-framing the contest.</li>
+        <li>The verdict is swap or no-swap, bound to the numbers.</li>
+        <li>The author never judges their own challenger.</li>
+      </ul>
+    </div>
+    <div class="govcard">
+      <div class="tagline">The swap rule</div>
+      <h3>How the fifty change</h3>
+      <p>The pack is a living deadlock. There are only two doors in, and both require beating the bar rather than pleading for it.</p>
+      <ul>
+        <li>A challenger displaces an incumbent only by <b style="color:var(--ink)">strictly winning</b> the head-to-head gauntlet. A tie keeps the seat.</li>
+        <li>Or it fills a deprecated slot — but only by clearing ≥9 on its own gauntlet.</li>
+        <li>The duel pool waits outside: meeting-transcript, safe-rewrite, purchase-research, leonardo-tournament — challengers, not slots.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<hr class="rule" />
+
+<!-- ============ PRODUCTS ============ -->
+<section id="products" class="wrap">
+  <div class="sec-head">
+    <span class="idx">06</span>
+    <h2>Two products, kept honest</h2>
+  </div>
+  <p class="sec-sub">Two things are deliberately <i>not</i> forge slots. They are multi-concern products — kept in <span class="mono">~/clawd</span>, improved in place — and the forge keeps only its tight single-concern primitives. Here is their honest state, not their pitch.</p>
+  <div class="prod">
+    <div class="pcard warn">
+      <div class="pcard-top"><h3>YPE</h3><span class="ver mono">youtube-pipeline v7.2</span></div>
+      <div class="score"><span class="sv num">5</span><span class="sd">/10 · gauntleted in place</span></div>
+      <div class="meter"><i></i></div>
+      <p><span class="state">needs work</span></p>
+      <p>Root cause of its consistency problem — the exact thing that made it hard to trust: <b>its Non-Negotiable Truth Rules are prose, not enforced checks.</b> A gate asserts it will block when a real condition fails, but the actual check only verifies a file exists or a frame count clears a floor — never the real condition.</p>
+      <p>The fix path is deliberate, not a two-round patch: turn each “must block when X” truth-rule into a check that verifies X. Restored to Jon's clean v7.2 baseline; the partial-fix version is staged.</p>
+    </div>
+    <div class="pcard good">
+      <div class="pcard-top"><h3>iron-canvas</h3><span class="ver mono">iron-canvas-master v4.2</span></div>
+      <div class="score"><span class="sv num">8.5</span><span class="sd">/10 · coherence passes</span></div>
+      <div class="meter"><i></i></div>
+      <p><span class="state">strong · shy of world-class</span></p>
+      <p>Climbed 5.5 → 7.5 → 8.5 across coherence passes — 22 phantom substrate pointers, frame-spec contradictions, name/folder mismatch, a duplicate sign-off, stale license and rename notes all fixed.</p>
+      <p>It did <b>not</b> reach the 9.5 world-class bar. The residual is real: deep illustrative-code robustness inside a 2,544-line monolith. Backed up before every pass; the honest gap is documented, not laundered.</p>
+    </div>
+  </div>
+  <p class="prod-note">Why they stay out of the forge: an island is one concern. A cloud/multiplayer deployment product or a full video pipeline bundles many — admitting one would duplicate islands the forge already has (the ICM cluster, video-analysis, handoff, the guardrails) and violate the no-duplication law. The primitive lives in the forge; the product lives in clawd.</p>
+</section>
+
+<hr class="rule" />
+
+<!-- ============ METHODOLOGY ============ -->
+<section id="method" class="wrap">
+  <div class="sec-head">
+    <span class="idx">07</span>
+    <h2>How every island was judged</h2>
+  </div>
+  <p class="sec-sub">One vetting method, run honestly, with two lenses that must never be conflated. Every island demonstrates its own discipline; the vetting demonstrates the one law.</p>
+
+  <div class="flow" aria-label="Vetting pipeline">
+    <span class="step">Executor runs 3 live challenge cases</span>
+    <span class="arrow">→</span>
+    <span class="step">in a sandbox</span>
+    <span class="arrow">→</span>
+    <span class="step">Blind adversarial critic scores</span>
+    <span class="arrow">→</span>
+    <span class="step">defect-tied rubric</span>
+  </div>
+
+  <div class="lenses">
+    <div class="lens">
+      <div class="ln">Lens one · the promotion gate</div>
+      <h3>Defect-tied confidence</h3>
+      <p>Confidence is not a vibe. It is ten minus the count of real, unaddressed, in-scope defects a blind critic can actually stand up. A number you can argue with, because it points at named holes.</p>
+      <div class="formula">confidence = 10 − Σ (real unaddressed in-scope defects)</div>
+      <p style="margin-top:12px">Under this lens all islands cleared ≥9 with zero unaddressed defects standing. Adversarial re-vetting is an asymptote — fresh executors invent new marginal edges every round — so the honest close is “all real defects fixed and verified”, not “looped until everyone says 10”.</p>
+    </div>
+    <div class="lens">
+      <div class="ln">Lens two · the documentation pass</div>
+      <h3>Generic case performance</h3>
+      <p>A separate fan-out ran three fresh in-scope challenge cases per skill on the final code and scored generically — case performance averaged around 8.7 (range 8.0–9.3).</p>
+      <p>The lower generic “confidence” that pass reported is documenter caution, <b style="color:var(--ink)">not new defects</b>. Conflating the two lenses is the mistake; one counts standing holes, the other rates a run. It surfaced exactly one real honesty fix, already applied — a fleet-topology claim softened so seats can be independent dirs, not only symlinks.</p>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-grid">
+      <div class="fl">
+        <div class="foot-mark"><svg aria-hidden="true"><use href="#gem"/></svg> State of the Forge</div>
+        <div style="margin-top:14px">
+          <b>Release 2.0.0</b> · commit <span class="mono">c4202cf</span> · 50/50 islands locked<br>
+          Live: <b>Island-Dev-Crew/idc-skills</b> (public) · Staging: <b>Navigata1/idc-skills-forge</b><br>
+          Fused from Ondrej × Pocock canons × Jake Van Clief's ICM, welded to IDC evidence discipline.
+        </div>
+      </div>
+      <div class="fl" style="text-align:right">
+        <div class="tide">Roll Tide</div>
+        <div style="margin-top:8px">Island Development Crew · Huntsville, AL</div>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+(function(){
+  var input = document.getElementById('islandSearch');
+  var cards = Array.prototype.slice.call(document.querySelectorAll('.card'));
+  var clusters = Array.prototype.slice.call(document.querySelectorAll('[data-cluster]'));
+  var vis = document.getElementById('visCount');
+  var empty = document.getElementById('emptyState');
+  if(!input) return;
+  function norm(s){return (s||'').toLowerCase();}
+  input.addEventListener('input', function(){
+    var q = norm(input.value).trim();
+    var shown = 0;
+    cards.forEach(function(c){
+      var hay = norm(c.getAttribute('data-name') + ' ' + c.getAttribute('data-terms') + ' ' + c.textContent);
+      var match = q === '' || hay.indexOf(q) !== -1;
+      c.style.display = match ? '' : 'none';
+      if(match) shown++;
+    });
+    clusters.forEach(function(cl){
+      var any = cl.querySelectorAll('.card').length && Array.prototype.some.call(cl.querySelectorAll('.card'), function(c){return c.style.display !== 'none';});
+      cl.style.display = any ? '' : 'none';
+    });
+    vis.textContent = shown;
+    empty.style.display = shown === 0 ? 'block' : 'none';
+  });
+})();
+</script>
+</body>
+</html>
