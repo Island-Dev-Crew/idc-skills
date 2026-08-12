@@ -220,9 +220,12 @@ def parse_simple_yaml(text: str, *, line_offset: int = 0) -> tuple[dict[str, Any
 
     root: dict[str, Any] = {}
     key_lines: dict[str, int] = {}
-    stack: list[tuple[int, dict[str, Any]]] = [(-1, root)]
-    last_indent = -1
-    pending_container: dict[str, Any] | None = None
+    # Active mapping at each legal key indentation. A deeper key is legal only
+    # immediately after a key that opened an empty mapping; it may never become
+    # an accidental child of a scalar.
+    mappings: dict[int, dict[str, Any]] = {0: root}
+    previous_indent: int | None = None
+    previous_child: dict[str, Any] | None = None
 
     for relative_line, raw_line in enumerate(text.splitlines(), start=1):
         line = relative_line + line_offset
@@ -236,13 +239,20 @@ def parse_simple_yaml(text: str, *, line_offset: int = 0) -> tuple[dict[str, Any
         indent = len(uncommented) - len(uncommented.lstrip(" "))
         if indent % 2:
             raise SimpleYamlError("indentation must use multiples of two spaces", line)
-        while stack and indent <= stack[-1][0]:
-            stack.pop()
-        if not stack:
-            raise SimpleYamlError("invalid indentation", line)
-        if indent > last_indent + 2 and last_indent >= 0:
-            raise SimpleYamlError("indentation jumped more than one mapping level", line)
-        parent = stack[-1][1]
+        if previous_indent is None and indent != 0:
+            raise SimpleYamlError("top-level mapping keys must not be indented", line)
+        if previous_indent is not None and indent > previous_indent:
+            if indent != previous_indent + 2:
+                raise SimpleYamlError("indentation jumped more than one mapping level", line)
+            if previous_child is None:
+                raise SimpleYamlError("a scalar value cannot contain an indented mapping", line)
+            mappings[indent] = previous_child
+        elif indent not in mappings:
+            raise SimpleYamlError("dedent does not match an open mapping level", line)
+        for active_indent in list(mappings):
+            if active_indent > indent:
+                del mappings[active_indent]
+        parent = mappings[indent]
         key, raw_value = _split_yaml_mapping_line(uncommented.strip(), line)
         if key in parent:
             raise SimpleYamlError(f"duplicate mapping key {key!r}", line)
@@ -250,19 +260,15 @@ def parse_simple_yaml(text: str, *, line_offset: int = 0) -> tuple[dict[str, Any
             raise SimpleYamlError("block scalars are not supported in portable metadata", line)
         if raw_value:
             parent[key] = _parse_yaml_scalar(raw_value, line)
-            pending_container = None
+            previous_child = None
         else:
             child: dict[str, Any] = {}
             parent[key] = child
-            stack.append((indent, child))
-            pending_container = child
-        if len(stack) == 1:
+            previous_child = child
+        if indent == 0:
             key_lines[key] = line
-        elif indent == 0:
-            key_lines[key] = line
-        last_indent = indent
+        previous_indent = indent
 
-    del pending_container  # documents intent; empty mappings are valid
     return root, key_lines
 
 
@@ -273,13 +279,63 @@ def _relative(path: Path, root: Path) -> str:
         return str(path)
 
 
+def _mask_markdown_code(text: str) -> str:
+    """Mask fenced and inline code while preserving offsets and newlines.
+
+    Markdown-looking examples inside code are not rendered links and must not
+    satisfy reachability or trigger path diagnostics. Backticks inside a real
+    link label are masked, but its brackets and destination remain visible.
+    """
+
+    masked_lines: list[str] = []
+    fence_char: str | None = None
+    fence_length = 0
+    for line in text.splitlines(keepends=True):
+        stripped = line.lstrip(" ")
+        leading = len(line) - len(stripped)
+        fence = re.match(r"(`{3,}|~{3,})", stripped) if leading <= 3 else None
+        if fence_char is not None:
+            masked_lines.append("".join("\n" if char == "\n" else "\r" if char == "\r" else " " for char in line))
+            fence_tail = stripped[len(fence.group(1)) :].strip() if fence else ""
+            if fence and not fence_tail and fence.group(1)[0] == fence_char and len(fence.group(1)) >= fence_length:
+                fence_char = None
+                fence_length = 0
+            continue
+        if fence:
+            fence_char = fence.group(1)[0]
+            fence_length = len(fence.group(1))
+            masked_lines.append("".join("\n" if char == "\n" else "\r" if char == "\r" else " " for char in line))
+            continue
+
+        mutable = list(line)
+        index = 0
+        while index < len(line):
+            if line[index] != "`":
+                index += 1
+                continue
+            run_end = index
+            while run_end < len(line) and line[run_end] == "`":
+                run_end += 1
+            marker = line[index:run_end]
+            closing = line.find(marker, run_end)
+            if closing < 0:
+                index = run_end
+                continue
+            for position in range(index, closing + len(marker)):
+                if mutable[position] not in {"\r", "\n"}:
+                    mutable[position] = " "
+            index = closing + len(marker)
+        masked_lines.append("".join(mutable))
+    return "".join(masked_lines)
+
+
 class ForgeValidator:
     def __init__(self, root: Path, profile: str = "canonical") -> None:
         self.root = root.resolve()
         self.profile = profile
         self.diagnostics: list[Diagnostic] = []
         self.skills: dict[str, SkillSource] = {}
-        self.registry: dict[str, Any] = {}
+        self.registry: dict[str, Any] | None = None
         self._checks_seen: set[str] = set()
         self._tooling: dict[str, str | None] = {
             "bash": shutil.which("bash"),
@@ -360,6 +416,8 @@ class ForgeValidator:
         self.registry = value
 
     def _registry_entries(self) -> list[dict[str, Any]]:
+        if self.registry is None:
+            return []
         entries = self.registry.get("skills", [])
         if not isinstance(entries, list):
             self.add(
@@ -370,6 +428,14 @@ class ForgeValidator:
                 "registry.skills must be an array",
             )
             return []
+        if not entries:
+            self.add(
+                "error",
+                "REGISTRY_EMPTY",
+                "registry_bijection",
+                "skills/registry.json",
+                "registry.skills must contain at least one skill",
+            )
         valid_entries: list[dict[str, Any]] = []
         seen_names: set[str] = set()
         seen_paths: set[str] = set()
@@ -476,6 +542,14 @@ class ForgeValidator:
                 source = self._extract_frontmatter(skill_path, name)
                 if source is not None:
                     self.skills[name] = source
+        if not self.skills:
+            self.add(
+                "error",
+                "NO_SKILLS_LOADED",
+                "registry_bijection",
+                skills_root,
+                "the forge must contain at least one registered, loadable skill",
+            )
 
     def _check_skill_contract(self, entry: dict[str, Any], source: SkillSource) -> None:
         self._mark_check("name_folder", "description_contract", "invocation_parity", "claude_ai_exportability")
@@ -574,19 +648,18 @@ class ForgeValidator:
         return target.split(maxsplit=1)[0]
 
     @staticmethod
-    def _is_external_or_template(label: str, target: str) -> bool:
+    def _is_external_or_template(target: str) -> bool:
         lowered = target.lower()
         return (
             not target
             or target.startswith("#")
             or lowered.startswith(("http://", "https://", "mailto:", "data:"))
-            or ("<" in label and ">" in label)
-            or target in {"link", "path", "url", "URL"}
+            or lowered in {"link", "path", "url", "target", "destination"}
         )
 
-    def _resolve_reference(self, source_file: Path, label: str, raw_target: str, skill: str, line: int) -> Path | None:
+    def _resolve_reference(self, source_file: Path, raw_target: str, skill: str, line: int) -> Path | None:
         target = unquote(self._markdown_target(raw_target)).split("#", 1)[0]
-        if self._is_external_or_template(label, target):
+        if self._is_external_or_template(target):
             return None
         if "\\" in target:
             self.add("error", "REFERENCE_SEPARATOR", "references", source_file, f"reference must use portable '/' separators: {target!r}", line=line, skill=skill)
@@ -610,20 +683,47 @@ class ForgeValidator:
         text = self._read_utf8(source.skill_path, skill=source.name)
         if text is None:
             return
-        for match in MARKDOWN_LINK_RE.finditer(text):
-            line = text.count("\n", 0, match.start()) + 1
-            self._resolve_reference(source.skill_path, match.group(1), match.group(2), source.name, line)
+        masked_text = _mask_markdown_code(text)
+        direct_targets: set[Path] = set()
+        for match in MARKDOWN_LINK_RE.finditer(masked_text):
+            line = masked_text.count("\n", 0, match.start()) + 1
+            resolved = self._resolve_reference(source.skill_path, match.group(2), source.name, line)
+            if resolved is not None:
+                direct_targets.add(resolved)
         references_dir = source.folder / "references"
         if references_dir.is_dir():
-            for reference in sorted(references_dir.rglob("*.md")):
+            payloads = sorted(path for path in references_dir.rglob("*") if path.is_file())
+            for reference in payloads:
+                if reference.resolve() not in direct_targets:
+                    if reference.suffix.lower() == ".md":
+                        self.add(
+                            "error",
+                            "REFERENCE_UNREACHABLE",
+                            "one_hop_references",
+                            reference,
+                            "references/*.md must be linked directly from SKILL.md",
+                            skill=source.name,
+                        )
+                    else:
+                        self.add(
+                            "warning",
+                            "REFERENCE_NON_MARKDOWN_UNREACHABLE",
+                            "one_hop_references",
+                            reference,
+                            "non-Markdown reference payload is not linked from SKILL.md; reachability is advisory",
+                            skill=source.name,
+                        )
+                if reference.suffix.lower() != ".md":
+                    continue
                 reference_text = self._read_utf8(reference, skill=source.name)
                 if reference_text is None:
                     continue
-                for match in MARKDOWN_LINK_RE.finditer(reference_text):
+                masked_reference = _mask_markdown_code(reference_text)
+                for match in MARKDOWN_LINK_RE.finditer(masked_reference):
                     target = self._markdown_target(match.group(2))
-                    if self._is_external_or_template(match.group(1), target):
+                    if self._is_external_or_template(target):
                         continue
-                    line = reference_text.count("\n", 0, match.start()) + 1
+                    line = masked_reference.count("\n", 0, match.start()) + 1
                     self.add("error", "REFERENCE_CHAIN", "one_hop_references", reference, f"reference file links onward to local path {target!r}; point to it directly from SKILL.md", line=line, skill=source.name)
 
     def _check_utf8_tree(self, source: SkillSource) -> None:
@@ -689,7 +789,7 @@ class ForgeValidator:
 
     def validate(self) -> dict[str, Any]:
         self._load_registry()
-        entries = self._registry_entries() if self.registry else []
+        entries = self._registry_entries()
         self._check_bijection_and_load(entries)
         entries_by_name = {str(entry["name"]): entry for entry in entries}
         for name in sorted(self.skills):

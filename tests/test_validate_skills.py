@@ -105,6 +105,14 @@ class ValidatorTests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertIn("UNREGISTERED_SKILL_FOLDER", self.codes(result))
 
+    def test_empty_registry_and_zero_skills_go_red(self) -> None:
+        (self.root / "skills" / "registry.json").write_text("{}\n", encoding="utf-8")
+        result = self.validate()
+        self.assertFalse(result["valid"])
+        self.assertEqual(result["summary"]["skillsRegistered"], 0)  # type: ignore[index]
+        self.assertEqual(result["summary"]["skillsLoaded"], 0)  # type: ignore[index]
+        self.assertTrue({"REGISTRY_EMPTY", "NO_SKILLS_LOADED"}.issubset(self.codes(result)))
+
     def test_name_and_description_contracts_go_red(self) -> None:
         folder = self.fixture.add_skill("sample-skill")
         skill_path = folder / "SKILL.md"
@@ -122,6 +130,16 @@ class ValidatorTests(unittest.TestCase):
         self.assertFalse(result["valid"])
         self.assertIn("OPENAI_POLICY_USER", self.codes(result))
 
+    def test_scalar_cannot_gain_an_indented_mapping(self) -> None:
+        folder = self.fixture.add_skill("sample-skill")
+        skill_path = folder / "SKILL.md"
+        text = skill_path.read_text(encoding="utf-8")
+        text = text.replace(f"name: sample-skill\ndescription: {GOOD_DESCRIPTION}", f"name: sample-skill\n  description: {GOOD_DESCRIPTION}")
+        skill_path.write_text(text, encoding="utf-8")
+        result = self.validate()
+        self.assertFalse(result["valid"])
+        self.assertIn("FRONTMATTER_YAML", self.codes(result))
+
     def test_missing_and_chained_references_go_red(self) -> None:
         folder = self.fixture.add_skill(
             "sample-skill",
@@ -133,6 +151,50 @@ class ValidatorTests(unittest.TestCase):
         result = self.validate()
         self.assertFalse(result["valid"])
         self.assertTrue({"REFERENCE_MISSING", "REFERENCE_CHAIN"}.issubset(self.codes(result)))
+
+    def test_orphan_markdown_reference_goes_red(self) -> None:
+        folder = self.fixture.add_skill("sample-skill")
+        references = folder / "references"
+        references.mkdir()
+        orphan = references / "orphan.md"
+        orphan.write_text("# Orphan\n", encoding="utf-8")
+        result = self.validate()
+        self.assertFalse(result["valid"])
+        self.assertIn("REFERENCE_UNREACHABLE", self.codes(result))
+
+        skill_path = folder / "SKILL.md"
+        skill_path.write_text(skill_path.read_text(encoding="utf-8") + "\nSee [the reference](references/orphan.md).\n", encoding="utf-8")
+        linked = self.validate()
+        self.assertNotIn("REFERENCE_UNREACHABLE", self.codes(linked))
+
+    def test_unlinked_non_markdown_reference_is_advisory(self) -> None:
+        folder = self.fixture.add_skill("sample-skill")
+        references = folder / "references"
+        references.mkdir()
+        (references / "template.cjs").write_text("module.exports = {};\n", encoding="utf-8")
+        result = self.validate()
+        self.assertTrue(result["valid"])
+        self.assertIn("REFERENCE_NON_MARKDOWN_UNREACHABLE", self.codes(result))
+
+    def test_angle_bracket_label_does_not_hide_a_concrete_absolute_target(self) -> None:
+        self.fixture.add_skill("sample-skill", body="# Sample\n\nSee [<outside>](/definitely/absolute/missing.md).\n")
+        result = self.validate()
+        self.assertFalse(result["valid"])
+        self.assertIn("REFERENCE_ABSOLUTE", self.codes(result))
+
+    def test_placeholder_and_code_example_links_are_not_paths(self) -> None:
+        self.fixture.add_skill(
+            "sample-skill",
+            body=(
+                "# Sample\n\n"
+                "Template: [<closed ticket>](link).\n\n"
+                "Inline code: `[fake](/not/a/path.md)`.\n\n"
+                "```markdown\n[fake](/also/not/a/path.md)\n```\n"
+            ),
+        )
+        result = self.validate()
+        self.assertTrue(result["valid"])
+        self.assertNotIn("REFERENCE_ABSOLUTE", self.codes(result))
 
     def test_script_syntax_and_utf8_go_red(self) -> None:
         folder = self.fixture.add_skill("sample-skill", body="# Sample\n\nRun [the check](scripts/check.py).\n")
