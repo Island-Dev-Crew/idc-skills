@@ -52,7 +52,7 @@ Corollary for authors: a skill body that instructs invoking a user-invoked skill
 
 ## 4. The Codex sidecar — `agents/openai.yaml`
 
-`disable-model-invocation` is a Claude Code / Pi extension; **Codex ignores it.** Without a sidecar, a user-invoked skill still shows up to Codex's model for implicit invocation. Ship an `agents/openai.yaml` beside every `SKILL.md` so the set works in both harnesses from one source:
+`disable-model-invocation` is not the Codex policy field. Ship an `agents/openai.yaml` beside every `SKILL.md` so the Codex adapter can carry the same explicit-only intent without rewriting canonical frontmatter:
 
 ```yaml
 # model-invoked skill — interface metadata only
@@ -72,31 +72,27 @@ policy:
 
 The `policy.allow_implicit_invocation: false` line goes on **user-invoked skills only** — it is what makes `disable-model-invocation` travel to Codex. Put it on a model-invoked skill by mistake and Codex filters the skill out of the model-visible list, so its description can never trigger it (only an explicit `$name` works). Keep `display_name`/`short_description` in sync with the SKILL.md — a stale sidecar naming an old skill is a real bug.
 
-## 5. Fleet distribution — one authored skill, every seat
+## 5. Harness distribution — one source, evidence per seat
 
-Author once at the canonical location; symlinks and one copy cover the rest.
+Author once in the Forge. Distribution and behavior are separate claims: equal bytes prove transport, while loader discovery and invocation policy require a harness-specific source and probe. The live contract is [`docs/harness-support.md`](../../docs/harness-support.md), with machine-readable facts in [`docs/harness-support.json`](../../docs/harness-support.json).
 
 | Seat | Skills folder | Notes |
 |---|---|---|
-| Codex / OpenAI | `~/.agents/skills/` | **canonical** — author here first (reads the `agents/openai.yaml`) |
-| Claude Code | `~/.claude/skills/` | symlink → `~/.agents/skills/` → auto-covered **when symlinked**; where it is an independent directory instead (a real setup on some machines), the installer writes it directly |
-| Pi | `~/.pi/agent/skills/` | same, with the `/agent/`-nested path — symlinked → auto-covered, independent copy → written directly |
-| Hermes | `~/.hermes/skills/` | always an independent copy — never a symlink |
+| Codex / OpenAI | `~/.agents/skills/` | native installer alias `agents`; consumes `agents/openai.yaml` |
+| Claude Code | `~/.claude/skills/` | native alias `claude`; conditional because topology varies by machine |
+| Pi | `~/.pi/agent/skills/` | native alias `pi`; conditional because Pi can also discover shared locations |
+| Hermes | `~/.hermes/skills/` | legacy native alias `hermes`; current native-Windows runtime probe is not green |
 
-```bash
-SKILL=<skill-name>
-# 1. author in ~/.agents/skills/$SKILL/ (SKILL.md + agents/openai.yaml)
-# 2. check each seat's topology (symlinked into canonical, or an independent copy?):
-for s in ~/.claude/skills ~/.pi/agent/skills; do
-  [ "$(cd "$s" && pwd -P)" = "$(cd ~/.agents/skills && pwd -P)" ] && echo "$s symlinked" || echo "$s independent"; done
-# 3. copy to every independent seat (a symlinked seat is already covered; ./scripts/install.sh does this detection for you):
-rsync -a --delete ~/.agents/skills/$SKILL/ ~/.hermes/skills/$SKILL/   # Hermes is always an independent copy
-# 4. verify all four report identical byte counts:
-for p in ~/.agents/skills ~/.claude/skills ~/.pi/agent/skills ~/.hermes/skills; do
-  echo "$p/$SKILL: $(wc -c < $p/$SKILL/SKILL.md) bytes"; done
+```text
+# From the Forge root; select targets deliberately.
+python scripts/install.py install --target agents --json
+python scripts/install.py install --target agents --verify-only --json
+
+# An authoritative loader path not covered by a native alias.
+python scripts/install.py install --custom-target cursor=/resolved/loader/path --json
 ```
 
-Traps: `~/.pi/skills/` is the wrong path (Pi loads `~/.pi/agent/skills/` only); `~/.claude/skills` may be a symlink into canonical **or** an independent directory — check with `pwd -P` before assuming (a `cp` into a symlinked seat errors "are identical", an independent one genuinely needs the copy); Hermes snapshots skills at session start (restart to see a new one); `SKILL.md` casing matters on case-sensitive volumes. A Claude Code plugin-marketplace bundle is a read-only alternative that auto-pulls updates — offer it for consumers who shouldn't edit. Removing a skill globally is destructive — `rm -rf` from `~/.agents/skills/` (which also clears any seat symlinked into it), from `~/.hermes/skills/`, and from any seat that is an independent copy rather than a symlink, and confirm with the user first.
+Traps: never infer semantic support from a successful copy; never project one product's loader onto a similarly named bot or IDE; and never flatten unsupported fields silently. `SKILL.md` casing matters on case-sensitive volumes. claude.ai is a ZIP export with its own upload contract: the current exporter rejects descriptions over 200 characters and user-only invocation that cannot be preserved. The dated snapshot exporter may move extension keys beneath `metadata`, but that preserves values only. Removing a skill from any profile folder is destructive and requires explicit confirmation.
 
 ## 6. The universal levers — one pointer, not a copy
 

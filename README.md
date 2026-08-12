@@ -6,7 +6,7 @@
 
 This is the **staging forge** (`Navigata1/idc-skills-forge`, release 2.0.0). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
 
-**Dual-harness:** every island ships an `agents/openai.yaml` sidecar, so the set works in Claude Code, Pi, Hermes **and** Codex from one source. User-invoked islands carry `policy.allow_implicit_invocation: false` — the Codex analog of `disable-model-invocation`.
+**Cross-harness by contract, not assumption:** the canonical source is preserved once, while each harness gets a documented loader path, metadata profile, and evidence tier. The current matrix covers fifteen surfaces, including Codex, Claude Code, claude.ai, Cursor, VS Code, Amp, Kimi, Antigravity, OpenClaw, Grok, Buzz, Pi, and Hermes. A shared folder proves byte distribution; it does not by itself prove invocation semantics. See the [human-readable matrix](docs/harness-support.md) and its [machine-readable contract](docs/harness-support.json).
 
 ---
 
@@ -81,12 +81,23 @@ The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust
 
 ## Install
 
-```bash
-# distribute every island across the four fleet skill folders (Codex/Claude/Pi/Hermes)
-./scripts/install.sh
+The dependency-free Python installer works from PowerShell, Command Prompt, and POSIX shells. Targets are explicit so the external write set is visible before execution:
+
+```text
+python scripts/validate_skills.py
+python scripts/install.py install --target agents --json
+python scripts/install.py install --target agents --verify-only --json
 ```
 
-`install.sh` copies each island to the canonical `~/.agents/skills/` (Claude and Pi are symlinks, auto-covered), copies to Hermes, verifies byte counts match across all four, and validates every `SKILL.md` frontmatter. See [`skills/idc-skill-authoring`](skills/idc-skill-authoring/SKILL.md) §8 for the layout and traps.
+The native fleet aliases are `agents=~/.agents/skills`, `claude=~/.claude/skills` when that directory exists, `pi=~/.pi/agent/skills` when it exists, and the legacy Hermes topology `hermes=~/.hermes/skills`. Use `--custom-target name=path` only after the [support contract](docs/harness-support.md) establishes that the receiving harness loads that path. Native installs preserve canonical bytes and POSIX executable modes, preflight every selected destination, replace one skill directory atomically, and verify exact manifests. A whole multi-target run is not rollback-atomic after an unexpected I/O failure.
+
+claude.ai is a compatibility export, not a native install. The current profile fails closed because 48 canonical descriptions exceed the documented 200-character upload limit and thirteen user-only skills have no documented explicit-only equivalent. The historical supplied snapshot can still be reproduced without changing the canonical tree, but nesting extension keys under `metadata` preserves values only—not invocation behavior:
+
+```text
+python scripts/install.py export-claude-ai-snapshot --output .exports/claude-ai --json
+```
+
+Run `python scripts/reaccept.py` for the full fifty-island validator, installer, deterministic-export, critique-record, and no-source-drift gate. The original `scripts/install.sh` remains a legacy POSIX convenience; the Python interface is the portability source of truth. See [`skills/idc-skill-authoring`](skills/idc-skill-authoring/SKILL.md) §5 for authoring guidance.
 
 ## Provenance & the pending inputs
 
