@@ -1,0 +1,81 @@
+{
+  "taskId": "P0-T2",
+  "reviewedCommit": "a083552def772489ae238bf6931cd275d471b263",
+  "criticSeat": "OpenAI Codex",
+  "independence": "same-family blind artifact critique; not a cross-family verdict",
+  "disposition": "changes-requested",
+  "findings": [
+    {
+      "severity": "critical",
+      "title": "Malformed YAML indentation is accepted as a green Forge",
+      "evidence": "An exact-commit fixture with `name: alpha` followed by a two-space-indented `description:` exited 0 with valid=true, errors=0, and no diagnostics. PyYAML 6.0.3 rejects the same mapping with `ScannerError: mapping values are not allowed here`. In validate_skills.py:239-258, an indent increase is assigned to the current stack parent even when the preceding scalar did not open a mapping container, so invalid child indentation is silently flattened into the root mapping.",
+      "recompute": "Extract commit a083552def772489ae238bf6931cd275d471b263; create one registered model skill whose SKILL.md frontmatter is `---\\nname: alpha\\n  description: A fixture. Use when testing. Differentiator - fixture.\\n---`; add a valid sidecar; run `python -B scripts/validate_skills.py --root <fixture> --json` and observe exit 0/valid true. Then pass `name: alpha\\n  description: invalid` to `yaml.safe_load` and observe ScannerError."
+    },
+    {
+      "severity": "critical",
+      "title": "A completely empty or erased Forge can pass 0/0",
+      "evidence": "A fixture containing only skills/registry.json with `{}` returned valid=true, skillsRegistered=0, skillsLoaded=0, errors=0, warnings=0, and no diagnostics. validate_skills.py:692 skips `_registry_entries()` whenever the decoded registry object is falsey, and no existential invariant requires a non-empty registry or any skill. Total skill deletion plus an emptied registry can therefore green the whole-Forge gate.",
+      "recompute": "Extract the reviewed commit; create `<fixture>/skills/registry.json` containing `{}` and no skill directories; run `python -B scripts/validate_skills.py --root <fixture> --json`; observe exit 0 and valid=true with 0/0 skills."
+    },
+    {
+      "severity": "high",
+      "title": "One-hop validation does not require reference payloads to be directly reachable",
+      "evidence": "A valid one-skill fixture with references/orphan.md and no link to it from SKILL.md returned valid=true with no diagnostics. validate_skills.py:613-627 resolves links found in SKILL.md and rejects onward links found in reference files, but never compares references/* against the set of direct SKILL.md targets. This misses the canon requirement that each sibling reference be pointed to directly from SKILL.md.",
+      "recompute": "Create a passing registered skill and valid sidecar; add `references/orphan.md` without linking it from SKILL.md; run the reviewed validator in canonical mode and observe valid=true."
+    },
+    {
+      "severity": "medium",
+      "title": "Template-label heuristic suppresses validation of concrete unsafe targets",
+      "evidence": "A SKILL.md link `[<outside>](/definitely/absolute/missing.md)` returned valid=true with no diagnostics. validate_skills.py:577-590 classifies any label containing both angle brackets as a template before inspecting the concrete target, bypassing REFERENCE_ABSOLUTE and REFERENCE_MISSING. Template detection should be based on a demonstrably placeholder target, not only label punctuation.",
+      "recompute": "Create a passing registered skill and append `See [<outside>](/definitely/absolute/missing.md).` to SKILL.md; run canonical validation and observe valid=true instead of REFERENCE_ABSOLUTE."
+    }
+  ],
+  "probes": [
+    {
+      "name": "exact-commit authored tests",
+      "result": "pass",
+      "evidence": "11/11 unittest cases passed from an archive of the exact reviewed commit."
+    },
+    {
+      "name": "production canonical profile",
+      "result": "pass",
+      "evidence": "Exit 0; valid=true; 50/50 skills loaded; 0 errors; 13 advisory supplied-profile warnings."
+    },
+    {
+      "name": "production Codex-strict profile",
+      "result": "red as designed",
+      "evidence": "Exit 1; 13 errors; the only diagnostic code was CODEX_STRICT_UNSUPPORTED_KEYS."
+    },
+    {
+      "name": "production dated supplied claude.ai profile",
+      "result": "red as designed",
+      "evidence": "Exit 1; 13 errors; the only diagnostic code was CLAUDE_AI_SUPPLIED_UNSUPPORTED_KEYS; profile semantics explicitly avoid claiming current official acceptance."
+    },
+    {
+      "name": "Windows arbitrary-working-directory JSON CLI",
+      "result": "pass",
+      "evidence": "Invoked the absolute validator path from C:/Windows/Temp; subprocess exit was 0, stderr empty, stdout parsed with json.loads, default root resolved to the extracted commit, and 50 skills loaded."
+    },
+    {
+      "name": "deterministic script syntax",
+      "result": "pass",
+      "evidence": "Independent fixture planted invalid .py, .js, .sh, and .ps1 syntax; available native checkers produced blocking PYTHON_SYNTAX or SCRIPT_SYNTAX diagnostics."
+    },
+    {
+      "name": "UTF-8 and invocation parity",
+      "result": "pass",
+      "evidence": "Independent/authored fixtures with invalid UTF-8 and missing user-sidecar policy went red with INVALID_UTF8 and OPENAI_POLICY_USER."
+    },
+    {
+      "name": "malformed YAML false-green",
+      "result": "fail",
+      "evidence": "CLI exit 0 and no diagnostics for frontmatter rejected by a conforming YAML parser."
+    },
+    {
+      "name": "empty Forge false-green",
+      "result": "fail",
+      "evidence": "CLI exit 0 with valid=true and 0/0 skills for an empty registry and no islands."
+    }
+  ],
+  "notes": "The artifact is dependency-free in implementation, produces clean machine-readable JSON, returns nonzero on detected errors, distinguishes canonical/Codex-strict/dated supplied claude.ai semantics honestly, and is red-capable across many representative defects. Approval is withheld because the parser and existential-registry holes allow the core validator to certify invalid or entirely absent source. Fix those critical false greens and add direct-reference reachability coverage before promotion."
+}
