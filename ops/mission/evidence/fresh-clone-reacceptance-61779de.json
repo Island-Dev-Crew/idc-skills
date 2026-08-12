@@ -41,6 +41,13 @@
     "reviewType": "same-family blind artifact critique",
     "crossFamilyVerdictClaimed": false
   },
+  "report": {
+    "command": "node ops/mission/render-sotu.mjs",
+    "sha256AfterFirstRender": "b79ab99b04bab53f5781058b723ea13906c412b14bed6d10d51c6e92e6112a7a",
+    "sha256AfterSecondRender": "b79ab99b04bab53f5781058b723ea13906c412b14bed6d10d51c6e92e6112a7a",
+    "deterministic": true,
+    "timestampSource": "mission.updated"
+  },
   "scopeLimits": [
     "No live claude.ai upload or authenticated behavioral routing probe was run.",
     "Buzz and Grok Bot remain unsupported or unknown; the matrix does not project IDE or CLI behavior onto them.",

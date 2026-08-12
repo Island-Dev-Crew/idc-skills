@@ -341,7 +341,7 @@ button.copy:hover{background:rgba(88,215,179,.2)}
 <body>
 <main>
   <header class="hero">
-    <p class="eyebrow">Mission Control &middot; State of the Union &middot; generated ${esc(new Date().toISOString().slice(0, 16).replace("T", " "))}Z</p>
+    <p class="eyebrow">Mission Control &middot; State of the Union &middot; state updated ${esc(String(m.updated ?? "unknown").slice(0, 16).replace("T", " "))}Z</p>
     <h1>${esc(m.name ?? "Mission")}</h1>
     <p class="tagline">${esc(m.tagline ?? "")}</p>
     <div style="margin-top:14px">
