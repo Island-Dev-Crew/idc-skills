@@ -1,10 +1,21 @@
 #!/usr/bin/env python3
 """Dependency-free installer and compatibility exporter for IDC skills.
 
-Native ``install`` mode copies canonical skill directories byte-for-byte to the
-documented Codex/Claude Code/Pi/Hermes topology or to explicitly named custom
-targets. ``export-claude-ai`` is a separate, non-canonical export profile.  Its
-frontmatter allow-list is the six-key set supplied by the user on 2026-08-11
+Native ``install`` mode copies canonical skill directories byte-for-byte and,
+on POSIX filesystems, preserves executable mode.  It preflights every selected
+target and skill destination before writing; each skill-directory replacement
+is atomic, but a multi-skill/multi-target run is not rollback-atomic after an
+unexpected I/O failure.  The documented fleet topology is ``~/.agents/skills``
+(Codex), ``~/.claude/skills`` (Claude Code, conditional),
+``~/.pi/agent/skills`` (Pi, conditional), and ``~/.hermes/skills`` (legacy
+Hermes topology). Explicit custom targets are also supported.
+
+``export-claude-ai`` applies the current documented upload contract: the six
+allowed top-level fields, descriptions no longer than 200 characters, a named
+root folder inside each ZIP, and fail-closed handling of user-only semantics.
+No measured routing-preserving description shortening exists, so long skills
+are rejected. ``export-claude-ai-snapshot`` retains the separate historical
+six-key set supplied by the user on 2026-08-11
 (``allowed-tools``, ``compatibility``, ``description``, ``license``, ``metadata``,
 ``name``); that historical compatibility snapshot came from a user-supplied
 prior-upload audit, is not an official current specification, and current upload
@@ -27,11 +38,12 @@ import json
 import os
 import re
 import shutil
+import stat
 import sys
 import tempfile
 import uuid
 import zipfile
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Iterable, Mapping, Sequence
 
@@ -72,9 +84,11 @@ class ExportProfile:
     assumption_status: str
     assumption_source: str
     semantics_note: str
+    description_max: int | None = None
+    reject_user_only: bool = False
 
 
-CLAUDE_AI_PROFILE = ExportProfile(
+CLAUDE_AI_SNAPSHOT_PROFILE = ExportProfile(
     identifier="claude-ai-supplied-20260811",
     harness="claude.ai supplied compatibility snapshot (2026-08-11)",
     allowed_top_level_keys=CLAUDE_AI_ALLOWED_KEYS,
@@ -91,6 +105,29 @@ CLAUDE_AI_PROFILE = ExportProfile(
     ),
 )
 
+CLAUDE_AI_CURRENT_PROFILE = ExportProfile(
+    identifier="claude-ai-current-20260811",
+    harness="claude.ai current documented upload contract (checked 2026-08-11)",
+    allowed_top_level_keys=CLAUDE_AI_ALLOWED_KEYS,
+    keys_to_metadata=CLAUDE_AI_TRANSFORM_KEYS,
+    assumption=(
+        "current Anthropic documentation states claude.ai uploads accept exactly "
+        "name, description, license, compatibility, metadata, and allowed-tools; "
+        "descriptions are capped at 200 characters"
+    ),
+    assumption_status="current authoritative documentation; live account upload not run",
+    assumption_source=(
+        "https://code.claude.com/docs/en/skills and "
+        "https://support.claude.com/en/articles/12512198-how-to-create-custom-skills"
+    ),
+    semantics_note=(
+        "Values moved into metadata retain provenance only. User-only islands are "
+        "rejected because claude.ai does not document an enforced explicit-only equivalent."
+    ),
+    description_max=200,
+    reject_user_only=True,
+)
+
 
 @dataclass(frozen=True)
 class ManifestEntry:
@@ -98,14 +135,18 @@ class ManifestEntry:
     size: int
     sha256: str
     kind: str = "file"
+    posix_mode: int | None = None
 
     def as_dict(self) -> dict[str, object]:
-        return {
+        result: dict[str, object] = {
             "path": self.path,
             "size": self.size,
             "sha256": self.sha256,
             "kind": self.kind,
         }
+        if self.posix_mode is not None:
+            result["posixMode"] = format(self.posix_mode, "04o")
+        return result
 
 
 @dataclass(frozen=True)
@@ -126,6 +167,7 @@ class TargetSpec:
     path: Path
     optional_if_absent: bool = False
     provenance: str = "custom"
+    explicitly_selected: bool = False
 
 
 @dataclass
@@ -173,6 +215,14 @@ class TargetResult:
         return result
 
 
+@dataclass(frozen=True)
+class PreparedTarget:
+    spec: TargetSpec
+    path_text: str
+    action: str
+    covered_by: str | None = None
+
+
 @dataclass
 class InstallReport:
     mode: str
@@ -182,6 +232,7 @@ class InstallReport:
     targets: list[TargetResult]
     errors: list[str] = field(default_factory=list)
     assumption: str | None = None
+    transaction_boundary: str | None = None
 
     def as_dict(self) -> dict[str, object]:
         result: dict[str, object] = {
@@ -194,6 +245,8 @@ class InstallReport:
         }
         if self.assumption:
             result["assumption"] = self.assumption
+        if self.transaction_boundary:
+            result["transactionBoundary"] = self.transaction_boundary
         return result
 
 
@@ -211,8 +264,15 @@ def _manifest_digest(entries: Iterable[ManifestEntry]) -> str:
     return _sha256_bytes(payload)
 
 
+def _posix_mode(path: Path) -> int | None:
+    """Return permission bits where POSIX mode is meaningful; never emulate on Windows."""
+    if os.name == "nt":
+        return None
+    return stat.S_IMODE(path.stat(follow_symlinks=False).st_mode)
+
+
 def tree_manifest(root: Path) -> TreeManifest:
-    """Hash every file and symlink below *root* in stable relative-path order."""
+    """Hash bytes, links, and POSIX file modes in stable relative-path order."""
     root = Path(root)
     if not root.is_dir():
         raise InstallError(f"manifest root is not a directory: {root}")
@@ -233,7 +293,9 @@ def tree_manifest(root: Path) -> TreeManifest:
                 for chunk in iter(lambda: handle.read(1024 * 1024), b""):
                     size += len(chunk)
                     digest.update(chunk)
-            entries.append(ManifestEntry(relative, size, digest.hexdigest()))
+            entries.append(
+                ManifestEntry(relative, size, digest.hexdigest(), posix_mode=_posix_mode(path))
+            )
         elif not path.is_dir():
             raise InstallError(f"unsupported filesystem entry: {path}")
     frozen = tuple(entries)
@@ -318,6 +380,129 @@ def _top_level_keys(frontmatter: Sequence[str], source: str) -> list[tuple[int, 
     return found
 
 
+def _strip_plain_yaml_comment(value: str) -> str:
+    for index, char in enumerate(value):
+        if char == "#" and (index == 0 or value[index - 1].isspace()):
+            return value[:index].rstrip()
+    return value.rstrip()
+
+
+def _validate_inline_yaml_scalar(value: str, source: str, key: str) -> None:
+    """Validate the conservative scalar subset emitted by compatibility exports."""
+    stripped = value.strip()
+    if not stripped:
+        raise InstallError(f"{source}: {key} must be an inline scalar")
+    if stripped.startswith('"'):
+        try:
+            decoded = json.loads(stripped)
+        except json.JSONDecodeError as exc:
+            raise InstallError(f"{source}: invalid quoted scalar for {key}: {exc.msg}") from exc
+        if not isinstance(decoded, str):
+            raise InstallError(f"{source}: quoted scalar for {key} must be a string")
+        return
+    if stripped.startswith("'"):
+        if len(stripped) < 2 or not stripped.endswith("'"):
+            raise InstallError(f"{source}: unterminated quoted scalar for {key}")
+        interior = stripped[1:-1]
+        if "'" in interior.replace("''", ""):
+            raise InstallError(f"{source}: single quotes inside {key} must be doubled")
+        return
+    if stripped[0] in "[{|>&*!@`":
+        raise InstallError(f"{source}: complex YAML scalar for {key} is not export-safe")
+    plain = _strip_plain_yaml_comment(stripped)
+    if not plain or ": " in plain:
+        raise InstallError(f"{source}: ambiguous unquoted scalar for {key}")
+
+
+def _string_scalar_value(value: str, source: str, key: str) -> str:
+    _validate_inline_yaml_scalar(value, source, key)
+    stripped = value.strip()
+    if stripped.startswith('"'):
+        result = json.loads(stripped)
+    elif stripped.startswith("'"):
+        result = stripped[1:-1].replace("''", "'")
+    else:
+        result = _strip_plain_yaml_comment(stripped)
+        if result.lower() in {"true", "false", "null", "~"}:
+            raise InstallError(f"{source}: {key} must be a string, not {result}")
+    if not isinstance(result, str):
+        raise InstallError(f"{source}: {key} must be a string")
+    return result
+
+
+def _section_end(keys: Sequence[tuple[int, str, str]], position: int, total: int) -> int:
+    return keys[position + 1][0] if position + 1 < len(keys) else total
+
+
+def _validate_metadata_block(
+    frontmatter: Sequence[str],
+    keys: Sequence[tuple[int, str, str]],
+    key_position: int,
+    source: str,
+    reserved: set[str],
+) -> str:
+    """Validate flat metadata and return its existing indentation (or two spaces)."""
+    metadata_index, _, metadata_value = keys[key_position]
+    if metadata_value.strip():
+        raise InstallError(f"{source}: inline/scalar metadata cannot be extended losslessly")
+    end = _section_end(keys, key_position, len(frontmatter))
+    content: list[tuple[int, str]] = []
+    for index in range(metadata_index + 1, end):
+        line = frontmatter[index].rstrip("\r\n")
+        if not line.strip() or line.lstrip().startswith("#"):
+            continue
+        if "\t" in line[: len(line) - len(line.lstrip(" \t"))]:
+            raise InstallError(f"{source}: metadata indentation must not contain tabs")
+        content.append((index, line))
+    if not content:
+        return "  "
+
+    indents = [len(line) - len(line.lstrip(" ")) for _, line in content]
+    child_indent = min(indents)
+    if child_indent <= 0:
+        raise InstallError(f"{source}: metadata children must be indented")
+    seen: set[str] = set()
+    pattern = re.compile(rf"^ {{{child_indent}}}([A-Za-z0-9_.-]+):(?:[ \t]*(.*))?$")
+    for _, line in content:
+        if len(line) - len(line.lstrip(" ")) != child_indent:
+            raise InstallError(
+                f"{source}: nested or inconsistent metadata cannot be extended losslessly"
+            )
+        match = pattern.match(line)
+        if not match:
+            raise InstallError(f"{source}: unsupported metadata mapping entry: {line!r}")
+        key, value = match.group(1), match.group(2) or ""
+        if key in seen:
+            raise InstallError(f"{source}: duplicate metadata key: {key}")
+        if key in reserved:
+            raise InstallError(f"{source}: metadata key collides with moved field: {key}")
+        _validate_inline_yaml_scalar(value, source, f"metadata.{key}")
+        seen.add(key)
+    return " " * child_indent
+
+
+def _validate_profile_frontmatter_shape(
+    frontmatter: Sequence[str],
+    keys: Sequence[tuple[int, str, str]],
+    source: str,
+    moved_keys: set[str],
+) -> str:
+    """Validate the mapping subset used by exports and return metadata indentation."""
+    metadata_indent = "  "
+    for position, (index, key, value) in enumerate(keys):
+        end = _section_end(keys, position, len(frontmatter))
+        if key == "metadata":
+            metadata_indent = _validate_metadata_block(
+                frontmatter, keys, position, source, moved_keys
+            )
+            continue
+        _validate_inline_yaml_scalar(value, source, key)
+        for child_line in frontmatter[index + 1 : end]:
+            if child_line.strip() and not child_line.lstrip().startswith("#"):
+                raise InstallError(f"{source}: block-valued field {key} is not export-safe")
+    return metadata_indent
+
+
 def frontmatter_name(skill_md: Path) -> str:
     frontmatter, _, _ = _frontmatter_lines(skill_md.read_bytes(), str(skill_md))
     keys = _top_level_keys(frontmatter, str(skill_md))
@@ -344,19 +529,21 @@ def transform_frontmatter_for_profile(
         )
 
     to_move = [(index, key, value) for index, key, value in keys if key in profile.keys_to_metadata]
-    if not to_move:
-        return data, ()
+    moved_names = {key for _, key, _ in to_move}
+    metadata_indent = _validate_profile_frontmatter_shape(
+        frontmatter, keys, source, moved_names
+    )
     for _, key, value in to_move:
         if not value.strip():
             raise InstallError(f"{source}: cannot losslessly nest block-valued key {key}")
+    if not to_move:
+        return data, ()
 
     metadata_matches = [(index, value) for index, key, value in keys if key == "metadata"]
-    if metadata_matches and metadata_matches[0][1].strip():
-        raise InstallError(f"{source}: inline/scalar metadata cannot be extended losslessly")
 
     move_indexes = {index for index, _, _ in to_move}
     output = [line for index, line in enumerate(frontmatter) if index not in move_indexes]
-    nested = [f"  {key}: {value}{newline}" for _, key, value in to_move]
+    nested = [f"{metadata_indent}{key}: {value}{newline}" for _, key, value in to_move]
     if metadata_matches:
         metadata_original_index = metadata_matches[0][0]
         metadata_output_index = sum(1 for index in range(metadata_original_index + 1) if index not in move_indexes)
@@ -372,12 +559,15 @@ def transform_frontmatter_for_profile(
     invalid = sorted(key for _, key, _ in transformed_keys if key not in profile.allowed_top_level_keys)
     if invalid:
         raise InstallError(f"{source}: transformed frontmatter remains invalid: {', '.join(invalid)}")
+    _validate_profile_frontmatter_shape(
+        transformed_frontmatter, transformed_keys, source, set()
+    )
     return transformed, tuple(key for _, key, _ in to_move)
 
 
 def transform_claude_ai_frontmatter(data: bytes, source: str = "SKILL.md") -> tuple[bytes, tuple[str, ...]]:
-    """Apply the explicit, user-supplied Claude.ai compatibility profile."""
-    return transform_frontmatter_for_profile(data, CLAUDE_AI_PROFILE, source)
+    """Apply the explicit, user-supplied historical Claude.ai snapshot profile."""
+    return transform_frontmatter_for_profile(data, CLAUDE_AI_SNAPSHOT_PROFILE, source)
 
 
 def discover_skills(source_skills: Path, selected: Sequence[str] | None = None) -> list[Path]:
@@ -408,6 +598,60 @@ def discover_skills(source_skills: Path, selected: Sequence[str] | None = None) 
     return skills
 
 
+def _frontmatter_value(skill: Path, key: str) -> str | None:
+    frontmatter, _, _ = _frontmatter_lines(
+        (skill / "SKILL.md").read_bytes(), str(skill / "SKILL.md")
+    )
+    keys = _top_level_keys(frontmatter, str(skill / "SKILL.md"))
+    values = [value for _, found_key, value in keys if found_key == key]
+    return values[0] if values else None
+
+
+def _validate_export_profile(profile: ExportProfile, skills: Sequence[Path]) -> None:
+    """Fail before output creation when a profile cannot safely represent a skill set."""
+    long_descriptions: list[str] = []
+    user_only: list[str] = []
+    structural: list[str] = []
+    for skill in skills:
+        source = str(skill / "SKILL.md")
+        try:
+            description_lexeme = _frontmatter_value(skill, "description")
+            if description_lexeme is None:
+                raise InstallError(f"{source}: description is required")
+            description = _string_scalar_value(description_lexeme, source, "description")
+            if profile.description_max is not None and len(description) > profile.description_max:
+                long_descriptions.append(f"{skill.name}({len(description)})")
+            disabled = _frontmatter_value(skill, "disable-model-invocation")
+            if profile.reject_user_only and disabled is not None:
+                normalized = _strip_plain_yaml_comment(disabled.strip()).lower()
+                if normalized == "true":
+                    user_only.append(skill.name)
+                elif normalized not in {"false"}:
+                    structural.append(
+                        f"{skill.name}: disable-model-invocation must be true or false"
+                    )
+            transform_frontmatter_for_profile(
+                (skill / "SKILL.md").read_bytes(), profile, source
+            )
+        except InstallError as exc:
+            structural.append(str(exc))
+    failures: list[str] = []
+    if long_descriptions:
+        failures.append(
+            f"descriptions over {profile.description_max} characters "
+            f"({len(long_descriptions)}): {', '.join(long_descriptions)}"
+        )
+    if user_only:
+        failures.append(
+            "user-only invocation cannot be preserved "
+            f"({len(user_only)}): {', '.join(user_only)}"
+        )
+    if structural:
+        failures.append("frontmatter errors: " + " | ".join(structural))
+    if failures:
+        raise InstallError(f"{profile.harness} rejected export: " + "; ".join(failures))
+
+
 def default_targets(home: Path) -> dict[str, TargetSpec]:
     home = Path(home)
     return {
@@ -428,7 +672,13 @@ def parse_custom_targets(values: Sequence[str]) -> dict[str, TargetSpec]:
             raise InstallError(f"invalid custom target name: {name!r}")
         if name in DEFAULT_TARGET_ORDER or name in custom:
             raise InstallError(f"duplicate or reserved custom target name: {name}")
-        custom[name] = TargetSpec(name, Path(raw_path).expanduser(), False, "user-specified")
+        custom[name] = TargetSpec(
+            name,
+            Path(raw_path).expanduser(),
+            False,
+            "user-specified",
+            explicitly_selected=True,
+        )
     return custom
 
 
@@ -453,7 +703,13 @@ def select_targets(
     unknown = [name for name in names if name not in all_targets]
     if unknown:
         raise InstallError("unknown target(s): " + ", ".join(unknown))
-    return [all_targets[name] for name in names]
+    explicitly_requested = set(requested or ())
+    return [
+        replace(all_targets[name], explicitly_selected=True)
+        if name in explicitly_requested or name in custom
+        else all_targets[name]
+        for name in names
+    ]
 
 
 def _remove_path(path: Path) -> None:
@@ -549,6 +805,58 @@ def _sync_skill(
     return result
 
 
+INSTALL_TRANSACTION_BOUNDARY = (
+    "all selected targets and skill destinations are preflighted before writes; "
+    "each skill-directory replacement is atomic; a multi-skill/multi-target run "
+    "is not rollback-atomic after an unexpected I/O failure"
+)
+
+
+def _preflight_install(
+    source_skills: Path,
+    targets: Sequence[TargetSpec],
+    skills: Sequence[Path],
+) -> list[PreparedTarget]:
+    """Validate the complete destination set before any target mutation."""
+    prepared: list[PreparedTarget] = []
+    seen_paths: dict[str, str] = {}
+    for target in targets:
+        validate_target_path(source_skills, target.path)
+        path_text = str(target.path.expanduser().absolute())
+        exists = target.path.exists()
+        if target.optional_if_absent and target.explicitly_selected and not exists:
+            raise InstallError(
+                f"explicitly selected optional target does not exist: "
+                f"{target.name}={target.path}"
+            )
+        if exists and not target.path.is_dir():
+            raise InstallError(f"target is not a directory: {target.name}={target.path}")
+
+        target_key = _path_key(target.path)
+        if target_key in seen_paths:
+            prepared.append(
+                PreparedTarget(target, path_text, "covered", seen_paths[target_key])
+            )
+            continue
+        if target.optional_if_absent and not exists:
+            prepared.append(PreparedTarget(target, path_text, "skipped-absent"))
+            continue
+        seen_paths[target_key] = target.name
+        prepared.append(PreparedTarget(target, path_text, "active"))
+
+    # Destination shape is checked for every active target before the first copy.
+    for item in prepared:
+        if item.action != "active" or not item.spec.path.exists():
+            continue
+        for skill in skills:
+            destination = item.spec.path / skill.name
+            if destination.is_symlink():
+                raise InstallError(f"refusing symlinked skill destination: {destination}")
+            if destination.exists() and not destination.is_dir():
+                raise InstallError(f"skill destination is not a directory: {destination}")
+    return prepared
+
+
 def run_install(
     source_skills: Path,
     targets: Sequence[TargetSpec],
@@ -557,47 +865,51 @@ def run_install(
     dry_run: bool = False,
     verify_only: bool = False,
 ) -> InstallReport:
-    """Install or verify skills. All inputs are validated before any write."""
+    """Preflight the whole run, then atomically replace one skill directory at a time."""
     if dry_run and verify_only:
         raise InstallError("--dry-run and --verify-only are mutually exclusive")
     source_skills = Path(source_skills)
     skills = discover_skills(source_skills, selected_skills)
     expected = {skill.name: tree_manifest(skill) for skill in skills}
+    prepared = _preflight_install(source_skills, targets, skills)
 
-    for target in targets:
-        validate_target_path(source_skills, target.path)
-        if target.path.exists() and not target.path.is_dir():
-            raise InstallError(f"target is not a directory: {target.name}={target.path}")
-
-    report = InstallReport("install", True, dry_run, verify_only, [])
-    seen_paths: dict[str, str] = {}
-    for target in targets:
-        path_text = str(target.path.expanduser().absolute())
-        target_key = _path_key(target.path)
-        if target_key in seen_paths:
+    report = InstallReport(
+        "install",
+        True,
+        dry_run,
+        verify_only,
+        [],
+        transaction_boundary=INSTALL_TRANSACTION_BOUNDARY,
+    )
+    for item in prepared:
+        target = item.spec
+        if item.action == "covered":
             report.targets.append(
                 TargetResult(
                     target.name,
-                    path_text,
+                    item.path_text,
                     "covered",
                     target.provenance,
-                    covered_by=seen_paths[target_key],
+                    covered_by=item.covered_by,
                 )
             )
             continue
-        seen_paths[target_key] = target.name
-
-        exists = target.path.exists()
-        if target.optional_if_absent and not exists:
+        if item.action == "skipped-absent":
             report.targets.append(
-                TargetResult(target.name, path_text, "skipped-absent", target.provenance)
+                TargetResult(
+                    target.name,
+                    item.path_text,
+                    "skipped-absent",
+                    target.provenance,
+                )
             )
             continue
+        exists = target.path.exists()
         if verify_only and not exists:
             report.targets.append(
                 TargetResult(
                     target.name,
-                    path_text,
+                    item.path_text,
                     "missing-target",
                     target.provenance,
                     error="required target directory does not exist",
@@ -606,7 +918,9 @@ def run_install(
             report.success = False
             continue
 
-        target_result = TargetResult(target.name, path_text, "ready", target.provenance)
+        target_result = TargetResult(
+            target.name, item.path_text, "ready", target.provenance
+        )
         try:
             for skill in skills:
                 target_result.skills.append(
@@ -635,16 +949,23 @@ def run_install(
     return report
 
 
-def _zip_tree(tree: Path, destination: Path, overrides: Mapping[str, bytes]) -> None:
+def _zip_tree(
+    tree: Path,
+    destination: Path,
+    overrides: Mapping[str, bytes],
+    archive_root: str,
+) -> None:
     with zipfile.ZipFile(destination, "w", compression=zipfile.ZIP_DEFLATED, compresslevel=9) as archive:
         files = sorted(path for path in tree.rglob("*") if path.is_file())
         for path in files:
             relative = path.relative_to(tree).as_posix()
             data = overrides.get(relative, path.read_bytes())
-            info = zipfile.ZipInfo(relative, date_time=(1980, 1, 1, 0, 0, 0))
+            archive_path = f"{archive_root}/{relative}"
+            info = zipfile.ZipInfo(archive_path, date_time=(1980, 1, 1, 0, 0, 0))
             info.compress_type = zipfile.ZIP_DEFLATED
             info.create_system = 3
-            info.external_attr = (0o100644 & 0xFFFF) << 16
+            mode = _posix_mode(path) or 0o644
+            info.external_attr = ((stat.S_IFREG | mode) & 0xFFFF) << 16
             archive.writestr(info, data, compress_type=zipfile.ZIP_DEFLATED, compresslevel=9)
 
 
@@ -653,7 +974,14 @@ def _exported_manifest(source: Path, transformed_skill_md: bytes) -> TreeManifes
     for path in sorted((item for item in source.rglob("*") if item.is_file()), key=lambda p: p.relative_to(source).as_posix()):
         relative = path.relative_to(source).as_posix()
         data = transformed_skill_md if relative == "SKILL.md" else path.read_bytes()
-        entries.append(ManifestEntry(relative, len(data), _sha256_bytes(data)))
+        entries.append(
+            ManifestEntry(
+                relative,
+                len(data),
+                _sha256_bytes(data),
+                posix_mode=_posix_mode(path),
+            )
+        )
     frozen = tuple(entries)
     return TreeManifest(frozen, _manifest_digest(frozen))
 
@@ -674,7 +1002,7 @@ def _build_profile_export(profile: ExportProfile, skills: Sequence[Path], output
         exported_manifest = _exported_manifest(skill, transformed)
         bundle_name = f"{skill.name}.zip"
         bundle_path = output / bundle_name
-        _zip_tree(skill, bundle_path, {"SKILL.md": transformed})
+        _zip_tree(skill, bundle_path, {"SKILL.md": transformed}, skill.name)
         bundle_bytes = bundle_path.read_bytes()
         bundles.append(
             {
@@ -685,6 +1013,7 @@ def _build_profile_export(profile: ExportProfile, skills: Sequence[Path], output
                 "sourceManifestSha256": source_manifest.sha256,
                 "exportedManifestSha256": exported_manifest.sha256,
                 "transformedKeys": list(moved),
+                "archiveRoot": f"{skill.name}/",
             }
         )
 
@@ -704,6 +1033,9 @@ def _build_profile_export(profile: ExportProfile, skills: Sequence[Path], output
             "invocationSemantics": "not asserted",
             "note": profile.semantics_note,
         },
+        "descriptionMax": profile.description_max,
+        "userOnlyPolicy": "reject" if profile.reject_user_only else "snapshot-allows-provenance-only",
+        "archiveLayout": "<skill-name>/<skill files>",
         "canonicalMutation": False,
         "bundles": bundles,
     }
@@ -767,6 +1099,7 @@ def run_profile_export(
     if output.exists() and not output.is_dir():
         raise InstallError(f"export output is not a directory: {output}")
     skills = discover_skills(source_skills, selected_skills)
+    _validate_export_profile(profile, skills)
 
     with tempfile.TemporaryDirectory(prefix=f"idc-{profile.identifier}-export-") as temporary:
         staged = Path(temporary) / "payload"
@@ -818,12 +1151,20 @@ def run_profile_export(
         skills=[skill_result],
     )
     return InstallReport(
-        "export-claude-ai" if profile is CLAUDE_AI_PROFILE else f"export-{profile.identifier}",
+        "export-claude-ai"
+        if profile is CLAUDE_AI_CURRENT_PROFILE
+        else "export-claude-ai-snapshot"
+        if profile is CLAUDE_AI_SNAPSHOT_PROFILE
+        else f"export-{profile.identifier}",
         success,
         dry_run,
         verify_only,
         [target],
         assumption=profile.assumption + "; " + profile.semantics_note,
+        transaction_boundary=(
+            "the complete export is built and verified in scratch, then the output "
+            "directory is replaced atomically on the same filesystem"
+        ),
     )
 
 
@@ -835,9 +1176,28 @@ def run_claude_ai_export(
     dry_run: bool = False,
     verify_only: bool = False,
 ) -> InstallReport:
-    """Run the Claude.ai profile without mutating canonical skills."""
+    """Run the current documented Claude.ai upload profile."""
     return run_profile_export(
-        CLAUDE_AI_PROFILE,
+        CLAUDE_AI_CURRENT_PROFILE,
+        source_skills,
+        output,
+        selected_skills,
+        dry_run=dry_run,
+        verify_only=verify_only,
+    )
+
+
+def run_claude_ai_snapshot_export(
+    source_skills: Path,
+    output: Path,
+    selected_skills: Sequence[str] | None = None,
+    *,
+    dry_run: bool = False,
+    verify_only: bool = False,
+) -> InstallReport:
+    """Run the historical user-supplied 2026-08-11 snapshot profile."""
+    return run_profile_export(
+        CLAUDE_AI_SNAPSHOT_PROFILE,
         source_skills,
         output,
         selected_skills,
@@ -864,7 +1224,18 @@ def build_parser() -> argparse.ArgumentParser:
     )
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    install = subparsers.add_parser("install", help="byte-preserving native fleet/custom install")
+    install = subparsers.add_parser(
+        "install",
+        help="byte/mode-preserving native fleet/custom install",
+        description=(
+            "Install skills after whole-run destination preflight. Fleet paths: "
+            "agents=~/.agents/skills; claude=~/.claude/skills (conditional); "
+            "pi=~/.pi/agent/skills (conditional); hermes=~/.hermes/skills. "
+            "Absent conditional targets skip only during implicit full-fleet selection; "
+            "explicit selection fails. Each skill replacement is atomic, but the whole "
+            "multi-target run is not rollback-atomic after an unexpected I/O failure."
+        ),
+    )
     install.add_argument(
         "--target",
         action="append",
@@ -877,21 +1248,39 @@ def build_parser() -> argparse.ArgumentParser:
         metavar="NAME=PATH",
         help="explicit harness target; with no --target, custom targets are custom-only",
     )
-    install.add_argument("--home", type=Path, default=Path.home(), help=argparse.SUPPRESS)
+    install.add_argument(
+        "--home",
+        type=Path,
+        default=Path.home(),
+        help="home directory used to resolve the four documented fleet targets",
+    )
     _add_common_mode_flags(install)
 
     export = subparsers.add_parser(
         "export-claude-ai",
-        help="historical supplied-snapshot bundles; current upload acceptance unverified",
+        help="current documented claude.ai upload profile; fails closed on unsafe skills",
         description=(
-            "Export deterministic ZIP bundles for a user-supplied claude.ai prior-upload "
-            "snapshot captured 2026-08-11. It is not an official current specification; "
-            "current upload acceptance is unverified. Moved values survive as metadata; "
-            "invocation behavior is not asserted."
+            "Export deterministic root-folder ZIP bundles using the current documented "
+            "six-key claude.ai contract. Descriptions over 200 characters and user-only "
+            "skills fail closed; no unmeasured shortening or policy waiver is performed."
         ),
     )
     export.add_argument("--output", type=Path, required=True, help="separate export directory")
     _add_common_mode_flags(export)
+
+    snapshot = subparsers.add_parser(
+        "export-claude-ai-snapshot",
+        help="historical supplied 2026-08-11 schema snapshot; not current acceptance proof",
+        description=(
+            "Export deterministic root-folder ZIP bundles for the historical user-supplied "
+            "2026-08-11 six-key snapshot. Moved values survive as metadata provenance; "
+            "invocation behavior is not asserted."
+        ),
+    )
+    snapshot.add_argument(
+        "--output", type=Path, required=True, help="separate snapshot export directory"
+    )
+    _add_common_mode_flags(snapshot)
     return parser
 
 
@@ -899,6 +1288,8 @@ def _print_human(report: InstallReport) -> None:
     print(f"mode={report.mode} success={str(report.success).lower()}")
     if report.assumption:
         print(f"assumption={report.assumption}")
+    if report.transaction_boundary:
+        print(f"transaction-boundary={report.transaction_boundary}")
     for target in report.targets:
         detail = f" covered-by={target.covered_by}" if target.covered_by else ""
         print(f"target={target.name} status={target.status} path={target.path}{detail}")
@@ -916,7 +1307,16 @@ def _print_human(report: InstallReport) -> None:
         print(f"error={error}", file=sys.stderr)
 
 
+def _configure_output() -> None:
+    """Make Windows output deterministic before any external write can occur."""
+    for stream in (sys.stdout, sys.stderr):
+        reconfigure = getattr(stream, "reconfigure", None)
+        if callable(reconfigure):
+            reconfigure(encoding="utf-8", errors="backslashreplace")
+
+
 def main(argv: Sequence[str] | None = None) -> int:
+    _configure_output()
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
@@ -931,8 +1331,16 @@ def main(argv: Sequence[str] | None = None) -> int:
                 dry_run=args.dry_run,
                 verify_only=args.verify_only,
             )
-        else:
+        elif args.command == "export-claude-ai":
             report = run_claude_ai_export(
+                source_skills,
+                args.output,
+                args.skill,
+                dry_run=args.dry_run,
+                verify_only=args.verify_only,
+            )
+        else:
+            report = run_claude_ai_snapshot_export(
                 source_skills,
                 args.output,
                 args.skill,
@@ -941,13 +1349,19 @@ def main(argv: Sequence[str] | None = None) -> int:
             )
     except (InstallError, OSError) as exc:
         if getattr(args, "json", False):
-            print(json.dumps({"mode": args.command, "success": False, "errors": [str(exc)]}, sort_keys=True))
+            print(
+                json.dumps(
+                    {"mode": args.command, "success": False, "errors": [str(exc)]},
+                    ensure_ascii=True,
+                    sort_keys=True,
+                )
+            )
         else:
             print(f"error: {exc}", file=sys.stderr)
         return 2
 
     if args.json:
-        print(json.dumps(report.as_dict(), ensure_ascii=False, indent=2, sort_keys=True))
+        print(json.dumps(report.as_dict(), ensure_ascii=True, indent=2, sort_keys=True))
     else:
         _print_human(report)
     return 0 if report.success else 1
