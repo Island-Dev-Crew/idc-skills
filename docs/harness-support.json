@@ -1,0 +1,573 @@
+{
+  "schema": "idc.harness-support/v1",
+  "contractVersion": "1.0.0",
+  "asOf": "2026-08-11",
+  "repositoryRelease": "2.0.0",
+  "classificationDefinitions": {
+    "verified-native": "Primary documentation explicitly supports the raw loader location and the invocation controls used by the Forge; no transform is required and a reproducible probe is supplied.",
+    "format-validated": "The raw skill is documented as discoverable or was enumerated by the harness, but a required invocation-policy behavior is absent, removed, or not proven.",
+    "documented-adapter": "Primary documentation provides a real target surface, but a path or format transform is required; the adapter is described and is not assumed to exist.",
+    "unsupported/unknown": "No primary evidence establishes a reliable filesystem import contract for Forge skills."
+  },
+  "invariants": [
+    "No universal support claim without per-harness primary documentation and a reproducible probe.",
+    "Discovery does not prove invocation-policy equivalence.",
+    "A description-level prohibition is advisory and does not preserve explicit-only invocation.",
+    "User-only islands are omitted by default on any harness without an enforced explicit-only equivalent.",
+    "Transforms are generated in scratch output and never rewrite canonical islands in place.",
+    "Unknowns remain unknown until a current product probe or primary source closes them."
+  ],
+  "packFacts": {
+    "skillCount": 50,
+    "registry": "skills/registry.json",
+    "canonicalPattern": "skills/<name>/SKILL.md",
+    "openaiSidecarPattern": "skills/<name>/agents/openai.yaml",
+    "openaiSidecarCount": 50,
+    "strictAgentSkillsByteConformant": false,
+    "strictSpecSource": "https://agentskills.io/specification",
+    "strictSpecTopLevelFields": [
+      "name",
+      "description",
+      "license",
+      "compatibility",
+      "metadata",
+      "allowed-tools"
+    ],
+    "extendedFields": {
+      "disable-model-invocation": {
+        "count": 13,
+        "skills": [
+          "batch-sample-curate",
+          "connected-fix-prompt",
+          "delegated-authority-prompt",
+          "gauntlet-loop",
+          "handoff",
+          "prose-craft",
+          "short",
+          "skill-duel",
+          "teach",
+          "to-questionnaire",
+          "wait-what",
+          "wayfinder",
+          "worktree-fleet"
+        ]
+      },
+      "argument-hint": {
+        "count": 5,
+        "skills": [
+          "batch-sample-curate",
+          "connected-fix-prompt",
+          "gauntlet-loop",
+          "skill-duel",
+          "teach"
+        ]
+      }
+    },
+    "userOnlyPolicy": {
+      "defaultOnUnsupportedHarness": "omit",
+      "waiverRequiredToInclude": true,
+      "metadataRelocationPreservesSemantics": false
+    },
+    "claudeAiUploadSnapshot": {
+      "documentedDescriptionMax": 200,
+      "measuredDescriptionMin": 106,
+      "measuredDescriptionMax": 749,
+      "descriptionsOverDocumentedMax": 48,
+      "shortDescriptionRequiresHumanReview": true
+    }
+  },
+  "harnesses": [
+    {
+      "id": "openai-codex",
+      "name": "OpenAI Codex",
+      "surface": "CLI and desktop agent skills",
+      "classification": "verified-native",
+      "loader": [
+        { "path": ".agents/skills", "scope": "project, discovered from cwd through repository root", "evidence": "documented" },
+        { "path": "~/.agents/skills", "scope": "user", "evidence": "documented and present" }
+      ],
+      "transform": {
+        "required": false,
+        "steps": ["Retain each agents/openai.yaml sidecar."]
+      },
+      "invocationPolicy": {
+        "automatic": "description-matched",
+        "explicit": "$skill-name or /skills picker",
+        "disableModelInvocation": "preserved through agents/openai.yaml policy.allow_implicit_invocation=false",
+        "rawClaudeFieldAuthoritative": false
+      },
+      "sources": [
+        { "url": "https://developers.openai.com/codex/skills", "claims": ["loader paths and scopes", "explicit and implicit invocation", "agents/openai.yaml invocation policy"] }
+      ],
+      "probe": {
+        "type": "interactive-plus-filesystem",
+        "command": "/skills; then invoke $short; then issue the same relevance prompt without naming short",
+        "passCriteria": "All 50 registry names appear; explicit invocation loads short; unnamed prompt does not load short.",
+        "observed": true,
+        "observation": "The current Codex task exposed all 50 installed Forge skill names from the user skill root; the explicit-versus-implicit behavioral canary was not rerun."
+      },
+      "unknowns": ["Behavioral policy canary not rerun in a clean task for this contract."],
+      "risks": ["Removing or failing to distribute agents/openai.yaml would lose the Forge's explicit-only policy in Codex."]
+    },
+    {
+      "id": "claude-code",
+      "name": "Claude Code",
+      "surface": "Claude Code CLI",
+      "classification": "verified-native",
+      "loader": [
+        { "path": ".claude/skills", "scope": "project", "evidence": "documented" },
+        { "path": "~/.claude/skills", "scope": "user", "evidence": "documented" }
+      ],
+      "transform": { "required": false, "steps": [] },
+      "invocationPolicy": {
+        "automatic": "description-matched",
+        "explicit": "/skill-name",
+        "disableModelInvocation": "preserved by raw disable-model-invocation=true"
+      },
+      "sources": [
+        { "url": "https://code.claude.com/docs/en/skills", "claims": ["loader paths", "slash and automatic invocation", "disable-model-invocation and argument-hint semantics"] }
+      ],
+      "probe": {
+        "type": "interactive",
+        "command": "Start a fresh claude session; invoke /short; repeat the task without naming short.",
+        "passCriteria": "All 50 names are discoverable; /short loads; unnamed prompt does not load short.",
+        "observed": false,
+        "observation": "CLI is installed locally; clean-session behavior was not exercised."
+      },
+      "unknowns": ["This entry does not cover claude.ai coordinator/upload behavior."],
+      "risks": ["The current installer copies to ~/.claude/skills only when that target already exists; a fresh host needs an installation preflight."]
+    },
+    {
+      "id": "claude-ai-upload",
+      "name": "claude.ai custom skill upload",
+      "surface": "Account ZIP upload",
+      "classification": "documented-adapter",
+      "loader": [
+        { "path": "Settings or Customize > Skills > upload ZIP", "scope": "account", "evidence": "documented" }
+      ],
+      "transform": {
+        "required": true,
+        "profile": "claude-ai-conservative-export/2026-08-11",
+        "steps": [
+          "Build a scratch ZIP.",
+          "Retain current documented fields plus strict Agent Skills fields.",
+          "Generate and review a routing-equivalent description of at most 200 characters for each of the 48 over-limit islands; preserve capability and Use when intent.",
+          "Move extension values into namespaced metadata for provenance only.",
+          "Omit all 13 user-only islands unless the operator explicitly waives loss of enforced policy."
+        ],
+        "canonicalMutationAllowed": false
+      },
+      "invocationPolicy": {
+        "automatic": "unknown",
+        "explicit": "account UI selection is documented at product level",
+        "disableModelInvocation": "not documented as an upload frontmatter semantic"
+      },
+      "sources": [
+        { "url": "https://support.claude.com/en/articles/12512180-use-skills-in-claude", "claims": ["account skill upload surface"] },
+        { "url": "https://support.claude.com/en/articles/12512198-how-to-create-custom-skills", "claims": ["current required name and description", "optional dependencies", "Agent Skills recommendation"] },
+        { "url": "https://agentskills.io/specification", "claims": ["strict export baseline fields"] }
+      ],
+      "probe": {
+        "type": "manual-account-upload",
+        "command": "Upload one raw extended canary and one transformed canary to a disposable claude.ai profile; record exact acceptance/error and invocation behavior.",
+        "passCriteria": "The current validator result is captured verbatim; transformed canary uploads; explicit and implicit behavior are separately observed.",
+        "observed": false,
+        "observation": "The supplied session reported an older six-key hard rejection for 13 islands, but current Help Center documentation no longer publishes that allow-list."
+      },
+      "unknowns": [
+        "Current complete accepted-key schema.",
+        "Whether raw disable-model-invocation is rejected, ignored, or enforced.",
+        "Whether the supplied historical extra-key rejection still reproduces."
+      ],
+      "risks": ["Successful ZIP upload would prove format acceptance only, not explicit-only enforcement."]
+    },
+    {
+      "id": "cursor",
+      "name": "Cursor",
+      "surface": "Cursor editor and agent",
+      "classification": "verified-native",
+      "loader": [
+        { "path": ".agents/skills", "scope": "project", "evidence": "documented" },
+        { "path": "~/.agents/skills", "scope": "user", "evidence": "documented" },
+        { "path": ".cursor/skills or ~/.cursor/skills", "scope": "Cursor-native project or user", "evidence": "documented" }
+      ],
+      "transform": { "required": false, "steps": [] },
+      "invocationPolicy": {
+        "automatic": "description-matched",
+        "explicit": "/skill-name",
+        "disableModelInvocation": "preserved by raw disable-model-invocation=true"
+      },
+      "sources": [
+        { "url": "https://cursor.com/docs/context/skills", "claims": ["loader paths", "slash invocation", "disable-model-invocation semantics"] }
+      ],
+      "probe": {
+        "type": "editor-ui",
+        "command": "Open Cursor Settings > Rules/Skills; compare inventory; invoke /short; repeat unnamed.",
+        "passCriteria": "All 50 names appear; /short loads; unnamed prompt does not load short.",
+        "observed": false,
+        "observation": "Cursor 2.0.34 was installed locally; the current 2.4-era documented skill runtime was not exercised, so the older binary is not treated as a current passing probe."
+      },
+      "unknowns": ["Clean-session result on a current Cursor release unavailable."],
+      "risks": []
+    },
+    {
+      "id": "github-copilot-vscode",
+      "name": "GitHub Copilot in VS Code",
+      "surface": "VS Code Copilot Chat and agent mode",
+      "classification": "verified-native",
+      "loader": [
+        { "path": ".github/skills, .claude/skills, .agents/skills", "scope": "project", "evidence": "documented" },
+        { "path": "~/.copilot/skills, ~/.claude/skills, ~/.agents/skills", "scope": "personal", "evidence": "documented" }
+      ],
+      "transform": { "required": false, "steps": [] },
+      "invocationPolicy": {
+        "automatic": "description-matched",
+        "explicit": "/skill-name",
+        "disableModelInvocation": "preserved by raw disable-model-invocation=true",
+        "argumentHint": "documented"
+      },
+      "sources": [
+        { "url": "https://code.visualstudio.com/docs/agent-customization/agent-skills", "claims": ["VS Code loader paths", "frontmatter fields", "manual-only invocation matrix"] }
+      ],
+      "probe": {
+        "type": "editor-ui",
+        "command": "Run Chat: Open Customizations; inspect Skills and diagnostics; invoke /short; repeat unnamed.",
+        "passCriteria": "All 50 names appear without loader errors; /short loads; unnamed prompt does not load short.",
+        "observed": false,
+        "observation": "VS Code and github.copilot-chat@0.44.2 were present, but no authenticated clean-session runtime probe was run."
+      },
+      "unknowns": ["Behavior on older VS Code/Copilot Chat releases should not be inferred from current docs."],
+      "risks": []
+    },
+    {
+      "id": "amp",
+      "name": "Amp",
+      "surface": "Amp CLI/editor, including Neo",
+      "classification": "format-validated",
+      "loader": [
+        { "path": ".agents/skills", "scope": "project", "evidence": "documented" },
+        { "path": "~/.agents/skills", "scope": "user", "evidence": "documented" },
+        { "path": "~/.config/amp/skills", "scope": "Amp-native user", "evidence": "documented" }
+      ],
+      "transform": {
+        "required": false,
+        "requiredForSafeDeployment": true,
+        "steps": ["Omit all 13 user-only islands on Neo unless Amp publishes an enforced replacement."]
+      },
+      "invocationPolicy": {
+        "automatic": "description-matched",
+        "explicit": "removed in Amp Neo",
+        "disableModelInvocation": "no preserved user-only route established"
+      },
+      "sources": [
+        { "url": "https://ampcode.com/manual", "claims": ["loader precedence", "skill format", "skill list command"] },
+        { "url": "https://ampcode.com/news/neo", "claims": ["Agent Skills retained", "user-invokable skills removed"] }
+      ],
+      "probe": {
+        "type": "interactive",
+        "command": "Open the command palette in a fresh Amp TUI; run skill: list; compare exact registry names.",
+        "passCriteria": "All deployed non-user-only names appear. This cannot pass the explicit-only policy gate on Neo.",
+        "observed": false,
+        "observation": "Local Amp build 0.0.1776882341-gbc4d06 was installed; it predates the current Neo documentation and was not treated as evidence for Neo semantics."
+      },
+      "unknowns": ["Whether a future Neo build restores an enforced manual-only skill route."],
+      "risks": ["Deploying the 13 user-only islands may make them autonomously invocable or unusable; neither is policy-equivalent."]
+    },
+    {
+      "id": "kimi-code-cli",
+      "name": "Kimi Code CLI",
+      "surface": "Kimi Code CLI",
+      "classification": "verified-native",
+      "loader": [
+        { "path": ".agents/skills", "scope": "project", "evidence": "documented" },
+        { "path": "~/.agents/skills", "scope": "user", "evidence": "documented" },
+        { "path": "$KIMI_CODE_HOME/skills", "scope": "Kimi user, default ~/.kimi-code/skills", "evidence": "documented" }
+      ],
+      "transform": { "required": false, "steps": [] },
+      "invocationPolicy": {
+        "automatic": "description-matched",
+        "explicit": "/skill:name",
+        "disableModelInvocation": "preserved; disable-model-invocation is a documented alias of disableModelInvocation"
+      },
+      "sources": [
+        { "url": "https://www.kimi.com/code/docs/en/kimi-code-cli/customization/skills.html", "claims": ["loader paths", "automatic and manual invocation", "frontmatter alias semantics"] }
+      ],
+      "probe": {
+        "type": "interactive",
+        "command": "Start a fresh Kimi Code CLI session; run /skill:short; repeat unnamed; compare /skill inventory with registry.",
+        "passCriteria": "All 50 names appear; manual invocation loads; unnamed route does not load short.",
+        "observed": false,
+        "observation": "Kimi Code CLI 1.44.0 was installed locally; authenticated behavior was not exercised."
+      },
+      "unknowns": ["argument-hint rendering is not claimed."],
+      "risks": []
+    },
+    {
+      "id": "google-antigravity-ide",
+      "name": "Google Antigravity IDE",
+      "surface": "Antigravity IDE",
+      "classification": "documented-adapter",
+      "loader": [
+        { "path": "<project-root>/.agents/skills", "scope": "project", "evidence": "documented" },
+        { "path": "~/.gemini/config/skills", "scope": "global", "evidence": "documented" }
+      ],
+      "transform": {
+        "required": true,
+        "steps": ["Copy or link eligible islands to the chosen documented scope.", "Omit the 13 user-only islands by default."]
+      },
+      "invocationPolicy": {
+        "automatic": "description-matched",
+        "explicit": "skill can be mentioned by name; no explicit-only frontmatter contract found",
+        "disableModelInvocation": "not documented"
+      },
+      "sources": [
+        { "url": "https://antigravity.google/docs/skills", "claims": ["current project/global paths", "current .agents spelling", "name/description format"] },
+        { "url": "https://codelabs.developers.google.com/getting-started-with-antigravity-skills", "claims": ["IDE and CLI scope distinctions", "inventory probe"] }
+      ],
+      "probe": {
+        "type": "editor-ui",
+        "command": "Ask What skills are available? in a fresh workspace and compare exact deployed registry names; trigger a unique canary.",
+        "passCriteria": "All eligible names appear and the canary's bundled resource is accessible.",
+        "observed": false,
+        "observation": "Antigravity was absent locally."
+      },
+      "unknowns": ["No documented enforced explicit-only equivalent."],
+      "risks": ["The current Forge installer does not populate ~/.gemini/config/skills."]
+    },
+    {
+      "id": "google-antigravity-cli",
+      "name": "Google Antigravity CLI",
+      "surface": "Antigravity CLI",
+      "classification": "documented-adapter",
+      "loader": [
+        { "path": "<project-root>/.agents/skills or release-documented .agent/skills", "scope": "project", "evidence": "documented with version drift" },
+        { "path": "~/.gemini/antigravity-cli/skills or current product-reported global path", "scope": "global", "evidence": "documented with version drift" }
+      ],
+      "transform": {
+        "required": true,
+        "steps": ["Resolve the running CLI version and its documented paths.", "Copy or link eligible islands.", "Omit the 13 user-only islands by default."]
+      },
+      "invocationPolicy": {
+        "automatic": "description-matched",
+        "explicit": "/skills inventories loaded skills",
+        "disableModelInvocation": "not documented"
+      },
+      "sources": [
+        { "url": "https://antigravity.google/docs/skills", "claims": ["current Antigravity skill format and scopes"] },
+        { "url": "https://codelabs.developers.google.com/getting-started-with-antigravity-skills", "claims": ["CLI-specific path caveat", "/skills probe"] }
+      ],
+      "probe": {
+        "type": "interactive-cli",
+        "command": "Run /skills in a fresh Antigravity CLI session and compare exact deployed registry names.",
+        "passCriteria": "All eligible names appear and a unique canary can read one bundled resource.",
+        "observed": false,
+        "observation": "Antigravity CLI was absent locally."
+      },
+      "unknowns": ["Path spelling and global location have differed across official release materials; runtime version must be pinned."],
+      "risks": ["Assuming IDE global discovery is identical to CLI discovery can yield a false install claim."]
+    },
+    {
+      "id": "openclaw",
+      "name": "OpenClaw",
+      "surface": "OpenClaw agent",
+      "classification": "verified-native",
+      "loader": [
+        { "path": "<workspace>/.agents/skills", "scope": "workspace", "evidence": "documented" },
+        { "path": "~/.agents/skills", "scope": "user", "evidence": "documented and observed" },
+        { "path": "~/.openclaw/skills", "scope": "OpenClaw user", "evidence": "documented" }
+      ],
+      "transform": { "required": false, "steps": [] },
+      "invocationPolicy": {
+        "automatic": "description-matched",
+        "explicit": "/skill-name or picker",
+        "disableModelInvocation": "documented as excluded from model discovery but retained for manual invocation"
+      },
+      "sources": [
+        { "url": "https://docs.openclaw.ai/tools/skills", "claims": ["loader locations and precedence", "disable-model-invocation behavior"] }
+      ],
+      "probe": {
+        "type": "cli-plus-interactive",
+        "command": "openclaw skills list; then invoke /short and repeat unnamed in a fresh session",
+        "passCriteria": "All 50 names appear; manual invocation loads; unnamed route does not load short.",
+        "observed": true,
+        "observation": "OpenClaw 2026.4.21 was installed; openclaw skills list enumerated sampled Forge islands from agents-skills-personal; full behavioral canary was not run."
+      },
+      "unknowns": ["Behavioral canary not rerun for this contract."],
+      "risks": []
+    },
+    {
+      "id": "grok-build-cli",
+      "name": "Grok Build CLI",
+      "surface": "xAI Grok Build CLI",
+      "classification": "format-validated",
+      "loader": [
+        { "path": ".grok/skills", "scope": "project", "evidence": "documented" },
+        { "path": "~/.grok/skills", "scope": "user", "evidence": "documented" },
+        { "path": "~/.agents/skills", "scope": "user compatibility", "evidence": "documented and observed" }
+      ],
+      "transform": {
+        "required": false,
+        "requiredForSafeDeployment": true,
+        "steps": ["Omit the 13 user-only islands until explicit-only semantics are documented and probed."]
+      },
+      "invocationPolicy": {
+        "automatic": "skills are discoverable; matching behavior implied but not used as policy proof",
+        "explicit": "user-invocable skills appear as slash commands",
+        "disableModelInvocation": "not documented"
+      },
+      "sources": [
+        { "url": "https://docs.x.ai/build/features/skills-plugins-marketplaces", "claims": ["loader paths", "~/.agents/skills compatibility", "skill slash commands"] },
+        { "url": "https://docs.x.ai/build/modes-and-commands", "claims": ["skills as commands"] },
+        { "url": "https://docs.x.ai/build/cli/reference", "claims": ["grok inspect --json probe"] }
+      ],
+      "probe": {
+        "type": "cli-plus-interactive",
+        "command": "grok inspect --json; then invoke /short and repeat unnamed in a fresh session",
+        "passCriteria": "All deployed names appear; explicit invocation works; the unnamed route is separately recorded.",
+        "observed": true,
+        "observation": "Grok CLI 1.0.0 was installed; local grok inspect enumerated sampled Forge islands as user skills; disable-model-invocation behavior was not established."
+      },
+      "unknowns": ["Whether disable-model-invocation is parsed, ignored, or enforced."],
+      "risks": ["The phrase Claude Code compatible is too broad to prove invocation-policy equivalence."]
+    },
+    {
+      "id": "grok-bot",
+      "name": "Grok Bot",
+      "surface": "Account-managed Grok Bot skills/routines",
+      "classification": "unsupported/unknown",
+      "loader": [
+        { "path": "account Settings > Plugins or conversational teaching", "scope": "account", "evidence": "documented product workflow, not a Forge filesystem loader" }
+      ],
+      "transform": { "required": null, "steps": [] },
+      "invocationPolicy": {
+        "automatic": "unknown for imported Forge artifacts",
+        "explicit": "account product provides skills, but no local Forge import contract is documented",
+        "disableModelInvocation": "unknown"
+      },
+      "sources": [
+        { "url": "https://docs.x.ai/grok-bot/skills-routines-and-automations", "claims": ["account-managed skill workflow only"] }
+      ],
+      "probe": {
+        "type": "evidence-needed",
+        "command": "Locate a primary xAI page naming a local/ZIP import format, then import a canary in a fresh account and verify bundled files plus policy.",
+        "passCriteria": "A primary loader contract exists and the canary import preserves resources and invocation controls.",
+        "observed": false,
+        "observation": "No local SKILL.md loader or byte-preserving ZIP import was found in current primary docs."
+      },
+      "unknowns": ["Filesystem loader", "ZIP import schema", "invocation-policy fields"],
+      "risks": ["Conflating Grok Build CLI with Grok Bot would produce a false support claim."]
+    },
+    {
+      "id": "buzz",
+      "name": "Buzz",
+      "surface": "Block Buzz ACP client",
+      "classification": "unsupported/unknown",
+      "loader": [
+        { "path": "backend-dependent", "scope": "Buzz-selected ACP agent", "evidence": "unknown" }
+      ],
+      "transform": { "required": null, "steps": [] },
+      "invocationPolicy": {
+        "automatic": "backend-dependent and unverified",
+        "explicit": "backend-dependent and unverified",
+        "disableModelInvocation": "backend-dependent and unverified"
+      },
+      "sources": [
+        { "url": "https://github.com/block/buzz", "claims": ["Buzz is an ACP client for selectable coding agents"] }
+      ],
+      "probe": {
+        "type": "backend-matrix-needed",
+        "command": "Place a harmless canary only in each backend's documented scope; start a fresh Buzz session for every ACP backend; record discovery, explicit, implicit, and resource results.",
+        "passCriteria": "Each supported backend has an independently recorded result; no result is generalized to another backend.",
+        "observed": false,
+        "observation": "Read-only local inspection found ~/.buzz/.agents/skills/buzz-cli/SKILL.md, which does not establish a cross-backend loader contract."
+      },
+      "unknowns": ["Whether Buzz merges personal skills", "Per-backend scope mapping", "Policy preservation across backends"],
+      "risks": ["Treating an ACP client as the skill runtime can hide backend-specific failures."]
+    },
+    {
+      "id": "pi",
+      "name": "Pi",
+      "surface": "Pi coding agent",
+      "classification": "verified-native",
+      "loader": [
+        { "path": ".agents/skills", "scope": "project", "evidence": "documented" },
+        { "path": "~/.agents/skills", "scope": "user", "evidence": "documented" },
+        { "path": "~/.pi/agent/skills", "scope": "Pi user", "evidence": "documented" }
+      ],
+      "transform": { "required": false, "steps": [] },
+      "invocationPolicy": {
+        "automatic": "description-matched",
+        "explicit": "/skill:name",
+        "disableModelInvocation": "documented as hidden from model discovery while manual invocation remains"
+      },
+      "sources": [
+        { "url": "https://pi.dev/docs/latest/skills", "claims": ["loader paths", "lenient frontmatter", "manual invocation", "disable-model-invocation behavior"] }
+      ],
+      "probe": {
+        "type": "interactive",
+        "command": "Start a fresh Pi session; run /skill:short; repeat unnamed; compare inventory with registry.",
+        "passCriteria": "All 50 names appear; manual invocation loads; unnamed route does not expose short.",
+        "observed": false,
+        "observation": "Pi was installed locally; authenticated clean-session behavior was not exercised."
+      },
+      "unknowns": ["Local clean-session result not captured."],
+      "risks": []
+    },
+    {
+      "id": "hermes-native-windows",
+      "name": "Hermes Agent on native Windows",
+      "surface": "Hermes Agent CLI",
+      "classification": "documented-adapter",
+      "loader": [
+        { "path": "<HERMES_HOME>/skills", "scope": "active Hermes profile", "evidence": "documented and source-verified" },
+        { "path": "%LOCALAPPDATA%/hermes/skills", "scope": "default native-Windows profile", "evidence": "documented" }
+      ],
+      "transform": {
+        "required": true,
+        "steps": [
+          "Resolve HERMES_HOME from hermes config path or explicit configuration.",
+          "Copy or link eligible islands into <HERMES_HOME>/skills.",
+          "Omit the 13 user-only islands by default."
+        ]
+      },
+      "invocationPolicy": {
+        "automatic": "skill_view based loading documented",
+        "explicit": "slash/manual skill use documented",
+        "disableModelInvocation": "no enforced equivalent found in primary docs"
+      },
+      "sources": [
+        { "url": "https://github.com/NousResearch/hermes-agent/blob/main/website/docs/guides/work-with-skills.md", "claims": ["skill directory and use"] },
+        { "url": "https://github.com/NousResearch/hermes-agent/blob/main/website/docs/user-guide/windows-native.md", "claims": ["native-Windows HERMES_HOME default"] },
+        { "url": "https://github.com/NousResearch/hermes-agent/blob/main/tools/skills_tool.py", "claims": ["loader resolves HERMES_HOME/skills"] }
+      ],
+      "probe": {
+        "type": "cli-plus-filesystem",
+        "command": "$p = hermes config path; $h = Split-Path -Parent $p; hermes skills list; Test-Path (Join-Path $h 'skills/idc-skill-authoring/SKILL.md')",
+        "passCriteria": "Resolved path contains all eligible islands and hermes skills list enumerates them.",
+        "observed": true,
+        "observation": "Hermes Agent 0.18.0 was installed; hermes config path resolved C:/Users/IslandDevCrew/AppData/Local/hermes/config.yaml; the shell installer targets $HOME/.hermes/skills; sampled Forge names were absent from hermes skills list."
+      },
+      "unknowns": ["Enforced explicit-only equivalent", "Whether every bundled script is executable under native Windows"],
+      "risks": ["The current installer can report a copy to a path the active native-Windows Hermes profile does not read."]
+    }
+  ],
+  "releaseGate": {
+    "requiredPerHarnessEvidence": [
+      "harness name and version",
+      "exact loader path and scope",
+      "accepted and rejected frontmatter keys",
+      "discovered registry names versus expected",
+      "explicit invocation result",
+      "implicit invocation result for a user-only canary",
+      "bundled resource accessibility",
+      "canonical and adapter-output hashes",
+      "primary documentation URLs and retrieval date"
+    ],
+    "failClosedOnMissingEvidence": true,
+    "insufficientEvidenceExamples": [
+      "directory copy count only",
+      "YAML parse only",
+      "model self-report that a skill exists"
+    ]
+  }
+}
