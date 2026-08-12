@@ -1,8 +1,8 @@
 # IDC Skills Forge harness support contract
 
-Contract schema: `idc.harness-support/v1`
+Contract schema: `idc.harness-support/v1.1`
 
-Contract version: `1.0.0`
+Contract version: `1.1.0`
 
 Evidence date: `2026-08-11`
 
@@ -20,6 +20,8 @@ The machine-readable source of this document is [`harness-support.json`](harness
 | `unsupported/unknown` | No primary evidence establishes a reliable filesystem import contract for Forge skills. Product adjacency, Markdown support, or a conversational “save skill” feature is not enough. |
 
 “Native” is a format/loader statement, not an assurance that a model will follow instructions. “Invocation policy preserved” means a user-only island remains unavailable to autonomous model selection; descriptions saying “never auto-invoke” are advisory and do not satisfy that property.
+
+Probe evidence uses four non-binary states: `unrun` means no step of the stated probe ran; `partial` means some evidence exists but the full pass criteria were not exercised or satisfied; `passed` means every criterion ran and passed; `failed` means the stated probe ran and at least one criterion failed. Inventory-only evidence is never a behavioral pass.
 
 ## Canonical pack facts and portability boundary
 
@@ -44,7 +46,7 @@ The 13 user-only islands are therefore a hard policy boundary:
 |---|---|---|---|---|
 | OpenAI Codex | `verified-native` | project `.agents/skills`; user `~/.agents/skills` | none; retain `agents/openai.yaml` | preserved by `policy.allow_implicit_invocation: false` |
 | Claude Code | `verified-native` | project `.claude/skills`; user `~/.claude/skills` | none | raw `disable-model-invocation` is explicit-only |
-| claude.ai custom-skill upload | `documented-adapter` | ZIP upload in Settings/Customize | conservative current export profile; omit user-only islands by default | current runtime acceptance and explicit-only behavior are unverified |
+| claude.ai custom-skill upload | `documented-adapter` | ZIP upload in Settings/Customize | six-key frontmatter, ≤200-character description, required root-folder ZIP; omit user-only islands by default | `disable-model-invocation` is rejected and has no documented equivalent |
 | Cursor | `verified-native` | project/user `.agents/skills` plus Cursor locations | none | raw `disable-model-invocation` is explicit-only |
 | GitHub Copilot in VS Code | `verified-native` | project `.github/skills`, `.claude/skills`, `.agents/skills`; personal equivalents | none | raw `disable-model-invocation` and `argument-hint` documented |
 | Amp | `format-validated` | project/user `.agents/skills` plus Amp and Claude locations | none for discovery | Neo removed user-invokable skills; 13 user-only islands are not safely portable |
@@ -79,17 +81,19 @@ Probe: start a fresh `claude` session, run `/short`, then issue a prompt matchin
 
 ### claude.ai upload — `documented-adapter`
 
-Anthropic documents ZIP upload under Settings/Customize in [Use Skills in Claude](https://support.claude.com/en/articles/12512180-use-skills-in-claude). The current [How to create custom skills](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills) page requires `name` and `description`, documents optional `dependencies`, and recommends the Agent Skills standard; it does **not** publish the older six-key validator allow-list. The supplied Claude-session report that 13 islands hard-failed extra-key validation is therefore a historical observation to reproduce, not a confirmed-current specification.
+Anthropic documents ZIP upload under Settings/Customize in [Use Skills in Claude](https://support.claude.com/en/articles/12512180-use-skills-in-claude). The current [Claude skills documentation](https://code.claude.com/docs/en/skills) states that claude.ai uploads accept exactly `name`, `description`, `license`, `compatibility`, `metadata`, and `allowed-tools`; any other top-level field causes a hard upload error. It also says enabled personal Cowork and cloud skills use these same upload rules. Separately, the current [How to create custom skills](https://support.claude.com/en/articles/12512198-how-to-create-custom-skills) page caps descriptions at 200 characters and requires the ZIP's top-level entry to be the named skill folder containing `SKILL.md`—files directly at archive root or under another wrapper directory are invalid. That Help Center page also calls `dependencies` optional metadata, but the dedicated six-key validator contract excludes it as a top-level field. This adapter does not emit top-level `dependencies` until Anthropic reconciles that documentation tension.
+
+The supplied earlier Claude-session report independently observed hard rejection of the 13 extended islands. That historical observation agrees with the current documented six-key rule, but it is not presented as a fresh live-account upload probe.
 
 Required adapter:
 
-1. Build a scratch ZIP; never rewrite canonical islands in place.
-2. Retain only current documented fields plus strict Agent Skills fields; record this as an export profile, not as claude.ai's complete accepted-key schema.
+1. Build a scratch ZIP; never rewrite canonical islands in place. Its single top-level entry is `<skill-name>/`, with `<skill-name>/SKILL.md` inside; do not place skill files directly at archive root or add another wrapper directory.
+2. Retain only the six documented top-level fields: `name`, `description`, `license`, `compatibility`, `metadata`, and `allowed-tools`.
 3. Generate and review a routing-equivalent description of at most 200 characters for each of the 48 over-limit islands; preserve the capability and “Use when” trigger.
 4. Copy `argument-hint` and `disable-model-invocation` into namespaced `metadata` solely for provenance.
 5. Omit all 13 user-only islands unless the operator explicitly waives loss of enforced explicit-only behavior.
 
-Probe: upload one raw extended canary and one transformed scratch canary through Customize in a disposable profile, record the exact current error/acceptance, then test whether the accepted skill can be selected and whether it auto-loads. `package_skill.py` may preflight structure but cannot substitute for the live claude.ai validator. Passing upload proves format only, not invocation equivalence. This live probe was not available in this worktree.
+Probe (`unrun`): upload one raw extended canary and one transformed root-folder ZIP through Customize in a disposable profile. The raw canary must reproduce the documented hard error; the transformed canary must upload and enable. Then separately test explicit and implicit behavior. `package_skill.py` may preflight structure but cannot substitute for the live claude.ai validator. Passing upload proves format only, not invocation equivalence.
 
 ### Cursor — `verified-native`
 
@@ -105,9 +109,9 @@ Probe: with GitHub Copilot Chat enabled, run `Chat: Open Customizations`, inspec
 
 ### Amp — `format-validated`
 
-The [Amp Owner's Manual](https://ampcode.com/manual) documents project/user `.agents/skills`, Amp/Claude locations, progressive loading, and `skill: list`. However, [Amp, Rebuilt](https://ampcode.com/news/neo) states that Neo removed user-invokable skills while retaining Agent Skills. Therefore raw discovery is documented but the Forge's 13 explicit-only semantics are not portable to Neo.
+The [Amp Owner's Manual](https://ampcode.com/manual) documents this precedence: `~/.config/agents/skills`, `~/.agents/skills`, `~/.config/amp/skills`, project/parent `.agents/skills`, project/parent `.claude/skills`, `~/.claude/skills`, `~/.claude/plugins/cache`, `amp.skills.path`, built-ins, then Amp-managed personal and workspace repositories. It documents `amp skills list --json` for shell inventory and `skills: list` in the `Ctrl+O` palette. However, [Amp, Rebuilt](https://ampcode.com/news/neo) states that Neo removed user-invokable skills while retaining Agent Skills. Therefore raw discovery is documented but the Forge's 13 explicit-only semantics are not portable to Neo.
 
-Probe: in a fresh Amp TUI run `skill: list` and compare names with `skills/registry.json`. A discovery pass does not upgrade this classification. Until Amp documents an enforced explicit-only equivalent, omit the 13 user-only islands.
+Probe (`partial`): `amp skills list --json` returned valid JSON and enumerated all 50 Forge registry names among 65 installed skills on the local pre-Neo build. In a fresh Amp TUI, run `Ctrl+O` → `skills: list` and compare names with `skills/registry.json`. This inventory result does not pass the explicit-only policy gate or upgrade the classification. Until Amp documents an enforced equivalent, omit the 13 user-only islands.
 
 ### Kimi Code CLI — `verified-native`
 
@@ -183,6 +187,16 @@ Test-Path (Join-Path $hermesHome 'skills/idc-skill-authoring/SKILL.md')
 ```
 
 Pass path/discovery only when the boolean is true and all eligible registry names appear. Invocation-policy support remains absent until separately documented and probed.
+
+## Contract verification
+
+Run the dependency-free structural and repository-fact verifier from the repository root:
+
+```powershell
+python scripts/verify_harness_support.py
+```
+
+It performs no network access. It verifies schema and tier vocabulary, requested-target coverage, source attribution structure, Markdown/JSON key-fact agreement, probe evidence-state semantics, exact pack counts, claude.ai constraints, Amp loader/command consistency, and URL structure. Live source reachability and behavioral probes remain separate release evidence.
 
 ## Release gate for any future “all harnesses” claim
 

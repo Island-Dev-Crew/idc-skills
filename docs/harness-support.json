@@ -1,6 +1,6 @@
 {
-  "schema": "idc.harness-support/v1",
-  "contractVersion": "1.0.0",
+  "schema": "idc.harness-support/v1.1",
+  "contractVersion": "1.1.0",
   "asOf": "2026-08-11",
   "repositoryRelease": "2.0.0",
   "classificationDefinitions": {
@@ -8,6 +8,12 @@
     "format-validated": "The raw skill is documented as discoverable or was enumerated by the harness, but a required invocation-policy behavior is absent, removed, or not proven.",
     "documented-adapter": "Primary documentation provides a real target surface, but a path or format transform is required; the adapter is described and is not assumed to exist.",
     "unsupported/unknown": "No primary evidence establishes a reliable filesystem import contract for Forge skills."
+  },
+  "probeEvidenceStatusDefinitions": {
+    "unrun": "No step of the stated pass-criteria probe was executed.",
+    "partial": "Some relevant evidence was collected, but the full stated pass criteria were not exercised or satisfied.",
+    "passed": "Every stated pass criterion was exercised and satisfied.",
+    "failed": "The stated probe was exercised and at least one pass criterion was not satisfied."
   },
   "invariants": [
     "No universal support claim without per-harness primary documentation and a reproducible probe.",
@@ -103,7 +109,7 @@
         "type": "interactive-plus-filesystem",
         "command": "/skills; then invoke $short; then issue the same relevance prompt without naming short",
         "passCriteria": "All 50 registry names appear; explicit invocation loads short; unnamed prompt does not load short.",
-        "observed": true,
+        "evidenceStatus": "partial",
         "observation": "The current Codex task exposed all 50 installed Forge skill names from the user skill root; the explicit-versus-implicit behavioral canary was not rerun."
       },
       "unknowns": ["Behavioral policy canary not rerun in a clean task for this contract."],
@@ -131,7 +137,7 @@
         "type": "interactive",
         "command": "Start a fresh claude session; invoke /short; repeat the task without naming short.",
         "passCriteria": "All 50 names are discoverable; /short loads; unnamed prompt does not load short.",
-        "observed": false,
+        "evidenceStatus": "unrun",
         "observation": "CLI is installed locally; clean-session behavior was not exercised."
       },
       "unknowns": ["This entry does not cover claude.ai coordinator/upload behavior."],
@@ -139,18 +145,37 @@
     },
     {
       "id": "claude-ai-upload",
-      "name": "claude.ai custom skill upload",
+      "name": "claude.ai custom-skill upload",
       "surface": "Account ZIP upload",
       "classification": "documented-adapter",
       "loader": [
         { "path": "Settings or Customize > Skills > upload ZIP", "scope": "account", "evidence": "documented" }
       ],
+      "formatContract": {
+        "acceptedTopLevelFields": [
+          "name",
+          "description",
+          "license",
+          "compatibility",
+          "metadata",
+          "allowed-tools"
+        ],
+        "rejectsOtherTopLevelFields": true,
+        "descriptionMaxCharacters": 200,
+        "archiveLayout": {
+          "topLevelEntry": "<skill-name>/",
+          "entrypoint": "<skill-name>/SKILL.md",
+          "filesDirectlyAtArchiveRootAllowed": false,
+          "extraWrapperDirectoryAllowed": false
+        },
+        "documentedTension": "The Help Center calls dependencies optional metadata, but the dedicated upload validator contract excludes dependencies from the six accepted top-level fields; this adapter does not emit it top-level."
+      },
       "transform": {
         "required": true,
-        "profile": "claude-ai-conservative-export/2026-08-11",
+        "profile": "claude-ai-upload/2026-08-11",
         "steps": [
-          "Build a scratch ZIP.",
-          "Retain current documented fields plus strict Agent Skills fields.",
+          "Build a scratch ZIP whose single top-level entry is the named skill folder and whose entrypoint is <skill-name>/SKILL.md; do not place skill files directly at archive root or under an extra wrapper directory.",
+          "Retain only name, description, license, compatibility, metadata, and allowed-tools as top-level frontmatter fields.",
           "Generate and review a routing-equivalent description of at most 200 characters for each of the 48 over-limit islands; preserve capability and Use when intent.",
           "Move extension values into namespaced metadata for provenance only.",
           "Omit all 13 user-only islands unless the operator explicitly waives loss of enforced policy."
@@ -160,24 +185,25 @@
       "invocationPolicy": {
         "automatic": "unknown",
         "explicit": "account UI selection is documented at product level",
-        "disableModelInvocation": "not documented as an upload frontmatter semantic"
+        "disableModelInvocation": "cannot be represented: claude.ai hard-rejects this non-spec top-level field and metadata is inert annotation"
       },
       "sources": [
         { "url": "https://support.claude.com/en/articles/12512180-use-skills-in-claude", "claims": ["account skill upload surface"] },
-        { "url": "https://support.claude.com/en/articles/12512198-how-to-create-custom-skills", "claims": ["current required name and description", "optional dependencies", "Agent Skills recommendation"] },
+        { "url": "https://code.claude.com/docs/en/skills", "claims": ["six accepted top-level fields for claude.ai uploads", "hard rejection of any other top-level field", "same upload rules for enabled Cowork and cloud skills"] },
+        { "url": "https://support.claude.com/en/articles/12512198-how-to-create-custom-skills", "claims": ["current required name and description", "200-character description maximum", "optional dependencies", "required ZIP root-folder layout", "Agent Skills recommendation"] },
         { "url": "https://agentskills.io/specification", "claims": ["strict export baseline fields"] }
       ],
       "probe": {
         "type": "manual-account-upload",
-        "command": "Upload one raw extended canary and one transformed canary to a disposable claude.ai profile; record exact acceptance/error and invocation behavior.",
-        "passCriteria": "The current validator result is captured verbatim; transformed canary uploads; explicit and implicit behavior are separately observed.",
-        "observed": false,
-        "observation": "The supplied session reported an older six-key hard rejection for 13 islands, but current Help Center documentation no longer publishes that allow-list."
+        "command": "Upload one raw extended canary and one transformed root-folder ZIP to a disposable claude.ai profile; record exact acceptance/error and invocation behavior.",
+        "passCriteria": "Raw extended canary reproduces the documented hard error; transformed root-folder ZIP uploads and enables; explicit and implicit behavior are separately observed.",
+        "evidenceStatus": "unrun",
+        "observation": "A supplied earlier session observed hard rejection of the 13 extended islands. Current Anthropic documentation independently confirms the six-key allow-list and hard-error rule; this contract did not rerun a live account upload."
       },
       "unknowns": [
-        "Current complete accepted-key schema.",
-        "Whether raw disable-model-invocation is rejected, ignored, or enforced.",
-        "Whether the supplied historical extra-key rejection still reproduces."
+        "Whether the documented rejection and transformed upload reproduce on the current account surface.",
+        "Current account-surface explicit-versus-implicit invocation behavior after upload.",
+        "How Anthropic intends the Help Center dependencies guidance to coexist with the six-key upload validator."
       ],
       "risks": ["Successful ZIP upload would prove format acceptance only, not explicit-only enforcement."]
     },
@@ -204,7 +230,7 @@
         "type": "editor-ui",
         "command": "Open Cursor Settings > Rules/Skills; compare inventory; invoke /short; repeat unnamed.",
         "passCriteria": "All 50 names appear; /short loads; unnamed prompt does not load short.",
-        "observed": false,
+        "evidenceStatus": "unrun",
         "observation": "Cursor 2.0.34 was installed locally; the current 2.4-era documented skill runtime was not exercised, so the older binary is not treated as a current passing probe."
       },
       "unknowns": ["Clean-session result on a current Cursor release unavailable."],
@@ -233,7 +259,7 @@
         "type": "editor-ui",
         "command": "Run Chat: Open Customizations; inspect Skills and diagnostics; invoke /short; repeat unnamed.",
         "passCriteria": "All 50 names appear without loader errors; /short loads; unnamed prompt does not load short.",
-        "observed": false,
+        "evidenceStatus": "unrun",
         "observation": "VS Code and github.copilot-chat@0.44.2 were present, but no authenticated clean-session runtime probe was run."
       },
       "unknowns": ["Behavior on older VS Code/Copilot Chat releases should not be inferred from current docs."],
@@ -245,9 +271,17 @@
       "surface": "Amp CLI/editor, including Neo",
       "classification": "format-validated",
       "loader": [
-        { "path": ".agents/skills", "scope": "project", "evidence": "documented" },
+        { "path": "~/.config/agents/skills", "scope": "machine-global, highest local precedence", "evidence": "documented" },
         { "path": "~/.agents/skills", "scope": "user", "evidence": "documented" },
-        { "path": "~/.config/amp/skills", "scope": "Amp-native user", "evidence": "documented" }
+        { "path": "~/.config/amp/skills", "scope": "Amp-native user", "evidence": "documented" },
+        { "path": ".agents/skills", "scope": "project", "evidence": "documented" },
+        { "path": ".claude/skills", "scope": "project compatibility", "evidence": "documented" },
+        { "path": "~/.claude/skills", "scope": "user compatibility", "evidence": "documented" },
+        { "path": "~/.claude/plugins/cache", "scope": "Claude plugin compatibility", "evidence": "documented" },
+        { "path": "amp.skills.path", "scope": "configured extra directories", "evidence": "documented" },
+        { "path": "built-in skills", "scope": "Amp-managed lower-precedence source", "evidence": "documented" },
+        { "path": "personal skills repository", "scope": "Amp-managed lower-precedence source", "evidence": "documented" },
+        { "path": "active workspace skills repository", "scope": "Amp-managed lowest-precedence source", "evidence": "documented" }
       ],
       "transform": {
         "required": false,
@@ -264,11 +298,11 @@
         { "url": "https://ampcode.com/news/neo", "claims": ["Agent Skills retained", "user-invokable skills removed"] }
       ],
       "probe": {
-        "type": "interactive",
-        "command": "Open the command palette in a fresh Amp TUI; run skill: list; compare exact registry names.",
+        "type": "cli-plus-interactive",
+        "command": "Run amp skills list --json; in a fresh Amp TUI open Ctrl+O and run skills: list; compare exact registry names.",
         "passCriteria": "All deployed non-user-only names appear. This cannot pass the explicit-only policy gate on Neo.",
-        "observed": false,
-        "observation": "Local Amp build 0.0.1776882341-gbc4d06 was installed; it predates the current Neo documentation and was not treated as evidence for Neo semantics."
+        "evidenceStatus": "partial",
+        "observation": "Local Amp build 0.0.1776882341-gbc4d06 returned valid JSON from amp skills list --json and enumerated all 50 Forge registry names among 65 skills. It predates current Neo documentation; the TUI and explicit-only policy gate were not exercised."
       },
       "unknowns": ["Whether a future Neo build restores an enforced manual-only skill route."],
       "risks": ["Deploying the 13 user-only islands may make them autonomously invocable or unusable; neither is policy-equivalent."]
@@ -296,7 +330,7 @@
         "type": "interactive",
         "command": "Start a fresh Kimi Code CLI session; run /skill:short; repeat unnamed; compare /skill inventory with registry.",
         "passCriteria": "All 50 names appear; manual invocation loads; unnamed route does not load short.",
-        "observed": false,
+        "evidenceStatus": "unrun",
         "observation": "Kimi Code CLI 1.44.0 was installed locally; authenticated behavior was not exercised."
       },
       "unknowns": ["argument-hint rendering is not claimed."],
@@ -328,7 +362,7 @@
         "type": "editor-ui",
         "command": "Ask What skills are available? in a fresh workspace and compare exact deployed registry names; trigger a unique canary.",
         "passCriteria": "All eligible names appear and the canary's bundled resource is accessible.",
-        "observed": false,
+        "evidenceStatus": "unrun",
         "observation": "Antigravity was absent locally."
       },
       "unknowns": ["No documented enforced explicit-only equivalent."],
@@ -360,7 +394,7 @@
         "type": "interactive-cli",
         "command": "Run /skills in a fresh Antigravity CLI session and compare exact deployed registry names.",
         "passCriteria": "All eligible names appear and a unique canary can read one bundled resource.",
-        "observed": false,
+        "evidenceStatus": "unrun",
         "observation": "Antigravity CLI was absent locally."
       },
       "unknowns": ["Path spelling and global location have differed across official release materials; runtime version must be pinned."],
@@ -389,7 +423,7 @@
         "type": "cli-plus-interactive",
         "command": "openclaw skills list; then invoke /short and repeat unnamed in a fresh session",
         "passCriteria": "All 50 names appear; manual invocation loads; unnamed route does not load short.",
-        "observed": true,
+        "evidenceStatus": "partial",
         "observation": "OpenClaw 2026.4.21 was installed; openclaw skills list enumerated sampled Forge islands from agents-skills-personal; full behavioral canary was not run."
       },
       "unknowns": ["Behavioral canary not rerun for this contract."],
@@ -424,7 +458,7 @@
         "type": "cli-plus-interactive",
         "command": "grok inspect --json; then invoke /short and repeat unnamed in a fresh session",
         "passCriteria": "All deployed names appear; explicit invocation works; the unnamed route is separately recorded.",
-        "observed": true,
+        "evidenceStatus": "partial",
         "observation": "Grok CLI 1.0.0 was installed; local grok inspect enumerated sampled Forge islands as user skills; disable-model-invocation behavior was not established."
       },
       "unknowns": ["Whether disable-model-invocation is parsed, ignored, or enforced."],
@@ -432,7 +466,7 @@
     },
     {
       "id": "grok-bot",
-      "name": "Grok Bot",
+      "name": "Grok Bot account skill",
       "surface": "Account-managed Grok Bot skills/routines",
       "classification": "unsupported/unknown",
       "loader": [
@@ -451,7 +485,7 @@
         "type": "evidence-needed",
         "command": "Locate a primary xAI page naming a local/ZIP import format, then import a canary in a fresh account and verify bundled files plus policy.",
         "passCriteria": "A primary loader contract exists and the canary import preserves resources and invocation controls.",
-        "observed": false,
+        "evidenceStatus": "unrun",
         "observation": "No local SKILL.md loader or byte-preserving ZIP import was found in current primary docs."
       },
       "unknowns": ["Filesystem loader", "ZIP import schema", "invocation-policy fields"],
@@ -478,7 +512,7 @@
         "type": "backend-matrix-needed",
         "command": "Place a harmless canary only in each backend's documented scope; start a fresh Buzz session for every ACP backend; record discovery, explicit, implicit, and resource results.",
         "passCriteria": "Each supported backend has an independently recorded result; no result is generalized to another backend.",
-        "observed": false,
+        "evidenceStatus": "partial",
         "observation": "Read-only local inspection found ~/.buzz/.agents/skills/buzz-cli/SKILL.md, which does not establish a cross-backend loader contract."
       },
       "unknowns": ["Whether Buzz merges personal skills", "Per-backend scope mapping", "Policy preservation across backends"],
@@ -507,7 +541,7 @@
         "type": "interactive",
         "command": "Start a fresh Pi session; run /skill:short; repeat unnamed; compare inventory with registry.",
         "passCriteria": "All 50 names appear; manual invocation loads; unnamed route does not expose short.",
-        "observed": false,
+        "evidenceStatus": "unrun",
         "observation": "Pi was installed locally; authenticated clean-session behavior was not exercised."
       },
       "unknowns": ["Local clean-session result not captured."],
@@ -515,7 +549,7 @@
     },
     {
       "id": "hermes-native-windows",
-      "name": "Hermes Agent on native Windows",
+      "name": "Hermes Agent, native Windows",
       "surface": "Hermes Agent CLI",
       "classification": "documented-adapter",
       "loader": [
@@ -544,8 +578,8 @@
         "type": "cli-plus-filesystem",
         "command": "$p = hermes config path; $h = Split-Path -Parent $p; hermes skills list; Test-Path (Join-Path $h 'skills/idc-skill-authoring/SKILL.md')",
         "passCriteria": "Resolved path contains all eligible islands and hermes skills list enumerates them.",
-        "observed": true,
-        "observation": "Hermes Agent 0.18.0 was installed; hermes config path resolved C:/Users/IslandDevCrew/AppData/Local/hermes/config.yaml; the shell installer targets $HOME/.hermes/skills; sampled Forge names were absent from hermes skills list."
+        "evidenceStatus": "failed",
+        "observation": "Hermes Agent 0.18.0 was installed; hermes config path resolved C:/Users/IslandDevCrew/AppData/Local/hermes/config.yaml; the required idc-skill-authoring path test was false and sampled Forge names were absent from hermes skills list, so the stated discovery probe failed."
       },
       "unknowns": ["Enforced explicit-only equivalent", "Whether every bundled script is executable under native Windows"],
       "risks": ["The current installer can report a copy to a path the active native-Windows Hermes profile does not read."]
