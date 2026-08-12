@@ -1,0 +1,50 @@
+{
+  "schemaVersion": 1,
+  "recordedAt": "2026-08-12T03:23:21Z",
+  "baselineCommit": "c8e94a385dbf6bb65bc605524008967a7f916679",
+  "candidateCommit": "61779de2c7a091018c8c0074c9060c60838373bd",
+  "branch": "codex/gauntlet-integration",
+  "freshClone": {
+    "path": "C:/Users/ISLAND~1/AppData/Local/Temp/idc-forge-fresh-4a834007c8ff4cc0a8016cf110e2364b",
+    "detachedHead": "61779de2c7a091018c8c0074c9060c60838373bd",
+    "dirtyBefore": false,
+    "dirtyAfter": false
+  },
+  "acceptance": {
+    "command": "python -B scripts/reaccept.py",
+    "exitCode": 0,
+    "canonicalSkills": "50/50",
+    "unitTests": {
+      "passed": 40,
+      "skipped": 1,
+      "total": 41,
+      "skipReason": "POSIX executable-mode case runs under WSL/POSIX; the builder repair lane separately passed 24/24 under WSL"
+    },
+    "harnessSurfacesInContract": 15,
+    "canonicalWarnings": 13,
+    "canonicalErrors": 0,
+    "isolatedNativeInstalls": "4x50",
+    "deterministicSnapshotZips": 50,
+    "currentClaudeAi": {
+      "status": "blocked-fail-closed",
+      "descriptionsOver200": 48,
+      "userOnlyInvocationUnpreserved": 13,
+      "outputCreated": false
+    },
+    "canonicalTreeSha256": "b7194de92d58fffc25e9d885d26313ad2b6f25d6b795a406dc64ab49c81be2a4",
+    "canonicalTreeDriftDuringRun": false
+  },
+  "gauntlet": {
+    "builderLanes": 3,
+    "nonAuthorCritiques": 3,
+    "critiqueDisposition": "changes-requested",
+    "reviewType": "same-family blind artifact critique",
+    "crossFamilyVerdictClaimed": false
+  },
+  "scopeLimits": [
+    "No live claude.ai upload or authenticated behavioral routing probe was run.",
+    "Buzz and Grok Bot remain unsupported or unknown; the matrix does not project IDE or CLI behavior onto them.",
+    "The native-Windows Hermes runtime probe remains failed even though deterministic copying is supported.",
+    "No remote push, pull request, release, or user profile installation was performed."
+  ]
+}

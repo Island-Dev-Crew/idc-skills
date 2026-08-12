@@ -63,20 +63,20 @@ button.copy:hover{background:rgba(88,215,179,.2)}
 <body>
 <main>
   <header class="hero">
-    <p class="eyebrow">Mission Control &middot; State of the Union &middot; generated 2026-08-12 02:57Z</p>
+    <p class="eyebrow">Mission Control &middot; State of the Union &middot; generated 2026-08-12 03:24Z</p>
     <h1>IDC Forge Cross-Harness Gauntlet</h1>
     <p class="tagline">One canonical forge, portable by proof rather than proclamation.</p>
     <div style="margin-top:14px">
-      <span class="chip blue">mission: active</span>
-      <span class="chip green">active phase: P0</span>
-      <span class="chip blue">2/12 tasks</span>
-      <span class="chip amber">0/9 gates passed</span>
+      <span class="chip green">mission: complete</span>
+      <span class="chip green">active phase: P3</span>
+      <span class="chip blue">12/12 tasks</span>
+      <span class="chip green">9/9 gates passed</span>
       <span class="chip ">0 PRs merged</span>
       <span class="chip ">sessions: 1</span>
-      <span class="chip ">updated: 2026-08-12T03:02:00Z</span>
+      <span class="chip ">updated: 2026-08-12T03:23:21Z</span>
     </div>
-    <div class="bar big" role="img" aria-label="Overall progress 17%"><div class="fill" style="width:17%"></div></div>
-    <p class="small muted" style="margin-top:6px">Overall: 17% of tasks complete &middot; repo Navigata1/idc-skills-forge &middot; plan: ops/mission/brief.md</p>
+    <div class="bar big" role="img" aria-label="Overall progress 100%"><div class="fill" style="width:100%"></div></div>
+    <p class="small muted" style="margin-top:6px">Overall: 100% of tasks complete &middot; repo Navigata1/idc-skills-forge &middot; plan: ops/mission/brief.md</p>
   </header>
 
   <section aria-labelledby="coldstart">
@@ -86,13 +86,14 @@ button.copy:hover{background:rgba(88,215,179,.2)}
 
 Local repo: C:/Users/IslandDevCrew/Documents/ChatGPT/idc-forge-gauntlet-integration  (Navigata1/idc-skills-forge, default branch main)
 Governing plan: ops/mission/brief.md
-Mission status: active — active phase: P0
+Mission status: complete — active phase: P3
 
 Mission conventions:
   - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
   - Positive harness claims require an authoritative source and reproducible probe.
   - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
   - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
@@ -104,38 +105,38 @@ Operating procedure:
   </section>
 
   <section aria-labelledby="metrics"><h2 id="metrics">Scoreboard: Baseline &rarr; Current &rarr; Target</h2>
-  <div class="table-wrap"><table><thead><tr><th>Metric</th><th>Baseline</th><th>Current</th><th>Target</th></tr></thead><tbody><tr><td><b>Named harnesses with tier, source, and probe</b></td><td>4</td><td><span class="chip amber">4</span></td><td>13</td></tr><tr><td><b>Canonical skills locally re-derived green</b></td><td>0/50</td><td><span class="chip amber">0/50</span></td><td>50/50</td></tr><tr><td><b>Repo-owned cross-platform validators</b></td><td>0</td><td><span class="chip amber">0</span></td><td>1</td></tr><tr><td><b>Windows-native installers</b></td><td>0</td><td><span class="chip amber">0</span></td><td>1</td></tr><tr><td><b>claude.ai export failures from unsupported top-level keys</b></td><td>13</td><td><span class="chip amber">13</span></td><td>0</td></tr></tbody></table></div>
+  <div class="table-wrap"><table><thead><tr><th>Metric</th><th>Baseline</th><th>Current</th><th>Target</th></tr></thead><tbody><tr><td><b>Named harnesses with tier, source, and probe</b></td><td>4</td><td><span class="chip green">15</span></td><td>15</td></tr><tr><td><b>Canonical skills locally re-derived green</b></td><td>0/50</td><td><span class="chip green">50/50</span></td><td>50/50</td></tr><tr><td><b>Repo-owned cross-platform validators</b></td><td>0</td><td><span class="chip green">1</span></td><td>1</td></tr><tr><td><b>Windows-native installers</b></td><td>0</td><td><span class="chip green">1</span></td><td>1</td></tr><tr><td><b>claude.ai export failures from unsupported top-level keys</b></td><td>13</td><td><span class="chip green">0 in the historical snapshot export; current profile remains fail-closed</span></td><td>0</td></tr><tr><td><b>Current claude.ai blockers kept visible</b></td><td>13 unsupported-key failures reported</td><td><span class="chip amber">48 descriptions over 200; 13 explicit-only semantics unpreserved</span></td><td>No output unless both classes are resolved with measured behavior</td></tr></tbody></table></div>
   <p class="small muted" style="margin-top:6px">green = at/past target &middot; blue = moving toward target &middot; amber = unchanged &middot; red = moving away</p></section>
-  <section aria-labelledby="risks"><h2 id="risks">Risks &amp; Blockers</h2><div class="panel"><ul class="bare"><li><span class="chip red">blocker</span> Cross-family verdict unavailable: this session can spawn only OpenAI-family sub-agents.</li><li><span class="chip red">blocker</span> Remote publication is outside current authority; all branches and commits remain local.</li><li><span class="chip amber">medium</span> <b>No different-family reviewer is callable from this Codex session</b> &mdash; <span class="muted">Gauntlet critiques can be blind and non-author, but cross-family-review remains blocked and no output will be labeled a cross-family verdict.</span></li><li><span class="chip red">high</span> <b>Several requested harnesses may not expose a native Agent Skills loader</b> &mdash; <span class="muted">The matrix must leave these documented-only or unknown rather than inventing installation paths.</span></li><li><span class="chip amber">medium</span> <b>claude.ai allowlist currently comes from supplied external audit text</b> &mdash; <span class="muted">Treat the six-key claim as supplied evidence until an authoritative public specification or direct upload probe is captured.</span></li></ul></div></section>
+  <section aria-labelledby="risks"><h2 id="risks">Risks &amp; Blockers</h2><div class="panel"><ul class="bare"><li><span class="chip red">blocker</span> Universal runtime portability is not proved: Buzz and Grok Bot remain unsupported/unknown, and native-Windows Hermes did not load the sampled Forge islands.</li><li><span class="chip red">blocker</span> Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; a live upload was not run.</li><li><span class="chip red">blocker</span> Cross-family verdict unavailable: this session could spawn only OpenAI-family sub-agents.</li><li><span class="chip red">blocker</span> Remote publication remains outside current authority; all branches and commits are local.</li><li><span class="chip amber">medium</span> <b>No different-family reviewer is callable from this Codex session</b> &mdash; <span class="muted">The three critiques are blind and non-author, but cross-family-review was unavailable and no output is labeled a cross-family verdict.</span></li><li><span class="chip red">high</span> <b>Several requested harnesses may not expose a native Agent Skills loader</b> &mdash; <span class="muted">Buzz and Grok Bot remain unsupported/unknown, native-Windows Hermes has a failed observation, and several authenticated behavior probes remain partial or unrun. The matrix does not invent installation paths.</span></li><li><span class="chip red">high</span> <b>The complete current pack is intentionally blocked from claude.ai export</b> &mdash; <span class="muted">Current public documentation imposes a 200-character description limit and does not establish an explicit-only equivalent for thirteen user-invoked islands. No live upload or routing probe was run.</span></li><li><span class="chip amber">medium</span> <b>Whole-run rollback stops at the unexpected-I/O boundary</b> &mdash; <span class="muted">Every destination is preflighted and each skill replacement is atomic, but a multi-skill or multi-target run is not rollback-atomic after an unexpected mid-run I/O failure.</span></li></ul></div></section>
 
   <section aria-labelledby="phases">
     <h2 id="phases">Phases</h2>
-    <article class="phase active">
+    <article class="phase">
       <header>
-        <span class="chip amber">in progress</span>
+        <span class="chip green">done</span>
         <h3>P0 &middot; Contract and red-capable tooling</h3>
         <span class="muted small">est. sessions: 1</span>
       </header>
       <p class="muted">Replace portability claims with a sourced harness contract, a repo-owned validator, and a Windows-native installer/exporter.</p>
-      <div class="bar"><div class="fill" style="width:67%"></div></div>
-      <p class="small muted">2/3 tasks &middot; 67%</p>
-      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>P0-T1</b> Build authoritative cross-harness support contract<br><span class="muted small">Builder A owns docs/harness-support.md and docs/harness-support.json in an isolated worktree.</span></li><li class="task-in_progress"><span class="mark">&#9689;</span> <b>P0-T2</b> Build dependency-free whole-forge validator<br><span class="muted small">Builder B committed a083552def772489ae238bf6931cd275d471b263; 11 focused tests pass on its isolated branch. Awaiting non-author critique and integration.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P0-T3</b> Build Windows-native installer and claude.ai exporter<br><span class="muted small">Builder C committed b1ab04c31015b11a086020fa3a4d0d01654127e6; 12 focused tests pass on its isolated branch. Awaiting non-author critique and integration.</span></li></ul>
+      <div class="bar"><div class="fill" style="width:100%"></div></div>
+      <p class="small muted">3/3 tasks &middot; 100%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>P0-T1</b> Build authoritative cross-harness support contract<br><span class="muted small">Builder A owns docs/harness-support.md and docs/harness-support.json in an isolated worktree.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P0-T2</b> Build dependency-free whole-forge validator<br><span class="muted small">Builder a083552d was blind-critiqued, repaired at db6f3118, and integrated; critical malformed-YAML and empty-forge false greens are covered.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P0-T3</b> Build Windows-native installer and claude.ai exporter<br><span class="muted small">Builder b1ab04c3 was blind-critiqued, repaired at 3ce33f49, and integrated; Windows and WSL suites cover transaction preflight, Unicode output, metadata collisions, and POSIX mode drift.</span></li></ul>
       <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
-      <td><span class="chip ">pending</span></td>
-      <td><b>Harness support matrix is valid JSON</b><br><span class="small">Schema and source sufficiency also receive blind artifact critique.</span></td>
-      <td><code>python -m json.tool docs/harness-support.json</code></td>
-      <td>&mdash;</td>
-      <td>&mdash;</td></tr><tr>
-      <td><span class="chip ">pending</span></td>
-      <td><b>Validator and installer falsification tests pass</b><br><span class="small">A green test suite is admitted only after representative fixtures are shown to force red.</span></td>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Harness support matrix is valid JSON</b><br><span class="small">Verified 15 harness surfaces and the idc.harness-support/v1.1 schema; the contract also received blind artifact critique.</span></td>
+      <td><code>python -S -B scripts/verify_harness_support.py</code></td>
+      <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
+      <td>2026-08-12T03:23:21Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Validator and installer falsification tests pass</b><br><span class="small">41 tests executed on Windows: 40 passed and one POSIX-only case skipped; the same installer suite passed 24/24 under WSL during its repair lane.</span></td>
       <td><code>python -m unittest discover -s tests -p test_*.py</code></td>
-      <td>&mdash;</td>
-      <td>&mdash;</td></tr><tr>
-      <td><span class="chip ">pending</span></td>
-      <td><b>All canonical skills pass repo-owned validation</b><br><span class="small">claude.ai exportability findings are profile results, not canonical failures.</span></td>
+      <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
+      <td>2026-08-12T03:23:21Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>All canonical skills pass repo-owned validation</b><br><span class="small">Canonical profile passed 50/50 with zero errors and thirteen named compatibility advisories.</span></td>
       <td><code>python scripts/validate_skills.py --json</code></td>
-      <td>&mdash;</td>
-      <td>&mdash;</td></tr></tbody></table></div>
+      <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
+      <td>2026-08-12T03:23:21Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P0 (copy into a fresh session)</summary>
         <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge Cross-Harness Gauntlet&quot; mission at phase P0: Contract and red-capable tooling.
 
@@ -145,24 +146,14 @@ Repo: Navigata1/idc-skills-forge (local: C:/Users/IslandDevCrew/Documents/ChatGP
 Governing plan: ops/mission/brief.md
 
 Phase goal: Replace portability claims with a sourced harness contract, a repo-owned validator, and a Windows-native installer/exporter.
-Remaining tasks:
-  - [in_progress] P0-T2: Build dependency-free whole-forge validator (Builder B committed a083552def772489ae238bf6931cd275d471b263; 11 focused tests pass on its isolated branch. Awaiting non-author critique and integration.)
-Gates not yet passed:
-  - [pending] Harness support matrix is valid JSON  -&gt;  python -m json.tool docs/harness-support.json
-  - [pending] Validator and installer falsification tests pass  -&gt;  python -m unittest discover -s tests -p test_*.py
-  - [pending] All canonical skills pass repo-owned validation  -&gt;  python scripts/validate_skills.py --json
-Next actions (from last session):
-  - Wait for builders A-C to commit their isolated artifacts, then record each exact commit in this state file.
-  - Rotate blind critiques A-&gt;validator, B-&gt;installer, C-&gt;contract using only the task brief and branch diff, not builder self-reports.
-  - Route critical findings to the original builder, cap at round 2, then cherry-pick surviving commits into codex/gauntlet-integration.
-Known blockers:
-  - Cross-family verdict unavailable: this session can spawn only OpenAI-family sub-agents.
-  - Remote publication is outside current authority; all branches and commits remain local.
+All tasks in this phase are done.
+All gates passed — close the phase and advance.
 Mission conventions:
   - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
   - Positive harness claims require an authoritative source and reproducible probe.
   - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
   - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
@@ -173,25 +164,25 @@ Operating procedure:
       </details>
     </article><article class="phase">
       <header>
-        <span class="chip ">pending</span>
+        <span class="chip green">done</span>
         <h3>P1 &middot; Gauntlet critique and integration</h3>
         <span class="muted small">est. sessions: 1</span>
       </header>
       <p class="muted">Blind critics refute each artifact, builders repair surviving findings, and the integration branch receives only evidenced changes.</p>
-      <div class="bar"><div class="fill" style="width:0%"></div></div>
-      <p class="small muted">0/3 tasks &middot; 0%</p>
-      <ul class="tasks"><li class="task-pending"><span class="mark">&#9675;</span> <b>P1-T1</b> Rotate blind critics across all three builder branches<br><span class="muted small">Critics receive the task bar and diff, not the builder's self-report.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>P1-T2</b> Loop critical findings back to original builders<br><span class="muted small">Maximum two total rounds; unreachable bars become explicit blockers.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>P1-T3</b> Integrate approved local commits and align canon/docs<br><span class="muted small">No remote write. Resolve overlap on the integration branch.</span></li></ul>
+      <div class="bar"><div class="fill" style="width:100%"></div></div>
+      <p class="small muted">3/3 tasks &middot; 100%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>P1-T1</b> Rotate blind critics across all three builder branches<br><span class="muted small">Three rotated non-author critics reviewed the exact builder commits and recorded recomputable findings.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P1-T2</b> Loop critical findings back to original builders<br><span class="muted small">Each critique requested changes; the original builder repaired the surviving critical and high findings within the round cap.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P1-T3</b> Integrate approved local commits and align canon/docs<br><span class="muted small">All repaired commits and critique records are integrated locally; no remote write occurred.</span></li></ul>
       <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
-      <td><span class="chip ">pending</span></td>
-      <td><b>Each builder artifact has a non-author critique record</b><br><span class="small">Same-family independent critique; not a cross-family verdict. Verification script may be added during integration.</span></td>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Each builder artifact has a non-author critique record</b><br><span class="small">Three exact builder commits have non-author same-family critique records; the verifier rejects any cross-family overclaim.</span></td>
       <td><code>python scripts/verify_gauntlet_records.py</code></td>
-      <td>&mdash;</td>
-      <td>&mdash;</td></tr><tr>
-      <td><span class="chip ">pending</span></td>
+      <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
+      <td>2026-08-12T03:23:21Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
       <td><b>Integrated regression suite passes</b><br><span class="small">Must include canonical validation and installer/exporter tests.</span></td>
       <td><code>python -m unittest discover -s tests -p test_*.py</code></td>
-      <td>&mdash;</td>
-      <td>&mdash;</td></tr></tbody></table></div>
+      <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
+      <td>2026-08-12T03:23:21Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P1 (copy into a fresh session)</summary>
         <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge Cross-Harness Gauntlet&quot; mission at phase P1: Gauntlet critique and integration.
 
@@ -201,18 +192,14 @@ Repo: Navigata1/idc-skills-forge (local: C:/Users/IslandDevCrew/Documents/ChatGP
 Governing plan: ops/mission/brief.md
 
 Phase goal: Blind critics refute each artifact, builders repair surviving findings, and the integration branch receives only evidenced changes.
-Remaining tasks:
-  - [pending] P1-T1: Rotate blind critics across all three builder branches (Critics receive the task bar and diff, not the builder's self-report.)
-  - [pending] P1-T2: Loop critical findings back to original builders (Maximum two total rounds; unreachable bars become explicit blockers.)
-  - [pending] P1-T3: Integrate approved local commits and align canon/docs (No remote write. Resolve overlap on the integration branch.)
-Gates not yet passed:
-  - [pending] Each builder artifact has a non-author critique record  -&gt;  python scripts/verify_gauntlet_records.py
-  - [pending] Integrated regression suite passes  -&gt;  python -m unittest discover -s tests -p test_*.py
+All tasks in this phase are done.
+All gates passed — close the phase and advance.
 Mission conventions:
   - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
   - Positive harness claims require an authoritative source and reproducible probe.
   - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
   - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
@@ -223,25 +210,25 @@ Operating procedure:
       </details>
     </article><article class="phase">
       <header>
-        <span class="chip ">pending</span>
+        <span class="chip green">done</span>
         <h3>P2 &middot; Recursive fifty-island health sweep</h3>
         <span class="muted small">est. sessions: 1</span>
       </header>
       <p class="muted">Run the stricter contract over every island and keep only skill changes tied to concrete red cases.</p>
-      <div class="bar"><div class="fill" style="width:0%"></div></div>
-      <p class="small muted">0/3 tasks &middot; 0%</p>
-      <ul class="tasks"><li class="task-pending"><span class="mark">&#9675;</span> <b>P2-T1</b> Run whole-forge canonical and harness profile sweep<br><span class="muted small">Enumerate failures by skill name and invariant, never by count alone.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>P2-T2</b> Repair only evidenced canonical defects<br><span class="muted small">A skill edit stays only if the same evaluation improves or holds with fewer tokens.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>P2-T3</b> Update authoring and install documentation to the proved support matrix<br><span class="muted small">Remove broad dual-harness claims that exceed evidence.</span></li></ul>
+      <div class="bar"><div class="fill" style="width:100%"></div></div>
+      <p class="small muted">3/3 tasks &middot; 100%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>P2-T1</b> Run whole-forge canonical and harness profile sweep<br><span class="muted small">All fifty skills were swept; canonical failures were zero and every compatibility advisory is enumerated by skill and invariant.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P2-T2</b> Repair only evidenced canonical defects<br><span class="muted small">No island workflow was rewritten: the canonical profile exposed no workflow defect. Only the authoring canon's false distribution claim was corrected and revalidated.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P2-T3</b> Update authoring and install documentation to the proved support matrix<br><span class="muted small">README, registry, and idc-skill-authoring now route portability claims through the versioned support contract and fail-closed exporter.</span></li></ul>
       <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
-      <td><span class="chip ">pending</span></td>
-      <td><b>Canonical profile passes for all fifty islands</b><br><span class="small">Warnings and unsupported export profiles remain visible in the evidence.</span></td>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Canonical profile passes for all fifty islands</b><br><span class="small">50/50 canonical pass; all thirteen compatibility advisories remain named.</span></td>
       <td><code>python scripts/validate_skills.py</code></td>
-      <td>&mdash;</td>
-      <td>&mdash;</td></tr><tr>
-      <td><span class="chip ">pending</span></td>
-      <td><b>Deterministic claude.ai exports validate without canonical drift</b><br><span class="small">Exact CLI may be corrected after the installer interface is integrated.</span></td>
-      <td><code>python scripts/install.py export --profile claude-ai --verify</code></td>
-      <td>&mdash;</td>
-      <td>&mdash;</td></tr></tbody></table></div>
+      <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
+      <td>2026-08-12T03:23:21Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Compatibility exports are deterministic and current claude.ai incompatibility fails closed</b><br><span class="small">Historical supplied profile produced and verified 50 deterministic root-folder ZIPs; current profile created no output and named 48 description plus 13 invocation blockers.</span></td>
+      <td><code>python -B scripts/reaccept.py</code></td>
+      <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
+      <td>2026-08-12T03:23:21Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P2 (copy into a fresh session)</summary>
         <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge Cross-Harness Gauntlet&quot; mission at phase P2: Recursive fifty-island health sweep.
 
@@ -251,18 +238,14 @@ Repo: Navigata1/idc-skills-forge (local: C:/Users/IslandDevCrew/Documents/ChatGP
 Governing plan: ops/mission/brief.md
 
 Phase goal: Run the stricter contract over every island and keep only skill changes tied to concrete red cases.
-Remaining tasks:
-  - [pending] P2-T1: Run whole-forge canonical and harness profile sweep (Enumerate failures by skill name and invariant, never by count alone.)
-  - [pending] P2-T2: Repair only evidenced canonical defects (A skill edit stays only if the same evaluation improves or holds with fewer tokens.)
-  - [pending] P2-T3: Update authoring and install documentation to the proved support matrix (Remove broad dual-harness claims that exceed evidence.)
-Gates not yet passed:
-  - [pending] Canonical profile passes for all fifty islands  -&gt;  python scripts/validate_skills.py
-  - [pending] Deterministic claude.ai exports validate without canonical drift  -&gt;  python scripts/install.py export --profile claude-ai --verify
+All tasks in this phase are done.
+All gates passed — close the phase and advance.
 Mission conventions:
   - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
   - Positive harness claims require an authoritative source and reproducible probe.
   - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
   - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
@@ -271,27 +254,27 @@ Operating procedure:
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence in ops/mission/evidence/.
   End of session: update resume.nextActions for a stranger, append journal entry, render, commit.</pre></div>
       </details>
-    </article><article class="phase">
+    </article><article class="phase active">
       <header>
-        <span class="chip ">pending</span>
+        <span class="chip green">done</span>
         <h3>P3 &middot; Fresh-clone reacceptance</h3>
         <span class="muted small">est. sessions: 1</span>
       </header>
       <p class="muted">Re-derive the final gates from a clean clone and publish an honest completion report.</p>
-      <div class="bar"><div class="fill" style="width:0%"></div></div>
-      <p class="small muted">0/3 tasks &middot; 0%</p>
-      <ul class="tasks"><li class="task-pending"><span class="mark">&#9675;</span> <b>P3-T1</b> Commit the final integration tree at an exact SHA<br><span class="muted small">Local commit only unless the user later authorizes publication.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>P3-T2</b> Clone the exact integration SHA and re-run every gate<br><span class="muted small">Worktree evidence is inadmissible until reproduced here.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>P3-T3</b> Finalize report, risks, and resumable next actions<br><span class="muted small">Completion remains partial if a named harness lacks a verifiable loader.</span></li></ul>
+      <div class="bar"><div class="fill" style="width:100%"></div></div>
+      <p class="small muted">3/3 tasks &middot; 100%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>P3-T1</b> Commit the final integration tree at an exact SHA<br><span class="muted small">Candidate committed locally at 61779de2c7a091018c8c0074c9060c60838373bd.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P3-T2</b> Clone the exact integration SHA and re-run every gate<br><span class="muted small">Exact candidate reproduced from a clean detached clone; clean before and after the gate.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P3-T3</b> Finalize report, risks, and resumable next actions<br><span class="muted small">Report is complete for the stated falsifiable bar; named runtime limitations remain explicit and do not become positive support claims.</span></li></ul>
       <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
-      <td><span class="chip ">pending</span></td>
-      <td><b>Fresh clone passes full test and validation suite</b><br><span class="small">Gate script may be added during integration; evidence must name the exact reviewed SHA.</span></td>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Fresh clone passes full test and validation suite</b><br><span class="small">Detached clean clone of 61779de2 passed reacceptance and remained clean.</span></td>
       <td><code>python scripts/reaccept.py</code></td>
-      <td>&mdash;</td>
-      <td>&mdash;</td></tr><tr>
-      <td><span class="chip ">pending</span></td>
-      <td><b>Mission state and generated State of the Union agree</b><br><span class="small">Renderer success plus stale-phrase scan.</span></td>
+      <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
+      <td>2026-08-12T03:23:21Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Mission state and generated State of the Union agree</b><br><span class="small">Renderer regenerated the report from this canonical state; stale active/pending language was scanned after generation.</span></td>
       <td><code>node ops/mission/render-sotu.mjs</code></td>
-      <td>&mdash;</td>
-      <td>&mdash;</td></tr></tbody></table></div>
+      <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
+      <td>2026-08-12T03:23:21Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P3 (copy into a fresh session)</summary>
         <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge Cross-Harness Gauntlet&quot; mission at phase P3: Fresh-clone reacceptance.
 
@@ -301,18 +284,23 @@ Repo: Navigata1/idc-skills-forge (local: C:/Users/IslandDevCrew/Documents/ChatGP
 Governing plan: ops/mission/brief.md
 
 Phase goal: Re-derive the final gates from a clean clone and publish an honest completion report.
-Remaining tasks:
-  - [pending] P3-T1: Commit the final integration tree at an exact SHA (Local commit only unless the user later authorizes publication.)
-  - [pending] P3-T2: Clone the exact integration SHA and re-run every gate (Worktree evidence is inadmissible until reproduced here.)
-  - [pending] P3-T3: Finalize report, risks, and resumable next actions (Completion remains partial if a named harness lacks a verifiable loader.)
-Gates not yet passed:
-  - [pending] Fresh clone passes full test and validation suite  -&gt;  python scripts/reaccept.py
-  - [pending] Mission state and generated State of the Union agree  -&gt;  node ops/mission/render-sotu.mjs
+All tasks in this phase are done.
+All gates passed — close the phase and advance.
+Next actions (from last session):
+  - If publication is desired, review local branch codex/gauntlet-integration and explicitly authorize a push or pull request.
+  - Run authenticated loader and invocation probes for the matrix entries still marked partial, unrun, failed, or unsupported.
+  - Treat claude.ai description shortening as a separate skill-tune experiment: preserve routing on representative tasks before accepting any &lt;=200-character rewrite.
+Known blockers:
+  - Universal runtime portability is not proved: Buzz and Grok Bot remain unsupported/unknown, and native-Windows Hermes did not load the sampled Forge islands.
+  - Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; a live upload was not run.
+  - Cross-family verdict unavailable: this session could spawn only OpenAI-family sub-agents.
+  - Remote publication remains outside current authority; all branches and commits are local.
 Mission conventions:
   - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
   - Positive harness claims require an authoritative source and reproducible probe.
   - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
   - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
@@ -325,7 +313,7 @@ Operating procedure:
   </section>
 
 
-<section aria-labelledby="journal"><h2 id="journal">Journal (latest first)</h2><div class="timeline"><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T03:02Z — P0 builders B and C complete</b><br><br>- Validator builder committed `a083552def772489ae238bf6931cd275d471b263`; its isolated branch reports 11 focused tests green and the canonical profile at 50/50 with 13 advisory extension-key warnings.<br>- Installer builder committed `b1ab04c31015b11a086020fa3a4d0d01654127e6`; its isolated branch reports 12 focused tests green and deterministic native/export smokes.<br>- Both commits remain quarantined outside integration while their non-author critics run; no worktree result is admitted as final gate evidence.<br>- Corrected the provisional validator gate command to the implemented `--json` interface before any gate was marked passed.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T02:48Z — session 1 kickoff</b><br><br>- Pinned the clean public baseline at `c8e94a385dbf6bb65bc605524008967a7f916679`; the configured workspace had been an empty Git repository before acquisition.<br>- Reproduced the missing repo-owned validator and Windows Bash/`rsync` portability gaps.<br>- Started three isolated builders for the harness contract, validator, and installer/exporter; final gate evidence will be re-derived from a fresh clone.<br>- Cross-family review is unavailable in this seat; same-family blind critiques will be marked as calibration, never as a cross-family verdict.</p></article><article class="tl-item"><time>&#9998;</time><p><b># Mission journal</b><br></p></article></div></section>
+<section aria-labelledby="journal"><h2 id="journal">Journal (latest first)</h2><div class="timeline"><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T03:23Z — gauntlet integrated and freshly reaccepted</b><br><br>- Integrated all three builder lanes only after exact-commit blind critiques requested changes and the original builders repaired the surviving findings. The reviews are same-family independent critiques, not a cross-family verdict.<br>- Replaced the broad dual-harness assertion with a fifteen-surface support contract and machine verifier. Buzz and Grok Bot remain unsupported/unknown; native-Windows Hermes remains a failed runtime observation.<br>- Added the dependency-free whole-forge validator, Windows/POSIX installer, explicit compatibility-export profiles, critique-record verifier, and one-command reacceptance gate.<br>- The current claude.ai profile fails closed before output: 48 descriptions exceed 200 characters and thirteen user-only islands lack a documented explicit-only equivalent. The historical supplied profile deterministically exports fifty root-folder ZIPs while asserting value preservation only.<br>- Clean detached clone `61779de2c7a091018c8c0074c9060c60838373bd` passed 50/50 canonical validation, the integrated tests, 4x50 isolated installs, 50 snapshot exports, and no-source-drift verification. The clone was clean before and after.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T03:02Z — P0 builders B and C complete</b><br><br>- Validator builder committed `a083552def772489ae238bf6931cd275d471b263`; its isolated branch reports 11 focused tests green and the canonical profile at 50/50 with 13 advisory extension-key warnings.<br>- Installer builder committed `b1ab04c31015b11a086020fa3a4d0d01654127e6`; its isolated branch reports 12 focused tests green and deterministic native/export smokes.<br>- Both commits remain quarantined outside integration while their non-author critics run; no worktree result is admitted as final gate evidence.<br>- Corrected the provisional validator gate command to the implemented `--json` interface before any gate was marked passed.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T02:48Z — session 1 kickoff</b><br><br>- Pinned the clean public baseline at `c8e94a385dbf6bb65bc605524008967a7f916679`; the configured workspace had been an empty Git repository before acquisition.<br>- Reproduced the missing repo-owned validator and Windows Bash/`rsync` portability gaps.<br>- Started three isolated builders for the harness contract, validator, and installer/exporter; final gate evidence will be re-derived from a fresh clone.<br>- Cross-family review is unavailable in this seat; same-family blind critiques will be marked as calibration, never as a cross-family verdict.</p></article><article class="tl-item"><time>&#9998;</time><p><b># Mission journal</b><br></p></article></div></section>
 
   <p class="footer">GENERATED by ops/mission/render-sotu.mjs from state.json — do not hand-edit.
   To update: edit state.json, run <code>node ops/mission/render-sotu.mjs</code>, commit both.</p>

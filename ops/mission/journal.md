@@ -13,3 +13,11 @@
 - Installer builder committed `b1ab04c31015b11a086020fa3a4d0d01654127e6`; its isolated branch reports 12 focused tests green and deterministic native/export smokes.
 - Both commits remain quarantined outside integration while their non-author critics run; no worktree result is admitted as final gate evidence.
 - Corrected the provisional validator gate command to the implemented `--json` interface before any gate was marked passed.
+
+## 2026-08-12T03:23Z — gauntlet integrated and freshly reaccepted
+
+- Integrated all three builder lanes only after exact-commit blind critiques requested changes and the original builders repaired the surviving findings. The reviews are same-family independent critiques, not a cross-family verdict.
+- Replaced the broad dual-harness assertion with a fifteen-surface support contract and machine verifier. Buzz and Grok Bot remain unsupported/unknown; native-Windows Hermes remains a failed runtime observation.
+- Added the dependency-free whole-forge validator, Windows/POSIX installer, explicit compatibility-export profiles, critique-record verifier, and one-command reacceptance gate.
+- The current claude.ai profile fails closed before output: 48 descriptions exceed 200 characters and thirteen user-only islands lack a documented explicit-only equivalent. The historical supplied profile deterministically exports fifty root-folder ZIPs while asserting value preservation only.
+- Clean detached clone `61779de2c7a091018c8c0074c9060c60838373bd` passed 50/50 canonical validation, the integrated tests, 4x50 isolated installs, 50 snapshot exports, and no-source-drift verification. The clone was clean before and after.
