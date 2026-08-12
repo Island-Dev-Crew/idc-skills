@@ -1,0 +1,333 @@
+{
+  "version": 1,
+  "mission": {
+    "name": "IDC Forge Cross-Harness Gauntlet",
+    "tagline": "One canonical forge, portable by proof rather than proclamation.",
+    "repo": "Navigata1/idc-skills-forge",
+    "repoPath": "C:/Users/IslandDevCrew/Documents/ChatGPT/idc-forge-gauntlet-integration",
+    "defaultBranch": "main",
+    "planDoc": "ops/mission/brief.md",
+    "northStar": "Preserve the fifty-island source while every compatibility claim is falsifiable, tiered, and reproducible on the harness that consumes it.",
+    "status": "complete",
+    "started": "2026-08-11",
+    "updated": "2026-08-12T03:23:21Z",
+    "sessionCount": 1
+  },
+  "policies": {
+    "merge": "review",
+    "branchPrefix": "codex/gauntlet-",
+    "maxPrLines": 400,
+    "notes": "Local branches and commits are permitted for isolation and recovery. No push, PR, release, or profile install without explicit user authority. The 400-line target is advisory for generated mission/report assets and test fixtures."
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Contract and red-capable tooling",
+      "goal": "Replace portability claims with a sourced harness contract, a repo-owned validator, and a Windows-native installer/exporter.",
+      "status": "done",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "P0-G1",
+          "title": "Harness support matrix is valid JSON",
+          "command": "python -S -B scripts/verify_harness_support.py",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/fresh-clone-reacceptance-61779de.json",
+          "lastRun": "2026-08-12T03:23:21Z",
+          "notes": "Verified 15 harness surfaces and the idc.harness-support/v1.1 schema; the contract also received blind artifact critique."
+        },
+        {
+          "id": "P0-G2",
+          "title": "Validator and installer falsification tests pass",
+          "command": "python -m unittest discover -s tests -p test_*.py",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/fresh-clone-reacceptance-61779de.json",
+          "lastRun": "2026-08-12T03:23:21Z",
+          "notes": "41 tests executed on Windows: 40 passed and one POSIX-only case skipped; the same installer suite passed 24/24 under WSL during its repair lane."
+        },
+        {
+          "id": "P0-G3",
+          "title": "All canonical skills pass repo-owned validation",
+          "command": "python scripts/validate_skills.py --json",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/fresh-clone-reacceptance-61779de.json",
+          "lastRun": "2026-08-12T03:23:21Z",
+          "notes": "Canonical profile passed 50/50 with zero errors and thirteen named compatibility advisories."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "P0-T1",
+          "title": "Build authoritative cross-harness support contract",
+          "status": "done",
+          "dependsOn": [],
+          "pr": null,
+          "notes": "Builder A owns docs/harness-support.md and docs/harness-support.json in an isolated worktree."
+        },
+        {
+          "id": "P0-T2",
+          "title": "Build dependency-free whole-forge validator",
+          "status": "done",
+          "dependsOn": [],
+          "pr": null,
+          "notes": "Builder a083552d was blind-critiqued, repaired at db6f3118, and integrated; critical malformed-YAML and empty-forge false greens are covered."
+        },
+        {
+          "id": "P0-T3",
+          "title": "Build Windows-native installer and claude.ai exporter",
+          "status": "done",
+          "dependsOn": [],
+          "pr": null,
+          "notes": "Builder b1ab04c3 was blind-critiqued, repaired at 3ce33f49, and integrated; Windows and WSL suites cover transaction preflight, Unicode output, metadata collisions, and POSIX mode drift."
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Gauntlet critique and integration",
+      "goal": "Blind critics refute each artifact, builders repair surviving findings, and the integration branch receives only evidenced changes.",
+      "status": "done",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "P1-G1",
+          "title": "Each builder artifact has a non-author critique record",
+          "command": "python scripts/verify_gauntlet_records.py",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/fresh-clone-reacceptance-61779de.json",
+          "lastRun": "2026-08-12T03:23:21Z",
+          "notes": "Three exact builder commits have non-author same-family critique records; the verifier rejects any cross-family overclaim."
+        },
+        {
+          "id": "P1-G2",
+          "title": "Integrated regression suite passes",
+          "command": "python -m unittest discover -s tests -p test_*.py",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/fresh-clone-reacceptance-61779de.json",
+          "lastRun": "2026-08-12T03:23:21Z",
+          "notes": "Must include canonical validation and installer/exporter tests."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "P1-T1",
+          "title": "Rotate blind critics across all three builder branches",
+          "status": "done",
+          "dependsOn": ["P0-T1", "P0-T2", "P0-T3"],
+          "pr": null,
+          "notes": "Three rotated non-author critics reviewed the exact builder commits and recorded recomputable findings."
+        },
+        {
+          "id": "P1-T2",
+          "title": "Loop critical findings back to original builders",
+          "status": "done",
+          "dependsOn": ["P1-T1"],
+          "pr": null,
+          "notes": "Each critique requested changes; the original builder repaired the surviving critical and high findings within the round cap."
+        },
+        {
+          "id": "P1-T3",
+          "title": "Integrate approved local commits and align canon/docs",
+          "status": "done",
+          "dependsOn": ["P1-T2"],
+          "pr": null,
+          "notes": "All repaired commits and critique records are integrated locally; no remote write occurred."
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Recursive fifty-island health sweep",
+      "goal": "Run the stricter contract over every island and keep only skill changes tied to concrete red cases.",
+      "status": "done",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "P2-G1",
+          "title": "Canonical profile passes for all fifty islands",
+          "command": "python scripts/validate_skills.py",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/fresh-clone-reacceptance-61779de.json",
+          "lastRun": "2026-08-12T03:23:21Z",
+          "notes": "50/50 canonical pass; all thirteen compatibility advisories remain named."
+        },
+        {
+          "id": "P2-G2",
+          "title": "Compatibility exports are deterministic and current claude.ai incompatibility fails closed",
+          "command": "python -B scripts/reaccept.py",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/fresh-clone-reacceptance-61779de.json",
+          "lastRun": "2026-08-12T03:23:21Z",
+          "notes": "Historical supplied profile produced and verified 50 deterministic root-folder ZIPs; current profile created no output and named 48 description plus 13 invocation blockers."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "P2-T1",
+          "title": "Run whole-forge canonical and harness profile sweep",
+          "status": "done",
+          "dependsOn": ["P1-T3"],
+          "pr": null,
+          "notes": "All fifty skills were swept; canonical failures were zero and every compatibility advisory is enumerated by skill and invariant."
+        },
+        {
+          "id": "P2-T2",
+          "title": "Repair only evidenced canonical defects",
+          "status": "done",
+          "dependsOn": ["P2-T1"],
+          "pr": null,
+          "notes": "No island workflow was rewritten: the canonical profile exposed no workflow defect. Only the authoring canon's false distribution claim was corrected and revalidated."
+        },
+        {
+          "id": "P2-T3",
+          "title": "Update authoring and install documentation to the proved support matrix",
+          "status": "done",
+          "dependsOn": ["P2-T1"],
+          "pr": null,
+          "notes": "README, registry, and idc-skill-authoring now route portability claims through the versioned support contract and fail-closed exporter."
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Fresh-clone reacceptance",
+      "goal": "Re-derive the final gates from a clean clone and publish an honest completion report.",
+      "status": "done",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "P3-G1",
+          "title": "Fresh clone passes full test and validation suite",
+          "command": "python scripts/reaccept.py",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/fresh-clone-reacceptance-61779de.json",
+          "lastRun": "2026-08-12T03:23:21Z",
+          "notes": "Detached clean clone of 61779de2 passed reacceptance and remained clean."
+        },
+        {
+          "id": "P3-G2",
+          "title": "Mission state and generated State of the Union agree",
+          "command": "node ops/mission/render-sotu.mjs",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/fresh-clone-reacceptance-61779de.json",
+          "lastRun": "2026-08-12T03:23:21Z",
+          "notes": "Renderer regenerated the report from this canonical state; stale active/pending language was scanned after generation."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "P3-T1",
+          "title": "Commit the final integration tree at an exact SHA",
+          "status": "done",
+          "dependsOn": ["P2-T1", "P2-T2", "P2-T3"],
+          "pr": null,
+          "notes": "Candidate committed locally at 61779de2c7a091018c8c0074c9060c60838373bd."
+        },
+        {
+          "id": "P3-T2",
+          "title": "Clone the exact integration SHA and re-run every gate",
+          "status": "done",
+          "dependsOn": ["P3-T1"],
+          "pr": null,
+          "notes": "Exact candidate reproduced from a clean detached clone; clean before and after the gate."
+        },
+        {
+          "id": "P3-T3",
+          "title": "Finalize report, risks, and resumable next actions",
+          "status": "done",
+          "dependsOn": ["P3-T2"],
+          "pr": null,
+          "notes": "Report is complete for the stated falsifiable bar; named runtime limitations remain explicit and do not become positive support claims."
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "label": "Named harnesses with tier, source, and probe",
+      "baseline": "4",
+      "current": "15",
+      "target": "15",
+      "direction": "up"
+    },
+    {
+      "label": "Canonical skills locally re-derived green",
+      "baseline": "0/50",
+      "current": "50/50",
+      "target": "50/50",
+      "direction": "up"
+    },
+    {
+      "label": "Repo-owned cross-platform validators",
+      "baseline": "0",
+      "current": "1",
+      "target": "1",
+      "direction": "up"
+    },
+    {
+      "label": "Windows-native installers",
+      "baseline": "0",
+      "current": "1",
+      "target": "1",
+      "direction": "up"
+    },
+    {
+      "label": "claude.ai export failures from unsupported top-level keys",
+      "baseline": "13",
+      "current": "0 in the historical snapshot export; current profile remains fail-closed",
+      "target": "0",
+      "direction": "down"
+    },
+    {
+      "label": "Current claude.ai blockers kept visible",
+      "baseline": "13 unsupported-key failures reported",
+      "current": "48 descriptions over 200; 13 explicit-only semantics unpreserved",
+      "target": "No output unless both classes are resolved with measured behavior",
+      "direction": "down"
+    }
+  ],
+  "risks": [
+    {
+      "title": "No different-family reviewer is callable from this Codex session",
+      "severity": "medium",
+      "note": "The three critiques are blind and non-author, but cross-family-review was unavailable and no output is labeled a cross-family verdict."
+    },
+    {
+      "title": "Several requested harnesses may not expose a native Agent Skills loader",
+      "severity": "high",
+      "note": "Buzz and Grok Bot remain unsupported/unknown, native-Windows Hermes has a failed observation, and several authenticated behavior probes remain partial or unrun. The matrix does not invent installation paths."
+    },
+    {
+      "title": "The complete current pack is intentionally blocked from claude.ai export",
+      "severity": "high",
+      "note": "Current public documentation imposes a 200-character description limit and does not establish an explicit-only equivalent for thirteen user-invoked islands. No live upload or routing probe was run."
+    },
+    {
+      "title": "Whole-run rollback stops at the unexpected-I/O boundary",
+      "severity": "medium",
+      "note": "Every destination is preflighted and each skill replacement is atomic, but a multi-skill or multi-target run is not rollback-atomic after an unexpected mid-run I/O failure."
+    }
+  ],
+  "prLog": [],
+  "resume": {
+    "activePhase": "P3",
+    "nextActions": [
+      "If publication is desired, review local branch codex/gauntlet-integration and explicitly authorize a push or pull request.",
+      "Run authenticated loader and invocation probes for the matrix entries still marked partial, unrun, failed, or unsupported.",
+      "Treat claude.ai description shortening as a separate skill-tune experiment: preserve routing on representative tasks before accepting any <=200-character rewrite."
+    ],
+    "blockers": [
+      "Universal runtime portability is not proved: Buzz and Grok Bot remain unsupported/unknown, and native-Windows Hermes did not load the sampled Forge islands.",
+      "Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; a live upload was not run.",
+      "Cross-family verdict unavailable: this session could spawn only OpenAI-family sub-agents.",
+      "Remote publication remains outside current authority; all branches and commits are local."
+    ],
+    "conventions": [
+      "ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.",
+      "Positive harness claims require an authoritative source and reproducible probe.",
+      "Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.",
+      "Worktree evidence is draft evidence until re-derived from a fresh clone.",
+      "A historical compatibility transform preserves metadata values only; it never asserts invocation semantics."
+    ]
+  }
+}

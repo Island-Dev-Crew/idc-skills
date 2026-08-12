@@ -1,0 +1,77 @@
+{
+  "taskId": "P0-T1",
+  "reviewedCommit": "ca4257bb2790ddfea59175e850c6438fee3445e7",
+  "criticSeat": "OpenAI Codex",
+  "independence": "same-family blind artifact critique; not a cross-family verdict",
+  "disposition": "changes-requested",
+  "findings": [
+    {
+      "severity": "high",
+      "title": "Current Anthropic authority supersedes the historical six-key uncertainty",
+      "evidence": "docs/harness-support.md:82-93 and JSON lines 175-180 treat the six-key claude.ai upload allow-list and rejection of extension keys as only a historical user report whose current status is unknown. The current authoritative Claude Code skills page now has a dedicated `Using skill frontmatter outside Claude Code` section stating that claude.ai uploads accept name, description, license, compatibility, metadata, and allowed-tools; any other field causes a hard upload error, with argument-hint shown in the exact error. It further says enabled personal Cowork/cloud skills use the same claude.ai upload rules. The conservative transform remains sound, but its evidence status, source list, and unknowns are stale.",
+      "recompute": "Fetch https://code.claude.com/docs/en/skills and search for `Unexpected key(s) in SKILL.md frontmatter` or `Using skill frontmatter outside Claude Code`; compare the documented six fields and hard-error statement with harness-support.json unknowns and the Markdown historical-only wording."
+    },
+    {
+      "severity": "high",
+      "title": "The claude.ai adapter omits the documented ZIP root layout",
+      "evidence": "The adapter says only `Build a scratch ZIP` (Markdown line 86; JSON transform step near line 152). Anthropic's cited How to create custom skills page says the ZIP must contain the named skill folder as its root and explicitly marks files placed directly at ZIP root as incorrect. Without this archive-shape step, an implementation can follow the contract and still produce a non-installable adapter artifact.",
+      "recompute": "Fetch https://support.claude.com/en/articles/12512198-how-to-create-custom-skills and inspect `Package your skill`; compare its correct `my-skill.zip -> my-skill/ -> skill.md` structure with the transform steps in both contract artifacts."
+    },
+    {
+      "severity": "high",
+      "title": "Amp's documented inventory command is misspelled in both artifacts",
+      "evidence": "The JSON probe prescribes `skill: list` at line 268 and Markdown lines 108-110 claim and prescribe the same singular command. Amp's current Owner's Manual documents `amp skills list [--json]` for shell inspection and `skills: list` in the Ctrl+O command palette. The supplied probe is therefore not reproducible as written. A local read-only `amp skills list --json` succeeded and enumerated installed Forge skills.",
+      "recompute": "Fetch https://ampcode.com/manual and search for `Viewing and reloading skills`; run `amp skills list --json`; compare with `skill: list` in docs/harness-support.{md,json}."
+    },
+    {
+      "severity": "medium",
+      "title": "Machine-readable probe status conflates partial or failed observations with completed probes",
+      "evidence": "openai-codex, openclaw, grok-build-cli, and hermes-native-windows all set `probe.observed: true`. Their own observation strings say the behavioral canary was not run, only sampled inventory was seen, policy was not established, or—on Hermes—the pass criteria were not met because skills were absent. There is no structured completed/passed/partial/result field, so consumers cannot distinguish a completed pass from a partial observation or observed failure without parsing prose. This weakens the required separation between documented support and observed evidence.",
+      "recompute": "Parse docs/harness-support.json and print every harness where probe.observed is true together with passCriteria and observation; four records reveal incomplete or failing criteria despite the same boolean status."
+    },
+    {
+      "severity": "medium",
+      "title": "Markdown and JSON disagree on Amp loader coverage",
+      "evidence": "The Markdown matrix says Amp loads project/user `.agents/skills` plus Amp and Claude locations (line 50), and its prose says the current manual documents Amp/Claude locations (line 108). The JSON Amp loader array contains only project `.agents/skills`, user `~/.agents/skills`, and `~/.config/amp/skills`; it omits project/user `.claude/skills` and the higher-precedence `~/.config/agents/skills` documented by the cited manual. This contradicts the statement that JSON is the machine-readable source of the Markdown contract and leaves loader precedence incomplete.",
+      "recompute": "Parse the Amp loader array from docs/harness-support.json, compare it with the Amp Markdown matrix/prose, then fetch https://ampcode.com/manual and inspect `Skill sources and precedence`."
+    }
+  ],
+  "probes": [
+    {
+      "name": "coverage and tier vocabulary",
+      "result": "pass",
+      "evidence": "Parsed 15 JSON harness records and 15 Markdown matrix rows. Codex, Claude Code, claude.ai, Cursor, VS Code, Amp, Kimi Code, Antigravity IDE/CLI, OpenClaw, Grok Build/Bot, Buzz, Pi, and native-Windows Hermes are present; every classification belongs to the four declared tiers."
+    },
+    {
+      "name": "JSON validity and pack facts",
+      "result": "pass",
+      "evidence": "JSON parsed successfully. Independent repo scan reproduced 50 skill folders, 50 registry entries, 50 sidecars, 13 disable-model-invocation fields, 5 argument-hint fields, description range 106-749, and 48 descriptions over 200 characters."
+    },
+    {
+      "name": "authoritative-link reachability",
+      "result": "pass",
+      "evidence": "All 21 unique cited source URLs returned HTTP 200 on 2026-08-11. The OpenAI URL authoritatively redirects to learn.chatgpt.com/docs/build-skills."
+    },
+    {
+      "name": "primary-source claim sampling",
+      "result": "mostly pass",
+      "evidence": "Current primary pages support the central paths and policy semantics for Codex, Claude Code, Cursor, VS Code, Amp, Kimi, Antigravity, OpenClaw, Grok, Pi, Buzz, and Hermes. Exceptions are recorded as findings: Claude upload evidence status and Amp's misspelled probe."
+    },
+    {
+      "name": "local version and observation reproduction",
+      "result": "pass",
+      "evidence": "Read-only probes reproduced Cursor 2.0.34, VS Code 1.116.0, Amp 0.0.1776882341-gbc4d06, Kimi 1.44.0, OpenClaw 2026.4.21, Grok 1.0.0, Pi 0.68.1, Hermes 0.18.0, and Hermes config at AppData/Local/hermes/config.yaml. OpenClaw and Grok enumerated sampled Forge islands; Hermes active skills lacked the Forge sample."
+    },
+    {
+      "name": "unknown-surface restraint",
+      "result": "pass",
+      "evidence": "Grok Bot and Buzz remain unsupported/unknown; the contract does not project Grok Build filesystem behavior onto Grok Bot or backend-specific ACP loader behavior across Buzz."
+    },
+    {
+      "name": "universal-claim restraint",
+      "result": "pass",
+      "evidence": "Both artifacts explicitly reject byte-identical universal support and fail closed on missing per-harness evidence. User-only islands are omitted by default where explicit-only semantics are undocumented."
+    }
+  ],
+  "notes": "The support matrix is substantially evidence-based and appropriately conservative. Changes are requested because three positive operational statements are currently non-reproducible or stale, and because the machine-readable evidence state is too coarse for a contract that promises strict observed-versus-documented separation. No universal support claim was found."
+}

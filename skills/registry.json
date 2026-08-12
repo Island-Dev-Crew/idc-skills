@@ -6,7 +6,8 @@
   "staging": "Navigata1/idc-skills-forge",
   "promotesTo": "Island-Dev-Crew",
   "anchor": "No authority without evidence. The skills demonstrate their own discipline.",
-  "dualHarness": "Every island ships an agents/openai.yaml sidecar; user-invoked islands carry policy.allow_implicit_invocation: false so disable-model-invocation travels to Codex.",
+  "dualHarness": "Legacy field name. Every island ships an agents/openai.yaml Codex sidecar, but byte distribution alone does not prove cross-harness invocation semantics.",
+  "harnessContract": "docs/harness-support.json",
   "buildOrder": [
     "idc-skill-authoring",
     "writing-for-agents",

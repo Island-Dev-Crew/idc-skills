@@ -1,0 +1,98 @@
+{
+  "taskId": "P0-T3",
+  "reviewedCommit": "b1ab04c31015b11a086020fa3a4d0d01654127e6",
+  "criticSeat": "OpenAI Codex blind critic",
+  "independence": "same-family blind artifact critique; not a cross-family verdict",
+  "disposition": "changes-requested",
+  "findings": [
+    {
+      "severity": "critical",
+      "title": "The dated export can report success after emitting invalid or value-losing metadata YAML",
+      "evidence": "scripts/install.py:330-376 inserts moved keys into an existing metadata block without parsing its indentation or checking nested-key collisions. A valid four-space metadata child transforms into `metadata:\n  disable-model-invocation: true\n    owner: idc`, which PyYAML rejects with `mapping values are not allowed here`. If metadata already contains `disable-model-invocation: false`, a top-level `disable-model-invocation: true` transforms into duplicate nested keys; PyYAML resolves the exported metadata value to false, so the moved true value is not preserved as an addressable value. Both transforms return successfully.",
+      "recompute": "At reviewed commit, call `transform_claude_ai_frontmatter` on (a) metadata with a four-space `owner` child plus top-level `disable-model-invocation: true`, and (b) metadata already containing `disable-model-invocation: false` plus the top-level true value; parse each transformed frontmatter with `yaml.safe_load`. Case (a) is invalid and case (b) resolves the moved key to false."
+    },
+    {
+      "severity": "critical",
+      "title": "Native SHA verification false-greens executable-mode drift and refuses to repair it",
+      "evidence": "tree_manifest at scripts/install.py:214-240 hashes path, kind, size, and bytes but omits POSIX mode. On WSL/ext4, install a source `scripts/run.sh` at 0755, chmod the installed copy to 0644, then verify: success=true and skill status=verified. A normal rerun reports unchanged and leaves mode 0644. The current repo contains thirteen 100755 skill scripts, so this is product-relevant rather than hypothetical.",
+      "recompute": "On POSIX/WSL, create a minimal skill with `scripts/run.sh` chmod 0755; run `run_install`; chmod `<target>/alpha/scripts/run.sh` to 0644; run `run_install(..., verify_only=True)` and then normal `run_install`. Observe verified/unchanged and final mode 0644. Confirm affected canonical modes with `git ls-tree -r b1ab04c31015b11a086020fa3a4d0d01654127e6 skills | grep '100755.*scripts/'`."
+    },
+    {
+      "severity": "high",
+      "title": "Run-level preflight is not transactional and leaves partial installs",
+      "evidence": "run_install claims `All inputs are validated before any write` at scripts/install.py:560, but destination shape validation occurs inside `_sync_skill` during the write loop. With valid alpha and beta sources, an empty target, and a blocking regular file at `<target>/beta`, alpha is installed first; beta then errors with `skill destination is not a directory`. The report correctly fails, but `<target>/alpha` remains newly installed. The fleet can therefore be left on mixed skill versions.",
+      "recompute": "Create source skills alpha and beta; create target directory containing a regular file named beta; call `run_install(source, [TargetSpec('custom', target)])`; assert report.success is false and `<target>/alpha/SKILL.md` nevertheless exists."
+    },
+    {
+      "severity": "high",
+      "title": "An explicitly selected absent Claude or Pi target is skipped with exit-success",
+      "evidence": "default_targets marks Claude and Pi optional, and run_install checks optional absence before considering whether the target was explicitly selected. `select_targets(home, ['claude'])` followed by dry-run or install against an absent `~/.claude/skills` returns target status `skipped-absent`, zero operated skills, report.success=true, and CLI exit 0. Explicit target selection therefore does not perform the requested install.",
+      "recompute": "With a temporary home lacking `.claude/skills`, select only Claude via `select_targets(home, ['claude'])`; call `run_install` for one valid skill. Observe `skipped-absent`, no skill results, and success=true. The CLI equivalent is `python scripts/install.py --repo-root <fixture> install --target claude --skill alpha --dry-run --json`."
+    },
+    {
+      "severity": "high",
+      "title": "Windows locale encoding can crash JSON output after a successful write",
+      "evidence": "main prints `json.dumps(..., ensure_ascii=False)` through locale-default stdout at scripts/install.py:950. On the default cp1252 Windows seat, installing to a custom path containing U+4E2D writes the skill successfully, then raises UnicodeEncodeError while printing JSON. The process exits 1 with a traceback, emits no JSON, and leaves the target mutated. A cp1252-representable non-ASCII path emits non-UTF-8 JSON bytes, also breaking UTF-8 consumers.",
+      "recompute": "On Windows with cp1252 stdout, invoke the CLI using `--custom-target buzz=<temp>/target-\u4e2d --skill alpha --json` against a valid fixture. Capture bytes. Observe return code 1, empty stdout, UnicodeEncodeError on stderr, and `<target>/alpha/SKILL.md` present."
+    },
+    {
+      "severity": "medium",
+      "title": "The advertised fleet topology is not documented in user-visible help",
+      "evidence": "The module docstring calls the topology documented, but `install --help` only lists target aliases. It does not state the resolved paths (`~/.agents/skills`, `~/.claude/skills`, `~/.pi/agent/skills`, `~/.hermes/skills`), conditional-vs-independent behavior, or that absent Claude/Pi targets are silently skipped. `--home` is suppressed. A user cannot predict the external write set from the CLI contract.",
+      "recompute": "Run `python scripts/install.py install --help` at the reviewed commit and compare the output with `default_targets` at scripts/install.py:411-419."
+    }
+  ],
+  "probes": [
+    {
+      "name": "Builder test suite",
+      "result": "pass",
+      "evidence": "`python -B -m unittest -v tests.test_install` passed 12/12 at the detached reviewed commit."
+    },
+    {
+      "name": "Full 50-skill native and dated export smoke",
+      "result": "pass",
+      "evidence": "Native install and verify handled 50/50; rerun statuses were all unchanged. Dated export produced 50 deterministic ZIPs, reran unchanged, and the canonical source tree manifest remained byte-identical."
+    },
+    {
+      "name": "Byte and stale-file drift",
+      "result": "pass",
+      "evidence": "A changed SKILL.md and extra stale file produced verify failure; repair removed the stale file and restored equal manifests. ZIP-byte drift also produced verify failure in the committed tests."
+    },
+    {
+      "name": "ASCII CLI exit codes",
+      "result": "pass",
+      "evidence": "Dry-run=0, invalid skill=2, install=0, verify drift=1; all four ASCII-path stdout payloads parsed as JSON."
+    },
+    {
+      "name": "Symlink and path traversal on WSL/ext4",
+      "result": "pass with explicit native-source-link behavior",
+      "evidence": "A target symlink resolving to canonical skills was rejected; a symlinked skill destination was rejected without touching its external sentinel; native copy preserved a canonical source symlink; compatibility export rejected canonical source symlinks rather than flattening them."
+    },
+    {
+      "name": "Partial-write boundary",
+      "result": "fail",
+      "evidence": "A malformed later destination left an earlier skill installed despite overall failure."
+    },
+    {
+      "name": "Existing metadata collision and indentation",
+      "result": "fail",
+      "evidence": "One transformed export was invalid YAML; another silently resolved to the pre-existing false value instead of the moved true value."
+    },
+    {
+      "name": "POSIX executable drift",
+      "result": "fail",
+      "evidence": "0755 to 0644 drift reported verified and remained unrepaired."
+    },
+    {
+      "name": "Explicit absent target",
+      "result": "fail",
+      "evidence": "Explicit Claude selection skipped all work with success=true."
+    },
+    {
+      "name": "Windows Unicode JSON path",
+      "result": "fail",
+      "evidence": "Target write completed, then JSON emission crashed under cp1252 with no machine-readable report."
+    }
+  ],
+  "notes": "This record reviews only commit b1ab04c31015b11a086020fa3a4d0d01654127e6 from a detached temporary clone. It does not use the builder's self-report and does not modify the artifact under review. This is same-family blind artifact critique, not the cross-family ceremony and not a merge-gating verdict. The dated claude.ai profile is correctly caveated as supplied historical input rather than current official acceptance; the findings concern deterministic transformation correctness, not that caveat."
+}
