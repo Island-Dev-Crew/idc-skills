@@ -1,0 +1,318 @@
+{
+  "version": 1,
+  "mission": {
+    "name": "IDC Forge Cross-Harness Gauntlet",
+    "tagline": "One canonical forge, portable by proof rather than proclamation.",
+    "repo": "Navigata1/idc-skills-forge",
+    "repoPath": "C:/Users/IslandDevCrew/Documents/ChatGPT/idc-forge-gauntlet-integration",
+    "defaultBranch": "main",
+    "planDoc": "ops/mission/brief.md",
+    "northStar": "Preserve the fifty-island source while every compatibility claim is falsifiable, tiered, and reproducible on the harness that consumes it.",
+    "status": "active",
+    "started": "2026-08-11",
+    "updated": "2026-08-12T02:48:00Z",
+    "sessionCount": 1
+  },
+  "policies": {
+    "merge": "review",
+    "branchPrefix": "codex/gauntlet-",
+    "maxPrLines": 400,
+    "notes": "Local branches and commits are permitted for isolation and recovery. No push, PR, release, or profile install without explicit user authority. The 400-line target is advisory for generated mission/report assets and test fixtures."
+  },
+  "phases": [
+    {
+      "id": "P0",
+      "title": "Contract and red-capable tooling",
+      "goal": "Replace portability claims with a sourced harness contract, a repo-owned validator, and a Windows-native installer/exporter.",
+      "status": "in_progress",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "P0-G1",
+          "title": "Harness support matrix is valid JSON",
+          "command": "python -m json.tool docs/harness-support.json",
+          "status": "pending",
+          "evidence": null,
+          "lastRun": null,
+          "notes": "Schema and source sufficiency also receive blind artifact critique."
+        },
+        {
+          "id": "P0-G2",
+          "title": "Validator and installer falsification tests pass",
+          "command": "python -m unittest discover -s tests -p test_*.py",
+          "status": "pending",
+          "evidence": null,
+          "lastRun": null,
+          "notes": "A green test suite is admitted only after representative fixtures are shown to force red."
+        },
+        {
+          "id": "P0-G3",
+          "title": "All canonical skills pass repo-owned validation",
+          "command": "python scripts/validate_skills.py --format json",
+          "status": "pending",
+          "evidence": null,
+          "lastRun": null,
+          "notes": "claude.ai exportability findings are profile results, not canonical failures."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "P0-T1",
+          "title": "Build authoritative cross-harness support contract",
+          "status": "in_progress",
+          "dependsOn": [],
+          "pr": null,
+          "notes": "Builder A owns docs/harness-support.md and docs/harness-support.json in an isolated worktree."
+        },
+        {
+          "id": "P0-T2",
+          "title": "Build dependency-free whole-forge validator",
+          "status": "in_progress",
+          "dependsOn": [],
+          "pr": null,
+          "notes": "Builder B owns scripts/validate_skills.py and its falsification tests."
+        },
+        {
+          "id": "P0-T3",
+          "title": "Build Windows-native installer and claude.ai exporter",
+          "status": "in_progress",
+          "dependsOn": [],
+          "pr": null,
+          "notes": "Builder C owns scripts/install.py and its falsification tests."
+        }
+      ]
+    },
+    {
+      "id": "P1",
+      "title": "Gauntlet critique and integration",
+      "goal": "Blind critics refute each artifact, builders repair surviving findings, and the integration branch receives only evidenced changes.",
+      "status": "pending",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "P1-G1",
+          "title": "Each builder artifact has a non-author critique record",
+          "command": "python scripts/verify_gauntlet_records.py",
+          "status": "pending",
+          "evidence": null,
+          "lastRun": null,
+          "notes": "Same-family independent critique; not a cross-family verdict. Verification script may be added during integration."
+        },
+        {
+          "id": "P1-G2",
+          "title": "Integrated regression suite passes",
+          "command": "python -m unittest discover -s tests -p test_*.py",
+          "status": "pending",
+          "evidence": null,
+          "lastRun": null,
+          "notes": "Must include canonical validation and installer/exporter tests."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "P1-T1",
+          "title": "Rotate blind critics across all three builder branches",
+          "status": "pending",
+          "dependsOn": ["P0-T1", "P0-T2", "P0-T3"],
+          "pr": null,
+          "notes": "Critics receive the task bar and diff, not the builder's self-report."
+        },
+        {
+          "id": "P1-T2",
+          "title": "Loop critical findings back to original builders",
+          "status": "pending",
+          "dependsOn": ["P1-T1"],
+          "pr": null,
+          "notes": "Maximum two total rounds; unreachable bars become explicit blockers."
+        },
+        {
+          "id": "P1-T3",
+          "title": "Integrate approved local commits and align canon/docs",
+          "status": "pending",
+          "dependsOn": ["P1-T2"],
+          "pr": null,
+          "notes": "No remote write. Resolve overlap on the integration branch."
+        }
+      ]
+    },
+    {
+      "id": "P2",
+      "title": "Recursive fifty-island health sweep",
+      "goal": "Run the stricter contract over every island and keep only skill changes tied to concrete red cases.",
+      "status": "pending",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "P2-G1",
+          "title": "Canonical profile passes for all fifty islands",
+          "command": "python scripts/validate_skills.py",
+          "status": "pending",
+          "evidence": null,
+          "lastRun": null,
+          "notes": "Warnings and unsupported export profiles remain visible in the evidence."
+        },
+        {
+          "id": "P2-G2",
+          "title": "Deterministic claude.ai exports validate without canonical drift",
+          "command": "python scripts/install.py export --profile claude-ai --verify",
+          "status": "pending",
+          "evidence": null,
+          "lastRun": null,
+          "notes": "Exact CLI may be corrected after the installer interface is integrated."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "P2-T1",
+          "title": "Run whole-forge canonical and harness profile sweep",
+          "status": "pending",
+          "dependsOn": ["P1-T3"],
+          "pr": null,
+          "notes": "Enumerate failures by skill name and invariant, never by count alone."
+        },
+        {
+          "id": "P2-T2",
+          "title": "Repair only evidenced canonical defects",
+          "status": "pending",
+          "dependsOn": ["P2-T1"],
+          "pr": null,
+          "notes": "A skill edit stays only if the same evaluation improves or holds with fewer tokens."
+        },
+        {
+          "id": "P2-T3",
+          "title": "Update authoring and install documentation to the proved support matrix",
+          "status": "pending",
+          "dependsOn": ["P2-T1"],
+          "pr": null,
+          "notes": "Remove broad dual-harness claims that exceed evidence."
+        }
+      ]
+    },
+    {
+      "id": "P3",
+      "title": "Fresh-clone reacceptance",
+      "goal": "Re-derive the final gates from a clean clone and publish an honest completion report.",
+      "status": "pending",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "P3-G1",
+          "title": "Fresh clone passes full test and validation suite",
+          "command": "python scripts/reaccept.py",
+          "status": "pending",
+          "evidence": null,
+          "lastRun": null,
+          "notes": "Gate script may be added during integration; evidence must name the exact reviewed SHA."
+        },
+        {
+          "id": "P3-G2",
+          "title": "Mission state and generated State of the Union agree",
+          "command": "node ops/mission/render-sotu.mjs",
+          "status": "pending",
+          "evidence": null,
+          "lastRun": null,
+          "notes": "Renderer success plus stale-phrase scan."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "P3-T1",
+          "title": "Commit the final integration tree at an exact SHA",
+          "status": "pending",
+          "dependsOn": ["P2-T1", "P2-T2", "P2-T3"],
+          "pr": null,
+          "notes": "Local commit only unless the user later authorizes publication."
+        },
+        {
+          "id": "P3-T2",
+          "title": "Clone the exact integration SHA and re-run every gate",
+          "status": "pending",
+          "dependsOn": ["P3-T1"],
+          "pr": null,
+          "notes": "Worktree evidence is inadmissible until reproduced here."
+        },
+        {
+          "id": "P3-T3",
+          "title": "Finalize report, risks, and resumable next actions",
+          "status": "pending",
+          "dependsOn": ["P3-T2"],
+          "pr": null,
+          "notes": "Completion remains partial if a named harness lacks a verifiable loader."
+        }
+      ]
+    }
+  ],
+  "metrics": [
+    {
+      "label": "Named harnesses with tier, source, and probe",
+      "baseline": "4",
+      "current": "4",
+      "target": "13",
+      "direction": "up"
+    },
+    {
+      "label": "Canonical skills locally re-derived green",
+      "baseline": "0/50",
+      "current": "0/50",
+      "target": "50/50",
+      "direction": "up"
+    },
+    {
+      "label": "Repo-owned cross-platform validators",
+      "baseline": "0",
+      "current": "0",
+      "target": "1",
+      "direction": "up"
+    },
+    {
+      "label": "Windows-native installers",
+      "baseline": "0",
+      "current": "0",
+      "target": "1",
+      "direction": "up"
+    },
+    {
+      "label": "claude.ai export failures from unsupported top-level keys",
+      "baseline": "13",
+      "current": "13",
+      "target": "0",
+      "direction": "down"
+    }
+  ],
+  "risks": [
+    {
+      "title": "No different-family reviewer is callable from this Codex session",
+      "severity": "medium",
+      "note": "Gauntlet critiques can be blind and non-author, but cross-family-review remains blocked and no output will be labeled a cross-family verdict."
+    },
+    {
+      "title": "Several requested harnesses may not expose a native Agent Skills loader",
+      "severity": "high",
+      "note": "The matrix must leave these documented-only or unknown rather than inventing installation paths."
+    },
+    {
+      "title": "claude.ai allowlist currently comes from supplied external audit text",
+      "severity": "medium",
+      "note": "Treat the six-key claim as supplied evidence until an authoritative public specification or direct upload probe is captured."
+    }
+  ],
+  "prLog": [],
+  "resume": {
+    "activePhase": "P0",
+    "nextActions": [
+      "Wait for builders A-C to commit their isolated artifacts, then record each exact commit in this state file.",
+      "Rotate blind critiques A->validator, B->installer, C->contract using only the task brief and branch diff, not builder self-reports.",
+      "Route critical findings to the original builder, cap at round 2, then cherry-pick surviving commits into codex/gauntlet-integration."
+    ],
+    "blockers": [
+      "Cross-family verdict unavailable: this session can spawn only OpenAI-family sub-agents.",
+      "Remote publication is outside current authority; all branches and commits remain local."
+    ],
+    "conventions": [
+      "ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.",
+      "Positive harness claims require an authoritative source and reproducible probe.",
+      "Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.",
+      "Worktree evidence is draft evidence until re-derived from a fresh clone."
+    ]
+  }
+}
