@@ -75,6 +75,7 @@ const sevTone = { high: "red", critical: "red", medium: "amber", low: "blue" };
 function journalTail(n = 12) {
   if (!existsSync(journalPath)) return [];
   const entries = readFileSync(journalPath, "utf8")
+    .replace(/\r\n?/g, "\n")
     .split(/^## /m)
     .filter((s) => s.trim())
     .map((s) => "## " + s.trim());
