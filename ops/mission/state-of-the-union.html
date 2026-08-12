@@ -63,20 +63,20 @@ button.copy:hover{background:rgba(88,215,179,.2)}
 <body>
 <main>
   <header class="hero">
-    <p class="eyebrow">Mission Control &middot; State of the Union &middot; generated 2026-08-12 02:46Z</p>
+    <p class="eyebrow">Mission Control &middot; State of the Union &middot; generated 2026-08-12 02:57Z</p>
     <h1>IDC Forge Cross-Harness Gauntlet</h1>
     <p class="tagline">One canonical forge, portable by proof rather than proclamation.</p>
     <div style="margin-top:14px">
       <span class="chip blue">mission: active</span>
       <span class="chip green">active phase: P0</span>
-      <span class="chip blue">0/12 tasks</span>
+      <span class="chip blue">2/12 tasks</span>
       <span class="chip amber">0/9 gates passed</span>
       <span class="chip ">0 PRs merged</span>
       <span class="chip ">sessions: 1</span>
-      <span class="chip ">updated: 2026-08-12T02:48:00Z</span>
+      <span class="chip ">updated: 2026-08-12T03:02:00Z</span>
     </div>
-    <div class="bar big" role="img" aria-label="Overall progress 0%"><div class="fill" style="width:0%"></div></div>
-    <p class="small muted" style="margin-top:6px">Overall: 0% of tasks complete &middot; repo Navigata1/idc-skills-forge &middot; plan: ops/mission/brief.md</p>
+    <div class="bar big" role="img" aria-label="Overall progress 17%"><div class="fill" style="width:17%"></div></div>
+    <p class="small muted" style="margin-top:6px">Overall: 17% of tasks complete &middot; repo Navigata1/idc-skills-forge &middot; plan: ops/mission/brief.md</p>
   </header>
 
   <section aria-labelledby="coldstart">
@@ -117,9 +117,9 @@ Operating procedure:
         <span class="muted small">est. sessions: 1</span>
       </header>
       <p class="muted">Replace portability claims with a sourced harness contract, a repo-owned validator, and a Windows-native installer/exporter.</p>
-      <div class="bar"><div class="fill" style="width:0%"></div></div>
-      <p class="small muted">0/3 tasks &middot; 0%</p>
-      <ul class="tasks"><li class="task-in_progress"><span class="mark">&#9689;</span> <b>P0-T1</b> Build authoritative cross-harness support contract<br><span class="muted small">Builder A owns docs/harness-support.md and docs/harness-support.json in an isolated worktree.</span></li><li class="task-in_progress"><span class="mark">&#9689;</span> <b>P0-T2</b> Build dependency-free whole-forge validator<br><span class="muted small">Builder B owns scripts/validate_skills.py and its falsification tests.</span></li><li class="task-in_progress"><span class="mark">&#9689;</span> <b>P0-T3</b> Build Windows-native installer and claude.ai exporter<br><span class="muted small">Builder C owns scripts/install.py and its falsification tests.</span></li></ul>
+      <div class="bar"><div class="fill" style="width:67%"></div></div>
+      <p class="small muted">2/3 tasks &middot; 67%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>P0-T1</b> Build authoritative cross-harness support contract<br><span class="muted small">Builder A owns docs/harness-support.md and docs/harness-support.json in an isolated worktree.</span></li><li class="task-in_progress"><span class="mark">&#9689;</span> <b>P0-T2</b> Build dependency-free whole-forge validator<br><span class="muted small">Builder B committed a083552def772489ae238bf6931cd275d471b263; 11 focused tests pass on its isolated branch. Awaiting non-author critique and integration.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P0-T3</b> Build Windows-native installer and claude.ai exporter<br><span class="muted small">Builder C committed b1ab04c31015b11a086020fa3a4d0d01654127e6; 12 focused tests pass on its isolated branch. Awaiting non-author critique and integration.</span></li></ul>
       <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
       <td><span class="chip ">pending</span></td>
       <td><b>Harness support matrix is valid JSON</b><br><span class="small">Schema and source sufficiency also receive blind artifact critique.</span></td>
@@ -133,7 +133,7 @@ Operating procedure:
       <td>&mdash;</td></tr><tr>
       <td><span class="chip ">pending</span></td>
       <td><b>All canonical skills pass repo-owned validation</b><br><span class="small">claude.ai exportability findings are profile results, not canonical failures.</span></td>
-      <td><code>python scripts/validate_skills.py --format json</code></td>
+      <td><code>python scripts/validate_skills.py --json</code></td>
       <td>&mdash;</td>
       <td>&mdash;</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P0 (copy into a fresh session)</summary>
@@ -146,13 +146,11 @@ Governing plan: ops/mission/brief.md
 
 Phase goal: Replace portability claims with a sourced harness contract, a repo-owned validator, and a Windows-native installer/exporter.
 Remaining tasks:
-  - [in_progress] P0-T1: Build authoritative cross-harness support contract (Builder A owns docs/harness-support.md and docs/harness-support.json in an isolated worktree.)
-  - [in_progress] P0-T2: Build dependency-free whole-forge validator (Builder B owns scripts/validate_skills.py and its falsification tests.)
-  - [in_progress] P0-T3: Build Windows-native installer and claude.ai exporter (Builder C owns scripts/install.py and its falsification tests.)
+  - [in_progress] P0-T2: Build dependency-free whole-forge validator (Builder B committed a083552def772489ae238bf6931cd275d471b263; 11 focused tests pass on its isolated branch. Awaiting non-author critique and integration.)
 Gates not yet passed:
   - [pending] Harness support matrix is valid JSON  -&gt;  python -m json.tool docs/harness-support.json
   - [pending] Validator and installer falsification tests pass  -&gt;  python -m unittest discover -s tests -p test_*.py
-  - [pending] All canonical skills pass repo-owned validation  -&gt;  python scripts/validate_skills.py --format json
+  - [pending] All canonical skills pass repo-owned validation  -&gt;  python scripts/validate_skills.py --json
 Next actions (from last session):
   - Wait for builders A-C to commit their isolated artifacts, then record each exact commit in this state file.
   - Rotate blind critiques A-&gt;validator, B-&gt;installer, C-&gt;contract using only the task brief and branch diff, not builder self-reports.
@@ -327,7 +325,7 @@ Operating procedure:
   </section>
 
 
-<section aria-labelledby="journal"><h2 id="journal">Journal (latest first)</h2><div class="timeline"><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T02:48Z — session 1 kickoff</b><br><br>- Pinned the clean public baseline at `c8e94a385dbf6bb65bc605524008967a7f916679`; the configured workspace had been an empty Git repository before acquisition.<br>- Reproduced the missing repo-owned validator and Windows Bash/`rsync` portability gaps.<br>- Started three isolated builders for the harness contract, validator, and installer/exporter; final gate evidence will be re-derived from a fresh clone.<br>- Cross-family review is unavailable in this seat; same-family blind critiques will be marked as calibration, never as a cross-family verdict.</p></article><article class="tl-item"><time>&#9998;</time><p><b># Mission journal</b><br></p></article></div></section>
+<section aria-labelledby="journal"><h2 id="journal">Journal (latest first)</h2><div class="timeline"><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T03:02Z — P0 builders B and C complete</b><br><br>- Validator builder committed `a083552def772489ae238bf6931cd275d471b263`; its isolated branch reports 11 focused tests green and the canonical profile at 50/50 with 13 advisory extension-key warnings.<br>- Installer builder committed `b1ab04c31015b11a086020fa3a4d0d01654127e6`; its isolated branch reports 12 focused tests green and deterministic native/export smokes.<br>- Both commits remain quarantined outside integration while their non-author critics run; no worktree result is admitted as final gate evidence.<br>- Corrected the provisional validator gate command to the implemented `--json` interface before any gate was marked passed.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T02:48Z — session 1 kickoff</b><br><br>- Pinned the clean public baseline at `c8e94a385dbf6bb65bc605524008967a7f916679`; the configured workspace had been an empty Git repository before acquisition.<br>- Reproduced the missing repo-owned validator and Windows Bash/`rsync` portability gaps.<br>- Started three isolated builders for the harness contract, validator, and installer/exporter; final gate evidence will be re-derived from a fresh clone.<br>- Cross-family review is unavailable in this seat; same-family blind critiques will be marked as calibration, never as a cross-family verdict.</p></article><article class="tl-item"><time>&#9998;</time><p><b># Mission journal</b><br></p></article></div></section>
 
   <p class="footer">GENERATED by ops/mission/render-sotu.mjs from state.json — do not hand-edit.
   To update: edit state.json, run <code>node ops/mission/render-sotu.mjs</code>, commit both.</p>

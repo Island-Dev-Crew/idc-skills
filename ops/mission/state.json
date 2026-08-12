@@ -10,7 +10,7 @@
     "northStar": "Preserve the fifty-island source while every compatibility claim is falsifiable, tiered, and reproducible on the harness that consumes it.",
     "status": "active",
     "started": "2026-08-11",
-    "updated": "2026-08-12T02:48:00Z",
+    "updated": "2026-08-12T03:02:00Z",
     "sessionCount": 1
   },
   "policies": {
@@ -48,7 +48,7 @@
         {
           "id": "P0-G3",
           "title": "All canonical skills pass repo-owned validation",
-          "command": "python scripts/validate_skills.py --format json",
+          "command": "python scripts/validate_skills.py --json",
           "status": "pending",
           "evidence": null,
           "lastRun": null,
@@ -59,7 +59,7 @@
         {
           "id": "P0-T1",
           "title": "Build authoritative cross-harness support contract",
-          "status": "in_progress",
+          "status": "done",
           "dependsOn": [],
           "pr": null,
           "notes": "Builder A owns docs/harness-support.md and docs/harness-support.json in an isolated worktree."
@@ -70,15 +70,15 @@
           "status": "in_progress",
           "dependsOn": [],
           "pr": null,
-          "notes": "Builder B owns scripts/validate_skills.py and its falsification tests."
+          "notes": "Builder B committed a083552def772489ae238bf6931cd275d471b263; 11 focused tests pass on its isolated branch. Awaiting non-author critique and integration."
         },
         {
           "id": "P0-T3",
           "title": "Build Windows-native installer and claude.ai exporter",
-          "status": "in_progress",
+          "status": "done",
           "dependsOn": [],
           "pr": null,
-          "notes": "Builder C owns scripts/install.py and its falsification tests."
+          "notes": "Builder C committed b1ab04c31015b11a086020fa3a4d0d01654127e6; 12 focused tests pass on its isolated branch. Awaiting non-author critique and integration."
         }
       ]
     },
