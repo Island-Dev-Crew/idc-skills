@@ -11,12 +11,15 @@ The trap this island exists to close: an artifact that *looks* offline-safe beca
 
 ## Rung 1: the static scan (necessary, not sufficient)
 
-[`scripts/scan-egress.sh`](scripts/scan-egress.sh) greps the deliverable for every egress vector and **fails closed (exit 1)** on any un-waived hit:
+[`scripts/scan-egress.sh`](scripts/scan-egress.sh) greps the deliverable for every egress vector and **fails closed (exit 1)** on any un-waived external reference, **symlink**, or **binary**:
 
 ```bash
-./scripts/scan-egress.sh path/to/artifact.html      # a file
-./scripts/scan-egress.sh path/to/dist/               # or a whole bundle dir
+./scripts/scan-egress.sh path/to/artifact.html                 # a file
+./scripts/scan-egress.sh path/to/dist/                          # or a whole bundle dir
+./scripts/scan-egress.sh --allow-binary '*.woff2' path/to/dist/ # waive reviewed binary assets (glob, repeatable)
 ```
+
+It enumerates by **content, not extension** (so an extensionless `deploy` with a shebang or an UPPERCASE `.SH` can't hide), NUL-safely (a newline in a filename can't split an entry). A green result means **every file was scanned clean or explicitly waived** — never "some files we couldn't look at": a **symlink** fails closed (its bytes live outside the shipped tree), and a **binary** fails closed too — its strings are scanned with `grep -a` (an embedded URL is reported and fails) and even a URL-free binary fails as uncertifiable-by-static-scan, until you review it and waive it with `--allow-binary <glob>` (a deliberate human act — scope the glob tightly; `'*'` waives all and is an escape hatch).
 
 It catches, case-insensitively so `HTTPS://` can't bypass: absolute schemes `http(s)://` **and** `wss://` / `ws://` / `ftp://`; the runtime tokens `fetch(`, `new WebSocket`, `XMLHttpRequest`, `EventSource`, `navigator.sendBeacon`; a dynamic `import(` of a URL; `@import` of a URL; `url(http|//)` in CSS; and `src=`/`href=` to `http|//` (covering `<link href=http`, `<script src=http`). An intentional call is waived only by a **bounded, case-sensitive, trailing** `# egress-ok` / `// egress-ok` / `/* egress-ok */` comment on that line, validated per hit against a start-or-whitespace prefix and an end-of-line anchor, never a substring, so a marker inside a URL (`…?egress-ok-not-really=1`) and even a URL-terminal `…//egress-ok` at end of line can't act as the comment delimiter and launder a real hit; the delimiter must follow a space or line-start. Where the regex ever slipped, the enforced rung 2 (sealed load) still catches the egress.
 
