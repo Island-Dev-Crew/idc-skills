@@ -4,7 +4,7 @@
 
 > *"In the multitude of counsellors there is safety."* — Proverbs 11:14
 
-This is the **staging forge** (`Navigata1/idc-skills-forge`, release 2.0.0). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
+This is the **staging forge** (`Navigata1/idc-skills-forge`, release 2.0.1). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
 
 **Cross-harness by contract, not assumption:** the canonical source is preserved once, while each harness gets a documented loader path, metadata profile, and evidence tier. The current matrix covers fifteen surfaces, including Codex, Claude Code, claude.ai, Cursor, VS Code, Amp, Kimi, Antigravity, OpenClaw, Grok, Buzz, Pi, and Hermes. A shared folder proves byte distribution; it does not by itself prove invocation semantics. See the [human-readable matrix](docs/harness-support.md) and its [machine-readable contract](docs/harness-support.json).
 
@@ -77,7 +77,7 @@ Twelve islands are IDC's own. **Five exist nowhere else** — the IDC-origin isl
 
 ## Design palette
 
-The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust · gold · jade · steel — with a faceted-gem motif. The landing experience is a journey across the chain, not a file listing: see [`docs/index.html`](docs/index.html), the full seven-act tour in [`docs/walkthrough.html`](docs/walkthrough.html), and the live [`docs/report.html`](docs/report.html) — every island's validation record, generated from the vet, not the author's confidence. Repo-as-artifact, matching the thesis.
+The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust · gold · jade · steel — with a faceted-gem motif. The landing experience is a journey across the chain, not a file listing: see [`docs/index.html`](docs/index.html), the full seven-act tour in [`docs/walkthrough.html`](docs/walkthrough.html), and the live [`docs/report.html`](docs/report.html) — the rendered validation records from the v1.6.0 uniform re-vet (40 of the 50 islands; the 10 added in releases 1.7.0–2.0.0 are validated but not yet folded into this render), generated from the vet, not the author's confidence. Repo-as-artifact, matching the thesis.
 
 ## Install
 

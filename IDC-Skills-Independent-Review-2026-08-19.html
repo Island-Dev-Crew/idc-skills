@@ -1,0 +1,591 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="dark">
+  <title>IDC Skills — Independent Work Review · 2026-08-19</title>
+  <style>
+    :root {
+      --ink: #f2eee7;
+      --muted: #a7a1a0;
+      --dim: #716d70;
+      --ground: #09090d;
+      --panel: #111117;
+      --panel-2: #17171f;
+      --line: #2c2b35;
+      --gold: #e3b35a;
+      --garnet: #c9495f;
+      --jade: #57c79a;
+      --steel: #78a9d4;
+      --rust: #d67b4a;
+      --danger: #ff6b74;
+      --radius: 18px;
+      --shadow: 0 24px 80px rgba(0,0,0,.34);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 10% -10%, rgba(201,73,95,.14), transparent 30rem),
+        radial-gradient(circle at 92% 5%, rgba(227,179,90,.10), transparent 32rem),
+        var(--ground);
+      font: 15px/1.65 ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+    }
+
+    a { color: var(--steel); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+    a:hover { color: var(--ink); }
+    code, .mono {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .92em;
+      overflow-wrap: anywhere;
+    }
+    code { color: #f4d69f; }
+
+    .shell { width: min(1180px, calc(100% - 40px)); margin: 0 auto; }
+    .eyebrow {
+      color: var(--gold);
+      text-transform: uppercase;
+      letter-spacing: .16em;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .muted { color: var(--muted); }
+    .dim { color: var(--dim); }
+
+    header {
+      min-height: 74vh;
+      display: grid;
+      align-items: center;
+      padding: 76px 0 54px;
+      border-bottom: 1px solid var(--line);
+    }
+    .hero-grid {
+      display: grid;
+      grid-template-columns: 1.18fr .82fr;
+      gap: 54px;
+      align-items: end;
+    }
+    h1, h2, h3 { line-height: 1.08; margin: 0; }
+    h1 {
+      max-width: 850px;
+      margin-top: 18px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(48px, 8vw, 96px);
+      font-weight: 500;
+      letter-spacing: -.055em;
+    }
+    .deck {
+      max-width: 760px;
+      margin: 26px 0 0;
+      color: #cbc5c1;
+      font-size: clamp(18px, 2.2vw, 25px);
+      line-height: 1.45;
+    }
+    .verdict-card {
+      padding: 27px;
+      background: linear-gradient(145deg, rgba(23,23,31,.95), rgba(13,13,19,.95));
+      border: 1px solid #3b3338;
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+    }
+    .verdict-card strong { display: block; margin: 6px 0 12px; font-size: 27px; line-height: 1.2; }
+    .verdict-card p { margin: 0; color: var(--muted); }
+    .verdict-mark {
+      display: inline-grid;
+      place-items: center;
+      width: 48px;
+      height: 48px;
+      border: 1px solid rgba(227,179,90,.5);
+      border-radius: 50%;
+      color: var(--gold);
+      font: 800 14px/1 ui-monospace, monospace;
+    }
+    .chips { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 29px; }
+    .chip {
+      padding: 7px 11px;
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      background: rgba(255,255,255,.025);
+      color: #c9c3bf;
+      font-size: 12px;
+    }
+    .chip.good { border-color: rgba(87,199,154,.42); color: #8fe0bd; }
+    .chip.warn { border-color: rgba(227,179,90,.42); color: #f2cd87; }
+
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 8;
+      border-bottom: 1px solid var(--line);
+      background: rgba(9,9,13,.88);
+      backdrop-filter: blur(18px);
+    }
+    nav .shell { display: flex; gap: 22px; overflow-x: auto; padding-top: 13px; padding-bottom: 13px; }
+    nav a { flex: 0 0 auto; color: var(--muted); text-decoration: none; font-size: 12px; font-weight: 700; }
+
+    main { padding-bottom: 100px; }
+    section { padding: 86px 0 0; }
+    .section-head {
+      display: grid;
+      grid-template-columns: minmax(210px, .42fr) minmax(0, 1fr);
+      gap: 32px;
+      align-items: end;
+      margin-bottom: 30px;
+    }
+    h2 { font-family: Georgia, serif; font-size: clamp(34px, 5vw, 58px); font-weight: 500; letter-spacing: -.035em; }
+    .section-head p { margin: 0; color: var(--muted); font-size: 17px; }
+    h3 { font-size: 19px; letter-spacing: -.015em; }
+
+    .metric-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .metric {
+      min-height: 150px;
+      padding: 20px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--panel);
+    }
+    .metric .value { display: block; color: var(--ink); font: 500 38px/1.1 Georgia, serif; letter-spacing: -.04em; }
+    .metric .label { display: block; margin-top: 12px; color: var(--muted); font-size: 12px; line-height: 1.4; }
+    .metric.good { border-top: 3px solid var(--jade); }
+    .metric.warn { border-top: 3px solid var(--gold); }
+    .metric.bad { border-top: 3px solid var(--garnet); }
+
+    .flow-card, .card, .finding, .phase, .evidence-block {
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+    }
+    .flow-card { padding: 28px; overflow: hidden; }
+    .flow {
+      display: grid;
+      grid-template-columns: 1fr 42px 1fr 42px 1fr;
+      align-items: stretch;
+      gap: 10px;
+    }
+    .flow-node { min-height: 160px; padding: 21px; border: 1px solid #35343f; border-radius: 14px; background: var(--panel-2); }
+    .flow-node .n { color: var(--gold); font: 700 11px/1 ui-monospace, monospace; }
+    .flow-node h3 { margin-top: 16px; }
+    .flow-node p { margin: 9px 0 0; color: var(--muted); font-size: 13px; }
+    .flow-arrow { display: grid; place-items: center; color: var(--dim); font-size: 26px; }
+
+    .table-wrap { overflow-x: auto; border: 1px solid var(--line); border-radius: var(--radius); background: var(--panel); }
+    table { width: 100%; border-collapse: collapse; min-width: 850px; }
+    th, td { padding: 15px 17px; border-bottom: 1px solid var(--line); vertical-align: top; text-align: left; }
+    th { color: var(--muted); font-size: 11px; text-transform: uppercase; letter-spacing: .12em; background: #14141b; }
+    td { font-size: 13px; }
+    tr:last-child td { border-bottom: 0; }
+    .status {
+      display: inline-block;
+      min-width: 88px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      font: 750 10px/1.15 ui-monospace, monospace;
+      text-align: center;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+    }
+    .confirmed { background: rgba(87,199,154,.12); color: #8fe0bd; border: 1px solid rgba(87,199,154,.28); }
+    .qualified { background: rgba(227,179,90,.12); color: #f0cc84; border: 1px solid rgba(227,179,90,.28); }
+    .unverified { background: rgba(120,169,212,.11); color: #a7c9e5; border: 1px solid rgba(120,169,212,.26); }
+    .not-current { background: rgba(201,73,95,.13); color: #ef8797; border: 1px solid rgba(201,73,95,.3); }
+
+    .findings { display: grid; gap: 14px; }
+    .finding {
+      display: grid;
+      grid-template-columns: 128px minmax(0,1fr);
+      gap: 22px;
+      padding: 25px;
+    }
+    .severity { font: 800 11px/1.1 ui-monospace, monospace; text-transform: uppercase; letter-spacing: .12em; }
+    .severity.high { color: var(--danger); }
+    .severity.medium { color: var(--gold); }
+    .severity.low { color: var(--steel); }
+    .finding h3 { margin-bottom: 9px; }
+    .finding p { margin: 0; color: var(--muted); }
+    .finding .proof { margin-top: 13px; color: #d0cac6; font-size: 13px; }
+    .finding .fix { margin-top: 13px; padding-top: 13px; border-top: 1px solid var(--line); color: #d9d4cf; font-size: 13px; }
+
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; }
+    .card { padding: 25px; }
+    .card h3 { margin-bottom: 14px; }
+    .card ul { margin: 0; padding-left: 18px; color: var(--muted); }
+    .card li + li { margin-top: 8px; }
+
+    .bar-list { display: grid; gap: 15px; }
+    .bar-row { display: grid; grid-template-columns: 215px 1fr 64px; gap: 15px; align-items: center; }
+    .bar-label { color: #d5cfca; font-size: 13px; }
+    .track { height: 9px; border-radius: 99px; background: #25242c; overflow: hidden; }
+    .fill { height: 100%; border-radius: inherit; background: linear-gradient(90deg, var(--garnet), var(--gold)); }
+    .bar-value { color: var(--muted); font: 700 12px/1 ui-monospace, monospace; text-align: right; }
+
+    .phases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; }
+    .phase { padding: 24px; border-top: 3px solid var(--gold); }
+    .phase .phase-no { color: var(--gold); font: 800 11px/1 ui-monospace, monospace; }
+    .phase h3 { margin: 14px 0 10px; }
+    .phase p { margin: 0; color: var(--muted); font-size: 13px; }
+    .phase ul { margin: 16px 0 0; padding-left: 18px; color: #cbc5c1; font-size: 13px; }
+    .phase li + li { margin-top: 7px; }
+
+    .evidence-block { padding: 25px; }
+    .evidence-block pre {
+      margin: 15px 0 0;
+      padding: 17px;
+      overflow-x: auto;
+      color: #d8d3ce;
+      background: #0b0b10;
+      border: 1px solid #24232b;
+      border-radius: 12px;
+      font: 12px/1.65 ui-monospace, SFMono-Regular, Menlo, monospace;
+    }
+
+    .callout {
+      margin-top: 18px;
+      padding: 19px 21px;
+      color: #dcd6d1;
+      border-left: 3px solid var(--gold);
+      background: rgba(227,179,90,.055);
+    }
+
+    footer { margin-top: 92px; padding: 28px 0 50px; border-top: 1px solid var(--line); color: var(--dim); font-size: 12px; }
+
+    @media (max-width: 900px) {
+      .hero-grid, .section-head, .split { grid-template-columns: 1fr; }
+      .metric-grid { grid-template-columns: repeat(2, 1fr); }
+      .flow { grid-template-columns: 1fr; }
+      .flow-arrow { transform: rotate(90deg); min-height: 28px; }
+      .phases { grid-template-columns: 1fr; }
+      .finding { grid-template-columns: 1fr; gap: 10px; }
+    }
+    @media (max-width: 580px) {
+      .shell { width: min(100% - 24px, 1180px); }
+      header { min-height: auto; padding-top: 52px; }
+      h1 { font-size: 47px; }
+      .deck { font-size: 18px; }
+      section { padding-top: 64px; }
+      .metric-grid { grid-template-columns: 1fr; }
+      .metric { min-height: 120px; }
+      .bar-row { grid-template-columns: 1fr 56px; gap: 8px; }
+      .track { grid-column: 1 / -1; grid-row: 2; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell hero-grid">
+      <div>
+        <div class="eyebrow">Independent work review · exact head 2bc8879 · 19 August 2026</div>
+        <h1>Built for evidence.<br>Not yet closed by it.</h1>
+        <p class="deck">Claude’s central account is materially correct: the fifty-island suite exists, the new cross-harness machinery is real, both remotes are synchronized, and all fifty skills are byte-identical in Claude Code and Codex. The engineering is unusually strong. Four material defects keep the suite from an unqualified “masterpiece” verdict.</p>
+        <div class="chips">
+          <span class="chip good">50 / 50 canonical</span>
+          <span class="chip good">50 / 50 Codex parity</span>
+          <span class="chip good">50 / 50 Claude parity</span>
+          <span class="chip good">42 tests green</span>
+          <span class="chip warn">4 material quality gaps</span>
+        </div>
+      </div>
+      <aside class="verdict-card">
+        <span class="verdict-mark">A−</span>
+        <strong>Strong suite. Qualified acceptance.</strong>
+        <p>Accept the installer, validator, repository promotion, and current file installation as verified. Do not yet accept “every island is evidenced,” “all git-push variants are mechanically blocked,” or “the fusion is reproducible from tracked provenance.”</p>
+      </aside>
+    </div>
+  </header>
+
+  <nav aria-label="Report sections">
+    <div class="shell">
+      <a href="#snapshot">Snapshot</a>
+      <a href="#claim-review">Claim review</a>
+      <a href="#findings">Findings</a>
+      <a href="#quality">Quality</a>
+      <a href="#install">Installation</a>
+      <a href="#plan">Closure plan</a>
+      <a href="#evidence">Evidence</a>
+    </div>
+  </nav>
+
+  <main class="shell">
+    <section id="snapshot">
+      <div class="section-head">
+        <div><div class="eyebrow">01 · Current truth</div><h2>What is in place</h2></div>
+        <p>These are re-derived observations from the current filesystem, git graph, remote heads, native validators, and independent directory comparisons—not copied status prose.</p>
+      </div>
+
+      <div class="metric-grid">
+        <div class="metric good"><span class="value">50</span><span class="label">Canonical skill directories, each with <span class="mono">SKILL.md</span> and a Codex sidecar</span></div>
+        <div class="metric good"><span class="value">50×2</span><span class="label">Exact content and executable-mode parity in <span class="mono">~/.agents/skills</span> and <span class="mono">~/.claude/skills</span></span></div>
+        <div class="metric good"><span class="value">42</span><span class="label">Current Python unit tests passing; the PR recorded 41 at merge time</span></div>
+        <div class="metric warn"><span class="value">40/50</span><span class="label">Skills represented in the “every island” validation report</span></div>
+        <div class="metric good"><span class="value">2/2</span><span class="label">Forge and public-org remote <span class="mono">main</span> heads equal the exact local head</span></div>
+      </div>
+
+      <div class="flow-card" style="margin-top:16px">
+        <div class="flow">
+          <div class="flow-node">
+            <span class="n">SOURCE OF TRUTH</span>
+            <h3>Forge at 2bc8879</h3>
+            <p>50 skills · 50 sidecars · 37 model-invoked · 13 explicit-only · canonical validator green.</p>
+          </div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-node">
+            <span class="n">TRANSPORT</span>
+            <h3>Atomic per-skill installer</h3>
+            <p>Preflighted destinations, deterministic manifests, executable-mode preservation, verify-only support.</p>
+          </div>
+          <div class="flow-arrow" aria-hidden="true">→</div>
+          <div class="flow-node">
+            <span class="n">RECEIVING SEATS</span>
+            <h3>Claude + Codex</h3>
+            <p>All 50 current source trees match both user-level destinations byte-for-byte and mode-for-mode.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="claim-review">
+      <div class="section-head">
+        <div><div class="eyebrow">02 · Claim ledger</div><h2>Claude’s account, checked</h2></div>
+        <p>Current facts are separated from historical actions that left no durable receipt. A qualified row is substantially true but needs a precision correction.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Claim</th><th>Verdict</th><th>Independent evidence</th></tr></thead>
+          <tbody>
+            <tr><td>Fifty skills; no new island added by PR #1</td><td><span class="status confirmed">Confirmed</span></td><td>50 source folders, 50 registry rows, 50 sidecars. The PR’s material work is installer, validator, support contract, CI, tests, reacceptance, and mission evidence.</td></tr>
+            <tr><td><span class="mono">install.py</span> is 1,371 lines; validator is 877</td><td><span class="status confirmed">Confirmed</span></td><td>Current line counts match exactly. Both parse cleanly and execute dependency-free under the tested Python runtime.</td></tr>
+            <tr><td>Canonical validation passes 50/50 with 13 benign claude.ai warnings</td><td><span class="status confirmed">Confirmed</span></td><td>Exit 0, 0 errors, 13 warnings—all <span class="mono">CLAUDE_AI_SUPPLIED_UNSUPPORTED_KEYS</span>. The separate <span class="mono">codex-strict</span> profile intentionally reports the same 13 extension-key incompatibilities.</td></tr>
+            <tr><td>17 newly installed + 33 updated in Claude Code</td><td><span class="status unverified">Historical</span></td><td>The present 50/50 parity is proved. The exact prior-state split was not persisted in the repository or an install receipt available here, so 17/33 cannot be reconstructed independently.</td></tr>
+            <tr><td>59 Claude skill entries = 50 IDC + 9 other packs</td><td><span class="status confirmed">Confirmed</span></td><td>Current inventory is exactly 59 = 50 IDC + 9 others. Five are ordinary directories; four Stripe packs are symlinked skill directories. Their continued presence and the installer’s per-skill behavior support the non-pruning claim, though no before-snapshot proves their historical bytes were unchanged.</td></tr>
+            <tr><td>All 50 “show live” in Claude’s session</td><td><span class="status unverified">Historical</span></td><td>Correct personal loader path and exact files are confirmed. Claude’s old session state is not inspectable now; a fresh command-picker/invocation canary was not captured in a durable artifact.</td></tr>
+            <tr><td>PR #1 contained 18 commits</td><td><span class="status qualified">Qualified</span></td><td>GitHub records 17 commits in the PR. The public base-to-tip graph gains 18 commits when the merge commit <span class="mono">2bc8879</span> is included. Claude’s promotion arithmetic is right; the PR-count wording is imprecise.</td></tr>
+            <tr><td>Local fast-forwarded to <span class="mono">2bc8879</span></td><td><span class="status confirmed">Current head</span></td><td>Local HEAD is the full SHA <span class="mono">2bc88794d3f2f437f7521a054c2ce64afaf1b111</span>.</td></tr>
+            <tr><td>Forge promoted to public org by clean fast-forward</td><td><span class="status confirmed">Confirmed</span></td><td>Old org head <span class="mono">c8e94a3</span> is an ancestor; both remote <span class="mono">main</span> refs currently resolve to the exact local head. No force was required.</td></tr>
+            <tr><td>Public description refreshed to 50 islands</td><td><span class="status confirmed">Confirmed</span></td><td>The current public GitHub repository description carries the claimed 50-island, cross-harness wording.</td></tr>
+            <tr><td>All 50 are installed “here” in Codex</td><td><span class="status qualified">Installed</span></td><td>Yes at the official user loader root <span class="mono">~/.agents/skills</span>, with zero content or mode drift. File discovery and invocation semantics are separate; a complete fresh <span class="mono">/skills</span> + explicit/implicit behavioral canary remains to be recorded.</td></tr>
+            <tr><td>Worktree is clean</td><td><span class="status not-current">Not current</span></td><td>Source remains unchanged, but the checkout currently contains a pre-existing untracked <span class="mono">.claude/</span> directory. This review adds only this HTML report.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="findings">
+      <div class="section-head">
+        <div><div class="eyebrow">03 · Confirmed findings</div><h2>Where the evidence breaks</h2></div>
+        <p>Each serious finding was replayed from a second angle. None depends on a green exit code alone.</p>
+      </div>
+
+      <div class="findings">
+        <article class="finding">
+          <div><div class="severity high">High · F-01</div><div class="mono dim" style="margin-top:10px">Authority guard</div></div>
+          <div>
+            <h3>The shipped “all variants” git-push guard has safe-to-demonstrate bypasses</h3>
+            <p>The skill promises that Layer 2 blocks <code>git push</code> in all forms. Its regex only matches <code>git</code> immediately followed by whitespace and <code>push</code>. Git global options inserted between them evade the hook.</p>
+            <div class="proof"><strong>Probe:</strong> plain <code>git push origin main</code> returned 2 (blocked); the inert JSON payloads <code>git -C /tmp push origin main</code> and <code>git --no-pager push origin main</code> both returned 0. No git command was executed—the hook only classified strings.</div>
+            <div class="fix"><strong>Closure:</strong> parse the git command form (including global options) or match the complete invocation grammar; add negative fixtures for <code>-C</code>, <code>-c</code>, <code>--git-dir</code>, <code>--work-tree</code>, and global long options. State this as advisory until a wired hook and bypass suite are green. The inspected Claude settings do not currently wire this bundled hook, so this is a shipped implementation defect—not evidence of a live intercepted command.</div>
+          </div>
+        </article>
+
+        <article class="finding">
+          <div><div class="severity high">High · F-02</div><div class="mono dim" style="margin-top:10px">Evidence integrity</div></div>
+          <div>
+            <h3>The “every island’s validation record” report covers only 40 of 50</h3>
+            <p><code>README.md</code> describes <code>docs/report.html</code> as every island’s validation record. The embedded dataset contains 40 skills and 120 cases.</p>
+            <div class="proof"><strong>Missing:</strong> <code>ai-humanizer</code>, <code>batch-sample-curate</code>, <code>computer-use-smoke</code>, <code>connected-fix-prompt</code>, <code>delegated-authority-prompt</code>, <code>exposure-audit</code>, <code>model-routing</code>, <code>self-contained-ship</code>, <code>skill-duel</code>, and <code>skill-supply-chain-review</code>.</div>
+            <div class="fix"><strong>Closure:</strong> commit machine-readable per-skill case records for all 50, generate the HTML from them, and make reacceptance fail unless report names equal registry names. Until then, the 50/50 structural gate is green but the 50/50 semantic evidence claim is not.</div>
+          </div>
+        </article>
+
+        <article class="finding">
+          <div><div class="severity medium">Medium · F-03</div><div class="mono dim" style="margin-top:10px">Provenance</div></div>
+          <div>
+            <h3>The fusion narrative is rich; the provenance lock is not reproducible</h3>
+            <p>The registry stores descriptive lineage but not upstream URL, exact upstream commit, archive digest, license, or copied-notice mapping. The repository’s root MIT notice names IDC only.</p>
+            <div class="proof"><strong>Recovered outside the repo:</strong> local source archives identify David Ondrej commit <code>6e554508…</code> (45 skills, archive SHA-256 <code>4435827e…</code>) and Matt Pocock commit <code>2ab95809…</code> (41 skills, archive SHA-256 <code>8b236fd3…</code>). Their MIT notices are present inside the zips. The two local fusion-report files are byte-identical. No exact historical ICM source pin was found.</div>
+            <div class="fix"><strong>Closure:</strong> add a tracked provenance lock with source URL, source commit, archive hash, license, notice path, affected skills, and transformation record. Preserve upstream notices. This is a reproducibility and compliance-evidence gap; it is not a legal conclusion.</div>
+          </div>
+        </article>
+
+        <article class="finding">
+          <div><div class="severity medium">Medium · F-04</div><div class="mono dim" style="margin-top:10px">Composition</div></div>
+          <div>
+            <h3>Several model-invoked skills silently route to explicit-only skills</h3>
+            <p>The suite’s own authoring canon says a user-invoked target cannot be autonomously fired and the body must tell the human to invoke it. That invariant is not enforced by the validator.</p>
+            <div class="proof"><strong>Examples:</strong> <code>spec-pipeline</code> says to run user-only <code>wayfinder</code>; <code>research</code> routes to user-only <code>teach</code>; <code>video-analysis</code> pairs with user-only <code>wait-what</code>; <code>ai-humanizer</code> hands work to user-only <code>prose-craft</code>/<code>short</code>. None includes the explicit human-invocation instruction that the conforming <code>grill → to-questionnaire</code> route demonstrates.</div>
+            <div class="fix"><strong>Closure:</strong> repair the four bodies and add a semantic reachability fixture covering registry invocation policy, markdown targets, and the required “tell the human” language for explicit-only destinations.</div>
+          </div>
+        </article>
+
+        <article class="finding">
+          <div><div class="severity low">Low · F-05</div><div class="mono dim" style="margin-top:10px">State hygiene</div></div>
+          <div>
+            <h3>Some handoff and local-state prose is stale</h3>
+            <p><code>docs/HANDOFF-2.0.0.md</code> still says both remotes are at <code>c4202cf</code> and the local tree is clean. The truth is now <code>2bc8879</code> with an unrelated untracked <code>.claude/</code> directory. Historical documents need a visible “snapshot as of” label or regeneration rule.</p>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="quality">
+      <div class="section-head">
+        <div><div class="eyebrow">04 · Engineering review</div><h2>Why the work is still excellent</h2></div>
+        <p>The gaps are real, but they sit inside a build that shows serious defensive engineering, unusually honest harness boundaries, and a healthy red-capable test culture.</p>
+      </div>
+
+      <div class="split">
+        <div class="card">
+          <h3>What earns the high grade</h3>
+          <ul>
+            <li>Canonical validation: 50/50, zero errors, warnings classified rather than suppressed.</li>
+            <li>Current reacceptance is green and reports exact pack facts, deterministic exports, mode checks, and source-drift status.</li>
+            <li>Forty-two unit tests are green; earlier critique records show real false-green defects were discovered and repaired.</li>
+            <li>The installer preflights the whole selection, replaces one skill atomically, preserves executable modes, and verifies exact manifests.</li>
+            <li>CI reaccepts on Ubuntu, Windows, and macOS; PR #1 finished with three checks passing.</li>
+            <li>Harness documentation explicitly refuses to equate copied bytes with runtime semantics.</li>
+            <li>Python source parses cleanly. Shellcheck found no errors or warnings—only three informational <code>SC2012</code> notes in video frame handling.</li>
+            <li>Manual inspection found no obfuscated payload, self-replication, hidden prompt injection, or unexplained phone-home behavior in bundled scripts.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>Evidence-weighted scorecard</h3>
+          <div class="bar-list">
+            <div class="bar-row"><div class="bar-label">Distribution &amp; parity</div><div class="track"><div class="fill" style="width:96%"></div></div><div class="bar-value">9.6/10</div></div>
+            <div class="bar-row"><div class="bar-label">Tooling &amp; portability</div><div class="track"><div class="fill" style="width:92%"></div></div><div class="bar-value">9.2/10</div></div>
+            <div class="bar-row"><div class="bar-label">Skill architecture</div><div class="track"><div class="fill" style="width:87%"></div></div><div class="bar-value">8.7/10</div></div>
+            <div class="bar-row"><div class="bar-label">Semantic validation</div><div class="track"><div class="fill" style="width:73%"></div></div><div class="bar-value">7.3/10</div></div>
+            <div class="bar-row"><div class="bar-label">Provenance reproducibility</div><div class="track"><div class="fill" style="width:64%"></div></div><div class="bar-value">6.4/10</div></div>
+          </div>
+          <div class="callout">These scores are review judgments, not gate outputs. The measurable facts are the counts, hashes, exit results, and concrete counterexamples elsewhere in this report.</div>
+        </div>
+      </div>
+    </section>
+
+    <section id="install">
+      <div class="section-head">
+        <div><div class="eyebrow">05 · Platform state</div><h2>Installed here: yes</h2></div>
+        <p>The filesystem claim is proven. Runtime behavior is correctly bounded to what this review actually observed.</p>
+      </div>
+
+      <div class="table-wrap">
+        <table>
+          <thead><tr><th>Surface</th><th>Current destination</th><th>IDC skills</th><th>Other packs</th><th>Evidence tier</th></tr></thead>
+          <tbody>
+            <tr><td>Codex</td><td><code>/Users/IDC2.5/.agents/skills</code></td><td>50 / 50 exact</td><td>4</td><td><span class="status confirmed">File verified</span> plus successful discovery of IDC skills used in this review</td></tr>
+            <tr><td>Claude Code</td><td><code>/Users/IDC2.5/.claude/skills</code></td><td>50 / 50 exact</td><td>9</td><td><span class="status confirmed">File verified</span>; historical all-50 picker claim not replayed</td></tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="callout">Official OpenAI documentation places user skills at <code>$HOME/.agents/skills</code>, supports explicit <code>$skill</code> and implicit description matching, and warns that very large installations may omit skills from the initial prompt list because that list is context-budgeted. An omitted name in this task’s initial list is therefore not evidence of a missing file. A fresh <code>/skills</code> selection and one explicit + one implicit canary should still be captured for release evidence.</div>
+    </section>
+
+    <section id="plan">
+      <div class="section-head">
+        <div><div class="eyebrow">06 · Closure sequence</div><h2>From strong to defensible</h2></div>
+        <p>Three compact phases close the real gaps without reopening the suite’s architecture or rewriting its identity.</p>
+      </div>
+
+      <div class="phases">
+        <article class="phase">
+          <div class="phase-no">P0 · AUTHORITY</div>
+          <h3>Make the guard truthful</h3>
+          <p>Highest priority because an explicit authority boundary currently has syntax bypasses.</p>
+          <ul>
+            <li>Red fixtures for git global-option forms</li>
+            <li>Grammar-aware classifier or complete parser</li>
+            <li>Wired-hook smoke before “enforced” wording</li>
+          </ul>
+        </article>
+        <article class="phase">
+          <div class="phase-no">P1 · EVIDENCE</div>
+          <h3>Close the missing ten</h3>
+          <p>Make the public quality claim match the artifact that is supposed to prove it.</p>
+          <ul>
+            <li>Raw records for 50/50 islands</li>
+            <li>Registry ↔ report name-set gate</li>
+            <li>Regenerate stale handoff status</li>
+          </ul>
+        </article>
+        <article class="phase">
+          <div class="phase-no">P2 · LINEAGE</div>
+          <h3>Pin the fusion and its routes</h3>
+          <p>Turn recoverable local history into a portable, reviewable supply-chain record.</p>
+          <ul>
+            <li>Tracked source/commit/license lock</li>
+            <li>Preserved upstream notices</li>
+            <li>User-only reachability validator</li>
+            <li>Fresh Claude + Codex canary receipt</li>
+          </ul>
+        </article>
+      </div>
+
+      <div class="table-wrap" style="margin-top:16px">
+        <table>
+          <thead><tr><th>Baseline</th><th>Target</th><th>Acceptance test</th></tr></thead>
+          <tbody>
+            <tr><td>2 safe git-push bypasses</td><td>0 across declared command forms</td><td>Negative fixture matrix fails before fix, passes after; ordinary read-only git remains allowed</td></tr>
+            <tr><td>40/50 validation-report coverage</td><td>50/50, raw + rendered</td><td>Generated name set exactly equals registry name set</td></tr>
+            <tr><td>Descriptive provenance labels</td><td>Machine-readable pinned lineage</td><td>Every fused skill maps to URL, commit/archive hash, license, notice, and transformation record</td></tr>
+            <tr><td>4 confirmed explicit-only route defects</td><td>0 silent routes</td><td>Validator fixture proves each explicit-only destination tells the human to invoke it</td></tr>
+            <tr><td>File parity only for full fleet</td><td>File parity + loader canaries</td><td>Fresh Claude and Codex sessions record picker discovery, explicit invocation, and one implicit match</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="evidence">
+      <div class="section-head">
+        <div><div class="eyebrow">07 · Reproduction ledger</div><h2>Evidence floor</h2></div>
+        <p>Representative commands and outputs used to reach the verdict. Destructive actions were not performed.</p>
+      </div>
+
+      <div class="evidence-block">
+        <h3>Core gate outcomes</h3>
+        <pre>HEAD  2bc88794d3f2f437f7521a054c2ce64afaf1b111
+idc/main     2bc88794d3f2f437f7521a054c2ce64afaf1b111
+origin/main  2bc88794d3f2f437f7521a054c2ce64afaf1b111
+
+canonical validator  PASS · 50/50 · errors 0 · warnings 13
+unit tests           PASS · 42 tests
+reacceptance         PASS · skills 50/50 · nativeTargets 4×50
+Codex verify-only    PASS · 50 verified · 0 mismatches
+Claude verify-only   PASS · 50 verified · 0 mismatches
+independent diff     PASS · content drift 0 · mode drift 0 (both seats)</pre>
+      </div>
+
+      <div class="evidence-block" style="margin-top:15px">
+        <h3>Adversarial guard probe</h3>
+        <pre>JSON command string                         hook exit
+git push origin main                       2  BLOCKED
+git -C /tmp push origin main               0  ALLOWED
+git --no-pager push origin main            0  ALLOWED
+
+The strings were sent to the classifier on stdin. They were never executed.</pre>
+      </div>
+
+      <div class="evidence-block" style="margin-top:15px">
+        <h3>Primary sources and local artifacts</h3>
+        <ul class="muted">
+          <li><a href="https://github.com/Island-Dev-Crew/idc-skills">Public IDC Skills repository</a></li>
+          <li><a href="https://github.com/Navigata1/idc-skills-forge/pull/1">Forge PR #1</a></li>
+          <li><a href="https://developers.openai.com/codex/skills">Official OpenAI: Build skills</a></li>
+          <li><a href="https://code.claude.com/docs/en/skills">Official Anthropic: Extend Claude with skills</a></li>
+          <li><a href="./README.md">README.md</a> · <a href="./docs/report.html">docs/report.html</a> · <a href="./docs/HANDOFF-2.0.0.md">docs/HANDOFF-2.0.0.md</a></li>
+          <li><a href="./skills/agent-guardrails/SKILL.md">agent-guardrails/SKILL.md</a> · <a href="./skills/agent-guardrails/scripts/block-dangerous-git.sh">block-dangerous-git.sh</a></li>
+          <li><span class="mono">/Users/IDC2.5/Downloads/skills-main.zip</span> · <span class="mono">/Users/IDC2.5/Downloads/skills-main (1).zip</span> · <span class="mono">/Users/IDC2.5/Downloads/IDC-SKILLS-FUSION-REPORT-v1.html</span></li>
+        </ul>
+      </div>
+
+      <div class="callout"><strong>Supply-chain disposition:</strong> acceptable to continue using at the exact reviewed head, with the provenance gap recorded. Do not call the fusion fully reproducible or the guard mechanically exhaustive until P0–P2 close. This report authorizes no push, PR, merge, deletion, or hook installation.</div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">IDC Skills independent work review · Generated from current local and remote evidence on 2026-08-19 · No authority without evidence.</div>
+  </footer>
+</body>
+</html>

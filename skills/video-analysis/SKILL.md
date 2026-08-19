@@ -50,6 +50,6 @@ A frame every few seconds still misses a one-frame flash — state that the fram
 
 ## Where this sits
 
-A video is a primary source — this is the media-extraction leaf that feeds [`research`](../research/SKILL.md) (cite the video the way research cites any source). Pair with [`wait-what`](../wait-what/SKILL.md) to make the write-up readable, and [`folder-workspace`](../folder-workspace/SKILL.md) when a batch of videos becomes a knowledge bundle.
+A video is a primary source — this is the media-extraction leaf that feeds [`research`](../research/SKILL.md) (cite the video the way research cites any source). To make the write-up readable, [`wait-what`](../wait-what/SKILL.md) is the tool — but it is **user-invoked**, so you cannot trigger it; tell the human to invoke it on the finished write-up. Reach for [`folder-workspace`](../folder-workspace/SKILL.md) when a batch of videos becomes a knowledge bundle.
 
 **No authority without evidence. The transcript is what was said; the frame is what was shown; cite which.**
