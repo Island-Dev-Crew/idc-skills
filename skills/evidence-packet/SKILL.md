@@ -3,9 +3,9 @@ name: evidence-packet
 description: Assemble a byte-verifiable evidence packet for a change — the diff, the verification-ladder commands, and their captured outputs — so a reviewer recomputes every claim instead of trusting the author. Use when preparing work for review or merge, when the user mentions "evidence packet", "evidence bundle", "prove this change", or wants acceptance to rest on evidence the author cannot fake. Differentiator - IDC-native; this is the Contributor-Road artifact that lets a weak author and a frontier author be exactly as mergeable when both can run the ladder.
 ---
 
-# Evidence Packet — the artifact the author cannot fake
+# Evidence Packet: the artifact the author cannot fake
 
-An IDC-native island, the **Contributor Road** made portable. The thesis it serves: *acceptance is a decision made on evidence the author cannot fake.* When evidence is machine-checkable, acceptance stops needing either a genius author or an exhausted human reviewer — a weak model that can run the ladder is exactly as mergeable as a frontier one, because the gates decide mechanically on the packet, not on who wrote it.
+An IDC-native island, the **Contributor Road** made portable. The thesis it serves: *acceptance is a decision made on evidence the author cannot fake.* When evidence is machine-checkable, acceptance stops needing either a genius author or an exhausted human reviewer. A weak model that can run the ladder is exactly as mergeable as a frontier one, because the gates decide mechanically on the packet, not on who wrote it.
 
 The packet is the contributor's deliverable: **produce a diff → run the verification ladder → emit the packet → the gates decide.** Slop dies at the gate before a human reads it.
 
@@ -20,11 +20,11 @@ evidence/<change-slug>/
   packet.sha256    # sha256 of everything above — the packet's own fingerprint
 ```
 
-Every claim in `ladder.md` points at a file in `out/` a reviewer can recompute. A claim with no captured output is not evidence — it is a sentence.
+Every claim in `ladder.md` points at a file in `out/` a reviewer can recompute. A claim with no captured output is not evidence; it is a sentence.
 
 ## The verification ladder
 
-The ladder is the ordered set of checks that, run green, prove the change. Each rung is **a command that could have failed** — a check that can't go red proves nothing (see [`diagnose`](../diagnose/SKILL.md) and the band caps in [`archipelago`](../archipelago/SKILL.md)). Build it from the change:
+The ladder is the ordered set of checks that, run green, prove the change. Each rung is **a command that could have failed**: a check that can't go red proves nothing (see [`diagnose`](../diagnose/SKILL.md) and the band caps in [`archipelago`](../archipelago/SKILL.md)). Build it from the change:
 
 ```bash
 set -euo pipefail
@@ -75,16 +75,16 @@ echo "packet sha256: $(cat evidence/$SLUG/packet.sha256)"
 
 The packet's value is that a reviewer, trusting none of it, can recompute it:
 
-1. Check out `head.txt`'s SHA from a **fresh clone** (never a worktree — worktrees share `.git` state and can false-green; see [`worktree-fleet`](../worktree-fleet/SKILL.md)).
+1. Check out `head.txt`'s SHA from a **fresh clone** (never a worktree, since worktrees share `.git` state and can false-green; see [`worktree-fleet`](../worktree-fleet/SKILL.md)).
 2. Re-run every command in `ladder.md`.
 3. Compare: exit codes must match exactly, and output must match after the normalization filter recorded in `ladder.md` (e.g. strip the clone-root path prefix, run every command from repo root, never capture timestamps). Divergence after normalization → the packet is void, exactly like a verdict whose head moved. Divergence only in machine-local paths → it isn't.
 
 This is what makes author strength irrelevant: the reviewer never grades the author, only recomputes the packet.
 
-The packet's rules are **advisory inside this skill** — nothing here blocks a fabricated rung or a missing `out/` file; the enforcement lives downstream, where [`cross-family-review`](../cross-family-review/SKILL.md) recomputes the packet from a fresh clone and voids it on any divergence. This island assembles the evidence; the gate decides. State that boundary rather than implying the packet self-enforces.
+The packet's rules are **advisory inside this skill**: nothing here blocks a fabricated rung or a missing `out/` file; the enforcement lives downstream, where [`cross-family-review`](../cross-family-review/SKILL.md) recomputes the packet from a fresh clone and voids it on any divergence. This island assembles the evidence; the gate decides. State that boundary rather than implying the packet self-enforces.
 
 ## Completion
 
-**Done when** `head.txt` names the reviewed SHA, every rung in `ladder.md` has a captured `out/` file showing its command and exit code, at least one rung demonstrably discriminates on this change — red against `BASE`'s content, green against `HEAD`'s, both runs captured (e.g. `out/discriminator.base.txt` and `out/discriminator.head.txt`) — and `packet.sha256` stamps the bundle. For a doc-only or trivial change where no ladder rung discriminates naturally, see [`diagnose`](../diagnose/SKILL.md) for constructing one. Hand the packet to [`cross-family-review`](../cross-family-review/SKILL.md); survivors become [`finding-register`](../finding-register/SKILL.md) entries, and the whole thing ships via [`transport-complete`](../transport-complete/SKILL.md).
+**Done when** `head.txt` names the reviewed SHA, every rung in `ladder.md` has a captured `out/` file showing its command and exit code, at least one rung demonstrably discriminates on this change (red against `BASE`'s content, green against `HEAD`'s, both runs captured, e.g. `out/discriminator.base.txt` and `out/discriminator.head.txt`), and `packet.sha256` stamps the bundle. For a doc-only or trivial change where no ladder rung discriminates naturally, see [`diagnose`](../diagnose/SKILL.md) for constructing one. Hand the packet to [`cross-family-review`](../cross-family-review/SKILL.md); survivors become [`finding-register`](../finding-register/SKILL.md) entries, and the whole thing ships via [`transport-complete`](../transport-complete/SKILL.md).
 
 **No authority without evidence. A claim with no captured output is a sentence, not evidence.**

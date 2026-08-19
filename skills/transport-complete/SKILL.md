@@ -11,7 +11,7 @@ The covenant: **transport is not complete until the exact change is verifiably l
 
 ## State check — how does this repo ship?
 
-Before touching git, learn the repo's actual shipping model — do not assume:
+Before touching git, learn the repo's actual shipping model; do not assume:
 
 ```bash
 git branch --show-current
@@ -20,9 +20,9 @@ grep -lE '^[[:space:]]*push:' .github/workflows/*.y*ml  # which of those actuall
 git remote -v                                        # where main lands
 ```
 
-Identify: the required CI check name (capture it as `WORKFLOW` — step 3 filters on it), whether deploy is push-triggered (Vercel-style) or manual, and the production health endpoint. Bind `WORKFLOW` **only** to a check whose `on:` block triggers on push to the ship branch — a schedule-only or `workflow_dispatch`-only workflow is not a gate for your SHA. This is a precondition on step 2: never push until a push-triggered required gate is named. If you can't name all three, ask — shipping blind is how the exact-SHA guarantee is lost.
+Identify: the required CI check name (capture it as `WORKFLOW`; step 3 filters on it), whether deploy is push-triggered (Vercel-style) or manual, and the production health endpoint. Bind `WORKFLOW` **only** to a check whose `on:` block triggers on push to the ship branch; a schedule-only or `workflow_dispatch`-only workflow is not a gate for your SHA. This is a precondition on step 2: never push until a push-triggered required gate is named. If you can't name all three, ask; shipping blind is how the exact-SHA guarantee is lost.
 
-This loop is GitHub Actions + `gh` CLI specific. If `ls .github/workflows` turns up no workflow that triggers on push to main — the directory is empty, or every file fires only on `schedule:`/`workflow_dispatch:` — the repo has no GH push gate (it may ship on GitLab CI, CircleCI, Jenkins, or nothing). STOP and tell the user — do not improvise an equivalent procedure or push blind.
+This loop is GitHub Actions + `gh` CLI specific. If `ls .github/workflows` turns up no workflow that triggers on push to main (the directory is empty, or every file fires only on `schedule:`/`workflow_dispatch:`), the repo has no GH push gate (it may ship on GitLab CI, CircleCI, Jenkins, or nothing). STOP and tell the user; do not improvise an equivalent procedure or push blind.
 
 ## The loop — repeat until the exact change is live
 
@@ -70,20 +70,20 @@ curl -sS -m 15 https://<prod-host>/<health-path>
 
 ## Landing work from a worktree
 
-Agents build in worktrees; the loop refuses to run there (a worktree carries its own branch hook and may hold stale safety code). To land it: commit on the worktree's own branch (never commit to main from a worktree), then in the primary checkout — clean tree required — `git pull --rebase`, merge or cherry-pick **your** branch (one at a time, never two seats' branches in one pass), resolve conflicts in the hub, then run the loop from step 2.
+Agents build in worktrees; the loop refuses to run there (a worktree carries its own branch hook and may hold stale safety code). To land it: commit on the worktree's own branch (never commit to main from a worktree), then in the primary checkout (clean tree required) `git pull --rebase`, merge or cherry-pick **your** branch (one at a time, never two seats' branches in one pass), resolve conflicts in the hub, then run the loop from step 2.
 
 ## Failure modes
 
-- **CI failed** — `gh run view <id> --log-failed`, reproduce locally (run the failing step), fix, commit, restart the loop. The new push gets a **new SHA** — track that one.
-- **CI green but deploy `failure`** — the build itself broke. Reproduce with the repo's build command; if it's platform-side (env vars, limits), stop and hand the user the deploy logs.
-- **CI `cancelled`** — a newer push superseded yours; your commit will never deploy alone. Confirm the newer SHA contains your change (`git merge-base --is-ancestor $SHA <newer>`) and track that SHA.
-- **Health returns not-ok / 503** — often migration drift: deployed code expects a migration not yet applied to prod. The deploy still succeeded. Agents never write to prod — tell the user which migration to apply and stop looping; say health will stay red until they do.
-- **Push rejected (non-fast-forward)** — someone pushed meanwhile. `git pull --rebase origin main` and push again. If the rebase stops on a conflict (the winning push touched a shared file), resolve the named files, `git add <files>`, `git rebase --continue` — never `git rebase --skip`, never `--autostash`. Then recompute `SHA=$(git rev-parse HEAD)` after the rebase completes and re-run step 3 on the new SHA. If the conflict can't be safely resolved, `git rebase --abort` and hand the user the conflicting paths — do not loop. Advisory: the resolution is operator judgment; `--autostash` stays banned here.
+- **CI failed:** `gh run view <id> --log-failed`, reproduce locally (run the failing step), fix, commit, restart the loop. The new push gets a **new SHA**, so track that one.
+- **CI green but deploy `failure`:** the build itself broke. Reproduce with the repo's build command; if it's platform-side (env vars, limits), stop and hand the user the deploy logs.
+- **CI `cancelled`:** a newer push superseded yours; your commit will never deploy alone. Confirm the newer SHA contains your change (`git merge-base --is-ancestor $SHA <newer>`) and track that SHA.
+- **Health returns not-ok / 503:** often migration drift: deployed code expects a migration not yet applied to prod. The deploy still succeeded. Agents never write to prod, so tell the user which migration to apply and stop looping; say health will stay red until they do.
+- **Push rejected (non-fast-forward):** someone pushed meanwhile. `git pull --rebase origin main` and push again. If the rebase stops on a conflict (the winning push touched a shared file), resolve the named files, `git add <files>`, `git rebase --continue`; never `git rebase --skip`, never `--autostash`. Then recompute `SHA=$(git rev-parse HEAD)` after the rebase completes and re-run step 3 on the new SHA. If the conflict can't be safely resolved, `git rebase --abort` and hand the user the conflicting paths; do not loop. Advisory: the resolution is operator judgment; `--autostash` stays banned here.
 
 ## Hard rules
 
 - Never push without the user's explicit go-ahead. Never force-push. Never push side branches (unless that is the repo's model).
 - Never weaken CI to go green: no deleting/skipping tests, no `--no-verify`, no merging around a red check.
-- If the change includes a DB migration, the user applies it to prod manually — expect health red until they do, and say so in the report.
+- If the change includes a DB migration, the user applies it to prod manually; expect health red until they do, and say so in the report.
 
 **No authority without evidence. A push is not done until production serves the exact SHA.**

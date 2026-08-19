@@ -5,32 +5,32 @@ disable-model-invocation: true
 argument-hint: "What would you like to learn about?"
 ---
 
-# Teach — a stateful learning workspace
+# Teach: a stateful learning workspace
 
 The user wants to learn something over multiple sessions. Treat the current directory as a teaching workspace and hold the state in files.
 
 ## Be very concise
 
-Teaching happens in the lessons and reference documents — not in long chat replies. Every message: what you did, what's next, the single most important thing for the user to do. Nothing more.
+Teaching happens in the lessons and reference documents, not in long chat replies. Every message: what you did, what's next, the single most important thing for the user to do. Nothing more.
 
 ## The workspace
 
-- `MISSION.md` — *why* the user wants this topic. Grounds all teaching. If no topic is named yet, ask what they want to learn; once named, ask why — a mission is sufficient once it names a topic plus a reason concrete enough to judge lesson relevance against. If they won't give a reason after one round of asking, offer 2-3 candidate angles to react to, or record a provisional exploratory mission and proceed — don't loop. Refuse plainly if the named topic's purpose is illegal or clearly harmful; no mission overrides that. Missions may change; confirm before changing, log a learning record when they do, and treat each directory (`lessons/`, `reference/`, `learning-records/`) as keeping its own continuing counter that never resets across the switch — the counters are independent, not one shared sequence — only the glossary, the zone of proximal development (below), and RESOURCES.md grounding are scoped to the active mission: re-ground resources for the new mission rather than reusing the old mission's sources — on a switch, append a new mission-headed section to RESOURCES.md (never delete the superseded mission's source list) and likewise append the superseded mission's rationale to an `Archived missions` section of MISSION.md before overwriting it (append-never-delete, as with RESOURCES.md), and create the new mission's glossary as its own reference file taking the next number in `reference/`'s own counter (if `reference/0001` exists, the new glossary is `reference/0002`, regardless of how many lessons exist), leaving prior-mission references intact.
-- `RESOURCES.md` — high-trust resources to ground teaching in. **Never trust your parametric knowledge** — gather from trusted sources first.
-- `./reference/*.html` — compressed learnings: cheat sheets, algorithms, syntax, glossaries. Revisited often; make them beautiful and print-friendly. A glossary, once created, is adhered to in every lesson within its mission.
-- `./lessons/*.html` — the primary unit of teaching. One self-contained, **beautiful** (Tufte-clean) HTML file per lesson, `0001-<dash-case>.html` incrementing. Short, completable fast (working memory is small), one tangible win, tied to the mission, in the user's zone of proximal development. **Before authoring any lesson, ground it:** confirm every technical claim and its citation against a source listed in RESOURCES.md; if the lesson needs material RESOURCES.md doesn't cover, research it from a trusted source and append that source first — never author from parametric memory. Link via anchors to other lessons and references; recommend one primary source; remind the user they can ask followup questions. **When a lesson contains a quiz, leak no clue through form:** options of near-identical length (no option conspicuously longer or shorter than the rest), the correct answer's position randomized, and distractors plausible and non-correlated — length alone is one constraint, not the whole guard.
-- `./learning-records/*.md` — what the user has learned, ADR-style, `0001-<dash-case>.md`. Used to calculate the zone of proximal development.
-- `NOTES.md` — user preferences and working notes.
+- `MISSION.md`: *why* the user wants this topic. Grounds all teaching. If no topic is named yet, ask what they want to learn; once named, ask why: a mission is sufficient once it names a topic plus a reason concrete enough to judge lesson relevance against. If they won't give a reason after one round of asking, offer 2-3 candidate angles to react to, or record a provisional exploratory mission and proceed; don't loop. Refuse plainly if the named topic's purpose is illegal or clearly harmful; no mission overrides that. Missions may change; confirm before changing, log a learning record when they do, and treat each directory (`lessons/`, `reference/`, `learning-records/`) as keeping its own continuing counter that never resets across the switch (the counters are independent, not one shared sequence). Only the glossary, the zone of proximal development (below), and RESOURCES.md grounding are scoped to the active mission: re-ground resources for the new mission rather than reusing the old mission's sources. On a switch, append a new mission-headed section to RESOURCES.md (never delete the superseded mission's source list) and likewise append the superseded mission's rationale to an `Archived missions` section of MISSION.md before overwriting it (append-never-delete, as with RESOURCES.md), and create the new mission's glossary as its own reference file taking the next number in `reference/`'s own counter (if `reference/0001` exists, the new glossary is `reference/0002`, regardless of how many lessons exist), leaving prior-mission references intact.
+- `RESOURCES.md`: high-trust resources to ground teaching in. **Never trust your parametric knowledge**: gather from trusted sources first.
+- `./reference/*.html`, compressed learnings: cheat sheets, algorithms, syntax, glossaries. Revisited often; make them beautiful and print-friendly. A glossary, once created, is adhered to in every lesson within its mission.
+- `./lessons/*.html`: the primary unit of teaching. One self-contained, **beautiful** (Tufte-clean) HTML file per lesson, `0001-<dash-case>.html` incrementing. Short, completable fast (working memory is small), one tangible win, tied to the mission, in the user's zone of proximal development. **Before authoring any lesson, ground it:** confirm every technical claim and its citation against a source listed in RESOURCES.md; if the lesson needs material RESOURCES.md doesn't cover, research it from a trusted source and append that source first; never author from parametric memory. Link via anchors to other lessons and references; recommend one primary source; remind the user they can ask followup questions. **When a lesson contains a quiz, leak no clue through form:** options of near-identical length (no option conspicuously longer or shorter than the rest), the correct answer's position randomized, and distractors plausible and non-correlated: length alone is one constraint, not the whole guard.
+- `./learning-records/*.md`: what the user has learned, ADR-style, `0001-<dash-case>.md`. Used to calculate the zone of proximal development.
+- `NOTES.md`: user preferences and working notes.
 
 ## Philosophy
 
 Deep learning needs three things: **knowledge** (from high-trust resources), **skills** (acquired through relevant interactive lessons), and **wisdom** (from real-world practice and community).
 
-Split two kinds of learning: **fluency strength** (in-the-moment retrieval, which gives an illusory sense of mastery) vs **storage strength** (long-term retention, the real goal). Build storage strength through *desirable difficulty*: retrieval practice (recall from memory), spacing (distribute over time), interleaving (mix related topics — skills practice only).
+Split two kinds of learning: **fluency strength** (in-the-moment retrieval, which gives an illusory sense of mastery) vs **storage strength** (long-term retention, the real goal). Build storage strength through *desirable difficulty*: retrieval practice (recall from memory), spacing (distribute over time), interleaving (mix related topics, skills practice only).
 
-- For **knowledge**, difficulty is the enemy — it eats working memory. Teach only what the skill needs, littered with citations.
-- For **skills**, difficulty is the tool — effortful retrieval builds durability. Teach through interactive lessons built on a **feedback loop** that gives feedback immediately, ideally automatically. (Quiz form leaks no clues — see the lesson-authoring rule under *The workspace*.)
-- For **wisdom**, attempt an answer, then delegate to a **community** — a forum, subreddit, class, or local group where the user tests skills in the real world. Find high-reputation ones; respect it if they'd rather not join.
+- For **knowledge**, difficulty is the enemy: it eats working memory. Teach only what the skill needs, littered with citations.
+- For **skills**, difficulty is the tool: effortful retrieval builds durability. Teach through interactive lessons built on a **feedback loop** that gives feedback immediately, ideally automatically. (Quiz form leaks no clues: see the lesson-authoring rule under *The workspace*.)
+- For **wisdom**, attempt an answer, then delegate to a **community**: a forum, subreddit, class, or local group where the user tests skills in the real world. Find high-reputation ones; respect it if they'd rather not join.
 
 ## Zone of proximal development
 
@@ -38,4 +38,4 @@ Each lesson should challenge 'just enough'. If the user names an exact thing, te
 
 ## Credit
 
-Original version created by [Matt Pocock](https://github.com/mattpocock/skills). Adopted into the IDC archipelago with attribution, per covenant — supersede and preserve.
+Original version created by [Matt Pocock](https://github.com/mattpocock/skills). Adopted into the IDC archipelago with attribution, per covenant: supersede and preserve.
