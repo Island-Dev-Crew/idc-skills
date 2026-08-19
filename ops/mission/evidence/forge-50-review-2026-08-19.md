@@ -29,8 +29,9 @@
 - Semantic records: 50 records / 150 cases / registry=report exact.
 - Canonical validator: 50/50 passing with 13 named compatibility warnings.
 - Shellcheck: all eight release shell surfaces pass the exact Ubuntu CI command.
-- First PR #3 run: macOS passed; Windows exposed platform-native report newlines; Ubuntu exposed four shellcheck findings. Both red classes are repaired locally and require a new CI run.
-- Signed integrity: final CI-repaired worktree verifies 5/5 and `readyToRun=true` against manifest SHA-256 `564cd5b2f5e4a63c28d3424e6d85ba6c1174089694bd279ba1c08dac94ee6f11`.
-- Cross-family review: the prior exact-head PASS is void-on-move; pending the next exact committed candidate.
+- First PR #3 run: macOS passed; Windows exposed platform-native report newlines; Ubuntu exposed four shellcheck findings. Both red classes were repaired.
+- Second PR #3 run: Ubuntu and macOS passed; Windows exposed an ambiguous WSL/Git-Bash test boundary for three POSIX behavior probes. The harness now selects Git Bash explicitly and normalizes its process inputs without skipping the red assertions.
+- Signed integrity: the Windows-test-repaired worktree verifies 5/5 and `readyToRun=true` against manifest SHA-256 `50062fb8b07bc0a44d00f1ebc43a36f5cbf522b32c01f7a65f89e12146aea800`.
+- Cross-family review: the `1a38915` PASS is void-on-move after the accepted test-control repair; pending the next exact committed candidate.
 
 This file is chronological evidence, not the final verdict. The final exact-head results are appended in the release report and mission state after signature and independent review.

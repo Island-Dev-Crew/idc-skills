@@ -1,12 +1,12 @@
 {
   "schema": "idc-signed-gate-evidence/v1",
-  "observedAt": "2026-08-19T20:24:19Z",
+  "observedAt": "2026-08-19T20:42:25Z",
   "evidenceClass": "signed-worktree-precommit",
   "authorityBoundary": "This proves the frozen worktree and signature at observation time. Exact-commit review and fresh-clone reacceptance remain separate gates.",
   "release": "2.0.2",
   "fingerprint": "SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA",
-  "manifestSha256": "564cd5b2f5e4a63c28d3424e6d85ba6c1174089694bd279ba1c08dac94ee6f11",
-  "signatureSha256": "1e9b0a949c9a826cfa62828246e968ce4c88772d142ace5f6c6930424da79106",
+  "manifestSha256": "50062fb8b07bc0a44d00f1ebc43a36f5cbf522b32c01f7a65f89e12146aea800",
+  "signatureSha256": "f9bb022d95538e9edd7e07b53a37060be68b6d97f2031d269f678f7ab42eefd8",
   "verification": {
     "pass": true,
     "readyToRun": true,

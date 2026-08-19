@@ -21,8 +21,72 @@ REPO = Path(__file__).resolve().parents[1]
 
 
 def write_executable(path: Path, body: str) -> None:
-    path.write_text("#!/usr/bin/env bash\nset -euo pipefail\n" + body, encoding="utf-8")
+    path.write_bytes(
+        ("#!/usr/bin/env bash\nset -euo pipefail\n" + body).encode("utf-8")
+    )
     path.chmod(0o755)
+
+
+def bash_executable() -> str:
+    if os.name != "nt":
+        executable = shutil.which("bash")
+        if executable is None:
+            raise unittest.SkipTest("POSIX Bash is required for shell behavior tests")
+        return executable
+
+    candidates: list[Path] = []
+    git = shutil.which("git")
+    if git:
+        git_path = Path(git).resolve()
+        for parent in git_path.parents:
+            candidates.extend((parent / "bin/bash.exe", parent / "usr/bin/bash.exe"))
+    for variable in ("ProgramFiles", "ProgramFiles(x86)"):
+        base = os.environ.get(variable)
+        if base:
+            candidates.extend(
+                (Path(base) / "Git/bin/bash.exe", Path(base) / "Git/usr/bin/bash.exe")
+            )
+
+    seen: set[str] = set()
+    for candidate in candidates:
+        key = str(candidate).casefold()
+        if key in seen or not candidate.is_file():
+            continue
+        seen.add(key)
+        probe = subprocess.run(
+            [str(candidate), "--noprofile", "--norc", "-c", "printf IDC_GIT_BASH"],
+            text=True,
+            capture_output=True,
+            check=False,
+        )
+        if probe.returncode == 0 and probe.stdout == "IDC_GIT_BASH":
+            return str(candidate)
+    raise unittest.SkipTest("Git Bash is required for Windows shell behavior tests")
+
+
+def bash_path(path: Path) -> str:
+    resolved = path.resolve()
+    if os.name != "nt":
+        return str(resolved)
+    drive = resolved.drive.rstrip(":").lower()
+    if len(drive) != 1:
+        raise unittest.SkipTest(f"Git Bash path conversion requires a drive path: {resolved}")
+    suffix = resolved.as_posix()[len(resolved.drive) :]
+    return f"/{drive}{suffix}"
+
+
+def bash_command(script: Path, *arguments: object) -> list[str]:
+    converted = [
+        bash_path(argument) if isinstance(argument, Path) else str(argument)
+        for argument in arguments
+    ]
+    return [
+        bash_executable(),
+        "--noprofile",
+        "--norc",
+        bash_path(script),
+        *converted,
+    ]
 
 
 def load_integrity_hook():
@@ -159,21 +223,21 @@ class SecurityScriptTests(unittest.TestCase):
             driver = root / "flow.sh"
             write_executable(driver, "touch driver-ran\n")
             environment = os.environ.copy()
-            environment["PATH"] = f"{tools}:{environment['PATH']}"
+            environment["PATH"] = os.pathsep.join((str(tools), environment["PATH"]))
             process = subprocess.run(
-                [
-                    "bash",
-                    str(REPO / "skills/computer-use-smoke/scripts/smoke.sh"),
+                bash_command(
+                    REPO / "skills/computer-use-smoke/scripts/smoke.sh",
                     "http://127.0.0.1:4173/health",
                     "./flow.sh",
-                ],
+                ),
                 cwd=root,
                 env=environment,
                 text=True,
                 capture_output=True,
                 check=False,
             )
-            self.assertEqual(process.returncode, 3, process.stderr)
+            self.assertEqual(process.returncode, 3, process.stderr or process.stdout)
+            self.assertIn("never became ready", process.stderr)
             self.assertFalse((root / "driver-ran").exists())
             verdicts = list((root / "build/smoke").glob("*/verdict.txt"))
             self.assertEqual(len(verdicts), 1)
@@ -182,18 +246,17 @@ class SecurityScriptTests(unittest.TestCase):
     def test_smoke_rejects_external_driver(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             process = subprocess.run(
-                [
-                    "bash",
-                    str(REPO / "skills/computer-use-smoke/scripts/smoke.sh"),
+                bash_command(
+                    REPO / "skills/computer-use-smoke/scripts/smoke.sh",
                     "https://example.invalid/health",
                     "/bin/true",
-                ],
+                ),
                 cwd=temporary,
                 text=True,
                 capture_output=True,
                 check=False,
             )
-            self.assertEqual(process.returncode, 2)
+            self.assertEqual(process.returncode, 2, process.stderr or process.stdout)
             self.assertIn("flow driver", process.stderr)
 
     def test_video_grab_refuses_stale_output_and_failed_download(self) -> None:
@@ -212,33 +275,37 @@ exit 9
             write_executable(tools / "ffmpeg", "exit 0\n")
             write_executable(tools / "ffprobe", "printf '10.0\\n'\n")
             environment = os.environ.copy()
-            environment["PATH"] = f"{tools}:{environment['PATH']}"
+            environment["PATH"] = os.pathsep.join((str(tools), environment["PATH"]))
             script = REPO / "skills/video-analysis/scripts/grab.sh"
 
             stale = root / "stale"
             stale.mkdir()
             (stale / "source.mp4").write_bytes(b"old")
             stale_run = subprocess.run(
-                ["bash", str(script), "https://youtu.be/fixture", "3", str(stale)],
+                bash_command(script, "https://youtu.be/fixture", "3", stale),
                 cwd=root,
                 env=environment,
                 text=True,
                 capture_output=True,
                 check=False,
             )
-            self.assertEqual(stale_run.returncode, 2)
+            self.assertEqual(
+                stale_run.returncode, 2, stale_run.stderr or stale_run.stdout
+            )
             self.assertIn("refusing stale evidence", stale_run.stderr)
 
             failed = root / "fresh"
             failed_run = subprocess.run(
-                ["bash", str(script), "https://youtu.be/fixture", "3", str(failed)],
+                bash_command(script, "https://youtu.be/fixture", "3", failed),
                 cwd=root,
                 env=environment,
                 text=True,
                 capture_output=True,
                 check=False,
             )
-            self.assertEqual(failed_run.returncode, 4)
+            self.assertEqual(
+                failed_run.returncode, 4, failed_run.stderr or failed_run.stdout
+            )
             self.assertIn("download failed", failed_run.stderr)
 
     @unittest.skipIf(os.name == "nt", "POSIX mode assertion")
@@ -253,7 +320,7 @@ exit 9
             environment["PATH"] = f"{tools}:{environment['PATH']}"
             environment["ENV_FILE"] = str(root / ".env")
             process = subprocess.run(
-                ["bash", str(REPO / "skills/wizard/template.sh")],
+                bash_command(REPO / "skills/wizard/template.sh"),
                 cwd=root,
                 env=environment,
                 input="y\n\nfixture-secret\n",

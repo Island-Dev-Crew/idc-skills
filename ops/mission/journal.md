@@ -96,3 +96,17 @@
 - Repository verification and an independent direct OpenSSH invocation accepted the signature. The release gate returned `pass=true`, `readyToRun=true`, `score=5/5`, and `skillsChecked=50`.
 - Full current-worktree reacceptance passed with 74 unit tests, 50/50 canonical validation, four 50-skill native target probes, fifty snapshot ZIPs, and canonical skill-tree SHA-256 `fd2431c0e6f49447de507d0ca6d8c08bf30b2d4f2d1068cf23895bd57feba532`.
 - Exact-commit clean-clone replay and a new full-delta independent verdict remain mandatory because the prior c1e7cf1 verdict is void-on-move.
+
+## 2026-08-19T20:40Z — second CI run exposes the Windows shell-test boundary
+
+- Replacement exact head `1a3891585410074a8d5aa83efadea95482d1073a` passed clean-clone reacceptance, strict shellcheck, and a full-delta Claude Fable 5 review with no medium-or-higher finding. The branch advanced normally and triggered run `32299162505`.
+- Ubuntu and macOS passed. Windows cleared deterministic rendering, reached the unit suite, and returned generic exit 1 from three tests that launched POSIX scripts through bare `bash` with native paths, a hard-coded colon PATH, and platform-written executable fixtures. The failing run did not expose which Bash executable won resolution, so that historical detail remains unverified.
+- The test harness now resolves Git Bash only from the Git installation, converts drive paths, uses `os.pathsep`, writes LF-only fixtures, and retains the exact readiness, external-driver, stale-output, and failed-download red assertions. Local POSIX execution remains 74/74 green.
+- Because `tests/test_security_scripts.py` is signed control, the 1a38915 signature and PASS are void-on-move. Verification correctly returns 4/5 until manifest regeneration, biometric re-signing, clean-clone replay, and another exact-head review.
+
+## 2026-08-19T20:42Z — Windows-test-repaired worktree re-signed at 5/5
+
+- Owner biometric approval signed canonical manifest SHA-256 `50062fb8b07bc0a44d00f1ebc43a36f5cbf522b32c01f7a65f89e12146aea800`; detached-signature SHA-256 is `f9bb022d95538e9edd7e07b53a37060be68b6d97f2031d269f678f7ab42eefd8`.
+- Repository verification and direct OpenSSH verification both accepted the pinned Forge key. The gate returned `pass=true`, `readyToRun=true`, `score=5/5`, and `skillsChecked=50`.
+- Full signed-worktree reacceptance passed with 74 unit tests, 50/50 canonical validation, four 50-skill native target probes, fifty snapshot ZIPs, and unchanged canonical skill-tree SHA-256 `fd2431c0e6f49447de507d0ca6d8c08bf30b2d4f2d1068cf23895bd57feba532`.
+- This remains precommit evidence. The next exact commit must be replayed from a clean clone and independently reviewed before PR #3 can advance again.

@@ -130,16 +130,16 @@
       "size": 1238
     },
     "CHANGELOG.md": {
-      "sha256": "sha256:43544adb53e06ecc2a229bc5ac71d13e6a89e57509921090899f8865213ffaf4",
-      "size": 3131
+      "sha256": "sha256:b2fe8f685068366cf20206473880004851357b75eb518c09c935cccf3ae5d6b4",
+      "size": 3422
     },
     "CONTEXT.md": {
       "sha256": "sha256:d76252202de4147ffc7c4d061a3feec9b5ac76b418e89d698ff3e0bed3a23f7a",
       "size": 4040
     },
     "IDC-Skills-2.0.2-Gap-Analysis-and-Integrity-Review-v1-2026-08-19.html": {
-      "sha256": "sha256:9016cbf6de8d1ee0248a402451df30500a20985dc893d1c3102f5be24164add9",
-      "size": 43281
+      "sha256": "sha256:c70d73d7ac1a84b79883cd88e1a64ce3f84bfc425842fd6eaaed4481b820bb90",
+      "size": 43938
     },
     "README.md": {
       "sha256": "sha256:1fed66db952c12a9852b861c1b973e8553031123b9f009a7d29feecad6a5aca5",
@@ -226,8 +226,8 @@
       "size": 28617
     },
     "tests/test_security_scripts.py": {
-      "sha256": "sha256:17767974a41d8c862d3de03a54876ed8db5f4126a68e1572e304381006ff9549",
-      "size": 10654
+      "sha256": "sha256:380a290fd67a05af67b9067084e83383842bf080f366f51df556c0470aceafe1",
+      "size": 12932
     },
     "tests/test_skill_integrity.py": {
       "sha256": "sha256:3c2d2d13b89d7af33449c4f4f0569394a9486883a4ec663391129925b501a074",

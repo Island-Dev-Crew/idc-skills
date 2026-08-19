@@ -10,7 +10,7 @@
     "northStar": "Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.",
     "status": "in_progress",
     "started": "2026-08-11",
-    "updated": "2026-08-19T20:24:19Z",
+    "updated": "2026-08-19T20:42:25Z",
     "sessionCount": 2
   },
   "policies": {
@@ -316,8 +316,8 @@
           "command": "python -m unittest discover -s tests -p test_*.py && skills/agent-guardrails/scripts/test-block-dangerous-git.sh",
           "status": "passed",
           "evidence": "ops/mission/evidence/forge-50-review-2026-08-19.md",
-          "lastRun": "2026-08-19T20:24:19Z",
-          "notes": "Final signed-worktree reacceptance passes 74 unit tests, 37/37 Git authority fixtures, 50/50 canonical validation, 50 records/150 cases, the exact eight-file shellcheck command, four 50-skill native target probes, and fifty deterministic historical snapshot ZIPs."
+          "lastRun": "2026-08-19T20:42:25Z",
+          "notes": "Final Windows-test-repaired signed-worktree reacceptance passes 74 unit tests, 37/37 Git authority fixtures, 50/50 canonical validation, 50 records/150 cases, the exact eight-file shellcheck command, four 50-skill native target probes, and fifty deterministic historical snapshot ZIPs."
         },
         {
           "id": "P5-G2",
@@ -325,8 +325,8 @@
           "command": "python scripts/skill_integrity.py verify",
           "status": "passed",
           "evidence": "ops/mission/evidence/signed-gate-2.0.2.json",
-          "lastRun": "2026-08-19T20:24:19Z",
-          "notes": "The CI-repaired manifest SHA-256 is 564cd5b2f5e4a63c28d3424e6d85ba6c1174089694bd279ba1c08dac94ee6f11 and detached-signature SHA-256 is 1e9b0a949c9a826cfa62828246e968ce4c88772d142ace5f6c6930424da79106. The pinned Forge key verifies pass=true, readyToRun=true, score=5/5, and skillsChecked=50."
+          "lastRun": "2026-08-19T20:42:25Z",
+          "notes": "The Windows-test-repaired manifest SHA-256 is 50062fb8b07bc0a44d00f1ebc43a36f5cbf522b32c01f7a65f89e12146aea800 and detached-signature SHA-256 is f9bb022d95538e9edd7e07b53a37060be68b6d97f2031d269f678f7ab42eefd8. The pinned Forge key verifies pass=true, readyToRun=true, score=5/5, and skillsChecked=50."
         },
         {
           "id": "P5-G3",
@@ -334,8 +334,8 @@
           "command": "claude -p <exact-head-review-brief>",
           "status": "pending",
           "evidence": null,
-          "lastRun": "2026-08-19T20:11:56Z",
-          "notes": "Claude Fable 5 returned PASS with no medium-or-higher finding for c1e7cf1 and the full PR delta, but PR #3 CI then required authenticated-byte repairs. That PASS is void-on-move; the next exact head must receive a new full-delta review."
+          "lastRun": "2026-08-19T20:33:25Z",
+          "notes": "Claude Fable 5 returned PASS with no medium-or-higher finding for 1a38915 and the full PR delta, but the second PR #3 run then exposed the Windows shell-test process boundary. That PASS is void-on-move; the next exact head must receive a new full-delta review."
         }
       ],
       "tasks": [
@@ -367,7 +367,7 @@
             "P5-T2"
           ],
           "pr": null,
-          "notes": "PR #3 CI moved authenticated bytes after the c1e7cf1 signature and PASS. Regenerate, re-sign, clean-clone, and review the repaired exact head before transport resumes."
+          "notes": "The second PR #3 run moved signed test-control bytes after the 1a38915 signature and PASS. Regenerate, re-sign, clean-clone, and review the repaired exact head before transport resumes."
         }
       ]
     },
@@ -385,16 +385,16 @@
           "status": "pending",
           "evidence": null,
           "lastRun": "2026-08-19T20:11:55Z",
-          "notes": "The clean clone of c1e7cf1 passed and remained clean, but the CI repair voided that candidate. Replay is required on the next signed exact head."
+          "notes": "The clean clone of 1a38915 passed and remained clean, but the Windows test-boundary repair voided that candidate. Replay is required on the next signed exact head."
         },
         {
           "id": "P6-G2",
           "title": "PR #3 merges with required CI green",
           "command": "gh pr checks 3 --watch",
           "status": "pending",
-          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32297188243",
-          "lastRun": "2026-08-19T20:13:48Z",
-          "notes": "First run: macOS passed; Ubuntu failed strict shellcheck; Windows failed cross-platform report-byte determinism. Merge was held and both failure classes were repaired locally for a new run."
+          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32299162505",
+          "lastRun": "2026-08-19T20:40:48Z",
+          "notes": "Second run: Ubuntu and macOS passed; Windows reached the unit suite and exposed three POSIX behavior tests crossing an ambiguous native Bash boundary. Merge was held; the harness now resolves Git Bash explicitly and normalizes paths, PATH, and fixture bytes."
         },
         {
           "id": "P6-G3",
@@ -415,7 +415,7 @@
             "P5-T3"
           ],
           "pr": null,
-          "notes": "The c1e7cf1 clean-clone acceptance is historical after the CI repair; the task reopens for the next exact commit."
+          "notes": "The 1a38915 clean-clone acceptance is historical after the Windows test-boundary repair; the task reopens for the next exact commit."
         },
         {
           "id": "P6-T2",
@@ -444,7 +444,7 @@
     {
       "label": "Signed release integrity checks",
       "baseline": "0/5",
-      "current": "5/5 readyToRun on final CI-repaired signed worktree",
+      "current": "5/5 readyToRun on Windows-test-repaired signed worktree",
       "target": "5/5 readyToRun",
       "direction": "up"
     },
@@ -553,13 +553,13 @@
   "resume": {
     "activePhase": "P5",
     "nextActions": [
-      "Regenerate and re-sign the CI-repaired manifest, require 5/5, then commit without moving authenticated bytes.",
-      "Reaccept the repaired exact candidate from a fresh clone, obtain a new full-delta Claude-family verdict, update PR #3, and merge only after all required CI jobs are green.",
+      "Commit the Windows-test-repaired signed candidate without moving authenticated bytes.",
+      "Reaccept the next exact candidate from a fresh clone, obtain a new full-delta Claude-family verdict, update PR #3, and merge only after all required CI jobs are green.",
       "Promote the exact merged tree to IslandDevCrew, tag 2.0.2 on both remotes, reinstall Claude/Codex targets with integrity verification, and compare installed bytes."
     ],
     "blockers": [
-      "The current worktree is intentionally 3/5 because PR #3 CI repairs moved signed control and skill bytes; manifest regeneration and biometric re-signing are pending.",
-      "The latest Claude PASS binds c1e7cf1 only and is void after the CI repairs; clean-clone replay and full-delta exact-head review must be repeated on the next commit.",
+      "The signed worktree is 5/5; exact-commit clean-clone replay and a new independent full-delta verdict are still pending.",
+      "The latest Claude PASS binds 1a38915 only and is void after the Windows test-boundary repair; clean-clone replay and full-delta exact-head review must be repeated on the next commit.",
       "Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; this product limitation is not a blocker for the native 2.0.2 release.",
       "The first requested video's source frames remain unavailable after YouTube 403/reload failures; transcript evidence is complete and no visual claim is made.",
       "The historical ICM fusion commit remains unknown; the live head and license are recorded without substituting current provenance for missing historical evidence."
