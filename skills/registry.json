@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "release": "2.0.1",
+  "release": "2.0.2",
   "name": "idc-skills-forge",
   "bundleName": "idc-skills-forge",
   "staging": "Navigata1/idc-skills-forge",
@@ -277,12 +277,13 @@
       "path": "domain-modeling",
       "invocation": "model",
       "provenance": "earned add — Pocock domain-modeling (ubiquitous language, glossary, ADRs)",
-      "summary": "Actively build and sharpen a project's domain model — challenge terms, invent edge-case scenarios, and write the glossary and decisions down the moment they crystallise. The active discipline that changes the model, distinct from reading CONTEXT.md.",
+      "summary": "Actively build and sharpen a project's domain model — challenge terms, invent edge-case scenarios, and write the glossary and term-derived decisions down when they crystallise. The active discipline that changes the model, distinct from reading CONTEXT.md.",
       "triggers": [
         "domain model",
         "ubiquitous language",
         "pin down terminology",
-        "record an architectural decision",
+        "edit domain CONTEXT.md",
+        "record a term-derived ADR",
         "glossary"
       ]
     },

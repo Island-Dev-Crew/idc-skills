@@ -1,0 +1,265 @@
+{
+  "records": [
+    {
+      "caseAvg": 9.0,
+      "cases": [
+        {
+          "score": 9,
+          "title": "Deterministic JSON scoring",
+          "whatHappened": "Scored the same 18-word fixture twice with `node skills/ai-humanizer/scripts/score.js --json <file>` and diffed the outputs. The diff exited 0; both runs reported score 53 and wordCount 18."
+        },
+        {
+          "score": 9,
+          "title": "Unchanged text cannot claim improvement",
+          "whatHappened": "Ran `scripts/delta.sh` on byte-identical before/after fixtures. It reported before=53, after=53, delta=0 and exited 1, so a no-op did not pass as an improvement."
+        },
+        {
+          "score": 9,
+          "title": "Deletion collapse is rejected",
+          "whatHappened": "Ran the delta gate on an 18-word input and an 8-word rewrite. It exited 2 with `AFTER kept 8/18 words, under 50% floor`, preventing score laundering by deleting substance."
+        }
+      ],
+      "confidence": 9.5,
+      "inv": "model",
+      "oneLiner": "Deterministic AI-writing-tell scoring with a red-capable before/after retention gate.",
+      "residual": "The metric is advisory and can be optimized against; a passing score is not proof of human authorship or prose quality.",
+      "skill": "ai-humanizer",
+      "standoutStrength": "Stable machine output plus explicit no-op and retention failures make cosmetic score claims reproducibly challengeable."
+    },
+    {
+      "caseAvg": 10.0,
+      "cases": [
+        {
+          "score": 10,
+          "title": "Conditionable generators route elsewhere",
+          "whatHappened": "A deterministic contract probe found the skill distinguishes memoryless generators from seeded, img2img, or feedback-capable tools and routes the latter to gauntlet-loop instead of wasteful independent sampling."
+        },
+        {
+          "score": 10,
+          "title": "Spend and failure paths are bounded",
+          "whatHappened": "The current signed candidate requires explicit operator spend approval or an already-enforced authorized budget, recommends 3-5 initial draws, and requires a spend/round abort gate with capability-ceiling escalation."
+        },
+        {
+          "score": 10,
+          "title": "Every candidate and tie-break remains auditable",
+          "whatHappened": "The procedure requires a criterion-tied keep/cut row for every candidate, a recorded tie-break for genuine ties, preserved cuts, and an explicit abort outcome. The contract text was recomputed with targeted `rg` probes."
+        }
+      ],
+      "confidence": 8.5,
+      "inv": "user",
+      "oneLiner": "Samples independent candidates only when conditioning is unavailable, then curates with a scored keep/cut ledger.",
+      "residual": "No bundled validator enforces ledger completeness or an external provider's spend cap; those controls remain harness dependent.",
+      "skill": "batch-sample-curate",
+      "standoutStrength": "Separates operator spend authority from numeric caps and preserves rejected candidates as evidence."
+    },
+    {
+      "caseAvg": 8.7,
+      "cases": [
+        {
+          "score": 9,
+          "title": "Readiness failure blocks the driver",
+          "whatHappened": "With fixture curl forced red and a repo-local marker driver, `smoke.sh` exited 3, never created the driver marker, and wrote a verdict containing VERDICT=3 and STAGE=readiness."
+        },
+        {
+          "score": 8,
+          "title": "Passing flow preserves checkpoint evidence",
+          "whatHappened": "With readiness green, a local fixture driver wrote `checkpoint=dashboard text=Welcome` and exited 0. The harness preserved VERDICT=0, STAGE=flow, the log, and the checkpoint artifact."
+        },
+        {
+          "score": 9,
+          "title": "Failing flow propagates red",
+          "whatHappened": "A local fixture driver wrote an observed-missing checkpoint and exited 7. The harness returned 7, recorded VERDICT=7, and preserved `checkpoint dashboard RED` instead of laundering a screenshot into success."
+        }
+      ],
+      "confidence": 9.0,
+      "inv": "model",
+      "oneLiner": "Runs a real-UI smoke path behind origin, driver, readiness, verdict, and evidence boundaries.",
+      "residual": "Each browser driver must still prove it enforces SMOKE_ALLOWED_ORIGINS and that its assertion can go red; the shell harness cannot infer that from a zero exit alone.",
+      "skill": "computer-use-smoke",
+      "standoutStrength": "Readiness and flow failures are durable coded verdicts, and an external driver cannot be substituted for the reviewed repo-local one."
+    },
+    {
+      "caseAvg": 10.0,
+      "cases": [
+        {
+          "score": 10,
+          "title": "Independent findings do not become a fake graph",
+          "whatHappened": "A targeted contract probe confirmed that when no dependency edge exists, the skill stops and hands the set to ordinary impact sorting instead of fabricating a topological plan."
+        },
+        {
+          "score": 10,
+          "title": "Roots precede symptoms and invalidate downstream checks",
+          "whatHappened": "The method requires root-before-symptom ordering and a recompute note whenever fixing A changes B's evidence or target. Its done condition requires a true residual DAG and red-capable checks."
+        },
+        {
+          "score": 10,
+          "title": "Cycle mandate is not mislabeled enforcement",
+          "whatHappened": "After independent review found an overclaim, the cycle marker was changed to `required-bidirectional-recompute`; the text now says this is a mandate and becomes enforced only when a downstream validator demonstrably blocks missing cycle-member checks."
+        }
+      ],
+      "confidence": 8.0,
+      "inv": "user",
+      "oneLiner": "Turns interdependent findings into a root-before-symptom mandate with evidence invalidation and explicit cycle handling.",
+      "residual": "There is no bundled graph parser or downstream execution validator; dependency and cycle judgments remain the composer's responsibility.",
+      "skill": "connected-fix-prompt",
+      "standoutStrength": "Makes bidirectional evidence invalidation explicit without laundering a procedural mandate into mechanical enforcement."
+    },
+    {
+      "caseAvg": 10.0,
+      "cases": [
+        {
+          "score": 10,
+          "title": "All five authority slots are present",
+          "whatHappened": "Targeted probes confirmed the method and output template both contain objective/definition of done, context, decision rights, stop conditions, and evidence."
+        },
+        {
+          "score": 10,
+          "title": "Irreversible actions receive tripwires",
+          "whatHappened": "Delete, deploy, spend, send, scope drift, unreachable completion, and budget/round limits are all named as stop conditions, with a scoped carve-out only when the irreversible action is itself authorized as the objective."
+        },
+        {
+          "score": 10,
+          "title": "Enforced and advisory limits stay distinct",
+          "whatHappened": "The skill requires an observed blocking probe before an enforced label and explicitly keeps budget/round caps advisory when the harness does not hard-stop the child agent."
+        }
+      ],
+      "confidence": 8.5,
+      "inv": "user",
+      "oneLiner": "Composes unattended-agent mandates from context, decision rights, stop conditions, and evidence.",
+      "residual": "The document supplies no enforcement mechanism; live tripwire behavior depends on the receiving harness and was not claimed here.",
+      "skill": "delegated-authority-prompt",
+      "standoutStrength": "Pairs every grant of decision authority with explicit stop and evidence boundaries."
+    },
+    {
+      "caseAvg": 7.7,
+      "cases": [
+        {
+          "score": 7,
+          "title": "Absent package in repository lockfiles",
+          "whatHappened": "The documented lockfile enumeration shape ran against an impossible sentinel and exited 0 with no matching paths. That proves only absence in discovered lockfiles, not a system-wide safety claim."
+        },
+        {
+          "score": 8,
+          "title": "Missing binary stays narrow evidence",
+          "whatHappened": "`command -v` for an impossible fixture binary exited 1 with no output. The skill correctly treats that as absence of the named check subject and forbids turning unrun checks into Not affected."
+        },
+        {
+          "score": 8,
+          "title": "Listener result records tool availability",
+          "whatHappened": "`lsof` was present; the exact TCP 65534 listener probe returned no matching line. The result is stated narrowly as no matching listener observed on that port, not a machine-wide exposure verdict."
+        }
+      ],
+      "confidence": 8.0,
+      "inv": "model",
+      "oneLiner": "Read-only named-advisory enumeration with evidence-bound verdict language and a constrained report destination.",
+      "residual": "The workflow remains advisory; this lane did not generate a report, and broad-machine enumeration requires separately authorized scope and platform-specific checks.",
+      "skill": "exposure-audit",
+      "standoutStrength": "Its no-launder language prevents absence, unrun checks, and reachability from collapsing into one unsupported verdict."
+    },
+    {
+      "caseAvg": 9.7,
+      "cases": [
+        {
+          "score": 10,
+          "title": "Vision input is a hard floor",
+          "whatHappened": "The contract states that image, PDF, chart, and frame inputs require vision-native capability and that a text-only model cannot clear the floor, then requires the demand, floor, choice, and rationale to be recorded."
+        },
+        {
+          "score": 10,
+          "title": "Cheap-bulk downshift requires a falsifiable probe",
+          "whatHappened": "The worked route supplies a labeled-set threshold, and the rule says no probe means no downshift; without evidence, the cheaper routing claim remains unverified."
+        },
+        {
+          "score": 9,
+          "title": "Model and price drift stay out of the skill",
+          "whatHappened": "Vendor catalog names and prices are excluded from the static skill and must be read from current environment data. The routing discipline is explicitly advisory rather than presented as a mechanical floor gate."
+        }
+      ],
+      "confidence": 8.5,
+      "inv": "model",
+      "oneLiner": "Routes by cognitive-demand floor, then chooses the cheapest current option that clears every hard gate.",
+      "residual": "No bundled live-catalog or probe harness enforces the floor; the caller must supply current capability and price evidence.",
+      "skill": "model-routing",
+      "standoutStrength": "Clear hard-versus-soft floor distinction, with evidence required before any cost-saving downshift."
+    },
+    {
+      "caseAvg": 7.3,
+      "cases": [
+        {
+          "score": 8,
+          "title": "Local-only artifact passes the static rung",
+          "whatHappened": "`scan-egress.sh` on a local-only HTML fixture exited 0 and reported 0 un-waived findings. This is static evidence only, not a lifecycle containment claim."
+        },
+        {
+          "score": 9,
+          "title": "Direct external script URL fails",
+          "whatHappened": "The scanner ran against a script tag pointing at an external CDN, exited 1, and reported one un-waived EGRESS finding. The direct reference could not pass silently."
+        },
+        {
+          "score": 5,
+          "title": "Runtime-built URL demonstrates the static limit",
+          "whatHappened": "The static scanner passed an HTML fixture that concatenated `ht` and `tps://...` at runtime. The skill now states this limitation honestly and requires sealed runtime observation; Playwright was absent, so that second rung remained unverified in this lane."
+        }
+      ],
+      "confidence": 8.0,
+      "inv": "model",
+      "oneLiner": "Pairs static egress discovery with a separately evidenced sealed-load runtime rung for self-contained artifacts.",
+      "residual": "Static scanning has real obfuscation false negatives, while sealed-load coverage is bounded to the interactions and observation window actually exercised.",
+      "skill": "self-contained-ship",
+      "standoutStrength": "A direct external request is red-capable, and the skill does not pretend that its regex alone proves lifecycle containment."
+    },
+    {
+      "caseAvg": 10.0,
+      "cases": [
+        {
+          "score": 10,
+          "title": "Strict challenger beat produces SWAP",
+          "whatHappened": "Identical case IDs with incumbent mean 0.500000 and challenger mean 0.700000 produced exit 0 and SWAP through the bundled verdict script."
+        },
+        {
+          "score": 10,
+          "title": "Tie preserves the incumbent",
+          "whatHappened": "Identical case IDs with equal means of 0.500000 produced exit 0 and NO-SWAP with the explicit tie-or-loss explanation."
+        },
+        {
+          "score": 10,
+          "title": "Mismatched case IDs reject the duel",
+          "whatHappened": "Incumbent IDs c1,c2 and challenger IDs c1,c3 produced exit 3 and UNFAIR; the script refused to issue any seat verdict on unequal gauntlets."
+        }
+      ],
+      "confidence": 9.5,
+      "inv": "user",
+      "oneLiner": "Frozen head-to-head comparison with identical case IDs and strict-beat, tie-to-incumbent mechanics.",
+      "residual": "Case quality, critic blindness, seat identity, exact-head binding, and whether scores truthfully represent execution remain outside the arithmetic script.",
+      "skill": "skill-duel",
+      "standoutStrength": "The gate mechanically prevents narrative wins on ties, losses, or unequal case sets."
+    },
+    {
+      "caseAvg": 9.3,
+      "cases": [
+        {
+          "score": 9,
+          "title": "Clean candidate emits zero scanner findings",
+          "whatHappened": "The scanner ran on model-routing and exited 0 with `0 candidate finding(s) across 2 file(s)` plus an explicit ADVISORY notice; the result was not presented as a safety certificate."
+        },
+        {
+          "score": 10,
+          "title": "Network and credential surfaces are flagged",
+          "whatHappened": "The scanner ran on research and produced five stable file:line findings across shell execution, network egress, and credential access. No network operation or live provenance was implied."
+        },
+        {
+          "score": 9,
+          "title": "Missing candidate path fails",
+          "whatHappened": "A nonexistent candidate directory produced exit 1 and the usage line; the scanner did not silently treat missing input as a clean skill."
+        }
+      ],
+      "confidence": 9.0,
+      "inv": "model",
+      "oneLiner": "Deterministic advisory scanning plus provenance and full-read requirements for inbound third-party skills.",
+      "residual": "Regex scanning can miss obfuscation and intent; provenance pinning, pointer closure, and line-by-line human review remain separate required work.",
+      "skill": "skill-supply-chain-review",
+      "standoutStrength": "Stable file:line findings are useful evidence, while the tool explicitly refuses to masquerade as a safety gate."
+    }
+  ],
+  "schema": "idc-skill-validation-supplement/v1"
+}

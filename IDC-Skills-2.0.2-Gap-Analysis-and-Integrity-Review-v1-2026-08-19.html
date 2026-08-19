@@ -1,0 +1,512 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>IDC Skills Forge 2.0.2 — Gap Analysis &amp; Integrity Review</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --ink: #f5efe6;
+      --muted: #b9b0a3;
+      --dim: #817a70;
+      --paper: #11110f;
+      --panel: #191815;
+      --panel-2: #211f1b;
+      --line: #3a352e;
+      --copper: #d58b55;
+      --gold: #e7bd72;
+      --green: #66d19e;
+      --red: #ed776d;
+      --blue: #7eb6df;
+      --shadow: 0 24px 70px rgba(0,0,0,.34);
+      --max: 1180px;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 15% 0%, rgba(213,139,85,.11), transparent 34rem),
+        linear-gradient(180deg, #0d0d0c 0%, var(--paper) 38%, #0b0b0a 100%);
+      color: var(--ink);
+      font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.55;
+    }
+    a { color: var(--gold); text-decoration-color: rgba(231,189,114,.45); text-underline-offset: 3px; }
+    a:hover { color: #ffe0a6; }
+    code {
+      font: .88em ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      color: #f5d8b5;
+      overflow-wrap: anywhere;
+    }
+    .shell { width: min(calc(100% - 34px), var(--max)); margin: 0 auto; }
+    .eyebrow {
+      color: var(--copper);
+      font-size: .73rem;
+      font-weight: 800;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+    }
+    header { padding: 78px 0 46px; border-bottom: 1px solid var(--line); }
+    .hero-grid { display: grid; grid-template-columns: 1.25fr .75fr; gap: 52px; align-items: end; }
+    h1, h2, h3 { font-family: Georgia, "Times New Roman", serif; font-weight: 500; line-height: 1.08; }
+    h1 { margin: 14px 0 20px; font-size: clamp(3.1rem, 8vw, 7.4rem); letter-spacing: -.055em; }
+    h1 span { display: block; color: var(--copper); }
+    .dek { max-width: 760px; margin: 0; color: #d9d0c5; font-size: clamp(1.05rem, 2vw, 1.35rem); }
+    .stamp {
+      border: 1px solid var(--line);
+      background: linear-gradient(145deg, rgba(213,139,85,.09), rgba(255,255,255,.02));
+      padding: 24px;
+      box-shadow: var(--shadow);
+    }
+    .stamp strong { display: block; margin: 7px 0 13px; font-size: 1.08rem; }
+    .stamp p { margin: 0; color: var(--muted); font-size: .9rem; }
+    .decision-strip { padding: 18px 0; border-bottom: 1px solid var(--line); background: rgba(102,209,158,.055); }
+    .decision-strip .shell { display: flex; align-items: center; gap: 15px; }
+    .signal { width: 12px; height: 12px; border-radius: 50%; background: var(--gold); box-shadow: 0 0 0 6px rgba(231,189,114,.1); flex: 0 0 auto; }
+    .decision-strip p { margin: 0; font-size: .93rem; }
+    .decision-strip strong { color: var(--gold); }
+    nav { position: sticky; top: 0; z-index: 20; border-bottom: 1px solid var(--line); background: rgba(13,13,12,.9); backdrop-filter: blur(14px); }
+    nav .shell { display: flex; gap: 24px; overflow-x: auto; padding: 13px 0; }
+    nav a { color: var(--muted); font-size: .75rem; font-weight: 750; letter-spacing: .08em; text-decoration: none; text-transform: uppercase; white-space: nowrap; }
+    nav a:hover { color: var(--ink); }
+    main { padding: 36px 0 100px; }
+    section { padding: 72px 0; border-bottom: 1px solid var(--line); }
+    section:last-child { border: 0; }
+    .section-head { display: grid; grid-template-columns: 180px 1fr; gap: 36px; margin-bottom: 38px; }
+    .section-head h2 { margin: 0; max-width: 820px; font-size: clamp(2.1rem, 4.5vw, 4.4rem); letter-spacing: -.035em; }
+    .section-head p { margin: 13px 0 0; max-width: 780px; color: var(--muted); }
+    .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .metric { min-height: 176px; padding: 22px; border: 1px solid var(--line); background: var(--panel); }
+    .metric .value { display: block; margin: 8px 0 5px; font: 500 clamp(2.7rem, 6vw, 5.4rem)/.95 Georgia, serif; letter-spacing: -.06em; color: var(--gold); }
+    .metric .label { color: var(--muted); font-size: .88rem; }
+    .metric .proof { display: block; margin-top: 17px; color: var(--dim); font: .68rem ui-monospace, monospace; }
+    .verdict-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px; }
+    .verdict { position: relative; min-height: 245px; padding: 26px; border: 1px solid var(--line); background: var(--panel); overflow: hidden; }
+    .verdict::after { content: attr(data-num); position: absolute; right: 18px; bottom: -28px; color: rgba(213,139,85,.08); font: 700 9rem/1 Georgia, serif; }
+    .verdict h3 { position: relative; z-index: 1; margin: 9px 0 13px; font-size: 1.65rem; }
+    .verdict p { position: relative; z-index: 1; margin: 0; max-width: 520px; color: var(--muted); }
+    .pill { display: inline-flex; padding: 5px 9px; border: 1px solid var(--line); border-radius: 999px; color: var(--muted); font-size: .68rem; font-weight: 750; letter-spacing: .08em; text-transform: uppercase; }
+    .pill.good { color: var(--green); border-color: rgba(102,209,158,.35); background: rgba(102,209,158,.06); }
+    .pill.warn { color: var(--gold); border-color: rgba(231,189,114,.35); background: rgba(231,189,114,.06); }
+    .pill.red { color: var(--red); border-color: rgba(237,119,109,.35); background: rgba(237,119,109,.06); }
+    .split { display: grid; grid-template-columns: 1fr 1fr; gap: 28px; }
+    .card { border: 1px solid var(--line); background: var(--panel); padding: 26px; }
+    .card h3 { margin: 7px 0 14px; font-size: 1.55rem; }
+    .card p, .card li { color: var(--muted); }
+    .card ul { padding-left: 1.15rem; }
+    .card li + li { margin-top: .55rem; }
+    table { width: 100%; border-collapse: collapse; font-size: .91rem; }
+    th { color: var(--dim); font-size: .68rem; letter-spacing: .12em; text-align: left; text-transform: uppercase; }
+    th, td { padding: 15px 14px; border-bottom: 1px solid var(--line); vertical-align: top; }
+    td { color: var(--muted); }
+    td strong { color: var(--ink); }
+    tr:last-child td { border-bottom: 0; }
+    .table-wrap { border: 1px solid var(--line); background: var(--panel); overflow-x: auto; }
+    .source-bars { display: grid; gap: 13px; }
+    .source-bar { display: grid; grid-template-columns: 170px 1fr 98px; gap: 16px; align-items: center; }
+    .source-bar > span:first-child { font-weight: 700; }
+    .track { height: 9px; background: #2a2722; overflow: hidden; }
+    .fill { height: 100%; background: linear-gradient(90deg, var(--copper), var(--gold)); }
+    .source-bar small { color: var(--muted); text-align: right; }
+    .flow { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; }
+    .flow-step { position: relative; min-height: 170px; padding: 18px; border: 1px solid var(--line); background: var(--panel-2); }
+    .flow-step:not(:last-child)::after { content: "→"; position: absolute; z-index: 2; right: -17px; top: 44%; color: var(--copper); font-size: 1.35rem; }
+    .flow-step b { display: block; color: var(--copper); font-size: .73rem; letter-spacing: .08em; text-transform: uppercase; }
+    .flow-step strong { display: block; margin: 8px 0; }
+    .flow-step p { margin: 0; color: var(--muted); font-size: .82rem; }
+    .checks { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; counter-reset: check; }
+    .check { counter-increment: check; min-height: 246px; padding: 21px; border-top: 3px solid var(--copper); background: var(--panel); box-shadow: var(--shadow); }
+    .check::before { content: "0" counter(check); color: var(--dim); font: 700 .72rem ui-monospace, monospace; }
+    .check h3 { margin: 15px 0 10px; font-size: 1.25rem; }
+    .check p { margin: 0; color: var(--muted); font-size: .84rem; }
+    .check .fail { display: block; margin-top: 18px; color: var(--red); font-size: .72rem; font-weight: 700; }
+    .callout { margin-top: 22px; padding: 22px 25px; border-left: 4px solid var(--gold); background: rgba(231,189,114,.06); color: #d8cbb9; }
+    .callout strong { color: var(--gold); }
+    .attack-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+    .finding { padding: 21px; border: 1px solid var(--line); background: var(--panel); }
+    .finding .severity { color: var(--red); font: 700 .68rem ui-monospace, monospace; letter-spacing: .09em; }
+    .finding h3 { margin: 8px 0; font-size: 1.35rem; }
+    .finding p { margin: 0; color: var(--muted); font-size: .87rem; }
+    .finding .repair { margin-top: 14px; color: var(--green); }
+    .evidence-grid { display: grid; grid-template-columns: .8fr 1.2fr; gap: 28px; }
+    .scorecard { padding: 26px; border: 1px solid var(--line); background: var(--panel); }
+    .score-row { display: grid; grid-template-columns: 1fr auto; gap: 14px; padding: 13px 0; border-bottom: 1px solid var(--line); }
+    .score-row:last-child { border: 0; }
+    .score-row span { color: var(--muted); }
+    .score-row strong { color: var(--green); font-family: ui-monospace, monospace; }
+    .command { margin-top: 15px; padding: 14px; border: 1px solid var(--line); background: #0c0c0b; color: #f5d8b5; font: .77rem/1.55 ui-monospace, monospace; overflow-wrap: anywhere; }
+    .gate-list { display: grid; gap: 10px; }
+    .gate { display: grid; grid-template-columns: 28px 1fr auto; gap: 13px; align-items: start; padding: 18px; border: 1px solid var(--line); background: var(--panel); }
+    .gate .dot { width: 11px; height: 11px; margin-top: 5px; border-radius: 50%; background: var(--gold); }
+    .gate p { margin: 3px 0 0; color: var(--muted); font-size: .84rem; }
+    .gate .state { color: var(--gold); font-size: .68rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
+    .residuals { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .residual { padding: 22px; border: 1px solid var(--line); background: var(--panel); }
+    .residual h3 { margin: 10px 0; font-size: 1.25rem; }
+    .residual p { margin: 0; color: var(--muted); font-size: .84rem; }
+    .source-list { display: grid; grid-template-columns: repeat(2, 1fr); gap: 12px; }
+    .source { padding: 18px; border: 1px solid var(--line); background: var(--panel); }
+    .source b { display: block; margin-bottom: 6px; }
+    .source p { margin: 0; color: var(--muted); font-size: .82rem; }
+    footer { padding: 38px 0 70px; border-top: 1px solid var(--line); color: var(--dim); font-size: .78rem; }
+    footer .shell { display: flex; justify-content: space-between; gap: 28px; }
+    @media (max-width: 930px) {
+      .hero-grid, .section-head, .split, .evidence-grid { grid-template-columns: 1fr; }
+      .metrics { grid-template-columns: repeat(2, 1fr); }
+      .flow, .checks { grid-template-columns: 1fr; }
+      .flow-step:not(:last-child)::after { content: "↓"; right: 50%; top: auto; bottom: -21px; }
+      .residuals { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 610px) {
+      header { padding-top: 50px; }
+      .metrics, .verdict-grid, .attack-grid, .residuals, .source-list { grid-template-columns: 1fr; }
+      .source-bar { grid-template-columns: 1fr; gap: 5px; }
+      .source-bar small { text-align: left; }
+      .gate { grid-template-columns: 22px 1fr; }
+      .gate .state { grid-column: 2; }
+      footer .shell { flex-direction: column; }
+    }
+    @media print {
+      :root { color-scheme: light; --ink: #15130f; --muted: #4f4a42; --dim: #70685f; --paper: #fff; --panel: #f6f2eb; --panel-2: #eee8de; --line: #c9beb0; }
+      body { background: #fff; }
+      nav { display: none; }
+      section { break-inside: avoid; }
+      .card, .metric, .verdict, .check, .finding { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <div class="shell hero-grid">
+      <div>
+        <div class="eyebrow">IDC Skills Forge · Release assessment · 19 August 2026</div>
+        <h1>Gap Analysis <span>&amp; Integrity Review</span></h1>
+        <p class="dek">A source-bound assessment of the current Matt Pocock repository, two requested skill-security videos, all fifty Forge islands, and the signed release architecture proposed for version 2.0.2.</p>
+      </div>
+      <aside class="stamp" aria-label="Report binding">
+        <div class="eyebrow">Assessment binding</div>
+        <strong>Candidate branch</strong>
+        <p><code>codex/v2.0.2-skill-integrity</code></p>
+        <p>Foundation: <code>574346ec5b7c50fe7e023d04426ad09072f11209</code></p>
+        <p style="margin-top:12px">This document is an assessment artifact. Live release authority comes only from the signed verifier, exact-head review, CI, and remote checks.</p>
+      </aside>
+    </div>
+  </header>
+
+  <div class="decision-strip">
+    <div class="shell">
+      <span class="signal" aria-hidden="true"></span>
+      <p><strong>Decision:</strong> retain the Forge 50. Fuse two narrow upstream improvements. Ship only after 5/5 signed verification, exact-head Claude-family review, and fresh-clone reacceptance.</p>
+    </div>
+  </div>
+
+  <nav aria-label="Report sections">
+    <div class="shell">
+      <a href="#verdict">Verdict</a>
+      <a href="#upstream">Upstream</a>
+      <a href="#videos">Video evidence</a>
+      <a href="#threat">Threat chain</a>
+      <a href="#integrity">Integrity gate</a>
+      <a href="#attacks">Adversarial review</a>
+      <a href="#evidence">Evidence</a>
+      <a href="#release">Release</a>
+      <a href="#residuals">Residuals</a>
+    </div>
+  </nav>
+
+  <main class="shell">
+    <section id="verdict">
+      <div class="section-head">
+        <div class="eyebrow">01 · Executive verdict</div>
+        <div>
+          <h2>The suite is stronger for being selective, not larger.</h2>
+          <p>The current upstream and observed usage validate the Forge's fusion method: mine real practice, preserve distinct capabilities, and demand red-capable proof. Neither video nor upstream supplied a challenger that justified a fifty-first seat or an incumbent replacement.</p>
+        </div>
+      </div>
+
+      <div class="metrics" aria-label="Headline evidence metrics">
+        <div class="metric"><span class="eyebrow">Canonical seats</span><span class="value">50</span><span class="label">registry and validation records agree</span><span class="proof">verify_validation_records.py</span></div>
+        <div class="metric"><span class="eyebrow">Semantic cases</span><span class="value">150</span><span class="label">three cases per Forge island</span><span class="proof">ops/validation/skill-records.json</span></div>
+        <div class="metric"><span class="eyebrow">Unit fixtures</span><span class="value">69</span><span class="label">candidate-worktree result before final freeze</span><span class="proof">unittest discover</span></div>
+        <div class="metric"><span class="eyebrow">Authority cases</span><span class="value">37</span><span class="label">allowed and blocked Git command forms</span><span class="proof">test-block-dangerous-git.sh</span></div>
+      </div>
+
+      <div class="verdict-grid" style="margin-top:14px">
+        <article class="verdict" data-num="1"><span class="pill good">Fuse</span><h3>Two upstream improvements</h3><p>Mandatory secret redaction strengthened <code>diagnose</code>. Clearer domain-vocabulary routing narrowed and improved <code>domain-modeling</code>. Both are bounded repairs to existing seats.</p></article>
+        <article class="verdict" data-num="2"><span class="pill good">Retain</span><h3>Zero seat replacements</h3><p>Current upstream patterns overlap existing Forge composition. No formal identical-case duel was run; the no-import choices are advisory screening decisions, not mechanical no-swap verdicts.</p></article>
+        <article class="verdict" data-num="3"><span class="pill warn">Fortify</span><h3>One release trust plane</h3><p>Fifty embedded self-checkers would share the files they are meant to defend. Version 2.0.2 instead binds every island and a fixed control plane to one externally held Ed25519 key.</p></article>
+        <article class="verdict" data-num="4"><span class="pill red">Never self-certify</span><h3>Green is conditional</h3><p>Five checks are meaningful only after a consumer confirms the public-key fingerprint out of band. The repository cannot bootstrap trust in its own verifier.</p></article>
+      </div>
+    </section>
+
+    <section id="upstream">
+      <div class="section-head">
+        <div class="eyebrow">02 · Pocock delta</div>
+        <div>
+          <h2>Current ideas were compared to the historical source—not merely admired.</h2>
+          <p>The retained archive was reconstructed against Git at 167/167 blobs. The source comparison binds historical commit <code>2ab958093e83e0ec752e6c1c5932da465bf23e0c</code> to current upstream <code>885e2ca4d842d139e9aef4e48d366c63cb1b8013</code>.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <div class="card">
+          <div class="eyebrow">Measured source delta</div>
+          <h3>41 historical skill files → 35 current</h3>
+          <div class="source-bars">
+            <div class="source-bar"><span>Skill-tree files</span><div class="track"><div class="fill" style="width:58%"></div></div><small>83 changed</small></div>
+            <div class="source-bar"><span>Skill additions</span><div class="track"><div class="fill" style="width:34%"></div></div><small>+845 lines</small></div>
+            <div class="source-bar"><span>Skill deletions</span><div class="track"><div class="fill" style="width:59%"></div></div><small>−1,459 lines</small></div>
+            <div class="source-bar"><span>Whole-repo files</span><div class="track"><div class="fill" style="width:87%"></div></div><small>143 changed</small></div>
+          </div>
+          <p style="margin-top:20px">The bars show relative magnitude within this comparison, not quality. Newer, shorter, or deleted upstream material was never treated as an automatic verdict on a fused Forge seat.</p>
+        </div>
+        <div class="card">
+          <div class="eyebrow">Decision discipline</div>
+          <h3>Import only what changes the result</h3>
+          <ul>
+            <li><strong>Fuse:</strong> redaction and domain-routing improvements close concrete gaps.</li>
+            <li><strong>Compose:</strong> upstream parallel review maps to existing <code>gauntlet-loop</code>, <code>batch-sample-curate</code>, and <code>cross-family-review</code>.</li>
+            <li><strong>Decline:</strong> an <code>ask-matt</code>-style router duplicates the Forge registry and archipelago map.</li>
+            <li><strong>Bound:</strong> uncapped parallel delegation did not survive authority, cost, and evidence review.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="table-wrap" style="margin-top:16px">
+        <table>
+          <thead><tr><th>Candidate idea</th><th>Observed gap</th><th>2.0.2 decision</th><th>Why</th></tr></thead>
+          <tbody>
+            <tr><td><strong>Mandatory diagnostic redaction</strong></td><td>Evidence capture lacked a universal pre-display secret/PII boundary.</td><td><span class="pill good">Fused</span></td><td>Concrete safety gain; same diagnostic job.</td></tr>
+            <tr><td><strong>Domain vocabulary + ADR routing</strong></td><td>Trigger could attract arbitrary ADR work outside domain-term jurisdiction.</td><td><span class="pill good">Fused</span></td><td>Improves trigger/body agreement without broadening authority.</td></tr>
+            <tr><td><strong>General skills router</strong></td><td>No distinct gap.</td><td><span class="pill warn">No import</span></td><td>Duplicates registry and composition authority.</td></tr>
+            <tr><td><strong>Parallel review patterns</strong></td><td>Already composed across multiple islands.</td><td><span class="pill warn">Reference</span></td><td>Forge adds exact-head binding, critics, caps, spend boundaries, and evidence.</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </section>
+
+    <section id="videos">
+      <div class="section-head">
+        <div class="eyebrow">03 · Requested videos</div>
+        <div>
+          <h2>Usage validates the method; the attack story changes the release architecture.</h2>
+          <p>Both analyses are timestamped from transcript evidence. The first video's source download failed after YouTube returned HTTP 403/reload-required; therefore no frame, UI, gesture, or on-screen-code claim appears here.</p>
+        </div>
+      </div>
+
+      <div class="split">
+        <article class="card">
+          <span class="pill good">Transcript · 38:22</span>
+          <h3>“So I tried Matt's skills...”</h3>
+          <p>1,083 cleaned timestamped lines and 7,584 de-duplicated words support five durable practices:</p>
+          <ul>
+            <li>fit skills to actual work history, then fan out review;</li>
+            <li>treat descriptions as triggers, not miniature bodies;</li>
+            <li>preserve operational meaning during de-slop edits;</li>
+            <li>record one decision per append-only evidence row;</li>
+            <li>read and adapt skill packs instead of installing them blindly.</li>
+          </ul>
+          <p><a href="https://youtu.be/0oXOOlqVu5M">Source video</a> · <a href="ops/research/video-skill-usage-analysis-0oXOOlqVu5M.md">Timestamp analysis</a></p>
+        </article>
+        <article class="card">
+          <span class="pill warn">Transcript only · 21:03</span>
+          <h3>“One Cancelled Gym Class...”</h3>
+          <p>596 cleaned timestamped lines describe the decisive supply-chain failure mode: a locally clean skill retains a mutable external instruction pointer; the target changes later; a privileged agent follows the new fetch-and-execute path.</p>
+          <ul>
+            <li>scan-time cleanliness does not freeze a remote page;</li>
+            <li>agent authority turns content drift into credential exposure;</li>
+            <li>child-agent fanout compounds blast radius;</li>
+            <li>shutdown, network cut, revocation, and retained audit evidence remain platform controls.</li>
+          </ul>
+          <p><a href="https://youtu.be/4f5AJrJPilM">Source video</a> · <a href="ops/research/video-supply-chain-threat-analysis-4f5AJrJPilM.md">Threat synthesis</a></p>
+        </article>
+      </div>
+    </section>
+
+    <section id="threat">
+      <div class="section-head">
+        <div class="eyebrow">04 · Threat model</div>
+        <div>
+          <h2>The dangerous path is not a poisoned file alone. It is trust multiplied by authority.</h2>
+          <p>The transcript's secondary account was cross-checked against primary public disclosures from Zenity, AIR, and OWASP. The resulting control target is a chain, not a buzzword.</p>
+        </div>
+      </div>
+
+      <div class="flow" aria-label="Skill poisoning attack path">
+        <div class="flow-step"><b>01 · Trust</b><strong>Legitimate local skill</strong><p>The agent loads a skill that passed an earlier inspection.</p></div>
+        <div class="flow-step"><b>02 · Pointer</b><strong>Mutable remote page</strong><p>The signed local bytes direct the agent to external instructions.</p></div>
+        <div class="flow-step"><b>03 · Flip</b><strong>Remote content changes</strong><p>The page becomes hostile after scan time without changing the local skill.</p></div>
+        <div class="flow-step"><b>04 · Execute</b><strong>Fetch-and-run path</strong><p>New instructions trigger code or package execution.</p></div>
+        <div class="flow-step"><b>05 · Impact</b><strong>Agent authority abused</strong><p>Credentials, repositories, cloud access, and child agents expand the blast radius.</p></div>
+      </div>
+
+      <div class="callout"><strong>Design consequence:</strong> byte signing alone is necessary but insufficient. The signed object must also enumerate every external reference and network-command occurrence, distinguish attribution/API endpoints/runtime instructions, pin mutable runtime content, and deny fetch-and-execute shapes unless an exact reviewed exception is itself signed.</div>
+    </section>
+
+    <section id="integrity">
+      <div class="section-head">
+        <div class="eyebrow">05 · Integrity architecture</div>
+        <div>
+          <h2>One external key. One canonical manifest. Five checks that fail independently.</h2>
+          <p>Every regular file beneath all fifty skill directories is inventoried. Symlinks, non-regular entries, collisions, count drift, new references, unexpected network commands, wide encodings, and signed control-plane drift are explicit failures.</p>
+        </div>
+      </div>
+
+      <div class="checks" aria-label="Five release integrity checks">
+        <article class="check"><h3>Signature &amp; anchor</h3><p>Verify the detached Ed25519 signature, public key, allowed-signers entry, namespace, principal, and fixed fingerprint.</p><span class="fail">FAIL: wrong key, signature, namespace, principal, or anchor</span></article>
+        <article class="check"><h3>Local &amp; control bytes</h3><p>Recompute exactly fifty skill trees, every regular byte, inventory shape, policy, verifier, installer, hook, workflow, tests, reports, and other fixed controls.</p><span class="fail">FAIL: tamper, addition, deletion, link, encoding, collision, or control drift</span></article>
+        <article class="check"><h3>Reference policy</h3><p>Re-scan every HTTP(S) occurrence and network-command occurrence against signed classifications and exceptions.</p><span class="fail">FAIL: new URL, command, denied pattern, or policy mismatch</span></article>
+        <article class="check"><h3>Remote immutable pins</h3><p>Re-fetch only references classified as runtime instructions, validate HTTPS, final URL, and content SHA-256.</p><span class="fail">FAIL: drift, redirect drift, transport or pin mismatch</span></article>
+        <article class="check"><h3>Fetch/execute policy</h3><p>Deny pipe-to-interpreter, process substitution, dynamic fetch/eval, download-to-file, and network package execution unless an exact reviewed exception is signed.</p><span class="fail">FAIL: denied pattern or exact exception mismatch</span></article>
+      </div>
+
+      <div class="split" style="margin-top:18px">
+        <div class="card">
+          <div class="eyebrow">Trust root</div>
+          <h3>Stable Forge fingerprint</h3>
+          <p><code>SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA</code></p>
+          <p>The private key remains in 1Password. Signing uses the system OpenSSH client and requires operator approval. The release CLI has no user-selectable fingerprint override.</p>
+        </div>
+        <div class="card">
+          <div class="eyebrow">Installed path</div>
+          <h3>Verify before write; bind what runs</h3>
+          <p>The release CLI verifies by default with no command-line opt-out before install or export mutation. Installs compare source/staged/installed maps; exports build only from a staged source snapshot bound to the authenticated map. The pre-tool hook requires the actual installed-skills root, rejects explicit-skill/payload disagreement, and returns blocking exit 2 on every unexpected exception.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="attacks">
+      <div class="section-head">
+        <div class="eyebrow">06 · Adversarial review</div>
+        <div>
+          <h2>The gauntlet found a genuine false green—and the release was stopped until it died.</h2>
+          <p>The first attack lane generated its own key, replaced the repository public artifacts, supplied a CLI fingerprint override, and obtained 5/5 without the Forge key. That was a release-blocking defect, not a documentation concern.</p>
+        </div>
+      </div>
+
+      <div class="attack-grid">
+        <article class="finding"><span class="severity">HIGH · FALSE GREEN</span><h3>User-selectable trust anchor</h3><p>An attacker-controlled fingerprint could make an attacker key authoritative to the CLI.</p><p class="repair">Closed: override removed; release verification requires the compiled constant; attacker-key fixture must fail.</p></article>
+        <article class="finding"><span class="severity">MEDIUM · INTEGRATION</span><h3>Optional installed-tree binding</h3><p>The hook could verify pristine canonical bytes while a different installed copy executed.</p><p class="repair">Closed: installed-skills path is mandatory and its bytes must match the manifest.</p></article>
+        <article class="finding"><span class="severity">MEDIUM · PARSER</span><h3>Wide-encoding scan bypass</h3><p>UTF-16/32 could hide denied command text from a permissive UTF-8 decoder.</p><p class="repair">Closed: skill text must be strict UTF-8; NUL-bearing and wide-encoded content fails closed.</p></article>
+        <article class="finding"><span class="severity">MEDIUM · PATH</span><h3>Control path escape</h3><p>A signed policy could point a control entry outside the repository root.</p><p class="repair">Closed: absolute, dot-dot, symlinked, missing, and resolved-outside paths are rejected.</p></article>
+        <article class="finding"><span class="severity">MEDIUM · TEMPORAL</span><h3>Live-tree change after first hash</h3><p>A writer could replace a skill after its first read but before the verifier returned, leaving the observed snapshot green while the path was poisoned.</p><p class="repair">Closed within the observable run: the complete local manifest is recaptured immediately before authorization, and installed skill directories are captured twice. Post-final-read mutation remains an OS-containment boundary.</p></article>
+        <article class="finding"><span class="severity">LOW · CI SEMANTICS</span><h3>Fixture mode returned success</h3><p>A generic wrapper could confuse non-authorizing fixture success with release authority.</p><p class="repair">Closed: fixture controls are internal test APIs, absent from the release CLI, and cannot produce readyToRun.</p></article>
+        <article class="finding"><span class="severity">LOW · RELEASE POLICY</span><h3>Fixture transport escape available to a release signer</h3><p>A future signed release policy could have deliberately admitted HTTP for a runtime instruction through the fixture-only escape.</p><p class="repair">Closed after cross-family review: release runtime instructions require HTTPS for source and final URL and reject the fixture escape key.</p></article>
+        <article class="finding"><span class="severity">LOW · WINDOWS PATH</span><h3>No native O_NOFOLLOW guarantee</h3><p>Windows cannot rely on the POSIX no-follow open flag, leaving a narrow check/open replacement window.</p><p class="repair">Closed after cross-family review: trusted-file capture compares the pre-open path device/inode identity to the opened descriptor in addition to using O_NOFOLLOW where available.</p></article>
+        <article class="finding"><span class="severity">MEDIUM · SECURE DEFAULT</span><h3>Direct installer skipped verification</h3><p>The Python entrypoint installed unsigned bytes unless the caller remembered <code>--verify-integrity</code>, contradicting the release installer contract.</p><p class="repair">Closed after exact-head review: verification is default-on, the release CLI exposes no opt-out, and an unflagged red-gate test proves no target write occurs.</p></article>
+        <article class="finding"><span class="severity">LOW · HOOK FAIL-CLOSED</span><h3>Unexpected adapter exception could exit 1</h3><p>An unanticipated hook exception could produce a harness-nonblocking exit and lacked red regression coverage.</p><p class="repair">Closed: all unexpected exceptions collapse to exit 2 without leaking exception text; tests cover red gate, exact-byte green, unknown skill, installed drift, and exception behavior.</p></article>
+        <article class="finding"><span class="severity">HIGH · EXPORT AUTHORITY</span><h3>Red repository could still emit bundles</h3><p>Both Claude.ai export modes transformed and packaged source bytes without first requiring the signed gate.</p><p class="repair">Closed: install and export direct APIs default to verification, release CLI has no opt-out, selected skills are copied to scratch, and only a staged snapshot matching the authenticated file map can become a bundle.</p></article>
+        <article class="finding"><span class="severity">HIGH · IDENTITY BINDING</span><h3>Fixed hook skill could mask payload skill</h3><p>A configured <code>--skill</code> value took precedence over a conflicting skill identity in the live hook payload.</p><p class="repair">Closed: when both identities are present they must match exactly; mismatch returns blocking exit 2, and all hook verdict text is ASCII-safe across Windows/OEM streams.</p></article>
+        <article class="finding"><span class="severity">MEDIUM · WINDOWS DETERMINISM</span><h3>Renderer emitted platform-native newlines</h3><p>The first PR #3 Windows run regenerated the validation report with CRLF bytes, then correctly rejected it against the canonical LF artifact.</p><p class="repair">Closed: the renderer explicitly writes LF bytes on every platform, and a Windows-sensitive regression compares the generated bytes to the committed report.</p></article>
+        <article class="finding"><span class="severity">LOW · RELEASE LINT</span><h3>Four shell idioms failed the CI lint bar</h3><p>The first Ubuntu run rejected one redundant pipeline, two ambiguous <code>&amp;&amp; … ||</code> chains, and an optional prompt called without an explicit argument.</p><p class="repair">Closed without changing outcomes: direct input, explicit fail-closed conditionals, and an explicit prompt now pass the exact shellcheck surface used by CI.</p></article>
+        <article class="finding"><span class="severity">MEDIUM · WINDOWS TEST BOUNDARY</span><h3>Bare Bash invocation selected an ambiguous runtime</h3><p>After deterministic rendering was fixed, the second Windows run exposed three POSIX behavior tests crossing the native process boundary with bare <code>bash</code>, backslash paths, a hard-coded colon PATH, and platform-translated fixtures.</p><p class="repair">Closed without skipping coverage: the harness selects Git Bash from the Git installation, translates drive paths, uses the host PATH separator, writes LF fixture bytes, and retains the same exact fail-closed exit assertions.</p></article>
+        <article class="finding"><span class="severity">DESIGN BOUNDARY</span><h3>Repository cannot attest itself</h3><p>A same-user attacker may replace both verifier and repository files before invocation.</p><p class="repair">Not hidden: trusted launch must pin the verifier and key fingerprint outside this repository.</p></article>
+      </div>
+    </section>
+
+    <section id="evidence">
+      <div class="section-head">
+        <div class="eyebrow">07 · Evidence quality</div>
+        <div>
+          <h2>Structural green and semantic green are kept separate.</h2>
+          <p>The registry, frontmatter, references, and rendered cards are machine-checked. The 150 cases add per-island contract evidence, but they are not relabeled as universal live-model proof. Mechanical defenses carry negative fixtures so the suite proves it can go red.</p>
+        </div>
+      </div>
+
+      <div class="evidence-grid">
+        <aside class="scorecard">
+          <div class="eyebrow">Candidate worktree snapshot</div>
+          <div class="score-row"><span>Canonical validation</span><strong>50 / 50</strong></div>
+          <div class="score-row"><span>Validation records</span><strong>50 / 50</strong></div>
+          <div class="score-row"><span>Semantic cases</span><strong>150</strong></div>
+          <div class="score-row"><span>Unit tests</span><strong>74 passed</strong></div>
+          <div class="score-row"><span>Git guard fixtures</span><strong>37 / 37</strong></div>
+          <div class="score-row"><span>Historical archive proofs</span><strong>2 / 2 exact</strong></div>
+          <p style="color:var(--dim);font-size:.78rem">These figures describe the locally derived candidate snapshot. Final release evidence must be rerun after signing and from the exact committed clone.</p>
+        </aside>
+        <div class="card">
+          <div class="eyebrow">Recomputation surface</div>
+          <h3>Primary local gates</h3>
+          <div class="command">python3 -m unittest discover -s tests -p 'test_*.py'</div>
+          <div class="command">python3 scripts/validate_skills.py --json</div>
+          <div class="command">python3 scripts/verify_validation_records.py</div>
+          <div class="command">skills/agent-guardrails/scripts/test-block-dangerous-git.sh</div>
+          <div class="command">python3 scripts/skill_integrity.py verify --json</div>
+          <div class="command">python3 scripts/reaccept.py</div>
+          <p>The final two commands are deliberately red before a valid signature and deliberately rerun from a fresh clone. A zero exit code is interpreted together with semantic output such as <code>readyToRun</code>, exact cardinality, and clean-tree state.</p>
+        </div>
+      </div>
+
+      <div class="callout"><strong>Quality interpretation:</strong> the Forge 50 have broad procedural coverage, unusually explicit authority boundaries, and meaningful red-capable mechanics where scripts exist. Many agent judgments remain advisory by design. The signed gate establishes release integrity and provenance; it does not convert every prose instruction into mechanically enforced runtime policy.</div>
+    </section>
+
+    <section id="release">
+      <div class="section-head">
+        <div class="eyebrow">08 · Release decision</div>
+        <div>
+          <h2>Promotion is a chain of exact-tree proofs, not one triumphant test run.</h2>
+          <p>The user authorized push, PR #3 merge after green CI, exact-tree public-org promotion, tag <code>2.0.2</code>, and verified Claude/Codex reinstall. Each stage remains conditional on the preceding evidence.</p>
+        </div>
+      </div>
+
+      <div class="gate-list">
+        <div class="gate"><span class="dot"></span><div><strong>Freeze and sign final controlled bytes</strong><p>Regenerate canonical manifest, approve 1Password signing, require 5/5 and <code>readyToRun=true</code>.</p></div><span class="state">Required</span></div>
+        <div class="gate"><span class="dot"></span><div><strong>Commit exact candidate</strong><p>No skill or control byte may move after the signature without regeneration and re-signing.</p></div><span class="state">Required</span></div>
+        <div class="gate"><span class="dot"></span><div><strong>Independent Claude-family review</strong><p>Verdict binds the exact candidate SHA. Any repair commit voids it and restarts review.</p></div><span class="state">Required</span></div>
+        <div class="gate"><span class="dot"></span><div><strong>Fresh-clone reacceptance</strong><p>Re-run the entire suite in a detached clean clone and prove clean state before and after.</p></div><span class="state">Required</span></div>
+        <div class="gate"><span class="dot"></span><div><strong>PR #3 and CI</strong><p>Push the candidate, publish exact-head evidence, and merge only when required checks are green.</p></div><span class="state">Authorized</span></div>
+        <div class="gate"><span class="dot"></span><div><strong>Promote, tag, reinstall, compare</strong><p>Move the exact merged tree to IslandDevCrew, tag both remotes, reinstall with verification, and compare installed bytes.</p></div><span class="state">Authorized</span></div>
+      </div>
+    </section>
+
+    <section id="residuals">
+      <div class="section-head">
+        <div class="eyebrow">09 · Honest residuals</div>
+        <div>
+          <h2>What 2.0.2 still cannot honestly claim.</h2>
+          <p>These are not footnotes to be erased by a signature. They define the boundary of the assurance case.</p>
+        </div>
+      </div>
+
+      <div class="residuals">
+        <article class="residual"><span class="pill red">High</span><h3>Trusted bootstrap</h3><p>The consumer must verify the public-key fingerprint and trusted launcher out of band. Repository code cannot prove its own authorship.</p></article>
+        <article class="residual"><span class="pill red">High</span><h3>Runtime containment</h3><p>The gate does not sandbox the agent, revoke credentials, block every obfuscation, or stop same-user post-check tampering.</p></article>
+        <article class="residual"><span class="pill warn">Medium</span><h3>ICM history gap</h3><p>The live head and MIT license are recorded, but the exact historical fusion commit remains unknown and is not silently replaced.</p></article>
+        <article class="residual"><span class="pill warn">Medium</span><h3>Multi-target rollback</h3><p>Each destination replacement is atomic and reversible; a whole multi-target operation is not globally transactional after unexpected I/O failure.</p></article>
+        <article class="residual"><span class="pill warn">Product limit</span><h3>claude.ai export</h3><p>The current pack remains fail-closed: 48 descriptions exceed the observed limit and 13 explicit-only semantics lack proved equivalents.</p></article>
+        <article class="residual"><span class="pill warn">Evidence gap</span><h3>Video frames</h3><p>The first source video could not be retrieved. Transcript analysis is usable; the requested visual channel remains unverified.</p></article>
+      </div>
+    </section>
+
+    <section id="sources">
+      <div class="section-head">
+        <div class="eyebrow">10 · Source ledger</div>
+        <div>
+          <h2>Claims resolve to local artifacts or primary disclosures.</h2>
+          <p>Exact industry counts were not copied from secondary narration. External threat claims are attributed to the primary source that supports them.</p>
+        </div>
+      </div>
+
+      <div class="source-list">
+        <div class="source"><b><a href="ops/research/pocock-gap-analysis-2026-08-19.md">Pocock current-repo gap analysis</a></b><p>Commit binding, tree proof, source delta, fusion/no-import decisions.</p></div>
+        <div class="source"><b><a href="ops/validation/skill-records.json">Forge-50 validation records</a></b><p>Fifty islands, 150 cases, confidence, strengths, and residuals.</p></div>
+        <div class="source"><b><a href="https://zenity.io/research/ai-total">Zenity · AI Total</a></b><p>Primary disclosure used to cross-check the mutable-link supply-chain pattern.</p></div>
+        <div class="source"><b><a href="https://zenity.io/blog/research/securing-the-agent-supply-chain">Zenity · Securing the Agent Supply Chain</a></b><p>Primary analysis of agent skill supply-chain risk and controls.</p></div>
+        <div class="source"><b><a href="https://www.air.security/blog-posts/the-story-of-skills">AIR · The Story of Skills</a></b><p>Primary skill-security research referenced by the threat synthesis.</p></div>
+        <div class="source"><b><a href="https://www.air.security/blog-posts/the-circus-of-skills">AIR · The Circus of Skills</a></b><p>Primary skill ecosystem attack research referenced by the threat synthesis.</p></div>
+        <div class="source"><b><a href="https://owasp.org/www-project-agentic-skills-top-10/">OWASP · Agentic Skills Top 10</a></b><p>Broader agentic-skills risk taxonomy.</p></div>
+        <div class="source"><b><a href="provenance.json">Provenance ledger</a></b><p>Historical archive hashes, exact Git-tree matches, current heads, licenses, and per-island source pointers.</p></div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="shell">
+      <span>IDC Skills Forge · 2.0.2 assessment snapshot · generated from evidence, not authority</span>
+      <span>Schema and live release truth: <code>integrity/manifest.json</code> + <code>ops/mission/state.json</code></span>
+    </div>
+  </footer>
+</body>
+</html>

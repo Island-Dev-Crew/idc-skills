@@ -1,0 +1,35 @@
+{
+  "schema": "idc-signed-gate-evidence/v1",
+  "observedAt": "2026-08-19T20:42:25Z",
+  "evidenceClass": "signed-worktree-precommit",
+  "authorityBoundary": "This proves the frozen worktree and signature at observation time. Exact-commit review and fresh-clone reacceptance remain separate gates.",
+  "release": "2.0.2",
+  "fingerprint": "SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA",
+  "manifestSha256": "50062fb8b07bc0a44d00f1ebc43a36f5cbf522b32c01f7a65f89e12146aea800",
+  "signatureSha256": "f9bb022d95538e9edd7e07b53a37060be68b6d97f2031d269f678f7ab42eefd8",
+  "verification": {
+    "pass": true,
+    "readyToRun": true,
+    "score": "5/5",
+    "profile": "release",
+    "skillsChecked": 50,
+    "checks": {
+      "signature": true,
+      "local_bytes": true,
+      "external_reference_set": true,
+      "remote_content_pins": true,
+      "fetch_execute_policy": true
+    },
+    "runtimeInstructionsChecked": 0,
+    "allowlistedNonInstructionReferences": 11
+  },
+  "reacceptance": {
+    "integrity": "5/5",
+    "canonicalSkills": "50/50",
+    "unitTests": 74,
+    "nativeTargets": "4x50",
+    "snapshotZips": 50,
+    "currentClaudeAi": "blocked(48 descriptions,13 user-only)",
+    "canonicalSkillTreeSha256": "fd2431c0e6f49447de507d0ca6d8c08bf30b2d4f2d1068cf23895bd57feba532"
+  }
+}

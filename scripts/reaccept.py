@@ -42,8 +42,16 @@ def _python(script: str, *args: str, expected: int = 0) -> subprocess.CompletedP
 def main() -> int:
     before = tree_manifest(REPO_ROOT / "skills").sha256
 
+    integrity = _python("skill_integrity.py", "verify", "--json")
+    integrity_report = json.loads(integrity.stdout)
+    if not integrity_report.get("readyToRun") or integrity_report.get("score") != "5/5":
+        raise RuntimeError("signed integrity gate did not report readyToRun=true at 5/5")
+    if integrity_report.get("skillsChecked") != 50:
+        raise RuntimeError("signed integrity gate did not bind all 50 skills")
+
     _python("verify_harness_support.py")
     _python("verify_gauntlet_records.py")
+    _python("verify_validation_records.py")
     _run(
         [
             sys.executable,
@@ -73,8 +81,15 @@ def main() -> int:
         for name, target in zip(("agents", "claude", "pi", "hermes"), targets):
             target_args.extend(["--custom-target", f"probe-{name}={target}"])
 
-        _python("install.py", "install", *target_args, "--json")
-        _python("install.py", "install", *target_args, "--verify-only", "--json")
+        _python("install.py", "install", *target_args, "--verify-integrity", "--json")
+        _python(
+            "install.py",
+            "install",
+            *target_args,
+            "--verify-integrity",
+            "--verify-only",
+            "--json",
+        )
 
         snapshot = root / "claude-ai-snapshot"
         _python("install.py", "export-claude-ai-snapshot", "--output", str(snapshot), "--json")
@@ -114,7 +129,7 @@ def main() -> int:
         raise RuntimeError(f"canonical tree drifted during acceptance: {before} -> {after}")
 
     print(
-        "REACCEPTED skills=50/50 tests=green nativeTargets=4x50 "
+        "REACCEPTED integrity=5/5 skills=50/50 tests=green nativeTargets=4x50 "
         "snapshotZips=50 currentClaudeAi=blocked(48 descriptions,13 user-only) "
         f"canonicalSha256={after}"
     )

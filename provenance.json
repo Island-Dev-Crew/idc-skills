@@ -1,6 +1,6 @@
 {
   "$schema_note": "Supply-chain provenance lock for the IDC Skills Forge fusion. Closes independent-review finding F-03 (2026-08-19). Records where the fused material came from so the fusion is reproducible and its upstream licenses are traceable. Not a legal conclusion; an evidence and reproducibility artifact.",
-  "anchor_head": "2bc88794d3f2f437f7521a054c2ce64afaf1b111",
+  "review_base": "574346ec5b7c50fe7e023d04426ad09072f11209",
   "generated": "2026-08-19",
   "repository_license": {
     "spdx": "MIT",
@@ -11,49 +11,53 @@
     {
       "id": "ondrej-skills",
       "author": "David Ondrej",
-      "repo": "davidondrej effective-agent-skills",
-      "repo_url": "https://github.com/davidondrej (exact repo URL recorded from independent review; re-pin against upstream to confirm)",
-      "commit": "6e554508 (prefix recorded from independent review 2026-08-19; not yet re-pinned against upstream)",
+      "repo": "davidondrej/skills",
+      "repo_url": "https://github.com/davidondrej/skills",
+      "commit": "6e5545081c888b89576a620d9b2e54e9a6590f68",
+      "commit_verification": "GitHub API resolved the recorded prefix to this full commit; every archive entry was independently compared to the commit's git blob tree and matched exactly (75/75).",
+      "current_upstream_head_observed_2026_08_19": "6ec095f412db71f627d4ece59e2a9dc34f79e1d0",
       "archive_local": "~/Downloads/skills-main.zip",
       "archive_sha256": "4435827e3421988edd419db7e7813e8314b38cbc1f65b8700daa9cb6eb759f1d",
       "archive_sha256_verification": "INDEPENDENTLY RECOMPUTED 2026-08-19 (shasum -a256 of the local archive); matches the review",
       "skill_count": 45,
       "license": "MIT",
-      "notice_status": "MIT notice present inside the archive; upstream NOTICE not yet copied into this repo (remaining F-03 work)"
+      "notice_status": "MIT notice preserved in THIRD-PARTY-NOTICES.md"
     },
     {
       "id": "pocock-skills",
       "author": "Matt Pocock",
-      "repo": "mattpocock writing-great-skills",
-      "repo_url": "https://github.com/mattpocock (exact repo URL recorded from independent review; re-pin against upstream to confirm)",
-      "commit": "2ab95809 (prefix recorded from independent review 2026-08-19; not yet re-pinned against upstream)",
+      "repo": "mattpocock/skills",
+      "repo_url": "https://github.com/mattpocock/skills",
+      "commit": "2ab958093e83e0ec752e6c1c5932da465bf23e0c",
+      "commit_verification": "GitHub API resolved the recorded prefix to this full commit; every archive entry was independently compared to the commit's git blob tree and matched exactly (167/167, including the AGENTS.md symlink blob).",
+      "current_upstream_head_observed_2026_08_19": "885e2ca4d842d139e9aef4e48d366c63cb1b8013",
       "archive_local": "~/Downloads/skills-main (1).zip",
       "archive_sha256": "8b236fd324f4e53c7b0517674a1af752b08834d4b03d893905c49b18b90a8df1",
       "archive_sha256_verification": "INDEPENDENTLY RECOMPUTED 2026-08-19 (shasum -a256 of the local archive); matches the review",
       "skill_count": 41,
       "license": "MIT",
-      "notice_status": "MIT notice present inside the archive; upstream NOTICE not yet copied into this repo (remaining F-03 work)"
+      "notice_status": "MIT notice preserved in THIRD-PARTY-NOTICES.md"
     },
     {
       "id": "icm-architect",
       "author": "Jake Van Clief",
       "repo": "RinDig/icm-architect",
       "repo_url": "https://github.com/RinDig/icm-architect",
-      "commit": "UNPINNED — no exact historical source commit was found for the ICM cluster (recorded honestly as a gap; the 7 ICM-cluster islands were infused from this repo)",
+      "commit": null,
+      "historical_commit_status": "UNPINNED — no exact historical source commit or local source archive was retained at fusion time; this is not reconstructed from the current head.",
+      "current_upstream_head_observed_2026_08_19": "b20fb45063a564cf607b03526e206f519d174def",
       "archive_local": null,
       "archive_sha256": null,
       "archive_sha256_verification": "not available — ICM source was not archived locally at fusion time",
       "skill_count": 7,
-      "license": "confirm against RinDig/icm-architect before redistribution",
-      "notice_status": "unverified — pin the source commit and record the license"
+      "license": "MIT (confirmed from the live upstream repository on 2026-08-19)",
+      "notice_status": "MIT notice preserved in THIRD-PARTY-NOTICES.md"
     }
   ],
-  "transformation": "Sources were vendored, stripped of vendor-specific identifiers, and welded to the IDC evidence discipline (each island gauntleted to confidence >=9 on a defect-tied rubric). Per-island lineage is recorded in skills/registry.json under each entry's `provenance` field.",
+  "transformation": "Sources were vendored, stripped of vendor-specific identifiers, and welded to the IDC evidence discipline. The current per-island validation records preserve each case score, confidence value, standout strength, and residual rather than asserting one universal confidence floor. Per-island lineage is recorded in skills/registry.json under each entry's `provenance` field.",
   "fusion_report": "IDC-SKILLS-FUSION-REPORT-v1 (two local HTML copies are byte-identical: ~/Downloads/IDC-SKILLS-FUSION-REPORT-v1.html and v1_1.html)",
+  "lineage_mapping": "skills/registry.json skills[].provenance records the per-island source or IDC origin.",
   "remaining_to_full_lock": [
-    "Re-pin ondrej + pocock exact upstream repo URLs and full commit SHAs against the live upstreams (archive SHA-256 is the current hard anchor).",
-    "Copy the upstream MIT NOTICE files into the repo (e.g. THIRD-PARTY-NOTICES/) and reference them per source.",
-    "Pin the ICM source commit + license.",
-    "Add a per-island -> source mapping so every fused skill maps to its origin."
+    "Recover the exact historical ICM source commit or fusion-time archive. The live 2026-08-19 head and MIT license are recorded, but they are not substituted for the missing historical anchor."
   ]
 }

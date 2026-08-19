@@ -1,0 +1,251 @@
+{
+  "controlFiles": [
+    "CHANGELOG.md",
+    "IDC-Skills-2.0.2-Gap-Analysis-and-Integrity-Review-v1-2026-08-19.html",
+    "README.md",
+    "docs/report.html",
+    "ops/validation/new-records-2.0.2.json",
+    "ops/validation/skill-records.json",
+    "scripts/render_validation_report.py",
+    "scripts/verify_validation_records.py",
+    "THIRD-PARTY-NOTICES.md",
+    "provenance.json",
+    "tests/test_validation_records.py"
+  ],
+  "deniedPatternExceptions": [
+    {
+      "classification": "reviewed-deny-example",
+      "kind": "fetch-pipe-interpreter",
+      "path": "SKILL.md",
+      "rationale": "The agent-guardrails prose names curl-pipe-shell as a command the guard blocks; it is not an instruction to execute it.",
+      "sha256": "sha256:016d0652ed4f6372a800709f7dfa02a42da14427e450c1c89db4ade4a5e0db9c",
+      "skill": "agent-guardrails"
+    },
+    {
+      "classification": "executable-deny-rule",
+      "kind": "fetch-pipe-interpreter",
+      "path": "scripts/dangerous-patterns.txt",
+      "rationale": "This literal is an input to the guard's deny classifier and causes curl-pipe-shell commands to be blocked.",
+      "sha256": "sha256:1e4964775fc1dc7a0968f336d74fbdf65f8edcbaa2e172d049b98ab9c3b943d2",
+      "skill": "agent-guardrails"
+    },
+    {
+      "classification": "executable-deny-rule",
+      "kind": "fetch-pipe-interpreter",
+      "path": "scripts/dangerous-patterns.txt",
+      "rationale": "This literal is an input to the guard's deny classifier and causes wget-pipe-shell commands to be blocked.",
+      "sha256": "sha256:62b6098699f7a28006c51ed72d2adeb9a2fa0d10bf7ccc94fb3e889cf5c48915",
+      "skill": "agent-guardrails"
+    },
+    {
+      "classification": "reviewed-pinned-setup",
+      "kind": "network-package-execution",
+      "path": "SKILL.md",
+      "rationale": "The deep-modules setup requires reviewed exact versions, a committed lockfile, and frozen local installation before use.",
+      "sha256": "sha256:8ba257020aca0a0855dfa298cf1e99a243851bae902f34ffd0d4b00c3571b778",
+      "skill": "deep-modules"
+    },
+    {
+      "classification": "reviewed-local-binary-guidance",
+      "kind": "network-package-execution",
+      "path": "SKILL.md",
+      "rationale": "The line rejects remote npx execution and requires the lockfile-installed local binary.",
+      "sha256": "sha256:d3c15c29467d3b0d540f82a8f9c20ec82e4f34e4a1ee647e616b8c934900d3bf",
+      "skill": "deep-modules"
+    },
+    {
+      "classification": "reviewed-warning-example",
+      "kind": "network-package-execution",
+      "path": "references/dependency-cruiser.template.cjs",
+      "rationale": "The template comment documents why npx is forbidden and directs the agent to the locally installed binary.",
+      "sha256": "sha256:0b189580c942f50c1142277ca6ec0ec0c38e9c6980963e5a167ea5e138c1589e",
+      "skill": "deep-modules"
+    },
+    {
+      "classification": "reviewed-risk-taxonomy",
+      "kind": "dynamic-fetch-exec",
+      "path": "SKILL.md",
+      "rationale": "The supply-chain-review skill enumerates dynamic fetch execution as a risk to detect, not an operation to perform.",
+      "sha256": "sha256:f0ce7507a0c8aecb5d8969e81cfdadb1f5fe2704842906a57b19b46593bbdd8d",
+      "skill": "skill-supply-chain-review"
+    },
+    {
+      "classification": "reviewed-risk-taxonomy",
+      "kind": "fetch-pipe-interpreter",
+      "path": "SKILL.md",
+      "rationale": "The supply-chain-review skill enumerates fetch-pipe-shell as a risk to detect, not an operation to perform.",
+      "sha256": "sha256:f0ce7507a0c8aecb5d8969e81cfdadb1f5fe2704842906a57b19b46593bbdd8d",
+      "skill": "skill-supply-chain-review"
+    },
+    {
+      "classification": "reviewed-risk-taxonomy",
+      "kind": "network-package-execution",
+      "path": "SKILL.md",
+      "rationale": "The supply-chain-review skill enumerates unpinned package execution as a risk to detect, not an operation to perform.",
+      "sha256": "sha256:f0ce7507a0c8aecb5d8969e81cfdadb1f5fe2704842906a57b19b46593bbdd8d",
+      "skill": "skill-supply-chain-review"
+    },
+    {
+      "classification": "executable-deny-rule",
+      "kind": "network-package-execution",
+      "path": "scripts/scan-skill.sh",
+      "rationale": "This regex is an input to the supply-chain scanner and flags unpinned package or pipe-shell execution.",
+      "sha256": "sha256:e22600c29cd0bb0c6ea6f55f6132c01e6d9856dcd13cf17349f27ab5a33fdea3",
+      "skill": "skill-supply-chain-review"
+    },
+    {
+      "classification": "reviewed-lockfile-install",
+      "kind": "network-package-execution",
+      "path": "SKILL.md",
+      "rationale": "Worktree dependency setup is bounded to the selected project and requires its committed lockfile; symlinked dependencies are explicitly forbidden.",
+      "sha256": "sha256:69166e8b2ec24476a89b716215a6f9a61d098102984f890715407fff093b43da",
+      "skill": "worktree-fleet"
+    }
+  ],
+  "expectedSigningFingerprint": "SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA",
+  "expectedSkillCount": 50,
+  "expectedSkills": [
+    "agent-guardrails",
+    "agent-schedule",
+    "ai-humanizer",
+    "arch-survey",
+    "archipelago",
+    "batch-sample-curate",
+    "computer-use-smoke",
+    "connected-fix-prompt",
+    "console-as-code",
+    "cross-family-review",
+    "data-source-map",
+    "deep-modules",
+    "delegated-authority-prompt",
+    "diagnose",
+    "domain-modeling",
+    "domain-wire",
+    "evidence-packet",
+    "exposure-audit",
+    "finding-register",
+    "folder-workspace",
+    "gauntlet-loop",
+    "grill",
+    "handoff",
+    "idc-skill-authoring",
+    "issue-triage",
+    "job-to-be-done",
+    "lane-claim",
+    "merge-resolve",
+    "model-routing",
+    "productionize-opinion",
+    "prose-craft",
+    "prototype",
+    "research",
+    "self-contained-ship",
+    "short",
+    "skill-duel",
+    "skill-supply-chain-review",
+    "skill-tune",
+    "spec-pipeline",
+    "teach",
+    "to-questionnaire",
+    "transport-complete",
+    "video-analysis",
+    "wait-what",
+    "wayfinder",
+    "wizard",
+    "workspace-audit",
+    "workspace-scaffold",
+    "worktree-fleet",
+    "writing-for-agents"
+  ],
+  "externalReferences": [
+    {
+      "allowedSkills": [
+        "computer-use-smoke"
+      ],
+      "classification": "informational",
+      "rationale": "This is a literal source-code glob describing the accepted URL schemes, not a retrievable address.",
+      "url": "http://*|https://*"
+    },
+    {
+      "allowedSkills": [
+        "wizard"
+      ],
+      "classification": "informational",
+      "rationale": "This is a literal source-code glob for loopback development URLs, not a retrievable address.",
+      "url": "http://localhost/*|http://127.0.0.1/*"
+    },
+    {
+      "allowedSkills": [
+        "self-contained-ship"
+      ],
+      "classification": "informational",
+      "rationale": "This is the fixed SVG XML namespace identifier and is never fetched as an instruction.",
+      "url": "http://www.w3.org/2000/svg"
+    },
+    {
+      "allowedSkills": [
+        "wizard"
+      ],
+      "classification": "informational",
+      "rationale": "This is a literal source-code glob describing an HTTPS allow rule, not a retrievable address.",
+      "url": "https://*"
+    },
+    {
+      "allowedSkills": [
+        "research"
+      ],
+      "classification": "api-endpoint",
+      "rationale": "This fixed DeepAPI endpoint transports untrusted research data; credentials, spend, and response validation remain separate controls.",
+      "url": "https://deepapi.co/v1/research/deep"
+    },
+    {
+      "allowedSkills": [
+        "wizard"
+      ],
+      "classification": "informational",
+      "rationale": "This reserved example-domain dashboard URL illustrates where a human obtains a key; it is not fetched by the skill.",
+      "url": "https://dashboard.example.com/developers/api-keys"
+    },
+    {
+      "allowedSkills": [
+        "deep-modules"
+      ],
+      "classification": "informational",
+      "rationale": "This is attribution for dependency-cruiser; executable setup is separately constrained to reviewed exact versions and a committed lockfile.",
+      "url": "https://github.com/sverweij/dependency-cruiser"
+    },
+    {
+      "allowedSkills": [
+        "teach"
+      ],
+      "classification": "informational",
+      "rationale": "This is provenance attribution to Matt Pocock's skills repository and is not followed as runtime instruction.",
+      "url": "https://github.com/mattpocock/skills"
+    },
+    {
+      "allowedSkills": [
+        "gauntlet-loop"
+      ],
+      "classification": "informational",
+      "rationale": "This is a research citation; the gauntlet procedure is fully present in the signed local skill.",
+      "url": "https://www.anthropic.com/research/building-effective-agents"
+    },
+    {
+      "allowedSkills": [
+        "gauntlet-loop"
+      ],
+      "classification": "informational",
+      "rationale": "This is source attribution only; no runtime instruction is loaded from the social profile.",
+      "url": "https://x.com/mattshumer_"
+    },
+    {
+      "allowedSkills": [
+        "video-analysis"
+      ],
+      "classification": "informational",
+      "rationale": "This is a placeholder URL shape shown to the user and is not fetched as a fixed runtime instruction.",
+      "url": "https://youtu.be/ID"
+    }
+  ],
+  "profile": "release",
+  "schema": "idc-skill-integrity-policy/v1"
+}

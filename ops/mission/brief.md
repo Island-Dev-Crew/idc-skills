@@ -28,3 +28,18 @@ Recursively improve the IDC Skills Forge from its release 2.0.0 baseline so the 
 - The cap is advisory in this Codex harness; the orchestrator stops the loop manually.
 - No remote push, pull request, release, profile installation, or mutation outside the repo without a later explicit user request.
 - Existing skills change only when a validator/eval exposes a concrete failing case and the kept edit clears the same regression set.
+
+## Release 2.0.2 addendum — 2026-08-19
+
+The later user request supplies the previously withheld release authority: finish the signed 2.0.2 candidate, push it, open and merge PR #3 only after the required gates are green, promote the exact merged tree to IslandDevCrew, create tag `2.0.2`, and reinstall the verified Forge into Claude and Codex targets. It does not authorize force-push, credential disclosure, or unrelated mutations.
+
+The additional falsifiable bar is:
+
+1. A canonical manifest inventories exactly fifty skill directories and every regular byte beneath them, rejects links/non-regular files/path escapes, and binds the fixed security control plane.
+2. The detached signature verifies with the stable Forge Ed25519 key and exact fingerprint `SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA`; repository code cannot substitute another trust anchor.
+3. Five independent checks pass: signature/anchor, local bytes/inventory, reference/network policy, remote immutable pins, and control-plane bytes. Any failure is non-authorizing; no unsigned green exists.
+4. Installation verifies before any destination write, compares source/stage/installed bytes, and rolls back the selected destination on failure. A pre-tool hook must be configured with the actual installed skill root.
+5. Every claimed attack defense has a red fixture. Same-family review is calibration; a separate Claude-family verdict must bind the exact committed candidate and is void after any repair commit.
+6. The exact candidate passes reacceptance from a fresh clone and remains clean. Remote merge, promotion, tag, and installed-copy claims are made only after live remote and local verification.
+
+The trusted bootstrap remains deliberately external: consumers must confirm the public-key fingerprint through a trusted out-of-band channel before executing the repository's verifier. The gate detects specified tampering; it does not prove that signed instructions are benevolent or sandbox the surrounding agent runtime.

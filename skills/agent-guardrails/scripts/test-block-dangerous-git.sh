@@ -37,6 +37,17 @@ check 2 'echo hi && git -C /r push'            'after && with -C'
 check 2 'git "push"'                           'quoted subcommand'
 check 2 'GIT_DIR=/x git push'                  'env prefix then push'
 
+echo "== must BLOCK (exit 2) — shell-word and long-form bypasses (F-02) =="
+check 2 "git p'u'sh origin main"              'single-quote concatenated push'
+check 2 'git pu\sh origin main'                'backslash-concatenated push'
+check 2 "g''it push origin main"              'quote-concatenated git executable'
+check 2 'git p"u"sh origin main'              'double-quote concatenated push'
+check 2 "git 'pu'sh origin main"              'mixed quoted push'
+check 2 $'git \\\npush origin main'           'line-continuation push'
+check 2 'git branch --delete --force feature'  'branch long delete plus force'
+check 2 'git checkout --force feature'         'checkout force'
+check 2 'git restore --worktree --staged f'    'restore worktree plus staged'
+
 echo "== must ALLOW (exit 0) — read-only / dry-run / non-dangerous =="
 check 0 'git status'                           'status'
 check 0 'git -C /repo status'                  '-C then status'
