@@ -37,3 +37,17 @@
 - Human biometric approval produced `integrity/manifest.json.sig` for the frozen canonical manifest. Verification returned `pass=true`, `readyToRun=true`, `score=5/5`, and `skillsChecked=50`.
 - Current-worktree reacceptance passed the signed gate, 50/50 canonical validation, 67 unit tests, four 50-skill native target probes, fifty historical snapshot ZIPs, the current claude.ai fail-closed probes, and no canonical skill drift.
 - This is signed worktree evidence, not exact-commit acceptance. The next authority-bearing steps are candidate commit, exact-head Claude-family review, and fresh-clone replay.
+
+## 2026-08-19T18:58Z — exact-head PASS accepted, then deliberately voided for hardening
+
+- Clean detached candidate `51e837a079d5d7ca5a243096ce1f84e6a81595dd` passed fresh-clone reacceptance and an independent Claude Fable 5 Standards/Spec review. Claude returned PASS with no critical, high, or medium defect.
+- Two LOW opportunities remained: a future release signer could deliberately admit a fixture-only insecure runtime-instruction transport, and Windows lacked POSIX `O_NOFOLLOW` protection for the pre-open path race.
+- Both LOWs were accepted for repair before publication. Release runtime instructions now require HTTPS at source/final URL with no fixture escape, and trusted-file capture compares pre-open path identity to the opened descriptor.
+- The controlled repair correctly changed verification from 5/5 to 4/5 and voided both the old signature and the exact-head verdict. The expanded suite is 69 tests; regeneration, biometric re-signing, clean-clone replay, and a new exact-head review are mandatory.
+
+## 2026-08-19T19:00Z — hardened candidate re-signed and reaccepted
+
+- The repaired manifest was regenerated at 50 skills, 11 classified references, and 57 signed network-command occurrences. The stale signature failed before signing, as required.
+- A second biometric approval signed the repaired controlled bytes with the same stable fingerprint. Verification returned `pass=true`, `readyToRun=true`, and `score=5/5`.
+- Current-worktree reacceptance is green with 69 tests and the unchanged canonical skill-tree hash `41973fe4c6b6b49ab1ca519d98daaa40bbbdd78865d5ec0bed84d3bc71356d2a`.
+- The first Claude verdict remains void-on-move. The next commit must be cloned cleanly and reviewed again at its exact SHA before push.

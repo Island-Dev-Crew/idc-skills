@@ -395,6 +395,64 @@ class SkillIntegrityTests(unittest.TestCase):
                     fixture.root, fixture.skills, fixture.policy, fetch_remotes=False
                 )
 
+    def test_release_runtime_instruction_cannot_use_fixture_transport_escape(self) -> None:
+        base = {
+            "url": "https://example.com/instructions",
+            "classification": "runtime-instruction",
+            "allowedSkills": ["alpha"],
+            "rationale": "transport-policy fixture",
+            "sha256": "sha256:" + "0" * 64,
+            "finalUrl": "https://example.com/instructions",
+        }
+        for mutation in (
+            {"url": "http://example.com/instructions"},
+            {"finalUrl": "http://example.com/instructions"},
+            {"allowInsecureForFixture": False},
+            {"allowInsecureForFixture": True},
+        ):
+            entry = {**base, **mutation}
+            with self.subTest(mutation=mutation):
+                with self.assertRaisesRegex(
+                    skill_integrity.IntegrityError,
+                    "HTTPS|fixture transport escape",
+                ):
+                    skill_integrity._policy_reference_map(
+                        {"profile": "release", "externalReferences": [entry]}
+                    )
+
+        fixture_entry = {
+            **base,
+            "url": "http://127.0.0.1/instructions",
+            "finalUrl": "http://127.0.0.1/instructions",
+            "allowInsecureForFixture": True,
+        }
+        result = skill_integrity._policy_reference_map(
+            {"profile": "fixture", "externalReferences": [fixture_entry]}
+        )
+        self.assertIn(fixture_entry["url"], result)
+
+    def test_trusted_snapshot_detects_path_identity_change_before_open(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / "manifest.json"
+            target.write_bytes(b"{}\n")
+            fields = list(os.lstat(target))
+            fields[1] += 1
+            mismatched_identity = os.stat_result(fields)
+            with mock.patch.object(
+                skill_integrity.os,
+                "lstat",
+                return_value=mismatched_identity,
+            ):
+                with self.assertRaisesRegex(
+                    skill_integrity.IntegrityError,
+                    "path changed before it could be captured",
+                ):
+                    skill_integrity._read_regular_snapshot(
+                        target,
+                        "integrity manifest",
+                        skill_integrity.MAX_MANIFEST_BYTES,
+                    )
+
     def test_release_cli_exposes_no_fingerprint_or_fixture_override(self) -> None:
         parser = skill_integrity.build_parser()
         subcommands = next(

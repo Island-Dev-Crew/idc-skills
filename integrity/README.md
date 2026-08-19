@@ -92,7 +92,7 @@ python3 /trusted/idc-skills/scripts/pretooluse-skill-integrity.py \
 
 ## External-reference classifications
 
-- `runtime-instruction`: content an agent may retrieve and follow as instructions. HTTPS, a raw-content SHA-256 pin, and a final-URL pin are mandatory; verification re-fetches it.
+- `runtime-instruction`: content an agent may retrieve and follow as instructions. Release policy requires HTTPS for both source and final URL, forbids the fixture-only insecure transport escape, and requires a raw-content SHA-256 pin; verification re-fetches it.
 - `api-endpoint`: a fixed service endpoint used as data transport. It is allow-listed and signed, but its changing response is not presented as pinned or safe. Credential, spend, response-injection, and authorization controls remain separate.
 - `informational`: attribution, standards namespaces, examples, placeholders, and source citations that are not execution instructions. They are signed and allow-listed but are not fetched by the gate.
 

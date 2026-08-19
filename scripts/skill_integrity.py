@@ -393,6 +393,21 @@ def _policy_reference_map(policy: Mapping[str, Any]) -> dict[str, dict[str, Any]
                 raise IntegrityError(f"runtime instruction {url} requires a SHA-256 content pin")
             if not isinstance(entry.get("finalUrl"), str):
                 raise IntegrityError(f"runtime instruction {url} requires finalUrl")
+            if policy.get("profile") == "release":
+                source = urllib.parse.urlparse(url)
+                final = urllib.parse.urlparse(entry["finalUrl"])
+                if source.scheme.lower() != "https" or not source.netloc:
+                    raise IntegrityError(
+                        f"release runtime instruction must use HTTPS: {url}"
+                    )
+                if final.scheme.lower() != "https" or not final.netloc:
+                    raise IntegrityError(
+                        f"release runtime instruction finalUrl must use HTTPS: {url}"
+                    )
+                if "allowInsecureForFixture" in entry:
+                    raise IntegrityError(
+                        f"release runtime instruction may not use fixture transport escape: {url}"
+                    )
         result[url] = dict(entry)
     return result
 
@@ -602,8 +617,14 @@ def _fingerprint_public_key(key_data: str) -> str:
 def _read_regular_snapshot(path: Path, label: str, max_bytes: int) -> bytes:
     """Read one bounded regular-file snapshot without following a final symlink."""
 
-    if path.is_symlink():
+    try:
+        path_stat = os.lstat(path)
+    except OSError as exc:
+        raise IntegrityError(f"cannot inspect {label}: {path}: {exc}") from exc
+    if stat.S_ISLNK(path_stat.st_mode):
         raise IntegrityError(f"refusing symlinked {label}: {path}")
+    if not stat.S_ISREG(path_stat.st_mode):
+        raise IntegrityError(f"{label} must be a regular file: {path}")
     flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_CLOEXEC", 0)
     flags |= getattr(os, "O_NOFOLLOW", 0)
     try:
@@ -614,6 +635,8 @@ def _read_regular_snapshot(path: Path, label: str, max_bytes: int) -> bytes:
         file_stat = os.fstat(descriptor)
         if not stat.S_ISREG(file_stat.st_mode):
             raise IntegrityError(f"{label} must be a regular file: {path}")
+        if (path_stat.st_dev, path_stat.st_ino) != (file_stat.st_dev, file_stat.st_ino):
+            raise IntegrityError(f"{label} path changed before it could be captured: {path}")
         with os.fdopen(descriptor, "rb", closefd=False) as stream:
             data = stream.read(max_bytes + 1)
     finally:

@@ -24,7 +24,7 @@
 
 ## Current measured gates before final signing
 
-- Unit tests: 67 passing.
+- Unit tests: 69 passing after both LOW cross-family hardening repairs.
 - Git authority fixtures: 37/37 passing.
 - Semantic records: 50 records / 150 cases / registry=report exact.
 - Canonical validator: run again at final candidate.

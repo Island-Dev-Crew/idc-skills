@@ -130,16 +130,16 @@
       "size": 1238
     },
     "CHANGELOG.md": {
-      "sha256": "sha256:5f7490a7527b8ef98b3fecb10f0cf3b16d95ec56cf397d11e7d9c006daaedea5",
-      "size": 2187
+      "sha256": "sha256:5dba51f18306754332f6eae56e86fb755dbb77de28a262a568f4d08c80057e43",
+      "size": 2456
     },
     "CONTEXT.md": {
       "sha256": "sha256:d76252202de4147ffc7c4d061a3feec9b5ac76b418e89d698ff3e0bed3a23f7a",
       "size": 4040
     },
     "IDC-Skills-2.0.2-Gap-Analysis-and-Integrity-Review-v1-2026-08-19.html": {
-      "sha256": "sha256:5978781cf265b383f656e1f4950267b365cadafe5cd0669346fbfb859e017160",
-      "size": 39409
+      "sha256": "sha256:d80ecf2db855f69526f909eb94d6b5e7e045a27519533d57641ee6b276da66a6",
+      "size": 40298
     },
     "README.md": {
       "sha256": "sha256:ceafc0c3993bbb91803d29b2ccb46117a7b8028c775a98285a7d70c59a8a8c33",
@@ -154,8 +154,8 @@
       "size": 256808
     },
     "integrity/README.md": {
-      "sha256": "sha256:67be49ab4eaef7022332a0d9f9007d11103e9f2e92d1bfdecf868e152bb3b03a",
-      "size": 7440
+      "sha256": "sha256:1a04bdaf496bafb30cec694c71dcc99281d5bc0936497c077df6c10107c5ff59",
+      "size": 7524
     },
     "integrity/policy.json": {
       "sha256": "sha256:aeeb553420ae58b7cae49abb5bff39091a02377d32359358450870358020484f",
@@ -206,8 +206,8 @@
       "size": 8415
     },
     "scripts/skill_integrity.py": {
-      "sha256": "sha256:37df7b954d1c75c5bfab9d0bcd56a76eb7f9c01f66bb0216669b76fa3c8634a1",
-      "size": 49187
+      "sha256": "sha256:1196643b8eff6bdd8dd822b2d56953b1584963e081b86ad3ce40699f78ecc11b",
+      "size": 50474
     },
     "scripts/test-skill-integrity.sh": {
       "sha256": "sha256:caa47577c4c27765d2930ec468c05a84519bd586a698b724a038df0e04afc872",
@@ -230,8 +230,8 @@
       "size": 5938
     },
     "tests/test_skill_integrity.py": {
-      "sha256": "sha256:edadd7a4fa09aac4222cafb126cafef36730b6a2d15c3e22ad8c8cd88493920d",
-      "size": 17901
+      "sha256": "sha256:3c2d2d13b89d7af33449c4f4f0569394a9486883a4ec663391129925b501a074",
+      "size": 20327
     },
     "tests/test_validation_records.py": {
       "sha256": "sha256:f140544efc7341a237399c299adb173ca939b3c196e09c3f0cb30feaa8290efa",

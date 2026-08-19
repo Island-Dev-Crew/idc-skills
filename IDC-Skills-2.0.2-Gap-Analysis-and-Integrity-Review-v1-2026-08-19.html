@@ -229,7 +229,7 @@
       <div class="metrics" aria-label="Headline evidence metrics">
         <div class="metric"><span class="eyebrow">Canonical seats</span><span class="value">50</span><span class="label">registry and validation records agree</span><span class="proof">verify_validation_records.py</span></div>
         <div class="metric"><span class="eyebrow">Semantic cases</span><span class="value">150</span><span class="label">three cases per Forge island</span><span class="proof">ops/validation/skill-records.json</span></div>
-        <div class="metric"><span class="eyebrow">Unit fixtures</span><span class="value">67</span><span class="label">candidate-worktree result before final freeze</span><span class="proof">unittest discover</span></div>
+        <div class="metric"><span class="eyebrow">Unit fixtures</span><span class="value">69</span><span class="label">candidate-worktree result before final freeze</span><span class="proof">unittest discover</span></div>
         <div class="metric"><span class="eyebrow">Authority cases</span><span class="value">37</span><span class="label">allowed and blocked Git command forms</span><span class="proof">test-block-dangerous-git.sh</span></div>
       </div>
 
@@ -393,6 +393,8 @@
         <article class="finding"><span class="severity">MEDIUM · PATH</span><h3>Control path escape</h3><p>A signed policy could point a control entry outside the repository root.</p><p class="repair">Closed: absolute, dot-dot, symlinked, missing, and resolved-outside paths are rejected.</p></article>
         <article class="finding"><span class="severity">MEDIUM · TEMPORAL</span><h3>Live-tree change after first hash</h3><p>A writer could replace a skill after its first read but before the verifier returned, leaving the observed snapshot green while the path was poisoned.</p><p class="repair">Closed within the observable run: the complete local manifest is recaptured immediately before authorization, and installed skill directories are captured twice. Post-final-read mutation remains an OS-containment boundary.</p></article>
         <article class="finding"><span class="severity">LOW · CI SEMANTICS</span><h3>Fixture mode returned success</h3><p>A generic wrapper could confuse non-authorizing fixture success with release authority.</p><p class="repair">Closed: fixture controls are internal test APIs, absent from the release CLI, and cannot produce readyToRun.</p></article>
+        <article class="finding"><span class="severity">LOW · RELEASE POLICY</span><h3>Fixture transport escape available to a release signer</h3><p>A future signed release policy could have deliberately admitted HTTP for a runtime instruction through the fixture-only escape.</p><p class="repair">Closed after cross-family review: release runtime instructions require HTTPS for source and final URL and reject the fixture escape key.</p></article>
+        <article class="finding"><span class="severity">LOW · WINDOWS PATH</span><h3>No native O_NOFOLLOW guarantee</h3><p>Windows cannot rely on the POSIX no-follow open flag, leaving a narrow check/open replacement window.</p><p class="repair">Closed after cross-family review: trusted-file capture compares the pre-open path device/inode identity to the opened descriptor in addition to using O_NOFOLLOW where available.</p></article>
         <article class="finding"><span class="severity">DESIGN BOUNDARY</span><h3>Repository cannot attest itself</h3><p>A same-user attacker may replace both verifier and repository files before invocation.</p><p class="repair">Not hidden: trusted launch must pin the verifier and key fingerprint outside this repository.</p></article>
       </div>
     </section>
@@ -412,7 +414,7 @@
           <div class="score-row"><span>Canonical validation</span><strong>50 / 50</strong></div>
           <div class="score-row"><span>Validation records</span><strong>50 / 50</strong></div>
           <div class="score-row"><span>Semantic cases</span><strong>150</strong></div>
-          <div class="score-row"><span>Unit tests</span><strong>67 passed</strong></div>
+          <div class="score-row"><span>Unit tests</span><strong>69 passed</strong></div>
           <div class="score-row"><span>Git guard fixtures</span><strong>37 / 37</strong></div>
           <div class="score-row"><span>Historical archive proofs</span><strong>2 / 2 exact</strong></div>
           <p style="color:var(--dim);font-size:.78rem">These figures describe the locally derived candidate snapshot. Final release evidence must be rerun after signing and from the exact committed clone.</p>
