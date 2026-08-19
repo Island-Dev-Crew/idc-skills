@@ -1,11 +1,20 @@
 from __future__ import annotations
 
+import contextlib
+import copy
+import importlib.util
+import io
 import os
+import shutil
 import stat
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
+from unittest import mock
+
+from scripts import skill_integrity
 
 
 REPO = Path(__file__).resolve().parents[1]
@@ -16,11 +25,22 @@ def write_executable(path: Path, body: str) -> None:
     path.chmod(0o755)
 
 
+def load_integrity_hook():
+    hook = REPO / "scripts/pretooluse-skill-integrity.py"
+    spec = importlib.util.spec_from_file_location("idc_integrity_hook_test", hook)
+    if spec is None or spec.loader is None:
+        raise AssertionError("could not load integrity hook")
+    module = importlib.util.module_from_spec(spec)
+    with mock.patch.dict(sys.modules, {"skill_integrity": skill_integrity}):
+        spec.loader.exec_module(module)
+    return module
+
+
 class SecurityScriptTests(unittest.TestCase):
     def test_integrity_hook_requires_installed_skill_root(self) -> None:
         process = subprocess.run(
             [
-                "python3",
+                sys.executable,
                 str(REPO / "scripts/pretooluse-skill-integrity.py"),
                 "--repo-root",
                 str(REPO),
@@ -34,6 +54,100 @@ class SecurityScriptTests(unittest.TestCase):
         )
         self.assertEqual(process.returncode, 2)
         self.assertIn("--installed-skills", process.stderr)
+
+    def test_integrity_hook_blocks_red_gate_unknown_skill_and_installed_drift(self) -> None:
+        module = load_integrity_hook()
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            installed = root / "installed"
+            installed.mkdir()
+            shutil.copytree(REPO / "skills" / "short", installed / "short")
+            source = installed / "short"
+            expected = {
+                path.relative_to(source).as_posix(): skill_integrity._file_record(path)
+                for path in skill_integrity._walk_regular_files(source)
+            }
+            verified = {
+                "readyToRun": True,
+                "score": "5/5",
+                "_verifiedManifest": {
+                    "skills": {"short": {"files": expected}}
+                },
+            }
+
+            def invoke(
+                report: dict[str, object],
+                skill: str,
+                payload: dict[str, object] | None = None,
+            ) -> tuple[int, str, str]:
+                output = io.StringIO()
+                error = io.StringIO()
+                with mock.patch.object(
+                    module, "_read_payload", return_value=payload or {}
+                ):
+                    with mock.patch.object(
+                        module.skill_integrity,
+                        "verify_repository",
+                        return_value=copy.deepcopy(report),
+                    ):
+                        with contextlib.redirect_stdout(output):
+                            with contextlib.redirect_stderr(error):
+                                exit_code = module.main(
+                                    [
+                                        "--repo-root",
+                                        str(REPO),
+                                        "--installed-skills",
+                                        str(installed),
+                                        "--skill",
+                                        skill,
+                                    ]
+                                )
+                return exit_code, output.getvalue(), error.getvalue()
+
+            red_code, _, red_error = invoke(
+                {"readyToRun": False, "score": "0/5"}, "short"
+            )
+            self.assertEqual(red_code, 2)
+            self.assertIn("integrity gate is 0/5", red_error)
+
+            ready_code, ready_output, ready_error = invoke(verified, "short")
+            self.assertEqual(ready_code, 0, ready_error)
+            self.assertIn("READY 5/5", ready_output)
+
+            unknown_code, _, unknown_error = invoke(verified, "not-in-forge")
+            self.assertEqual(unknown_code, 2)
+            self.assertIn("unknown or unreadable skill", unknown_error)
+
+            mismatch_code, _, mismatch_error = invoke(
+                verified, "short", {"skill": "research"}
+            )
+            self.assertEqual(mismatch_code, 2)
+            self.assertIn("explicit skill and hook payload disagree", mismatch_error)
+
+            (installed / "short" / "SKILL.md").write_bytes(b"poisoned\n")
+            drift_code, _, drift_error = invoke(verified, "short")
+            self.assertEqual(drift_code, 2)
+            self.assertIn("installed bytes drifted", drift_error)
+            for message in (
+                red_error,
+                ready_output,
+                ready_error,
+                unknown_error,
+                mismatch_error,
+                drift_error,
+            ):
+                message.encode("ascii")
+
+    def test_integrity_hook_unexpected_exception_is_blocking_exit_two(self) -> None:
+        module = load_integrity_hook()
+
+        error = io.StringIO()
+        with mock.patch.object(module, "_authorize", side_effect=RuntimeError("secret")):
+            with contextlib.redirect_stderr(error):
+                exit_code = module.main(["--installed-skills", str(REPO / "skills")])
+        self.assertEqual(exit_code, 2)
+        self.assertIn("integrity adapter failure: RuntimeError", error.getvalue())
+        self.assertNotIn("secret", error.getvalue())
 
     def test_smoke_readiness_failure_writes_verdict_and_never_runs_driver(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

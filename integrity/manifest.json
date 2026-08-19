@@ -130,20 +130,20 @@
       "size": 1238
     },
     "CHANGELOG.md": {
-      "sha256": "sha256:5dba51f18306754332f6eae56e86fb755dbb77de28a262a568f4d08c80057e43",
-      "size": 2456
+      "sha256": "sha256:bbd88f7367fe705edbd82d0c0186ef76fa193519a42740aee6cc49327d3e5813",
+      "size": 2879
     },
     "CONTEXT.md": {
       "sha256": "sha256:d76252202de4147ffc7c4d061a3feec9b5ac76b418e89d698ff3e0bed3a23f7a",
       "size": 4040
     },
     "IDC-Skills-2.0.2-Gap-Analysis-and-Integrity-Review-v1-2026-08-19.html": {
-      "sha256": "sha256:d80ecf2db855f69526f909eb94d6b5e7e045a27519533d57641ee6b276da66a6",
-      "size": 40298
+      "sha256": "sha256:88b1c6fb3706ceb2c843a9e73f8d3e9886a7b8a03cc7d2460f5b2f4f77cf9c64",
+      "size": 42312
     },
     "README.md": {
-      "sha256": "sha256:ceafc0c3993bbb91803d29b2ccb46117a7b8028c775a98285a7d70c59a8a8c33",
-      "size": 17960
+      "sha256": "sha256:1fed66db952c12a9852b861c1b973e8553031123b9f009a7d29feecad6a5aca5",
+      "size": 18379
     },
     "THIRD-PARTY-NOTICES.md": {
       "sha256": "sha256:bd38aa36041867a6f45a2d16071af312bdf9852e50a9e68a92e3c321159fdeb3",
@@ -154,8 +154,8 @@
       "size": 256808
     },
     "integrity/README.md": {
-      "sha256": "sha256:1a04bdaf496bafb30cec694c71dcc99281d5bc0936497c077df6c10107c5ff59",
-      "size": 7524
+      "sha256": "sha256:cc16e3afbbc70b39f6b468262842733bcf01079f04035267350831775b72fbda",
+      "size": 7956
     },
     "integrity/policy.json": {
       "sha256": "sha256:aeeb553420ae58b7cae49abb5bff39091a02377d32359358450870358020484f",
@@ -182,16 +182,16 @@
       "size": 4359
     },
     "scripts/install.py": {
-      "sha256": "sha256:1d42db0c14cb36e432bc1e82fd763af9c81bf54a781476ff9396f7d000d6d820",
-      "size": 57848
+      "sha256": "sha256:6e7ac99991124f8de78b4d5570d585a908a21322097b17b076a055d24dd3b615",
+      "size": 61285
     },
     "scripts/install.sh": {
       "sha256": "sha256:f676fcc8c050af796c625bd05b139132810d9c3da491e6c5a590b734c5b99a75",
       "size": 344
     },
     "scripts/pretooluse-skill-integrity.py": {
-      "sha256": "sha256:006f83dee2027d0f42993a4019951e2b610b2744f4714d59931a74839627077e",
-      "size": 3913
+      "sha256": "sha256:3ec33c5f0e733573765d2d1253058fc202e07a4bdeaa576063c4b725376ee20f",
+      "size": 4555
     },
     "scripts/reaccept.py": {
       "sha256": "sha256:191a6ba365da5631b2873089431fa384bba332ab8f1f483c79329126eb7b5648",
@@ -222,12 +222,12 @@
       "size": 33527
     },
     "tests/test_install.py": {
-      "sha256": "sha256:fe6547ecd634b3115d57b654b77a7da7fa51d3bf090c554533490e62db7bb060",
-      "size": 23306
+      "sha256": "sha256:dac1a0504658c767e9917fb90587f2b0080584d3aa3e760c04bb3460dae69354",
+      "size": 28617
     },
     "tests/test_security_scripts.py": {
-      "sha256": "sha256:c5d83c7dab115d0cd5ee63a388a6d72423e46d44becd8ee18e222d81bb597c3c",
-      "size": 5938
+      "sha256": "sha256:17767974a41d8c862d3de03a54876ed8db5f4126a68e1572e304381006ff9549",
+      "size": 10654
     },
     "tests/test_skill_integrity.py": {
       "sha256": "sha256:3c2d2d13b89d7af33449c4f4f0569394a9486883a4ec663391129925b501a074",

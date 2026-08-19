@@ -24,12 +24,12 @@
 
 ## Current measured gates before final signing
 
-- Unit tests: 69 passing after both LOW cross-family hardening repairs.
+- Unit tests: 73/73 passing after secure-default install/export, hook identity/fail-closed, and hermetic Unicode-output repairs.
 - Git authority fixtures: 37/37 passing.
 - Semantic records: 50 records / 150 cases / registry=report exact.
 - Canonical validator: run again at final candidate.
 - Shellcheck: run again at final candidate.
-- Signed integrity: pending final byte freeze and biometric signature.
+- Signed integrity: pending post-review byte freeze and biometric signature.
 - Cross-family review: pending exact committed candidate.
 
 This file is chronological evidence, not the final verdict. The final exact-head results are appended in the release report and mission state after signature and independent review.

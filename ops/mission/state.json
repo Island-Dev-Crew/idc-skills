@@ -10,7 +10,7 @@
     "northStar": "Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.",
     "status": "in_progress",
     "started": "2026-08-11",
-    "updated": "2026-08-19T19:00:15Z",
+    "updated": "2026-08-19T20:01:37Z",
     "sessionCount": 2
   },
   "policies": {
@@ -315,27 +315,27 @@
           "title": "Security, installer, authority, and record fixture matrices pass",
           "command": "python -m unittest discover -s tests -p test_*.py && skills/agent-guardrails/scripts/test-block-dangerous-git.sh",
           "status": "passed",
-          "evidence": "ops/mission/evidence/forge-50-review-2026-08-19.md",
-          "lastRun": "2026-08-19T19:00:15Z",
-          "notes": "69 unit tests, 37/37 git-authority fixtures, 50/50 canonical validation, record/render parity, shellcheck, signed-gate verification, and current-worktree reacceptance all pass after the LOW hardening repairs."
+          "evidence": "ops/mission/evidence/signed-gate-2.0.2.json",
+          "lastRun": "2026-08-19T20:01:37Z",
+          "notes": "Final signed-worktree reacceptance passed 73 unit tests, 37/37 Git authority fixtures, 50/50 canonical validation, 50 records/150 cases, shellcheck, four 50-skill native target probes, and fifty deterministic historical snapshot ZIPs."
         },
         {
           "id": "P5-G2",
           "title": "Release profile verifies 5/5 against the stable Forge key",
           "command": "python scripts/skill_integrity.py verify",
           "status": "passed",
-          "evidence": "integrity/manifest.json.sig",
-          "lastRun": "2026-08-19T19:00:15Z",
-          "notes": "The repaired manifest was regenerated and signed through the stable 1Password key. Verification again returns pass=true, readyToRun=true, score=5/5, skillsChecked=50; final exact-commit review remains pending."
+          "evidence": "ops/mission/evidence/signed-gate-2.0.2.json",
+          "lastRun": "2026-08-19T20:01:37Z",
+          "notes": "The final manifest SHA-256 is 9f9a80dd60cd45608be031eaa6f8847360af81c6d622a8ce88c5e921c1955d64 and its detached-signature SHA-256 is e90e79407c39040d402b2227e8141ec98a1ef828581fb4bd78e6ce24f01db921. Verification against the pinned Forge key returned pass=true, readyToRun=true, score=5/5, and skillsChecked=50."
         },
         {
           "id": "P5-G3",
           "title": "Independent Claude-family review approves the exact committed candidate",
           "command": "claude -p <exact-head-review-brief>",
           "status": "pending",
-          "evidence": "ops/mission/evidence/cross-family-review-2.0.2.md",
-          "lastRun": null,
-          "notes": "Claude Fable 5 returned PASS for 51e837a with two LOW hardening notes. The repair moved controlled bytes, so that verdict is void; a new exact-head verdict is required."
+          "evidence": null,
+          "lastRun": "2026-08-19T19:16:44Z",
+          "notes": "Claude Fable 5 returned CHANGES_REQUIRED for fa642324 because direct unflagged Python installation skipped signature verification. The repaired signed worktree is green, but that verdict remains void; a new review of the final exact commit and the full PR delta from 2528a28 is required before transport."
         }
       ],
       "tasks": [
@@ -383,9 +383,9 @@
           "title": "Fresh clone passes reacceptance and remains byte-clean",
           "command": "python scripts/reaccept.py",
           "status": "pending",
-          "evidence": "ops/mission/evidence/fresh-clone-reacceptance-2.0.2.json",
+          "evidence": null,
           "lastRun": null,
-          "notes": null
+          "notes": "No final artifact path is claimed until the post-repair exact commit is replayed from a fresh clone."
         },
         {
           "id": "P6-G2",
@@ -444,7 +444,7 @@
     {
       "label": "Signed release integrity checks",
       "baseline": "0/5",
-      "current": "5/5 readyToRun after final hardening re-sign",
+      "current": "5/5 readyToRun on final signed worktree",
       "target": "5/5 readyToRun",
       "direction": "up"
     },

@@ -372,7 +372,7 @@
         <div class="card">
           <div class="eyebrow">Installed path</div>
           <h3>Verify before write; bind what runs</h3>
-          <p>The installer verifies the release before destination mutation, compares source/staged/installed byte maps, and rolls back the selected destination on failure. The pre-tool hook requires the actual installed-skills root rather than attesting only a canonical repository elsewhere.</p>
+          <p>The release CLI verifies by default with no command-line opt-out before install or export mutation. Installs compare source/staged/installed maps; exports build only from a staged source snapshot bound to the authenticated map. The pre-tool hook requires the actual installed-skills root, rejects explicit-skill/payload disagreement, and returns blocking exit 2 on every unexpected exception.</p>
         </div>
       </div>
     </section>
@@ -395,6 +395,10 @@
         <article class="finding"><span class="severity">LOW · CI SEMANTICS</span><h3>Fixture mode returned success</h3><p>A generic wrapper could confuse non-authorizing fixture success with release authority.</p><p class="repair">Closed: fixture controls are internal test APIs, absent from the release CLI, and cannot produce readyToRun.</p></article>
         <article class="finding"><span class="severity">LOW · RELEASE POLICY</span><h3>Fixture transport escape available to a release signer</h3><p>A future signed release policy could have deliberately admitted HTTP for a runtime instruction through the fixture-only escape.</p><p class="repair">Closed after cross-family review: release runtime instructions require HTTPS for source and final URL and reject the fixture escape key.</p></article>
         <article class="finding"><span class="severity">LOW · WINDOWS PATH</span><h3>No native O_NOFOLLOW guarantee</h3><p>Windows cannot rely on the POSIX no-follow open flag, leaving a narrow check/open replacement window.</p><p class="repair">Closed after cross-family review: trusted-file capture compares the pre-open path device/inode identity to the opened descriptor in addition to using O_NOFOLLOW where available.</p></article>
+        <article class="finding"><span class="severity">MEDIUM · SECURE DEFAULT</span><h3>Direct installer skipped verification</h3><p>The Python entrypoint installed unsigned bytes unless the caller remembered <code>--verify-integrity</code>, contradicting the release installer contract.</p><p class="repair">Closed after exact-head review: verification is default-on, the release CLI exposes no opt-out, and an unflagged red-gate test proves no target write occurs.</p></article>
+        <article class="finding"><span class="severity">LOW · HOOK FAIL-CLOSED</span><h3>Unexpected adapter exception could exit 1</h3><p>An unanticipated hook exception could produce a harness-nonblocking exit and lacked red regression coverage.</p><p class="repair">Closed: all unexpected exceptions collapse to exit 2 without leaking exception text; tests cover red gate, exact-byte green, unknown skill, installed drift, and exception behavior.</p></article>
+        <article class="finding"><span class="severity">HIGH · EXPORT AUTHORITY</span><h3>Red repository could still emit bundles</h3><p>Both Claude.ai export modes transformed and packaged source bytes without first requiring the signed gate.</p><p class="repair">Closed: install and export direct APIs default to verification, release CLI has no opt-out, selected skills are copied to scratch, and only a staged snapshot matching the authenticated file map can become a bundle.</p></article>
+        <article class="finding"><span class="severity">HIGH · IDENTITY BINDING</span><h3>Fixed hook skill could mask payload skill</h3><p>A configured <code>--skill</code> value took precedence over a conflicting skill identity in the live hook payload.</p><p class="repair">Closed: when both identities are present they must match exactly; mismatch returns blocking exit 2, and all hook verdict text is ASCII-safe across Windows/OEM streams.</p></article>
         <article class="finding"><span class="severity">DESIGN BOUNDARY</span><h3>Repository cannot attest itself</h3><p>A same-user attacker may replace both verifier and repository files before invocation.</p><p class="repair">Not hidden: trusted launch must pin the verifier and key fingerprint outside this repository.</p></article>
       </div>
     </section>
@@ -414,7 +418,7 @@
           <div class="score-row"><span>Canonical validation</span><strong>50 / 50</strong></div>
           <div class="score-row"><span>Validation records</span><strong>50 / 50</strong></div>
           <div class="score-row"><span>Semantic cases</span><strong>150</strong></div>
-          <div class="score-row"><span>Unit tests</span><strong>69 passed</strong></div>
+          <div class="score-row"><span>Unit tests</span><strong>73 passed</strong></div>
           <div class="score-row"><span>Git guard fixtures</span><strong>37 / 37</strong></div>
           <div class="score-row"><span>Historical archive proofs</span><strong>2 / 2 exact</strong></div>
           <p style="color:var(--dim);font-size:.78rem">These figures describe the locally derived candidate snapshot. Final release evidence must be rerun after signing and from the exact committed clone.</p>

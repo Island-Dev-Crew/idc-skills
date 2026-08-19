@@ -74,11 +74,11 @@ The private key never enters the repository or local disk. `scripts/setup-signin
 The portable installer verifies the signed release before any destination preflight or write, then checks both staged and installed bytes against the signed per-skill file map:
 
 ```bash
-python3 scripts/install.py install --verify-integrity --target agents
+python3 scripts/install.py install --target agents
 ./scripts/install.sh
 ```
 
-The shell wrapper is intentionally not a bypass; it always selects `--verify-integrity`.
+Verification is mandatory and default-on for native installs and both Claude.ai export modes; the release CLI has no opt-out. Exports copy selected skills to scratch, verify that staged snapshot against the authenticated per-file map, and build bundles only from those bytes. The retained install-only `--verify-integrity` flag explicitly affirms the default for command compatibility. The shell wrapper is intentionally not a bypass; it selects the same enforced path.
 
 For a harness with a `PreToolUse` event on its Skill tool, configure the reviewed adapter with absolute paths:
 
@@ -88,7 +88,7 @@ python3 /trusted/idc-skills/scripts/pretooluse-skill-integrity.py \
   --installed-skills /absolute/harness/skills
 ```
 
-`--installed-skills` is mandatory: the adapter refuses to attest only the canonical source while a harness may execute a different copied tree. It returns exit 2 on a missing installed root, invalid payload, non-green release, unknown skill, or installed-byte drift. A hook is enforced only after the receiving harness is actually configured to call it and a blocking smoke probe has been observed; the shipped adapter alone is merely available enforcement.
+`--installed-skills` is mandatory: the adapter refuses to attest only the canonical source while a harness may execute a different copied tree. It returns exit 2 on a missing installed root, invalid payload, non-green release, unknown skill, installed-byte drift, an explicit-skill/payload mismatch, or any unexpected adapter exception. A hook is enforced only after the receiving harness is actually configured to call it and a blocking smoke probe has been observed; the shipped adapter alone is merely available enforcement.
 
 ## External-reference classifications
 

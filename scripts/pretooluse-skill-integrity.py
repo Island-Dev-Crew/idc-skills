@@ -67,14 +67,8 @@ def build_parser() -> argparse.ArgumentParser:
     return parser
 
 
-def main(argv: Sequence[str] | None = None) -> int:
-    args = build_parser().parse_args(argv)
-    try:
-        payload = _read_payload()
-    except (UnicodeDecodeError, json.JSONDecodeError, ValueError) as exc:
-        print(f"SKILL BLOCKED — invalid hook payload: {exc}", file=sys.stderr)
-        return 2
-
+def _authorize(args: argparse.Namespace) -> int:
+    payload = _read_payload()
     report = skill_integrity.verify_repository(
         args.repo_root, include_verified_manifest=True
     )
@@ -82,33 +76,59 @@ def main(argv: Sequence[str] | None = None) -> int:
     if args.json:
         print(json.dumps(report, sort_keys=True, indent=2))
     if not report["readyToRun"]:
-        print(f"SKILL BLOCKED — integrity gate is {report['score']}", file=sys.stderr)
+        print(f"SKILL BLOCKED - integrity gate is {report['score']}", file=sys.stderr)
         return 2
 
-    skill_name = args.skill or _skill_from_payload(payload)
+    payload_skill = _skill_from_payload(payload)
+    if args.skill and payload_skill and args.skill != payload_skill:
+        print(
+            "SKILL BLOCKED - explicit skill and hook payload disagree: "
+            f"{args.skill!r} != {payload_skill!r}",
+            file=sys.stderr,
+        )
+        return 2
+    skill_name = args.skill or payload_skill
     if not skill_name:
-        print("SKILL BLOCKED — hook payload did not identify a skill", file=sys.stderr)
+        print("SKILL BLOCKED - hook payload did not identify a skill", file=sys.stderr)
         return 2
     try:
         if not isinstance(manifest, dict):
             raise skill_integrity.IntegrityError("authenticated manifest snapshot unavailable")
         expected = manifest["skills"][skill_name]["files"]
     except (KeyError, skill_integrity.IntegrityError) as exc:
-        print(f"SKILL BLOCKED — unknown or unreadable skill {skill_name!r}: {exc}", file=sys.stderr)
+        print(
+            f"SKILL BLOCKED - unknown or unreadable skill {skill_name!r}: {exc}",
+            file=sys.stderr,
+        )
         return 2
     failures = skill_integrity.verify_skill_directory(
         args.installed_skills / skill_name, expected
     )
     if failures:
         print(
-            f"SKILL BLOCKED — installed bytes drifted for {skill_name}: "
+            f"SKILL BLOCKED - installed bytes drifted for {skill_name}: "
             + "; ".join(failures),
             file=sys.stderr,
         )
         return 2
 
-    print(f"SKILL INTEGRITY READY 5/5 — installed skill={skill_name}")
+    print(f"SKILL INTEGRITY READY 5/5 - installed skill={skill_name}")
     return 0
+
+
+def main(argv: Sequence[str] | None = None) -> int:
+    args = build_parser().parse_args(argv)
+    try:
+        return _authorize(args)
+    except Exception as exc:
+        # A PreToolUse exit 1 may be treated as non-blocking by the receiving
+        # harness. Every unexpected adapter failure must therefore collapse to
+        # the documented blocking exit 2, without an authorization result.
+        print(
+            "SKILL BLOCKED - integrity adapter failure: " + type(exc).__name__,
+            file=sys.stderr,
+        )
+        return 2
 
 
 if __name__ == "__main__":
