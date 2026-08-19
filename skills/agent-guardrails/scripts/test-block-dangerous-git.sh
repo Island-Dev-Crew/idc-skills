@@ -56,9 +56,23 @@ check 2 'git -c alias.co=checkout co .'        'alias injection via -c (checkout
 check 2 'git config alias.p push'              'persistent alias definition to push'
 check 2 'git config alias.nuke "reset --hard"' 'persistent alias definition to reset --hard'
 
+echo "== must BLOCK (exit 2) — 2.0.3 review round 2: !shell aliases + whole-tree pathspec =="
+check 2 "git config alias.deploy '!git push'"  'shell-command alias (!git push)'
+check 2 "git -c alias.x='!git reset --hard' x" 'shell-command alias via -c'
+check 2 'git checkout :/'                       'checkout whole-tree pathspec :/'
+check 2 'git restore :/'                        'restore whole-tree pathspec :/'
+check 2 "git checkout '*'"                      'checkout glob pathspec *'
+check 2 'git checkout HEAD -- :/'               'checkout HEAD whole-tree'
+
 echo "== must ALLOW (exit 0) — read-only / dry-run / non-dangerous =="
 check 0 'git config alias.st status'           'safe alias definition (status)'
 check 0 'git config alias.lg "log --oneline"'  'safe alias definition (log)'
+
+echo "== must ALLOW (exit 0) — false-positive regressions (quoted text must not trip) =="
+check 0 'git commit -m "run git config alias.p push someday"'  'commit message mentions the command'
+check 0 'git commit -m "document alias.branch behavior"'       'commit message mentions alias.branch'
+check 0 'echo "alias.push=push in docs"'                       'echo of alias text (non-git)'
+check 0 'git commit -m "fix: checkout . regression"'           'commit message mentions checkout .'
 check 0 'git status'                           'status'
 check 0 'git -C /repo status'                  '-C then status'
 check 0 'git log --oneline -5'                 'log'

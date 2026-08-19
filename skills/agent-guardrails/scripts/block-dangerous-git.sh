@@ -3,14 +3,23 @@
 # Reads hook JSON on stdin; exit 2 blocks (with a stderr message), exit 0 allows.
 #
 # SCOPE (honest — this is advisory until wired, and a speed-bump even then):
-# a defense-in-depth STRING classifier. It parses git's global-option grammar,
-# so a destructive subcommand cannot hide behind options like -C, -c,
-# --no-pager, --git-dir, --work-tree, --namespace, or long/`=` forms, on ANY of
-# the blocked subcommands. It is NOT a sandbox: `eval`, `sh -c "..."`, an alias,
-# command substitution `$(...)`, or a renamed/copied git binary can still reach
-# git. Keep a real OS/repo-level control underneath; never treat this as the
-# only barrier. Requires `jq`; if `jq` is missing the guard says so and OPENS
-# (fail-open) so it cannot wedge every command — wire it only where jq exists.
+# a defense-in-depth STRING classifier. It quote-aware-tokenizes (shlex), skips
+# git's global-option grammar (-C, -c, --no-pager, --git-dir, --work-tree,
+# --namespace, long/`=` forms), neutralizes ${IFS}/$IFS word-split tricks, and
+# refuses alias definitions (`-c alias.x=push`, `config alias.x '!git push'`) and
+# whole-tree pathspecs (`.`, `:/`, `*`, `:(top)`). Quote awareness means a commit
+# MESSAGE mentioning a blocked command is NOT over-blocked.
+#
+# It is NOT a sandbox and CANNOT be one. Documented residuals a string classifier
+# cannot close (keep a real OS/repo-level control underneath — this is one layer):
+#   - variable/dynamic indirection: `C=git; $C push`, `$(printf push)`, `eval`
+#   - `sh -c "..."`, a renamed/copied git binary, base64-then-decode
+#   - a persistent alias set in a PRIOR command, then invoked in a later one
+#   - malformed hook payloads: extraction fails -> guard OPENS (see below), by
+#     design, so a parse error cannot wedge every command.
+# Requires `jq` (payload) and `python3` (tokenizer); if either is missing the guard
+# degrades to a naive splitter / fail-open rather than wedging the agent — wire it
+# only where both exist, and never as the only barrier.
 set -euo pipefail
 
 cmd="$(cat | jq -r '.tool_input.command // .toolInput.command // .command // empty' 2>/dev/null || true)"
@@ -82,7 +91,7 @@ classify_from() {
     checkout)
       for (( k=i+1; k<NW; k++ )); do
         t="$(normalize_word "${WORDS[$k]}")"
-        [ "$t" = "." ] && danger="git checkout ."
+        case "$t" in .|:/|:|\*|':(top)'|':/:') danger="git checkout <whole-tree pathspec>" ;; esac
         case "$t" in -f|--force) danger="git checkout --force" ;; esac
       done
       ;;
@@ -90,7 +99,7 @@ classify_from() {
       local worktree=0 staged=0
       for (( k=i+1; k<NW; k++ )); do
         t="$(normalize_word "${WORDS[$k]}")"
-        [ "$t" = "." ] && danger="git restore ."
+        case "$t" in .|:/|:|\*|':(top)'|':/:') danger="git restore <whole-tree pathspec>" ;; esac
         [ "$t" = "--worktree" ] && worktree=1
         [ "$t" = "--staged" ] && staged=1
       done
@@ -112,25 +121,93 @@ cmd="${cmd//$continuation/}"
 cmd="$(printf '%s' "$cmd" | sed -E 's/\$\{IFS[^}]*\}/ /g; s/\$IFS/ /g')"
 
 # Alias injection: redefining a short name to a blocked op — `-c alias.p=push` (then
-# `git p`) or `git config alias.p push`. A single-command classifier cannot see the
-# later `git p`, but it CAN refuse the DEFINITION when its value carries a blocked verb.
-# Strip quotes/backslashes first so `alias.p="push"` and `alias.p=pu\sh` are caught too.
-alias_flat="$(printf '%s' "$cmd" | tr -d '\042\047\134')"
-if printf '%s' "$alias_flat" | grep -Eiq 'alias\.[A-Za-z0-9_.-]+[ =]+(git[ ]+)?(push|reset|clean|checkout|restore|branch)'; then
-  block "matched: git alias defined to a blocked op (alias injection)"
+# `git p`) or `git config alias.p push`, including `!`-prefixed shell-command aliases
+# that run arbitrary commands. A single-command classifier cannot see the later `git p`,
+# but it CAN refuse the DEFINITION. Detected in TOKEN position (only after a real `-c` or
+# `config`), NOT by scanning arbitrary text — so a commit message that merely mentions
+# "alias.push" no longer false-positives (the fix for the review's over-block finding).
+alias_value_dangerous() {   # <value>  (quotes/backslashes already stripped by caller)
+  case "$1" in
+    \!*)                                                  return 0 ;;  # shell-command alias
+    *push*|*reset*|*clean*|*checkout*|*restore*|*branch*) return 0 ;;  # re-point to blocked op
+    *)                                                    return 1 ;;
+  esac
+}
+detect_alias_injection() {   # reads WORDS/NW; calls block() on a dangerous alias definition
+  local a b nv val v2 v3
+  for (( a=0; a<NW; a++ )); do
+    nv="$(normalize_word "${WORDS[$a]}")"
+    if [ "$nv" = "-c" ] && [ $(( a + 1 )) -lt "$NW" ]; then
+      val="$(normalize_word "${WORDS[$(( a + 1 ))]}")"
+      case "$val" in alias.*=*) alias_value_dangerous "${val#*=}" && block "matched: alias injection (-c alias to blocked op)" ;; esac
+    fi
+    if [ "$nv" = "config" ]; then
+      for (( b=a+1; b<NW; b++ )); do
+        val="$(normalize_word "${WORDS[$b]}")"
+        case "$val" in
+          alias.*=*) alias_value_dangerous "${val#*=}" && block "matched: alias injection (config alias to blocked op)" ;;
+          alias.*)
+            v2=""; v3=""
+            [ $(( b + 1 )) -lt "$NW" ] && v2="$(normalize_word "${WORDS[$(( b + 1 ))]}")"
+            [ $(( b + 2 )) -lt "$NW" ] && v3="$(normalize_word "${WORDS[$(( b + 2 ))]}")"
+            alias_value_dangerous "$v2 $v3" && block "matched: alias injection (config alias to blocked op)"
+            ;;
+        esac
+      done
+    fi
+  done
+}
+
+# Tokenize with QUOTE AWARENESS (shlex), not bash word-splitting. This is the fix for
+# the review's over-block finding: a quoted arg — e.g. a commit MESSAGE that mentions
+# "git config alias.p push" — stays ONE token and cannot trip the alias detector. shlex
+# also emits ; && || | & as their own tokens, so we segment on REAL separators, never on
+# a separator buried inside quotes. Requires python3; falls back to a naive splitter
+# (louder, less precise) if python3 is missing or the quotes are unbalanced.
+tokens=()
+if command -v python3 >/dev/null 2>&1; then
+  while IFS= read -r tok || [ -n "$tok" ]; do tokens+=("$tok"); done < <(python3 - "$cmd" <<'PY' 2>/dev/null
+import shlex, sys
+s = sys.argv[1]
+try:
+    lx = shlex.shlex(s, posix=True, punctuation_chars=';&|')
+    lx.whitespace_split = True
+    lx.commenters = ''            # do not drop anything after '#'
+    toks = list(lx)
+except ValueError:                # unbalanced quotes etc.
+    toks = s.split()
+sys.stdout.write("\n".join(t for t in toks if t != ""))
+PY
+  )
+fi
+if [ "${#tokens[@]}" -eq 0 ]; then          # python3 absent → naive fallback
+  while IFS= read -r seg; do
+    for w in $seg; do tokens+=("$w"); done
+    tokens+=(';')
+  done <<< "$(printf '%s' "$cmd" | tr ';&|' '\n')"
 fi
 
-while IFS= read -r seg; do
-  [ -n "$seg" ] || continue
-  WORDS=()
-  read -r -a WORDS <<< "$seg" || true
+# Walk tokens; a separator token flushes the current segment (alias detection + classify
+# each git/*/git command word). block() exits on the first dangerous match.
+flush_segment() {
   NW=${#WORDS[@]}
-  [ "$NW" -gt 0 ] || continue
+  [ "$NW" -gt 0 ] || return 0
+  detect_alias_injection
+  local gi
   for (( gi=0; gi<NW; gi++ )); do
     case "$(normalize_word "${WORDS[$gi]}")" in
       git|*/git) classify_from "$gi" ;;
     esac
   done
-done <<< "$(printf '%s' "$cmd" | tr ';&|' '\n')"
+  WORDS=()
+}
+WORDS=()
+for tok in "${tokens[@]}"; do
+  case "$tok" in
+    ';'|'&'|'&&'|'|'|'||') flush_segment ;;
+    *) WORDS+=("$tok") ;;
+  esac
+done
+flush_segment
 
 exit 0

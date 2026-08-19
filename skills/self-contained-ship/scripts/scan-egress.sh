@@ -21,23 +21,32 @@ WAIVER='(^|[[:space:]])(#|//|/\*)[[:space:]]*egress-ok([[:space:]]*\*/)?[[:space
 
 [ "$#" -ge 1 ] || { echo "usage: scan-egress.sh <file-or-dir> ..." >&2; exit 2; }
 
+# Enumerate by CONTENT, not by extension. An allowlist of extensions missed
+# extensionless scripts (`deploy` with a shebang), UPPERCASE extensions (`.SH`), and
+# any novel extension — all false greens (review finding). Instead: take every regular
+# file and classify text-vs-binary by content (`grep -I`), scan every text file whatever
+# its name. Symlinks break self-containment (the content lives outside the shipped tree),
+# so they are flagged as violations. Binary files can't be regex-scanned for URLs, so
+# they are reported as UNSCANNED rather than silently passed.
 files=()
+symlinks=()
+binaries=()
+classify_file() {  # <path> -> append to files (text) or binaries (binary)
+  if LC_ALL=C grep -Iq . "$1" 2>/dev/null; then files+=("$1"); else binaries+=("$1"); fi
+}
 for p in "$@"; do
-  if [ -d "$p" ]; then
-    while IFS= read -r f; do files+=("$f"); done < <(find "$p" -type f \
-      \( -name '*.html' -o -name '*.htm' -o -name '*.css' -o -name '*.js' \
-         -o -name '*.mjs' -o -name '*.cjs' -o -name '*.svg' -o -name '*.json' -o -name '*.md' \
-         -o -name '*.sh' -o -name '*.bash' -o -name '*.zsh' -o -name '*.py' -o -name '*.rb' \
-         -o -name '*.pl' -o -name '*.ts' -o -name '*.tsx' -o -name '*.jsx' -o -name '*.mts' \
-         -o -name '*.cts' -o -name '*.yaml' -o -name '*.yml' -o -name '*.toml' -o -name '*.txt' \
-         -o -name '*.xml' -o -name '*.env' -o -name '*.cfg' -o -name '*.conf' -o -name '*.ini' \))
+  if [ -L "$p" ]; then
+    symlinks+=("$p")
+  elif [ -d "$p" ]; then
+    while IFS= read -r f || [ -n "$f" ]; do symlinks+=("$f"); done < <(find "$p" -type l 2>/dev/null)
+    while IFS= read -r f || [ -n "$f" ]; do classify_file "$f"; done < <(find "$p" -type f 2>/dev/null)
   elif [ -e "$p" ]; then
-    files+=("$p")
+    classify_file "$p"
   else
     echo "scan-egress: no such path: $p" >&2; exit 2
   fi
 done
-[ "${#files[@]}" -ge 1 ] || { echo "scan-egress: no scannable files under: $*" >&2; exit 2; }
+[ $(( ${#files[@]} + ${#symlinks[@]} + ${#binaries[@]} )) -ge 1 ] || { echo "scan-egress: no scannable files under: $*" >&2; exit 2; }
 
 violations=0
 waived=0
@@ -70,7 +79,24 @@ for f in "${files[@]}"; do
   done < <(grep -niE -- "$EGRESS" "$f" || true)
 done
 
-echo "--- scan-egress: $violations un-waived, $waived waived, $benign non-fetching URI(s), ${#files[@]} file(s) ---"
-[ "$violations" -eq 0 ] || { echo "scan-egress: FAIL — un-waived external reference(s)" >&2; exit 1; }
-echo "scan-egress: PASS — no un-waived external references"
+# Symlinks break self-containment: the referenced bytes live outside the shipped tree,
+# so their content was never scanned. Treat each as a violation requiring the human.
+if [ "${#symlinks[@]}" -gt 0 ]; then
+  for s in "${symlinks[@]}"; do
+    violations=$((violations + 1))
+    echo "SYMLINK $s -> $(readlink "$s" 2>/dev/null || echo '?') (breaks self-containment)"
+  done
+fi
+
+# Binary files cannot be regex-scanned for URLs — report them so they are never a silent
+# green. This does not auto-fail (legitimate assets are common); the operator reviews.
+bincount=${#binaries[@]}
+if [ "$bincount" -gt 0 ]; then
+  for b in "${binaries[@]}"; do echo "UNSCANNED(binary) $b"; done
+fi
+
+echo "--- scan-egress: $violations un-waived, $waived waived, $benign non-fetching URI(s), ${#files[@]} text file(s), ${#symlinks[@]} symlink(s), $bincount binary/unscanned ---"
+[ "$bincount" -eq 0 ] || echo "scan-egress: NOTE — $bincount binary file(s) not regex-scanned; review them for embedded egress." >&2
+[ "$violations" -eq 0 ] || { echo "scan-egress: FAIL — un-waived external reference(s) or self-containment break(s)" >&2; exit 1; }
+echo "scan-egress: PASS — no un-waived external references (binaries excepted, see NOTE)"
 exit 0
