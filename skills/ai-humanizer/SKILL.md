@@ -19,7 +19,7 @@ node scripts/score.js --json draft.md     # → full breakdown: findings, stats,
 ```
 
 1. **Score the draft.** Capture the BEFORE number.
-2. **De-slop it** — hand the prose to `prose-craft` (author) or `short` (compress), or edit by hand. That work is out of scope here; this island only measures.
+2. **De-slop it** — the de-slop tools are [`prose-craft`](../prose-craft/SKILL.md) (author) and [`short`](../short/SKILL.md) (compress), but both are **user-invoked** — you cannot fire them yourself; tell the human to invoke whichever fits, or edit by hand. That work is out of scope here; this island only measures.
 3. **Re-score and prove the drop** with the bundled gate:
 
 ```bash

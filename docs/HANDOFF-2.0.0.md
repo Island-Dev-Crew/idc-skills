@@ -1,6 +1,8 @@
 # HANDOFF: IDC Skills Forge — THE 50 LOCK (release 2.0.0)
 Generated: 2026-08-09T00:00:00Z · Focus: 50/50 evidence-gated agent islands, locked and live
 
+> ⏱ **SNAPSHOT AS OF release 2.0.0 (`c4202cf`, 2026-08-09).** Point-in-time handoff; the repo has since advanced. As of 2026-08-19 both remotes and local are at **`2bc8879`** (PR #1 — cross-harness installer/validator + multi-OS reacceptance), and the working tree carries an unrelated untracked `.claude/`. Any commit/state line below is historical — verify the live head with `git rev-parse HEAD` before trusting it.
+
 State, not instructions. Everything below is ground truth to verify against the tree — not a task list. A fresh agent with zero memory of this build resumes from here after running the wake protocol at the end.
 
 ## 1. Goal
