@@ -26,7 +26,11 @@ for p in "$@"; do
   if [ -d "$p" ]; then
     while IFS= read -r f; do files+=("$f"); done < <(find "$p" -type f \
       \( -name '*.html' -o -name '*.htm' -o -name '*.css' -o -name '*.js' \
-         -o -name '*.mjs' -o -name '*.svg' -o -name '*.json' -o -name '*.md' \))
+         -o -name '*.mjs' -o -name '*.cjs' -o -name '*.svg' -o -name '*.json' -o -name '*.md' \
+         -o -name '*.sh' -o -name '*.bash' -o -name '*.zsh' -o -name '*.py' -o -name '*.rb' \
+         -o -name '*.pl' -o -name '*.ts' -o -name '*.tsx' -o -name '*.jsx' -o -name '*.mts' \
+         -o -name '*.cts' -o -name '*.yaml' -o -name '*.yml' -o -name '*.toml' -o -name '*.txt' \
+         -o -name '*.xml' -o -name '*.env' -o -name '*.cfg' -o -name '*.conf' -o -name '*.ini' \))
   elif [ -e "$p" ]; then
     files+=("$p")
   else

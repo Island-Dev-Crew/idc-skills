@@ -48,7 +48,17 @@ check 2 'git branch --delete --force feature'  'branch long delete plus force'
 check 2 'git checkout --force feature'         'checkout force'
 check 2 'git restore --worktree --staged f'    'restore worktree plus staged'
 
+echo "== must BLOCK (exit 2) — 2.0.3 hardening: IFS word-split + alias injection =="
+check 2 'git${IFS}push origin main'            'IFS word-split push'
+check 2 'git${IFS}reset --hard'               'IFS word-split reset --hard'
+check 2 'git -c alias.p=push p'                'alias injection via -c (push)'
+check 2 'git -c alias.co=checkout co .'        'alias injection via -c (checkout)'
+check 2 'git config alias.p push'              'persistent alias definition to push'
+check 2 'git config alias.nuke "reset --hard"' 'persistent alias definition to reset --hard'
+
 echo "== must ALLOW (exit 0) — read-only / dry-run / non-dangerous =="
+check 0 'git config alias.st status'           'safe alias definition (status)'
+check 0 'git config alias.lg "log --oneline"'  'safe alias definition (log)'
 check 0 'git status'                           'status'
 check 0 'git -C /repo status'                  '-C then status'
 check 0 'git log --oneline -5'                 'log'

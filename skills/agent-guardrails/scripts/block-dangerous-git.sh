@@ -105,6 +105,21 @@ classify_from() {
 # segment. `<<<` keeps the loop in this shell so block()'s exit propagates.
 continuation=$'\\\n'
 cmd="${cmd//$continuation/}"
+
+# Neutralize $IFS / ${IFS...} expansions, which re-introduce a word boundary only at
+# runtime (`git${IFS}push`). Replacing them with a space lets the classifier see the
+# real tokens (`git push`) instead of one opaque word it would wave through.
+cmd="$(printf '%s' "$cmd" | sed -E 's/\$\{IFS[^}]*\}/ /g; s/\$IFS/ /g')"
+
+# Alias injection: redefining a short name to a blocked op — `-c alias.p=push` (then
+# `git p`) or `git config alias.p push`. A single-command classifier cannot see the
+# later `git p`, but it CAN refuse the DEFINITION when its value carries a blocked verb.
+# Strip quotes/backslashes first so `alias.p="push"` and `alias.p=pu\sh` are caught too.
+alias_flat="$(printf '%s' "$cmd" | tr -d '\042\047\134')"
+if printf '%s' "$alias_flat" | grep -Eiq 'alias\.[A-Za-z0-9_.-]+[ =]+(git[ ]+)?(push|reset|clean|checkout|restore|branch)'; then
+  block "matched: git alias defined to a blocked op (alias injection)"
+fi
+
 while IFS= read -r seg; do
   [ -n "$seg" ] || continue
   WORDS=()
