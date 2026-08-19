@@ -33,8 +33,10 @@ esac
 
 driver="${FLOW[0]}"
 case "$driver" in */*) ;; *) echo "smoke: flow driver must be an explicit repo-local path" >&2; exit 2 ;; esac
-[ -f "$driver" ] && [ ! -L "$driver" ] && [ -x "$driver" ] \
-  || { echo "smoke: flow driver must be a real executable file: $driver" >&2; exit 2; }
+if [ ! -f "$driver" ] || [ -L "$driver" ] || [ ! -x "$driver" ]; then
+  echo "smoke: flow driver must be a real executable file: $driver" >&2
+  exit 2
+fi
 driver_abs="$(cd "$(dirname "$driver")" && pwd -P)/$(basename "$driver")"
 repo_abs="$(pwd -P)"
 case "$driver_abs" in "$repo_abs"/*) ;; *) echo "smoke: flow driver escapes the repository: $driver_abs" >&2; exit 2 ;; esac

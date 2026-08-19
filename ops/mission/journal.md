@@ -77,3 +77,22 @@
 - Release verification returned `pass=true`, `readyToRun=true`, `score=5/5`, and `skillsChecked=50`. Direct OpenSSH verification independently accepted the detached signature under the `file` namespace.
 - Current-worktree reacceptance passed with 73 unit tests, 37/37 Git authority fixtures, 50/50 canonical validation, 50 records/150 validation cases, four 50-skill native target probes, fifty deterministic historical snapshot ZIPs, and canonical skill-tree SHA-256 `41973fe4c6b6b49ab1ca519d98daaa40bbbdd78865d5ec0bed84d3bc71356d2a`.
 - This remains signed-worktree, precommit evidence. It does not substitute for clean-clone replay or independent review of the final exact commit and full PR delta.
+
+## 2026-08-19T20:11Z — c1e7cf1 passes exact-head review and opens PR #3
+
+- Detached no-local clone `c1e7cf1c03838d1ee36a29557c1f140f962ea173` reaccepted at 5/5 and remained clean before and after. Claude Fable 5 then reviewed the complete `2528a28e..c1e7cf1c` delta and returned PASS with no critical, high, or medium finding.
+- Two LOW observations remained: installed signed maps do not detect POSIX mode-only changes, and an operator can explicitly target a non-skill repository directory for atomic export replacement. Neither was accepted as a release blocker; both are disclosed on PR #3.
+- The exact branch was pushed without force and PR #3 opened with cryptographic hashes, clean-clone evidence, the independent verdict, and residual boundaries. Required three-OS CI remained a separate gate.
+
+## 2026-08-19T20:15Z — first PR #3 CI run rejects two portability defects
+
+- Run `32297188243` passed on macOS, failed Ubuntu on four strict shellcheck findings, and failed Windows because `Path.write_text` translated deterministic report LF bytes to CRLF before a byte-for-byte comparison. Merge was not attempted.
+- The renderer now forces canonical LF output and has a Windows-sensitive regression. Four shell surfaces use equivalent explicit input/condition/prompt forms and pass the exact CI shellcheck command.
+- The repaired worktree passes 74 unit tests, 37/37 Git authority fixtures, 50/50 canonical validation, and 50 records/150 cases. Because authenticated skill and control bytes moved, the old signature and c1e7cf1 review are intentionally stale; verification is 3/5 until regeneration and biometric re-signing.
+
+## 2026-08-19T20:24Z — CI-repaired worktree re-signed and fully reaccepted
+
+- Owner biometric approval signed the regenerated manifest with the same pinned Forge key. Manifest SHA-256 is `564cd5b2f5e4a63c28d3424e6d85ba6c1174089694bd279ba1c08dac94ee6f11`; detached-signature SHA-256 is `1e9b0a949c9a826cfa62828246e968ce4c88772d142ace5f6c6930424da79106`.
+- Repository verification and an independent direct OpenSSH invocation accepted the signature. The release gate returned `pass=true`, `readyToRun=true`, `score=5/5`, and `skillsChecked=50`.
+- Full current-worktree reacceptance passed with 74 unit tests, 50/50 canonical validation, four 50-skill native target probes, fifty snapshot ZIPs, and canonical skill-tree SHA-256 `fd2431c0e6f49447de507d0ca6d8c08bf30b2d4f2d1068cf23895bd57feba532`.
+- Exact-commit clean-clone replay and a new full-delta independent verdict remain mandatory because the prior c1e7cf1 verdict is void-on-move.

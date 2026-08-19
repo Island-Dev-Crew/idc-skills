@@ -38,6 +38,25 @@ class ValidationRecordTests(unittest.TestCase):
         self.assertEqual(process.returncode, 0, process.stderr)
         self.assertIn("records=50 cases=150 registry=50 report=50", process.stdout)
 
+    def test_renderer_writes_canonical_lf_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            report = Path(temporary) / "report.html"
+            process = subprocess.run(
+                [
+                    "python3",
+                    str(REPO / "scripts/render_validation_report.py"),
+                    "--output",
+                    str(report),
+                ],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(process.returncode, 0, process.stderr)
+            rendered = report.read_bytes()
+            self.assertNotIn(b"\r\n", rendered)
+            self.assertEqual(rendered, (REPO / "docs/report.html").read_bytes())
+
     def test_missing_record_fails_name_set_gate(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             records = json.loads(

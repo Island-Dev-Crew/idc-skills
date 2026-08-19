@@ -59,8 +59,10 @@ if find "$OUT" -maxdepth 1 -type f -name '*.part' -print -quit | grep -q .; then
   exit 4
 fi
 sources=("$OUT"/source.*)
-[ "${#sources[@]}" -eq 1 ] && [ -s "${sources[0]}" ] \
-  || { echo "download did not produce exactly one non-empty source file" >&2; exit 4; }
+if [ "${#sources[@]}" -ne 1 ] || [ ! -s "${sources[0]}" ]; then
+  echo "download did not produce exactly one non-empty source file" >&2
+  exit 4
+fi
 vf="${sources[0]}"
 
 echo "[3/4] frames (N=$N, dedup=$DEDUP)…"

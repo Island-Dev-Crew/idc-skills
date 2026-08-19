@@ -130,16 +130,16 @@
       "size": 1238
     },
     "CHANGELOG.md": {
-      "sha256": "sha256:bbd88f7367fe705edbd82d0c0186ef76fa193519a42740aee6cc49327d3e5813",
-      "size": 2879
+      "sha256": "sha256:43544adb53e06ecc2a229bc5ac71d13e6a89e57509921090899f8865213ffaf4",
+      "size": 3131
     },
     "CONTEXT.md": {
       "sha256": "sha256:d76252202de4147ffc7c4d061a3feec9b5ac76b418e89d698ff3e0bed3a23f7a",
       "size": 4040
     },
     "IDC-Skills-2.0.2-Gap-Analysis-and-Integrity-Review-v1-2026-08-19.html": {
-      "sha256": "sha256:88b1c6fb3706ceb2c843a9e73f8d3e9886a7b8a03cc7d2460f5b2f4f77cf9c64",
-      "size": 42312
+      "sha256": "sha256:9016cbf6de8d1ee0248a402451df30500a20985dc893d1c3102f5be24164add9",
+      "size": 43281
     },
     "README.md": {
       "sha256": "sha256:1fed66db952c12a9852b861c1b973e8553031123b9f009a7d29feecad6a5aca5",
@@ -198,12 +198,12 @@
       "size": 5066
     },
     "scripts/render_validation_report.py": {
-      "sha256": "sha256:4fe3d6cc9e63efd5db1e1f151dcdbac5a062660a7a54f53de618ef9be221a154",
-      "size": 7101
+      "sha256": "sha256:b96721f6ab70e31bf6d0387a748cbd78b4b9050e51c4c7582e918bd9cb1a14fd",
+      "size": 7115
     },
     "scripts/setup-signing-wizard.sh": {
-      "sha256": "sha256:fa52d9c8dd14214fd072d11a57cecd40856c546dff7036bc1a4a90d69c686c27",
-      "size": 8415
+      "sha256": "sha256:061ee87a44bf3d4858f021a7bedfa1032f1f3536fa198d3f4e4c8e7000527442",
+      "size": 8449
     },
     "scripts/skill_integrity.py": {
       "sha256": "sha256:1196643b8eff6bdd8dd822b2d56953b1584963e081b86ad3ce40699f78ecc11b",
@@ -234,8 +234,8 @@
       "size": 20327
     },
     "tests/test_validation_records.py": {
-      "sha256": "sha256:f140544efc7341a237399c299adb173ca939b3c196e09c3f0cb30feaa8290efa",
-      "size": 4464
+      "sha256": "sha256:93e84a5a0039e7126ac8961ca13d1fc891a230b55f9628df2af8a0d924d749d8",
+      "size": 5227
     }
   },
   "policy": {
@@ -518,14 +518,14 @@
           "size": 145
         },
         "scripts/smoke.sh": {
-          "sha256": "sha256:c4ea28f3472d45a06881eba89d900626e75ea2cc17f127bc61cc6ec1bf08e862",
-          "size": 3020
+          "sha256": "sha256:ae9355d9e4411cdd88706224430a38ac98dd0c326fd1936ab562098932692195",
+          "size": 3025
         }
       },
       "networkCommands": [
         {
           "kind": "fetch",
-          "line": 52,
+          "line": 55,
           "path": "scripts/smoke.sh",
           "preview": "if curl -fsS -m 5 \"$READY_URL\" >/dev/null 2>&1; then ready=1; break; fi",
           "sha256": "sha256:a5f42343505817eaac1965d2202443cfb91a46eff7adf7096328af0991343a59"
@@ -1584,8 +1584,8 @@
           "size": 132
         },
         "scripts/grab.sh": {
-          "sha256": "sha256:bbf5fba77bcb4df205f21f053920535ebe02833c8b68d74f260cfce7213e0511",
-          "size": 4340
+          "sha256": "sha256:f04d455570287d5323d2f28dbfa853d9053755b52236b7dcdaff2e3449e173b7",
+          "size": 4345
         }
       },
       "networkCommands": [],
@@ -1670,8 +1670,8 @@
           "size": 116
         },
         "template.sh": {
-          "sha256": "sha256:d3d6f1e133c7e79dc91c1a1a2f46356ac25f467ab889b47f98041386806a86d1",
-          "size": 7507
+          "sha256": "sha256:2cd5b2b38dcc8182ca7d790424b6d1f2b0d47a0d677b38f42b1d54f0b4cd95b6",
+          "size": 7534
         }
       },
       "networkCommands": [

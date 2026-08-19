@@ -72,7 +72,7 @@ def main(argv: Sequence[str] | None = None) -> int:
     failures = validate_records(registry, payload)
     if failures:
         raise ValidationError("; ".join(failures))
-    args.output.write_text(render(payload), encoding="utf-8")
+    args.output.write_text(render(payload), encoding="utf-8", newline="\n")
     print(f"RENDERED — records={len(payload['records'])} path={args.output}")
     return 0
 

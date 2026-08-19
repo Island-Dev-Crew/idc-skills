@@ -171,7 +171,7 @@ trap _summary EXIT
 stage "Example — capture an API key"
 open_url "https://dashboard.example.com/developers/api-keys"
 step "Sign in, then Developers → API keys → Reveal test key → copy it."
-pause
+pause "Press Enter when done…"
 ask_secret "Paste the API key" API_KEY
 write_env "EXAMPLE_API_KEY" "$API_KEY"
 set_secret "EXAMPLE_API_KEY" "$API_KEY"

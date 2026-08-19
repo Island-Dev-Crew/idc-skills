@@ -123,7 +123,8 @@ ok "wrote keys/allowed_signers (principal: $PRINCIPAL)"
 # ── 5. prove a sign → verify round-trip (biometric approval expected) ──────
 bold "5. Proving sign → verify works end-to-end"
 tmp="$(mktemp -d)"; trap 'rm -rf "$tmp"' EXIT
-echo "integrity round-trip probe $(cat "$KEYDIR/idc-skills-signing.pub" | awk '{print $2}' | cut -c1-16)" > "$tmp/probe.txt"
+key_fragment="$(awk '{print substr($2, 1, 16)}' "$KEYDIR/idc-skills-signing.pub")"
+printf 'integrity round-trip probe %s\n' "$key_fragment" > "$tmp/probe.txt"
 dim  "1Password will now ask you to APPROVE the signature (biometrics) — that approval"
 dim  "is the human-in-the-loop that makes the key non-forgeable."
 if ssh-keygen -Y sign -f "$KEYDIR/idc-skills-signing.pub" -U -n "$NAMESPACE" "$tmp/probe.txt" >/dev/null 2>&1; then

@@ -11,6 +11,7 @@
 - Expanded the git authority classifier from 28 to 37 passing attack/allow fixtures and hardened video capture, credential wizard, UI smoke, scheduling, mutation, redaction, dependency, and spend boundaries across the affected islands.
 - Re-pinned the retained David Ondrej and Matt Pocock source archives to exact historical Git blob trees, preserved upstream MIT notices, and recorded the still-unresolved fusion-time ICM commit without substituting a current head.
 - Closed the 40/50 semantic-evidence gap: 50 machine-readable records, 150 cases, a deterministic report renderer, and a registry↔record↔full-render byte gate.
+- Closed the first PR #3 cross-platform reds: the report renderer now writes canonical LF bytes instead of platform-native newlines, with a Windows-sensitive regression, and every release shell surface passes the same strict shellcheck job used by CI.
 
 Security scope remains bounded: 5/5 proves the signed bytes and remote observations checked at preflight. It does not certify signed intent, protect a compromised signing session, sandbox the agent, prevent same-user post-check mutation, or attest an entire runtime flow.
 
