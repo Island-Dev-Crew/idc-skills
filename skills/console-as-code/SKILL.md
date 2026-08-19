@@ -51,8 +51,10 @@ untracked=$(git ls-files --others --exclude-standard -- console/blocks/)
 dupes=$(git ls-files 'console/blocks/*.md' | xargs -n1 basename | tr 'A-Z' 'a-z' | sort | uniq -d)
 [ -z "$dupes" ] \
   || { echo "refusing to assemble: case-folded block name collision — $dupes" >&2; exit 1; }
-# concatenate blocks in filename order, stamp the result
-cat console/blocks/*.md > console/console.assembled
+# concatenate blocks in one cross-seat byte order, stamp the result
+export LC_ALL=C
+blocks=(console/blocks/*.md)
+cat "${blocks[@]}" > console/console.assembled
 SHA=$(shasum -a 256 console/console.assembled | cut -d' ' -f1)
 GIT=$(git rev-parse --short HEAD)
 { echo "<!-- console.lock — assembled from $GIT — sha256:$SHA -->"; cat console/console.assembled; } \

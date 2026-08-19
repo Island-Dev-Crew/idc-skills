@@ -45,7 +45,7 @@ When designing an interface, ask: can I reduce the methods? simplify the params?
 
 ## Enforcement: make entry points the only way in
 
-Vocabulary without enforcement is advisory. To make it `enforced`, wire [dependency-cruiser](https://github.com/sverweij/dependency-cruiser). Install it and `typescript` as local devDependencies, run via `node_modules/.bin/depcruise`, never `npx --yes dependency-cruiser` (its isolated cache lacks `typescript`, so every `.ts` import resolves `couldNotResolve`, zero rules fire, and it still prints a clean pass). That makes each package's public surface its **entry points** (its root files) and everything in subfolders private:
+Vocabulary without enforcement is advisory. To make it `enforced`, wire [dependency-cruiser](https://github.com/sverweij/dependency-cruiser). Select reviewed exact versions of it and `typescript`, record them in the repo's package manifest and lockfile, install with the package manager's frozen/immutable-lockfile mode, and run via `node_modules/.bin/depcruise`; never use an unpinned global install or `npx --yes dependency-cruiser` (its isolated cache lacks `typescript`, so every `.ts` import resolves `couldNotResolve`, zero rules fire, and it still prints a clean pass). That makes each package's public surface its **entry points** (its root files) and everything in subfolders private:
 
 ```
 src/packages/<name>/

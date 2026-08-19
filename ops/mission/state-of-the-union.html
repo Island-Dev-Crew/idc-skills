@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IDC Forge Cross-Harness Gauntlet — State of the Union</title>
+<title>IDC Forge 2.0.2 Integrity and Promotion — State of the Union</title>
 <style>
 :root{color-scheme:dark;--bg:#070f1c;--paper:#0d1b2f;--paper-2:#10243b;--ink:#eef6ff;--muted:#a9bdd3;--line:rgba(169,189,211,.18);--accent:#58d7b3;--blue:#77b7ff;--amber:#ffd166;--red:#ff8f8f;--good:#8ef2c0}
 *{box-sizing:border-box}
@@ -63,30 +63,30 @@ button.copy:hover{background:rgba(88,215,179,.2)}
 <body>
 <main>
   <header class="hero">
-    <p class="eyebrow">Mission Control &middot; State of the Union &middot; state updated 2026-08-12 03:23Z</p>
-    <h1>IDC Forge Cross-Harness Gauntlet</h1>
-    <p class="tagline">One canonical forge, portable by proof rather than proclamation.</p>
+    <p class="eyebrow">Mission Control &middot; State of the Union &middot; state updated 2026-08-19 18:47Z</p>
+    <h1>IDC Forge 2.0.2 Integrity and Promotion</h1>
+    <p class="tagline">Fifty fused skills, signed at the bytes and promoted only on replayable proof.</p>
     <div style="margin-top:14px">
-      <span class="chip green">mission: complete</span>
-      <span class="chip green">active phase: P3</span>
-      <span class="chip blue">12/12 tasks</span>
-      <span class="chip green">9/9 gates passed</span>
+      <span class="chip blue">mission: in_progress</span>
+      <span class="chip green">active phase: P5</span>
+      <span class="chip blue">17/21 tasks</span>
+      <span class="chip amber">14/18 gates passed</span>
       <span class="chip ">0 PRs merged</span>
-      <span class="chip ">sessions: 1</span>
-      <span class="chip ">updated: 2026-08-12T03:23:21Z</span>
+      <span class="chip ">sessions: 2</span>
+      <span class="chip ">updated: 2026-08-19T18:47:32Z</span>
     </div>
-    <div class="bar big" role="img" aria-label="Overall progress 100%"><div class="fill" style="width:100%"></div></div>
-    <p class="small muted" style="margin-top:6px">Overall: 100% of tasks complete &middot; repo Navigata1/idc-skills-forge &middot; plan: ops/mission/brief.md</p>
+    <div class="bar big" role="img" aria-label="Overall progress 81%"><div class="fill" style="width:81%"></div></div>
+    <p class="small muted" style="margin-top:6px">Overall: 81% of tasks complete &middot; repo Navigata1/idc-skills-forge &middot; plan: ops/mission/brief.md</p>
   </header>
 
   <section aria-labelledby="coldstart">
     <h2 id="coldstart">Cold-Start Prompt (any new session, zero context)</h2>
     <div class="panel">
-      <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are cold-starting the &quot;IDC Forge Cross-Harness Gauntlet&quot; mission with zero prior context.
+      <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are cold-starting the &quot;IDC Forge 2.0.2 Integrity and Promotion&quot; mission with zero prior context.
 
-Local repo: C:/Users/IslandDevCrew/Documents/ChatGPT/idc-forge-gauntlet-integration  (Navigata1/idc-skills-forge, default branch main)
+Local repo: /Users/IDC2.5/Desktop/IDC-skills  (Navigata1/idc-skills-forge, default branch main)
 Governing plan: ops/mission/brief.md
-Mission status: complete — active phase: P3
+Mission status: in_progress — active phase: P5
 
 Mission conventions:
   - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
@@ -94,20 +94,23 @@ Mission conventions:
   - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
   - Worktree evidence is draft evidence until re-derived from a fresh clone.
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, or other controlled-byte change invalidates the release and requires manifest regeneration plus a new signature.
+  - The user explicitly authorized push, PR #3 merge after green gates, public-org promotion, the 2.0.2 tag, and verified fleet reinstall; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Follow the loop: pick next unblocked task -&gt; branch codex/gauntlet-&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
+  Follow the loop: pick next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence in ops/mission/evidence/.
   End of session: update resume.nextActions for a stranger, append journal entry, render, commit.</pre></div>
     </div>
   </section>
 
   <section aria-labelledby="metrics"><h2 id="metrics">Scoreboard: Baseline &rarr; Current &rarr; Target</h2>
-  <div class="table-wrap"><table><thead><tr><th>Metric</th><th>Baseline</th><th>Current</th><th>Target</th></tr></thead><tbody><tr><td><b>Named harnesses with tier, source, and probe</b></td><td>4</td><td><span class="chip green">15</span></td><td>15</td></tr><tr><td><b>Canonical skills locally re-derived green</b></td><td>0/50</td><td><span class="chip green">50/50</span></td><td>50/50</td></tr><tr><td><b>Repo-owned cross-platform validators</b></td><td>0</td><td><span class="chip green">1</span></td><td>1</td></tr><tr><td><b>Windows-native installers</b></td><td>0</td><td><span class="chip green">1</span></td><td>1</td></tr><tr><td><b>claude.ai export failures from unsupported top-level keys</b></td><td>13</td><td><span class="chip green">0 in the historical snapshot export; current profile remains fail-closed</span></td><td>0</td></tr><tr><td><b>Current claude.ai blockers kept visible</b></td><td>13 unsupported-key failures reported</td><td><span class="chip amber">48 descriptions over 200; 13 explicit-only semantics unpreserved</span></td><td>No output unless both classes are resolved with measured behavior</td></tr></tbody></table></div>
+  <div class="table-wrap"><table><thead><tr><th>Metric</th><th>Baseline</th><th>Current</th><th>Target</th></tr></thead><tbody><tr><td><b>Signed release integrity checks</b></td><td>0/5</td><td><span class="chip green">5/5 readyToRun</span></td><td>5/5 readyToRun</td></tr><tr><td><b>Semantic validation records matching registry</b></td><td>40/50</td><td><span class="chip green">50/50 (150 cases)</span></td><td>50/50</td></tr><tr><td><b>Git authority attack/allow fixtures</b></td><td>28/28</td><td><span class="chip green">37/37</span></td><td>37/37</td></tr><tr><td><b>Retained upstream archives exact to historical Git blob trees</b></td><td>0/2 independently recomputed</td><td><span class="chip amber">2/2 exact (75/75 + 167/167)</span></td><td>2/2</td></tr><tr><td><b>Named harnesses with tier, source, and probe</b></td><td>4</td><td><span class="chip green">15</span></td><td>15</td></tr><tr><td><b>Canonical skills locally re-derived green</b></td><td>0/50</td><td><span class="chip green">50/50</span></td><td>50/50</td></tr><tr><td><b>Repo-owned cross-platform validators</b></td><td>0</td><td><span class="chip green">1</span></td><td>1</td></tr><tr><td><b>Windows-native installers</b></td><td>0</td><td><span class="chip green">1</span></td><td>1</td></tr><tr><td><b>claude.ai export failures from unsupported top-level keys</b></td><td>13</td><td><span class="chip green">0 in the historical snapshot export; current profile remains fail-closed</span></td><td>0</td></tr><tr><td><b>Current claude.ai blockers kept visible</b></td><td>13 unsupported-key failures reported</td><td><span class="chip amber">48 descriptions over 200; 13 explicit-only semantics unpreserved</span></td><td>No output unless both classes are resolved with measured behavior</td></tr></tbody></table></div>
   <p class="small muted" style="margin-top:6px">green = at/past target &middot; blue = moving toward target &middot; amber = unchanged &middot; red = moving away</p></section>
-  <section aria-labelledby="risks"><h2 id="risks">Risks &amp; Blockers</h2><div class="panel"><ul class="bare"><li><span class="chip red">blocker</span> Universal runtime portability is not proved: Buzz and Grok Bot remain unsupported/unknown, and native-Windows Hermes did not load the sampled Forge islands.</li><li><span class="chip red">blocker</span> Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; a live upload was not run.</li><li><span class="chip red">blocker</span> Cross-family verdict unavailable: this session could spawn only OpenAI-family sub-agents.</li><li><span class="chip red">blocker</span> Remote publication remains outside current authority; all branches and commits are local.</li><li><span class="chip amber">medium</span> <b>No different-family reviewer is callable from this Codex session</b> &mdash; <span class="muted">The three critiques are blind and non-author, but cross-family-review was unavailable and no output is labeled a cross-family verdict.</span></li><li><span class="chip red">high</span> <b>Several requested harnesses may not expose a native Agent Skills loader</b> &mdash; <span class="muted">Buzz and Grok Bot remain unsupported/unknown, native-Windows Hermes has a failed observation, and several authenticated behavior probes remain partial or unrun. The matrix does not invent installation paths.</span></li><li><span class="chip red">high</span> <b>The complete current pack is intentionally blocked from claude.ai export</b> &mdash; <span class="muted">Current public documentation imposes a 200-character description limit and does not establish an explicit-only equivalent for thirteen user-invoked islands. No live upload or routing probe was run.</span></li><li><span class="chip amber">medium</span> <b>Whole-run rollback stops at the unexpected-I/O boundary</b> &mdash; <span class="muted">Every destination is preflighted and each skill replacement is atomic, but a multi-skill or multi-target run is not rollback-atomic after an unexpected mid-run I/O failure.</span></li></ul></div></section>
+  <section aria-labelledby="risks"><h2 id="risks">Risks &amp; Blockers</h2><div class="panel"><ul class="bare"><li><span class="chip red">blocker</span> Exact-head Claude-family review and fresh-clone reacceptance remain pending until the candidate bytes are frozen.</li><li><span class="chip red">blocker</span> Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; this product limitation is not a blocker for the native 2.0.2 release.</li><li><span class="chip red">blocker</span> The first requested video's source frames remain unavailable after YouTube 403/reload failures; transcript evidence is complete and no visual claim is made.</li><li><span class="chip red">blocker</span> The historical ICM fusion commit remains unknown; the live head and license are recorded without substituting current provenance for missing historical evidence.</li><li><span class="chip blue">low</span> <b>Historical P0-P3 review lacked a different-family seat</b> &mdash; <span class="muted">That historical limitation remains accurately recorded. Release 2.0.2 has a callable Claude CLI and requires a new exact-head verdict before shipping.</span></li><li><span class="chip red">high</span> <b>Several requested harnesses may not expose a native Agent Skills loader</b> &mdash; <span class="muted">Buzz and Grok Bot remain unsupported/unknown, native-Windows Hermes has a failed observation, and several authenticated behavior probes remain partial or unrun. The matrix does not invent installation paths.</span></li><li><span class="chip red">high</span> <b>The complete current pack is intentionally blocked from claude.ai export</b> &mdash; <span class="muted">Current public documentation imposes a 200-character description limit and does not establish an explicit-only equivalent for thirteen user-invoked islands. No live upload or routing probe was run.</span></li><li><span class="chip amber">medium</span> <b>Whole-run rollback stops at the unexpected-I/O boundary</b> &mdash; <span class="muted">Every destination is preflighted and each skill replacement is atomic, but a multi-skill or multi-target run is not rollback-atomic after an unexpected mid-run I/O failure.</span></li><li><span class="chip red">high</span> <b>Trusted bootstrap cannot be established by repository code</b> &mdash; <span class="muted">A consumer must compare the signing-key fingerprint through a trusted out-of-band channel before executing the verifier. Five green checks without that bootstrap do not establish authorship.</span></li><li><span class="chip blue">low</span> <b>First requested video's visual channel is unavailable</b> &mdash; <span class="muted">Transcript extraction succeeded, but YouTube rejected source-video retrieval. The report makes no frame or screen claim.</span></li><li><span class="chip amber">medium</span> <b>Historical ICM fusion commit remains unpinned</b> &mdash; <span class="muted">The live head and MIT license are recorded, but no current revision is substituted for the missing fusion-time source commit or archive.</span></li></ul></div></section>
 
   <section aria-labelledby="phases">
     <h2 id="phases">Phases</h2>
@@ -138,11 +141,11 @@ Operating procedure:
       <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
       <td>2026-08-12T03:23:21Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P0 (copy into a fresh session)</summary>
-        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge Cross-Harness Gauntlet&quot; mission at phase P0: Contract and red-capable tooling.
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.2 Integrity and Promotion&quot; mission at phase P0: Contract and red-capable tooling.
 
-Mission: One canonical forge, portable by proof rather than proclamation.
-North star: Preserve the fifty-island source while every compatibility claim is falsifiable, tiered, and reproducible on the harness that consumes it.
-Repo: Navigata1/idc-skills-forge (local: C:/Users/IslandDevCrew/Documents/ChatGPT/idc-forge-gauntlet-integration), default branch: main.
+Mission: Fifty fused skills, signed at the bytes and promoted only on replayable proof.
+North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
+Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
 Governing plan: ops/mission/brief.md
 
 Phase goal: Replace portability claims with a sourced harness contract, a repo-owned validator, and a Windows-native installer/exporter.
@@ -154,11 +157,14 @@ Mission conventions:
   - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
   - Worktree evidence is draft evidence until re-derived from a fresh clone.
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, or other controlled-byte change invalidates the release and requires manifest regeneration plus a new signature.
+  - The user explicitly authorized push, PR #3 merge after green gates, public-org promotion, the 2.0.2 tag, and verified fleet reinstall; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Follow the loop: pick next unblocked task -&gt; branch codex/gauntlet-&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
+  Follow the loop: pick next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence in ops/mission/evidence/.
   End of session: update resume.nextActions for a stranger, append journal entry, render, commit.</pre></div>
       </details>
@@ -184,11 +190,11 @@ Operating procedure:
       <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
       <td>2026-08-12T03:23:21Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P1 (copy into a fresh session)</summary>
-        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge Cross-Harness Gauntlet&quot; mission at phase P1: Gauntlet critique and integration.
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.2 Integrity and Promotion&quot; mission at phase P1: Gauntlet critique and integration.
 
-Mission: One canonical forge, portable by proof rather than proclamation.
-North star: Preserve the fifty-island source while every compatibility claim is falsifiable, tiered, and reproducible on the harness that consumes it.
-Repo: Navigata1/idc-skills-forge (local: C:/Users/IslandDevCrew/Documents/ChatGPT/idc-forge-gauntlet-integration), default branch: main.
+Mission: Fifty fused skills, signed at the bytes and promoted only on replayable proof.
+North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
+Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
 Governing plan: ops/mission/brief.md
 
 Phase goal: Blind critics refute each artifact, builders repair surviving findings, and the integration branch receives only evidenced changes.
@@ -200,11 +206,14 @@ Mission conventions:
   - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
   - Worktree evidence is draft evidence until re-derived from a fresh clone.
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, or other controlled-byte change invalidates the release and requires manifest regeneration plus a new signature.
+  - The user explicitly authorized push, PR #3 merge after green gates, public-org promotion, the 2.0.2 tag, and verified fleet reinstall; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Follow the loop: pick next unblocked task -&gt; branch codex/gauntlet-&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
+  Follow the loop: pick next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence in ops/mission/evidence/.
   End of session: update resume.nextActions for a stranger, append journal entry, render, commit.</pre></div>
       </details>
@@ -230,11 +239,11 @@ Operating procedure:
       <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
       <td>2026-08-12T03:23:21Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P2 (copy into a fresh session)</summary>
-        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge Cross-Harness Gauntlet&quot; mission at phase P2: Recursive fifty-island health sweep.
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.2 Integrity and Promotion&quot; mission at phase P2: Recursive fifty-island health sweep.
 
-Mission: One canonical forge, portable by proof rather than proclamation.
-North star: Preserve the fifty-island source while every compatibility claim is falsifiable, tiered, and reproducible on the harness that consumes it.
-Repo: Navigata1/idc-skills-forge (local: C:/Users/IslandDevCrew/Documents/ChatGPT/idc-forge-gauntlet-integration), default branch: main.
+Mission: Fifty fused skills, signed at the bytes and promoted only on replayable proof.
+North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
+Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
 Governing plan: ops/mission/brief.md
 
 Phase goal: Run the stricter contract over every island and keep only skill changes tied to concrete red cases.
@@ -246,15 +255,18 @@ Mission conventions:
   - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
   - Worktree evidence is draft evidence until re-derived from a fresh clone.
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, or other controlled-byte change invalidates the release and requires manifest regeneration plus a new signature.
+  - The user explicitly authorized push, PR #3 merge after green gates, public-org promotion, the 2.0.2 tag, and verified fleet reinstall; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Follow the loop: pick next unblocked task -&gt; branch codex/gauntlet-&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
+  Follow the loop: pick next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence in ops/mission/evidence/.
   End of session: update resume.nextActions for a stranger, append journal entry, render, commit.</pre></div>
       </details>
-    </article><article class="phase active">
+    </article><article class="phase">
       <header>
         <span class="chip green">done</span>
         <h3>P3 &middot; Fresh-clone reacceptance</h3>
@@ -276,36 +288,209 @@ Operating procedure:
       <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
       <td>2026-08-12T03:23:21Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P3 (copy into a fresh session)</summary>
-        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge Cross-Harness Gauntlet&quot; mission at phase P3: Fresh-clone reacceptance.
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.2 Integrity and Promotion&quot; mission at phase P3: Fresh-clone reacceptance.
 
-Mission: One canonical forge, portable by proof rather than proclamation.
-North star: Preserve the fifty-island source while every compatibility claim is falsifiable, tiered, and reproducible on the harness that consumes it.
-Repo: Navigata1/idc-skills-forge (local: C:/Users/IslandDevCrew/Documents/ChatGPT/idc-forge-gauntlet-integration), default branch: main.
+Mission: Fifty fused skills, signed at the bytes and promoted only on replayable proof.
+North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
+Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
 Governing plan: ops/mission/brief.md
 
 Phase goal: Re-derive the final gates from a clean clone and publish an honest completion report.
 All tasks in this phase are done.
 All gates passed — close the phase and advance.
-Next actions (from last session):
-  - If publication is desired, review local branch codex/gauntlet-integration and explicitly authorize a push or pull request.
-  - Run authenticated loader and invocation probes for the matrix entries still marked partial, unrun, failed, or unsupported.
-  - Treat claude.ai description shortening as a separate skill-tune experiment: preserve routing on representative tasks before accepting any &lt;=200-character rewrite.
-Known blockers:
-  - Universal runtime portability is not proved: Buzz and Grok Bot remain unsupported/unknown, and native-Windows Hermes did not load the sampled Forge islands.
-  - Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; a live upload was not run.
-  - Cross-family verdict unavailable: this session could spawn only OpenAI-family sub-agents.
-  - Remote publication remains outside current authority; all branches and commits are local.
 Mission conventions:
   - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
   - Positive harness claims require an authoritative source and reproducible probe.
   - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
   - Worktree evidence is draft evidence until re-derived from a fresh clone.
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, or other controlled-byte change invalidates the release and requires manifest regeneration plus a new signature.
+  - The user explicitly authorized push, PR #3 merge after green gates, public-org promotion, the 2.0.2 tag, and verified fleet reinstall; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Follow the loop: pick next unblocked task -&gt; branch codex/gauntlet-&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
+  Follow the loop: pick next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
+  Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence in ops/mission/evidence/.
+  End of session: update resume.nextActions for a stranger, append journal entry, render, commit.</pre></div>
+      </details>
+    </article><article class="phase">
+      <header>
+        <span class="chip green">done</span>
+        <h3>P4 &middot; Current upstream, video, and Forge-50 synthesis</h3>
+        <span class="muted small">est. sessions: 1</span>
+      </header>
+      <p class="muted">Re-derive the current Matt Pocock delta, extract both requested videos honestly, and independently review every Forge seat before changing the release.</p>
+      <div class="bar"><div class="fill" style="width:100%"></div></div>
+      <p class="small muted">3/3 tasks &middot; 100%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>P4-T1</b> Compare current Pocock repository to the immutable historical source<br><span class="muted small">Two narrow improvements earned fusion; no distinct challenger was nominated for an identical-case seat duel or replacement.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P4-T2</b> Analyze skill usage and supply-chain threat videos<br><span class="muted small">Transcript claims are timestamped; absent frames are not laundered into visual evidence.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P4-T3</b> Fan out all-fifty independent review and close F-02/F-03 gaps<br><span class="muted small">Machine-readable 50-record evidence and exact historical upstream blob-tree proofs now exist; the missing fusion-time ICM commit remains explicit.</span></li></ul>
+      <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Current upstream and both video analyses are evidence-bound</b><br><span class="small">Pocock head pinned at 885e2ca; transcript channels captured for both videos. First-video frame extraction is explicitly unverified after YouTube 403/reload failures.</span></td>
+      <td><code>test -s ops/research/pocock-gap-analysis-2026-08-19.md &amp;&amp; test -s ops/research/video-skill-usage-analysis-0oXOOlqVu5M.md &amp;&amp; test -s ops/research/video-supply-chain-threat-analysis-4f5AJrJPilM.md</code></td>
+      <td>ops/research/</td>
+      <td>2026-08-19T18:45:25Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>All fifty islands receive independent semantic/security review</b><br><span class="small">Three Luna cohorts covered all 50 islands; de-slop preserved operational meaning and the review's high-confidence security findings were repaired.</span></td>
+      <td><code>python scripts/validate_skills.py --json</code></td>
+      <td>ops/mission/evidence/forge-50-review-2026-08-19.md</td>
+      <td>2026-08-19T18:30:36Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Registry, 50 machine records, and deterministic rendered report agree</b><br><span class="small">50 records and 150 cases; negative tests remove a record, alter embedded content, and alter visible aggregates to prove both semantic and full-render byte gates can fail.</span></td>
+      <td><code>python scripts/verify_validation_records.py</code></td>
+      <td>ops/validation/skill-records.json</td>
+      <td>2026-08-19T18:45:25Z</td></tr></tbody></table></div>
+      <details class="resume"><summary>Resume prompt for P4 (copy into a fresh session)</summary>
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.2 Integrity and Promotion&quot; mission at phase P4: Current upstream, video, and Forge-50 synthesis.
+
+Mission: Fifty fused skills, signed at the bytes and promoted only on replayable proof.
+North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
+Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
+Governing plan: ops/mission/brief.md
+
+Phase goal: Re-derive the current Matt Pocock delta, extract both requested videos honestly, and independently review every Forge seat before changing the release.
+All tasks in this phase are done.
+All gates passed — close the phase and advance.
+Mission conventions:
+  - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
+  - Positive harness claims require an authoritative source and reproducible probe.
+  - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
+  - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, or other controlled-byte change invalidates the release and requires manifest regeneration plus a new signature.
+  - The user explicitly authorized push, PR #3 merge after green gates, public-org promotion, the 2.0.2 tag, and verified fleet reinstall; force-push and unrelated mutation remain unauthorized.
+
+Operating procedure:
+  Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
+  Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
+  Follow the loop: pick next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
+  Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence in ops/mission/evidence/.
+  End of session: update resume.nextActions for a stranger, append journal entry, render, commit.</pre></div>
+      </details>
+    </article><article class="phase active">
+      <header>
+        <span class="chip amber">in progress</span>
+        <h3>P5 &middot; Signed Skill Integrity Gate</h3>
+        <span class="muted small">est. sessions: 1</span>
+      </header>
+      <p class="muted">Bind all 50 skill trees and the security control plane to the external Forge key, then prove every claimed defense red before green.</p>
+      <div class="bar"><div class="fill" style="width:67%"></div></div>
+      <p class="small muted">2/3 tasks &middot; 67%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>P5-T1</b> Build manifest, signature, installer, and PreToolUse enforcement<br><span class="muted small">One repository gate; no circular per-skill self-checkers.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P5-T2</b> Adversarially attack trust anchor, encodings, paths, links, and installed copies<br><span class="muted small">Adversarial passes found a fingerprint-override false green, optional installed-tree binding, wide-encoding and control-path bypasses, a manifest-swap race, and a live-tree change after first hash; all were repaired and regression-tested.</span></li><li class="task-in_progress"><span class="mark">&#9689;</span> <b>P5-T3</b> Freeze, sign, and obtain exact-head cross-family verdict<br><span class="muted small">Do not change signed control or skill bytes after signing without regenerating and re-signing.</span></li></ul>
+      <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Security, installer, authority, and record fixture matrices pass</b><br><span class="small">67 unit tests, 37/37 git-authority fixtures, 50/50 canonical validation, and the current-worktree reacceptance passed after the signing freeze; exact committed-clone replay remains required.</span></td>
+      <td><code>python -m unittest discover -s tests -p test_*.py &amp;&amp; skills/agent-guardrails/scripts/test-block-dangerous-git.sh</code></td>
+      <td>ops/mission/evidence/forge-50-review-2026-08-19.md</td>
+      <td>2026-08-19T18:47:32Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Release profile verifies 5/5 against the stable Forge key</b><br><span class="small">Stable 1Password-held Ed25519 key signed the final canonical manifest; release verification returned pass=true, readyToRun=true, score=5/5, skillsChecked=50.</span></td>
+      <td><code>python scripts/skill_integrity.py verify</code></td>
+      <td>integrity/manifest.json.sig</td>
+      <td>2026-08-19T18:47:32Z</td></tr><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>Independent Claude-family review approves the exact committed candidate</b><br><span class="small">Must bind the reviewer verdict to the final candidate SHA and void on any repair commit.</span></td>
+      <td><code>claude -p &lt;exact-head-review-brief&gt;</code></td>
+      <td>ops/mission/evidence/cross-family-review-2.0.2.md</td>
+      <td>&mdash;</td></tr></tbody></table></div>
+      <details class="resume"><summary>Resume prompt for P5 (copy into a fresh session)</summary>
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.2 Integrity and Promotion&quot; mission at phase P5: Signed Skill Integrity Gate.
+
+Mission: Fifty fused skills, signed at the bytes and promoted only on replayable proof.
+North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
+Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
+Governing plan: ops/mission/brief.md
+
+Phase goal: Bind all 50 skill trees and the security control plane to the external Forge key, then prove every claimed defense red before green.
+Remaining tasks:
+  - [in_progress] P5-T3: Freeze, sign, and obtain exact-head cross-family verdict (Do not change signed control or skill bytes after signing without regenerating and re-signing.)
+Gates not yet passed:
+  - [pending] Independent Claude-family review approves the exact committed candidate  -&gt;  claude -p &lt;exact-head-review-brief&gt;
+Next actions (from last session):
+  - Commit the signed candidate without changing any skill or controlled byte, then obtain an independent Claude-family verdict bound to that exact SHA; void the verdict if any repair moves the head.
+  - Reaccept the exact candidate from a fresh clone, then push, open and merge PR #3 only after required CI is green.
+  - Promote the exact merged tree to IslandDevCrew, tag 2.0.2 on both remotes, reinstall Claude/Codex targets with integrity verification, and compare installed bytes.
+Known blockers:
+  - Exact-head Claude-family review and fresh-clone reacceptance remain pending until the candidate bytes are frozen.
+  - Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; this product limitation is not a blocker for the native 2.0.2 release.
+  - The first requested video's source frames remain unavailable after YouTube 403/reload failures; transcript evidence is complete and no visual claim is made.
+  - The historical ICM fusion commit remains unknown; the live head and license are recorded without substituting current provenance for missing historical evidence.
+Mission conventions:
+  - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
+  - Positive harness claims require an authoritative source and reproducible probe.
+  - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
+  - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, or other controlled-byte change invalidates the release and requires manifest regeneration plus a new signature.
+  - The user explicitly authorized push, PR #3 merge after green gates, public-org promotion, the 2.0.2 tag, and verified fleet reinstall; force-push and unrelated mutation remain unauthorized.
+
+Operating procedure:
+  Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
+  Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
+  Follow the loop: pick next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
+  Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence in ops/mission/evidence/.
+  End of session: update resume.nextActions for a stranger, append journal entry, render, commit.</pre></div>
+      </details>
+    </article><article class="phase">
+      <header>
+        <span class="chip ">pending</span>
+        <h3>P6 &middot; PR #3, promotion, tag, and fleet resync</h3>
+        <span class="muted small">est. sessions: 1</span>
+      </header>
+      <p class="muted">Reaccept the exact candidate from a fresh clone, merge PR #3, promote the exact merged tree to the public org, tag 2.0.2, and prove installed copies match.</p>
+      <div class="bar"><div class="fill" style="width:0%"></div></div>
+      <p class="small muted">0/3 tasks &middot; 0%</p>
+      <ul class="tasks"><li class="task-pending"><span class="mark">&#9675;</span> <b>P6-T1</b> Commit candidate and reaccept from a fresh clone</li><li class="task-pending"><span class="mark">&#9675;</span> <b>P6-T2</b> Push branch, open and merge PR #3</li><li class="task-pending"><span class="mark">&#9675;</span> <b>P6-T3</b> Promote exact merged tree, tag release, and resync Claude/Codex</li></ul>
+      <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>Fresh clone passes reacceptance and remains byte-clean</b></td>
+      <td><code>python scripts/reaccept.py</code></td>
+      <td>ops/mission/evidence/fresh-clone-reacceptance-2.0.2.json</td>
+      <td>&mdash;</td></tr><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>PR #3 merges with required CI green</b></td>
+      <td><code>gh pr checks 3 --watch</code></td>
+      <td>&mdash;</td>
+      <td>&mdash;</td></tr><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>Public main, tag, and installed trees resolve to released bytes</b></td>
+      <td><code>git ls-remote idc refs/heads/main refs/tags/2.0.2 &amp;&amp; python scripts/install.py install --verify-integrity --target claude --target agents --verify-only</code></td>
+      <td>&mdash;</td>
+      <td>&mdash;</td></tr></tbody></table></div>
+      <details class="resume"><summary>Resume prompt for P6 (copy into a fresh session)</summary>
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.2 Integrity and Promotion&quot; mission at phase P6: PR #3, promotion, tag, and fleet resync.
+
+Mission: Fifty fused skills, signed at the bytes and promoted only on replayable proof.
+North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
+Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
+Governing plan: ops/mission/brief.md
+
+Phase goal: Reaccept the exact candidate from a fresh clone, merge PR #3, promote the exact merged tree to the public org, tag 2.0.2, and prove installed copies match.
+Remaining tasks:
+  - [pending] P6-T1: Commit candidate and reaccept from a fresh clone
+  - [pending] P6-T2: Push branch, open and merge PR #3
+  - [pending] P6-T3: Promote exact merged tree, tag release, and resync Claude/Codex
+Gates not yet passed:
+  - [pending] Fresh clone passes reacceptance and remains byte-clean  -&gt;  python scripts/reaccept.py
+  - [pending] PR #3 merges with required CI green  -&gt;  gh pr checks 3 --watch
+  - [pending] Public main, tag, and installed trees resolve to released bytes  -&gt;  git ls-remote idc refs/heads/main refs/tags/2.0.2 &amp;&amp; python scripts/install.py install --verify-integrity --target claude --target agents --verify-only
+Mission conventions:
+  - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
+  - Positive harness claims require an authoritative source and reproducible probe.
+  - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
+  - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, or other controlled-byte change invalidates the release and requires manifest regeneration plus a new signature.
+  - The user explicitly authorized push, PR #3 merge after green gates, public-org promotion, the 2.0.2 tag, and verified fleet reinstall; force-push and unrelated mutation remain unauthorized.
+
+Operating procedure:
+  Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
+  Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
+  Follow the loop: pick next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; PR -&gt; merge per policy 'review' -&gt; update state.json -&gt; node ops/mission/render-sotu.mjs -&gt; commit state+journal+html.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence in ops/mission/evidence/.
   End of session: update resume.nextActions for a stranger, append journal entry, render, commit.</pre></div>
       </details>
@@ -313,10 +498,10 @@ Operating procedure:
   </section>
 
 
-<section aria-labelledby="journal"><h2 id="journal">Journal (latest first)</h2><div class="timeline"><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T03:23Z — gauntlet integrated and freshly reaccepted</b><br><br>- Integrated all three builder lanes only after exact-commit blind critiques requested changes and the original builders repaired the surviving findings. The reviews are same-family independent critiques, not a cross-family verdict.<br>- Replaced the broad dual-harness assertion with a fifteen-surface support contract and machine verifier. Buzz and Grok Bot remain unsupported/unknown; native-Windows Hermes remains a failed runtime observation.<br>- Added the dependency-free whole-forge validator, Windows/POSIX installer, explicit compatibility-export profiles, critique-record verifier, and one-command reacceptance gate.<br>- The current claude.ai profile fails closed before output: 48 descriptions exceed 200 characters and thirteen user-only islands lack a documented explicit-only equivalent. The historical supplied profile deterministically exports fifty root-folder ZIPs while asserting value preservation only.<br>- Clean detached clone `61779de2c7a091018c8c0074c9060c60838373bd` passed 50/50 canonical validation, the integrated tests, 4x50 isolated installs, 50 snapshot exports, and no-source-drift verification. The clone was clean before and after.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T03:02Z — P0 builders B and C complete</b><br><br>- Validator builder committed `a083552def772489ae238bf6931cd275d471b263`; its isolated branch reports 11 focused tests green and the canonical profile at 50/50 with 13 advisory extension-key warnings.<br>- Installer builder committed `b1ab04c31015b11a086020fa3a4d0d01654127e6`; its isolated branch reports 12 focused tests green and deterministic native/export smokes.<br>- Both commits remain quarantined outside integration while their non-author critics run; no worktree result is admitted as final gate evidence.<br>- Corrected the provisional validator gate command to the implemented `--json` interface before any gate was marked passed.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T02:48Z — session 1 kickoff</b><br><br>- Pinned the clean public baseline at `c8e94a385dbf6bb65bc605524008967a7f916679`; the configured workspace had been an empty Git repository before acquisition.<br>- Reproduced the missing repo-owned validator and Windows Bash/`rsync` portability gaps.<br>- Started three isolated builders for the harness contract, validator, and installer/exporter; final gate evidence will be re-derived from a fresh clone.<br>- Cross-family review is unavailable in this seat; same-family blind critiques will be marked as calibration, never as a cross-family verdict.</p></article><article class="tl-item"><time>&#9998;</time><p><b># Mission journal</b><br></p></article></div></section>
+<section aria-labelledby="journal"><h2 id="journal">Journal (latest first)</h2><div class="timeline"><article class="tl-item"><time>&#9998;</time><p><b>2026-08-19T18:47Z — signed gate reaches 5/5</b><br><br>- The repository public key, `allowed_signers`, and live 1Password agent independently resolved to `SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA`.<br>- Human biometric approval produced `integrity/manifest.json.sig` for the frozen canonical manifest. Verification returned `pass=true`, `readyToRun=true`, `score=5/5`, and `skillsChecked=50`.<br>- Current-worktree reacceptance passed the signed gate, 50/50 canonical validation, 67 unit tests, four 50-skill native target probes, fifty historical snapshot ZIPs, the current claude.ai fail-closed probes, and no canonical skill drift.<br>- This is signed worktree evidence, not exact-commit acceptance. The next authority-bearing steps are candidate commit, exact-head Claude-family review, and fresh-clone replay.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-19T18:33Z — 2.0.2 integrity candidate assembled</b><br><br>- Re-derived Matt Pocock's current upstream at `885e2ca4d842d139e9aef4e48d366c63cb1b8013`, proved the retained historical archive against its Git tree at 167/167 blobs, and fused two bounded improvements without expanding the fifty-seat registry.<br>- Extracted timestamped transcripts for both requested videos. The first video's requested frame channel remains unavailable after YouTube 403/reload failures, so the analysis makes no visual claims.<br>- Three independent Luna cohorts reviewed all fifty islands. Validation evidence now contains 50 records and 150 cases; the rendered report and registry are mechanically cross-checked.<br>- Built one release-level signed integrity gate covering all skill-tree bytes and the fixed control plane, plus verified install and mandatory installed-copy hook binding. Adversarial passes found a user-selectable signing-fingerprint false green, optional installed-tree binding, wide-encoding and control-path bypasses, a manifest-swap race, and a live-tree change after first hash; all were removed or closed and added as red fixtures.<br>- Locally re-derived 67 unit tests, 37/37 Git authority fixtures, 50/50 canonical validation, and 50/150 validation-record agreement. These are candidate-worktree results until repeated after final signing and from the exact committed fresh clone.<br>- The user explicitly authorized branch push, PR #3 merge after green CI, exact-tree public-org promotion, tag `2.0.2`, and verified Claude/Codex reinstall. No force-push, credential disclosure, or unrelated mutation is included.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T03:23Z — gauntlet integrated and freshly reaccepted</b><br><br>- Integrated all three builder lanes only after exact-commit blind critiques requested changes and the original builders repaired the surviving findings. The reviews are same-family independent critiques, not a cross-family verdict.<br>- Replaced the broad dual-harness assertion with a fifteen-surface support contract and machine verifier. Buzz and Grok Bot remain unsupported/unknown; native-Windows Hermes remains a failed runtime observation.<br>- Added the dependency-free whole-forge validator, Windows/POSIX installer, explicit compatibility-export profiles, critique-record verifier, and one-command reacceptance gate.<br>- The current claude.ai profile fails closed before output: 48 descriptions exceed 200 characters and thirteen user-only islands lack a documented explicit-only equivalent. The historical supplied profile deterministically exports fifty root-folder ZIPs while asserting value preservation only.<br>- Clean detached clone `61779de2c7a091018c8c0074c9060c60838373bd` passed 50/50 canonical validation, the integrated tests, 4x50 isolated installs, 50 snapshot exports, and no-source-drift verification. The clone was clean before and after.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T03:02Z — P0 builders B and C complete</b><br><br>- Validator builder committed `a083552def772489ae238bf6931cd275d471b263`; its isolated branch reports 11 focused tests green and the canonical profile at 50/50 with 13 advisory extension-key warnings.<br>- Installer builder committed `b1ab04c31015b11a086020fa3a4d0d01654127e6`; its isolated branch reports 12 focused tests green and deterministic native/export smokes.<br>- Both commits remain quarantined outside integration while their non-author critics run; no worktree result is admitted as final gate evidence.<br>- Corrected the provisional validator gate command to the implemented `--json` interface before any gate was marked passed.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-12T02:48Z — session 1 kickoff</b><br><br>- Pinned the clean public baseline at `c8e94a385dbf6bb65bc605524008967a7f916679`; the configured workspace had been an empty Git repository before acquisition.<br>- Reproduced the missing repo-owned validator and Windows Bash/`rsync` portability gaps.<br>- Started three isolated builders for the harness contract, validator, and installer/exporter; final gate evidence will be re-derived from a fresh clone.<br>- Cross-family review is unavailable in this seat; same-family blind critiques will be marked as calibration, never as a cross-family verdict.</p></article><article class="tl-item"><time>&#9998;</time><p><b># Mission journal</b><br></p></article></div></section>
 
-  <p class="footer">GENERATED by ops/mission/render-sotu.mjs from state.json — do not hand-edit.
-  To update: edit state.json, run <code>node ops/mission/render-sotu.mjs</code>, commit both.</p>
+  <p class="footer">GENERATED by ops/mission/render-sotu.mjs from state.json and journal.md when present — do not hand-edit.
+  To update: edit the source state/journal, run <code>node ops/mission/render-sotu.mjs</code>, and commit the sources plus this report.</p>
 </main>
 <script>
 document.querySelectorAll("button.copy").forEach((b) => {

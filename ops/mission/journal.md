@@ -21,3 +21,19 @@
 - Added the dependency-free whole-forge validator, Windows/POSIX installer, explicit compatibility-export profiles, critique-record verifier, and one-command reacceptance gate.
 - The current claude.ai profile fails closed before output: 48 descriptions exceed 200 characters and thirteen user-only islands lack a documented explicit-only equivalent. The historical supplied profile deterministically exports fifty root-folder ZIPs while asserting value preservation only.
 - Clean detached clone `61779de2c7a091018c8c0074c9060c60838373bd` passed 50/50 canonical validation, the integrated tests, 4x50 isolated installs, 50 snapshot exports, and no-source-drift verification. The clone was clean before and after.
+
+## 2026-08-19T18:33Z — 2.0.2 integrity candidate assembled
+
+- Re-derived Matt Pocock's current upstream at `885e2ca4d842d139e9aef4e48d366c63cb1b8013`, proved the retained historical archive against its Git tree at 167/167 blobs, and fused two bounded improvements without expanding the fifty-seat registry.
+- Extracted timestamped transcripts for both requested videos. The first video's requested frame channel remains unavailable after YouTube 403/reload failures, so the analysis makes no visual claims.
+- Three independent Luna cohorts reviewed all fifty islands. Validation evidence now contains 50 records and 150 cases; the rendered report and registry are mechanically cross-checked.
+- Built one release-level signed integrity gate covering all skill-tree bytes and the fixed control plane, plus verified install and mandatory installed-copy hook binding. Adversarial passes found a user-selectable signing-fingerprint false green, optional installed-tree binding, wide-encoding and control-path bypasses, a manifest-swap race, and a live-tree change after first hash; all were removed or closed and added as red fixtures.
+- Locally re-derived 67 unit tests, 37/37 Git authority fixtures, 50/50 canonical validation, and 50/150 validation-record agreement. These are candidate-worktree results until repeated after final signing and from the exact committed fresh clone.
+- The user explicitly authorized branch push, PR #3 merge after green CI, exact-tree public-org promotion, tag `2.0.2`, and verified Claude/Codex reinstall. No force-push, credential disclosure, or unrelated mutation is included.
+
+## 2026-08-19T18:47Z — signed gate reaches 5/5
+
+- The repository public key, `allowed_signers`, and live 1Password agent independently resolved to `SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA`.
+- Human biometric approval produced `integrity/manifest.json.sig` for the frozen canonical manifest. Verification returned `pass=true`, `readyToRun=true`, `score=5/5`, and `skillsChecked=50`.
+- Current-worktree reacceptance passed the signed gate, 50/50 canonical validation, 67 unit tests, four 50-skill native target probes, fifty historical snapshot ZIPs, the current claude.ai fail-closed probes, and no canonical skill drift.
+- This is signed worktree evidence, not exact-commit acceptance. The next authority-bearing steps are candidate commit, exact-head Claude-family review, and fresh-clone replay.

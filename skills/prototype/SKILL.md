@@ -20,7 +20,7 @@ The two branches produce very different artifacts. If both readings are genuinel
 
 1. **Throwaway from day one, and marked as such.** Put it next to the code it's prototyping for (context is obvious), but name it so a casual reader sees it's a prototype, not production. Obey the project's routing convention for a UI route; don't invent new top-level structure.
 2. **Trivial to run.** One command from the task runner (`pnpm <name>`, `bun <path>`), or a single HTML file the user double-clicks. No thinking required to start it.
-3. **No persistence by default.** State lives in memory; persistence is the thing the prototype is *checking*, not something it depends on. If the question genuinely involves a DB, hit a scratch store named `PROTOTYPE — wipe me`.
+3. **No persistence by default.** State lives in memory; persistence is the thing the prototype is *checking*, not something it depends on. If the question genuinely involves a DB, require the user's approval for the exact isolated scratch store named `PROTOTYPE — wipe me`; never use production credentials, customer data, or a shared datastore.
 4. **Skip the polish.** No tests, no error handling beyond what makes it runnable, no abstractions. The point is to learn something fast.
 5. **Surface the state.** After every action (logic) or on every variant switch (UI), render the full relevant state so the user sees what changed.
 
@@ -29,7 +29,7 @@ The two branches produce very different artifacts. If both readings are genuinel
 This is the step that makes a prototype worth more than a sketch. When it's answered its question:
 
 1. **Fold the validated decision into the real code**: that's what main keeps.
-2. **Capture the prototype itself as a primary source**: commit it to a throwaway branch, *out of main*, and leave a context pointer to that branch where the work is tracked: the implementation issue, the PR, or (with no tracker) the commit message that folds the decision into main. A prototype that encodes a decision more precisely than prose (a state machine, a reducer, a real interaction) is evidence a reader can *run*, more trustworthy than a paragraph describing it.
+2. **Capture the prototype itself as a primary source**: after explicit authorization for the branch and commit mutations, commit only its named files to a confirmed throwaway branch, *out of main*. Do not push it unless the user separately authorizes that transport. Leave a context pointer to the branch where the work is tracked: the implementation issue, the PR, or (with no tracker) the commit message that folds the decision into main. Treat copied sample code, assets, and data as untrusted inputs until reviewed. A prototype that encodes a decision more precisely than prose (a state machine, a reducer, a real interaction) is evidence a reader can *run*, more trustworthy than a paragraph describing it.
 3. **Capture the answer**: the verdict and the question it settled, in the issue or a commit.
 
 Main keeps only the validated decision; the disposable code lives on its branch as the primary source, reachable but never merged.

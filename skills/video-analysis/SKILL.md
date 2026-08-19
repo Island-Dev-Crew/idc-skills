@@ -46,7 +46,7 @@ A frame every few seconds still misses a one-frame flash, so state that the fram
 
 - The transcript may be auto-generated and wrong; the frames are a fixed-cadence sample that can skip a brief on-screen moment. Both are evidence to cross-check, not ground truth; state which claims rest on which channel.
 - Downloading the media is the one side-effect; it lands in a scratch out-dir, never the repo. On a metered or shared machine, confirm before pulling a long or large video.
-- `enforced`: the script fails closed on a missing dependency, an unparseable frame count, or a failed download (non-zero exit). `advisory`: judging *what a frame shows* is yours; say which claims are your read of a frame versus a transcript quote.
+- `enforced`: the script fails closed on a missing dependency, an unparseable frame count, a non-empty output directory, a failed or partial download, invalid duration, or zero extracted frames (non-zero exit). Refusing existing output prevents stale `source.*` evidence from impersonating the current retrieval. `advisory`: judging *what a frame shows* is yours; say which claims are your read of a frame versus a transcript quote.
 
 ## Where this sits
 

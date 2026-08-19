@@ -47,6 +47,11 @@ from dataclasses import dataclass, field, replace
 from pathlib import Path
 from typing import Iterable, Mapping, Sequence
 
+try:
+    from . import skill_integrity
+except ImportError:  # direct ``python scripts/install.py`` execution
+    import skill_integrity  # type: ignore[no-redef]
+
 
 CLAUDE_AI_ALLOWED_KEYS = (
     "allowed-tools",
@@ -233,6 +238,7 @@ class InstallReport:
     errors: list[str] = field(default_factory=list)
     assumption: str | None = None
     transaction_boundary: str | None = None
+    integrity: dict[str, object] | None = None
 
     def as_dict(self) -> dict[str, object]:
         result: dict[str, object] = {
@@ -247,6 +253,8 @@ class InstallReport:
             result["assumption"] = self.assumption
         if self.transaction_boundary:
             result["transactionBoundary"] = self.transaction_boundary
+        if self.integrity:
+            result["integrity"] = self.integrity
         return result
 
 
@@ -719,7 +727,12 @@ def _remove_path(path: Path) -> None:
         shutil.rmtree(path)
 
 
-def _transactional_copy(source: Path, destination: Path, expected: TreeManifest) -> None:
+def _transactional_copy(
+    source: Path,
+    destination: Path,
+    expected: TreeManifest,
+    signed_files: Mapping[str, object] | None = None,
+) -> None:
     target_root = destination.parent
     target_root.mkdir(parents=True, exist_ok=True)
     if destination.is_symlink():
@@ -737,6 +750,13 @@ def _transactional_copy(source: Path, destination: Path, expected: TreeManifest)
         staged_manifest = tree_manifest(staged)
         if staged_manifest.sha256 != expected.sha256:
             raise InstallError(f"staged copy failed byte verification for {source.name}")
+        if signed_files is not None:
+            signed_failures = skill_integrity.verify_skill_directory(staged, signed_files)
+            if signed_failures:
+                raise InstallError(
+                    f"staged copy differs from signed manifest for {source.name}: "
+                    + "; ".join(signed_failures)
+                )
         if destination.exists():
             os.replace(destination, backup)
             moved_old = True
@@ -746,6 +766,15 @@ def _transactional_copy(source: Path, destination: Path, expected: TreeManifest)
             installed = tree_manifest(destination)
             if installed.sha256 != expected.sha256:
                 raise InstallError(f"installed copy failed byte verification for {source.name}")
+            if signed_files is not None:
+                signed_failures = skill_integrity.verify_skill_directory(
+                    destination, signed_files
+                )
+                if signed_failures:
+                    raise InstallError(
+                        f"installed copy differs from signed manifest for {source.name}: "
+                        + "; ".join(signed_failures)
+                    )
         except BaseException:
             if moved_new and destination.exists():
                 _remove_path(destination)
@@ -773,6 +802,7 @@ def _sync_skill(
     *,
     dry_run: bool,
     verify_only: bool,
+    signed_files: Mapping[str, object] | None = None,
 ) -> SkillResult:
     destination = target_root / source.name
     if destination.is_symlink():
@@ -781,7 +811,7 @@ def _sync_skill(
         status = "missing" if verify_only else "would-install" if dry_run else "installed"
         result = SkillResult(source.name, status, expected.sha256, None, ("missing:<skill-directory>",))
         if not dry_run and not verify_only:
-            _transactional_copy(source, destination, expected)
+            _transactional_copy(source, destination, expected, signed_files)
             result.destination_sha256 = expected.sha256
             result.differences = ()
         return result
@@ -790,6 +820,15 @@ def _sync_skill(
 
     actual = tree_manifest(destination)
     if actual.sha256 == expected.sha256:
+        if signed_files is not None:
+            signed_failures = skill_integrity.verify_skill_directory(
+                destination, signed_files
+            )
+            if signed_failures:
+                raise InstallError(
+                    f"existing copy differs from signed manifest for {source.name}: "
+                    + "; ".join(signed_failures)
+                )
         return SkillResult(
             source.name,
             "verified" if verify_only else "unchanged",
@@ -800,7 +839,7 @@ def _sync_skill(
     status = "drift" if verify_only else "would-update" if dry_run else "updated"
     result = SkillResult(source.name, status, expected.sha256, actual.sha256, differences)
     if not dry_run and not verify_only:
-        _transactional_copy(source, destination, expected)
+        _transactional_copy(source, destination, expected, signed_files)
         result.destination_sha256 = expected.sha256
     return result
 
@@ -864,12 +903,49 @@ def run_install(
     *,
     dry_run: bool = False,
     verify_only: bool = False,
+    verify_integrity: bool = False,
+    repo_root: Path | None = None,
 ) -> InstallReport:
     """Preflight the whole run, then atomically replace one skill directory at a time."""
     if dry_run and verify_only:
         raise InstallError("--dry-run and --verify-only are mutually exclusive")
     source_skills = Path(source_skills)
     skills = discover_skills(source_skills, selected_skills)
+    integrity_report: dict[str, object] | None = None
+    signed_skill_files: dict[str, Mapping[str, object]] = {}
+    if verify_integrity:
+        repository = (repo_root or source_skills.parent).resolve()
+        integrity_report = skill_integrity.verify_repository(
+            repository,
+            skills_dir=source_skills,
+            include_verified_manifest=True,
+        )
+        signed_manifest = integrity_report.pop("_verifiedManifest", None)
+        if not integrity_report.get("readyToRun"):
+            raise InstallError(
+                "signed integrity verification failed before destination preflight: "
+                f"score={integrity_report.get('score')}"
+            )
+        try:
+            if not isinstance(signed_manifest, dict):
+                raise skill_integrity.IntegrityError(
+                    "authenticated manifest snapshot unavailable"
+                )
+            for skill in skills:
+                signed_skill_files[skill.name] = signed_manifest["skills"][skill.name][
+                    "files"
+                ]
+        except (KeyError, skill_integrity.IntegrityError) as exc:
+            raise InstallError(f"signed manifest does not cover selected skills: {exc}") from exc
+        for skill in skills:
+            failures = skill_integrity.verify_skill_directory(
+                skill, signed_skill_files[skill.name]
+            )
+            if failures:
+                raise InstallError(
+                    f"source differs from signed manifest for {skill.name}: "
+                    + "; ".join(failures)
+                )
     expected = {skill.name: tree_manifest(skill) for skill in skills}
     prepared = _preflight_install(source_skills, targets, skills)
 
@@ -880,6 +956,7 @@ def run_install(
         verify_only,
         [],
         transaction_boundary=INSTALL_TRANSACTION_BOUNDARY,
+        integrity=integrity_report,
     )
     for item in prepared:
         target = item.spec
@@ -930,6 +1007,7 @@ def run_install(
                         expected[skill.name],
                         dry_run=dry_run,
                         verify_only=verify_only,
+                        signed_files=signed_skill_files.get(skill.name),
                     )
                 )
             failure_statuses = {"missing", "drift"}
@@ -1255,6 +1333,11 @@ def build_parser() -> argparse.ArgumentParser:
         help="home directory used to resolve the four documented fleet targets",
     )
     _add_common_mode_flags(install)
+    install.add_argument(
+        "--verify-integrity",
+        action="store_true",
+        help="require the signed release gate and bind staged/installed bytes to its manifest",
+    )
 
     export = subparsers.add_parser(
         "export-claude-ai",
@@ -1286,6 +1369,11 @@ def build_parser() -> argparse.ArgumentParser:
 
 def _print_human(report: InstallReport) -> None:
     print(f"mode={report.mode} success={str(report.success).lower()}")
+    if report.integrity:
+        print(
+            f"integrity-score={report.integrity.get('score')} "
+            f"ready-to-run={str(report.integrity.get('readyToRun')).lower()}"
+        )
     if report.assumption:
         print(f"assumption={report.assumption}")
     if report.transaction_boundary:
@@ -1330,6 +1418,8 @@ def main(argv: Sequence[str] | None = None) -> int:
                 args.skill,
                 dry_run=args.dry_run,
                 verify_only=args.verify_only,
+                verify_integrity=args.verify_integrity,
+                repo_root=args.repo_root,
             )
         elif args.command == "export-claude-ai":
             report = run_claude_ai_export(

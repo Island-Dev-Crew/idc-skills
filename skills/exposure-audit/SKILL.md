@@ -5,7 +5,7 @@ description: Read-only exposure audit of any target machine or repo against a NA
 
 # Exposure Audit: verdict on evidence, never on a claim
 
-One concern: against a **named** advisory, enumerate what the target actually has installed and exposed, decide **affected-or-not on captured output**, and write a structured report. It never remediates; that authority belongs to a human. An *Affected* verdict is a check that could have said *Not affected* and didn't. Parameterize both paths, nothing hardcoded to a machine: `TARGET` (machine root or repo path, default the current repo / `$HOME`) and `REPORT_DIR` (default `$TARGET/security-audits/`).
+One concern: against a **named** advisory, enumerate what the target actually has installed and exposed, decide **affected-or-not on captured output**, and write a structured report. It never remediates; that authority belongs to a human. An *Affected* verdict is a check that could have said *Not affected* and didn't. Parameterize both paths, nothing hardcoded to a machine: `TARGET` defaults to the current repo, never `$HOME` or `/`; `REPORT_DIR` defaults to `$TARGET/security-audits/`. Resolve both paths before scanning, reject symlinks, require `TARGET` to be an existing directory, and require `REPORT_DIR` to remain inside `TARGET` unless the user explicitly authorizes another exact destination.
 
 ## Hard rules: read-only, `enforced` only where a guard exists
 
@@ -13,6 +13,7 @@ One concern: against a **named** advisory, enumerate what the target actually ha
 - **No `sudo`.** Never.
 - **A state-changing check is not run**: record it as `not checked (would change state)`. It never becomes evidence, and it never collapses into *Not affected*.
 - **One report per invocation**, always written, even a *Not affected* verdict, because the audit trail is the deliverable.
+- **Safe report creation.** Set `umask 077`, create the report directory with mode 0700 where supported, refuse a symlink or existing output file, write through a same-directory temporary file, then atomically rename it. The report can contain paths, versions, or process details; redact credentials and personal data before persistence.
 
 ## Workflow
 

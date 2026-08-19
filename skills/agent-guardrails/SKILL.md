@@ -30,7 +30,7 @@ Wire per agent (merge into existing `hooks`, never overwrite). Claude Code / Cod
 
 ## Layer 2: Git block (per agent, per repo)
 
-A `PreToolUse` hook that refuses destructive git before it runs: `git push` (all variants), `reset --hard`, `clean -f[d]`, `branch -D`, `checkout .` / `restore .`. Blocked → the agent is told it lacks authority for that command. This is a stricter, opt-in authority gate, not a catastrophe filter: it blocks recoverable operations too (like `git clean -f`) because they need a human's explicit say-so, which is why Layer 1 can leave `git clean -fdx` allowed machine-wide while Layer 2 blocks `clean -f` per repo. `git push` is an authority boundary blocked in **all** forms including `--dry-run` (a push dry-run still contacts the remote and signals intent); the dry-run exemption applies only to the catastrophe-filter commands like `git clean -n`. Bundled at [scripts/block-dangerous-git.sh](scripts/block-dangerous-git.sh); install to `.claude/hooks/` (project) or `~/.claude/hooks/` (global), `chmod +x`, and add a `PreToolUse`/`Bash` entry pointing at it. The guard is **grammar-aware**: it skips git's global options (`-C`, `-c`, `--git-dir`, `--work-tree`, `--no-pager`, `--namespace`, long/`=` forms) before reading the subcommand, so a destructive subcommand cannot hide behind them (e.g. `git -C /tmp push` and `git --no-pager push` both block). It is a defense-in-depth **string classifier**, not a sandbox: `eval`, `sh -c "…"`, an alias, command substitution, or a renamed git binary can still reach git, so keep a real OS/repo-level control underneath. Requires `jq`; if `jq` is absent the guard fails **open** (announces it and allows) so it can't wedge every command; wire it only where `jq` exists. The bundled fixture matrix [scripts/test-block-dangerous-git.sh](scripts/test-block-dangerous-git.sh) proves the global-option bypasses block and read-only/dry-run git still passes (`bash scripts/test-block-dangerous-git.sh` → `pass=28 fail=0`). Verify:
+A `PreToolUse` hook that refuses destructive git before it runs: direct `git push` forms, `reset --hard`, `clean -f[d]`, force-deleting branches, forced checkout, and destructive restore. Blocked → the agent is told it lacks authority for that command. This is a stricter, opt-in authority gate, not a catastrophe filter: it blocks recoverable operations too (like `git clean -f`) because they need a human's explicit say-so, which is why Layer 1 can leave `git clean -fdx` allowed machine-wide while Layer 2 blocks `clean -f` per repo. A directly expressed `git push`, including `--dry-run`, is an authority boundary (a push dry-run still contacts the remote and signals intent); the dry-run exemption applies only to catastrophe-filter commands like `git clean -n`. Bundled at [scripts/block-dangerous-git.sh](scripts/block-dangerous-git.sh); install to `.claude/hooks/` (project) or `~/.claude/hooks/` (global), `chmod +x`, and add a `PreToolUse`/`Bash` entry pointing at it. The guard is **grammar-aware** for the fixture-backed surface: it skips git's global options and normalizes quote/backslash word concatenation before reading the subcommand. It is still a defense-in-depth **string classifier**, not a shell parser or sandbox: `eval`, `sh -c "…"`, an alias, command substitution, or a renamed git binary can still reach git, so keep a real OS/repo-level control underneath. Requires `jq`; if `jq` is absent the guard fails **open** (announces it and allows) so it can't wedge every command; wire it only where `jq` exists. The bundled fixture matrix [scripts/test-block-dangerous-git.sh](scripts/test-block-dangerous-git.sh) proves the named direct/global-option/word-concatenation forms block and read-only/dry-run git still passes. Verify:
 
 ```bash
 echo '{"tool_input":{"command":"git push origin main"}}' | <path>/block-dangerous-git.sh; echo "exit=$?"   # expect 2
@@ -43,29 +43,30 @@ This mechanizes the append-only / never-force-push covenants at the machine leve
 
 ## Layer 3: Pre-commit gate (per repo)
 
-Husky + lint-staged so nothing broken gets committed. Detect the package manager (`package-lock.json` npm, `pnpm-lock.yaml` pnpm, `yarn.lock` yarn, `bun.lockb` bun). Install `husky lint-staged prettier` as devDeps, `npx husky init`, then `.husky/pre-commit`:
+Husky + lint-staged so nothing broken gets committed. Detect the package manager (`package-lock.json` npm, `pnpm-lock.yaml` pnpm, `yarn.lock` yarn, `bun.lockb` bun). Add reviewed exact versions of `husky`, `lint-staged`, and `prettier` to devDependencies and the repo lockfile; install in frozen/immutable-lockfile mode. Initialize with the pinned local `./node_modules/.bin/husky init`, then `.husky/pre-commit`:
 
 ```
-npx lint-staged
+./node_modules/.bin/lint-staged
 npm run typecheck    # omit if absent, and tell the user
 npm run test         # omit if absent, and tell the user
 ```
 
-`.lintstagedrc`: `{ "*": "prettier --ignore-unknown --write" }`. Verify by running `npx lint-staged`, then commit through the hook as the smoke test.
+`.lintstagedrc`: `{ "*": "prettier --ignore-unknown --write" }`. Verify by running the pinned local `./node_modules/.bin/lint-staged`, then commit through the hook as the smoke test.
 
 ## Layer 4: Read-only data role (per database)
 
-Give agents a database role that *cannot* write, so the blast radius of any query mistake is bounded to reads. Create a role with `CONNECT` + `USAGE` + `SELECT` only, no `INSERT`/`UPDATE`/`DELETE`/`DDL`, and default privileges so it stays read-only as tables are added:
+Give agents a database role intended to be read-only, then prove its **effective** privileges. Grants alone do not erase privileges inherited from role membership or `PUBLIC`, and default privileges apply per object owner. Use `NOINHERIT`, audit memberships and effective privileges, revoke direct write grants, and configure defaults for every role that creates tables in the schema:
 
 ```sql
-CREATE ROLE agent_readonly LOGIN PASSWORD '<in a secret manager, never here>';
+CREATE ROLE agent_readonly LOGIN NOINHERIT PASSWORD '<in a secret manager, never here>';
 GRANT CONNECT ON DATABASE <db> TO agent_readonly;
 GRANT USAGE ON SCHEMA public TO agent_readonly;
+REVOKE INSERT, UPDATE, DELETE, TRUNCATE, REFERENCES, TRIGGER ON ALL TABLES IN SCHEMA public FROM agent_readonly;
 GRANT SELECT ON ALL TABLES IN SCHEMA public TO agent_readonly;
-ALTER DEFAULT PRIVILEGES IN SCHEMA public GRANT SELECT ON TABLES TO agent_readonly;
+ALTER DEFAULT PRIVILEGES FOR ROLE <object_owner> IN SCHEMA public GRANT SELECT ON TABLES TO agent_readonly;
 ```
 
-Agents connect as this role for analysis; writes go through a human-approved path. Never hardcode the password; reference where it lives.
+Repeat the `ALTER DEFAULT PRIVILEGES FOR ROLE ...` line for each real object owner. Check `pg_auth_members`, `information_schema.role_table_grants`, and `has_table_privilege` for `INSERT,UPDATE,DELETE,TRUNCATE`; then connect as `agent_readonly` and run a transaction-scoped insert/update probe against a disposable fixture table that must fail with `permission denied`. Only that failed write probe supports `enforced read-only`; without it, the role is `intended-read-only` and remains advisory. Agents connect as this role for analysis; writes go through a human-approved path. Never hardcode the password; reference where it lives.
 
 ## The design rule under all four
 

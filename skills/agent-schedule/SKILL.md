@@ -29,6 +29,7 @@ while true; do agent -p "check X" --auto-approve; sleep 30; done
 ```
 
 Three gotchas, each of which silently breaks an unattended run:
+- **Non-interactive is not new authority.** `--auto-approve` in the shapes above is safe only when the runtime independently enforces a least-privilege tool allow-list, bounded filesystem/network scope, and the operator's existing spend/deploy/write limits. It must not convert an advisory prompt into blanket permission. If those controls are absent, schedule a read-only reporter or stop for human approval instead.
 - **A permission prompt breaks the run; how depends on the tty.** With a controlling tty the prompt blocks forever waiting on input no one is there to give; with no controlling tty the runtime's `read()` hits EOF and the run exits early instead. Either way it never does the work: pass the non-interactive / auto-approve / allowed-tools flag or run fully non-interactively.
 - **Emit machine-readable output** (JSON) so the wrapper parses results deterministically instead of scraping prose.
 - **Runs are amnesiac.** Persist state to a file the next run reads (or use the runtime's resume), or every tick starts from zero.

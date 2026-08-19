@@ -1,23 +1,23 @@
 {
   "version": 1,
   "mission": {
-    "name": "IDC Forge Cross-Harness Gauntlet",
-    "tagline": "One canonical forge, portable by proof rather than proclamation.",
+    "name": "IDC Forge 2.0.2 Integrity and Promotion",
+    "tagline": "Fifty fused skills, signed at the bytes and promoted only on replayable proof.",
     "repo": "Navigata1/idc-skills-forge",
-    "repoPath": "C:/Users/IslandDevCrew/Documents/ChatGPT/idc-forge-gauntlet-integration",
+    "repoPath": "/Users/IDC2.5/Desktop/IDC-skills",
     "defaultBranch": "main",
     "planDoc": "ops/mission/brief.md",
-    "northStar": "Preserve the fifty-island source while every compatibility claim is falsifiable, tiered, and reproducible on the harness that consumes it.",
-    "status": "complete",
+    "northStar": "Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.",
+    "status": "in_progress",
     "started": "2026-08-11",
-    "updated": "2026-08-12T03:23:21Z",
-    "sessionCount": 1
+    "updated": "2026-08-19T18:47:32Z",
+    "sessionCount": 2
   },
   "policies": {
     "merge": "review",
-    "branchPrefix": "codex/gauntlet-",
+    "branchPrefix": "codex/",
     "maxPrLines": 400,
-    "notes": "Local branches and commits are permitted for isolation and recovery. No push, PR, release, or profile install without explicit user authority. The 400-line target is advisory for generated mission/report assets and test fixtures."
+    "notes": "The user explicitly authorized the 2.0.2 build, PR #3 push/merge, public-org promotion, tag, and Claude/Codex reinstallation on 2026-08-19. No force-push, credential disclosure, or unrelated mutation is authorized. The 400-line target is advisory for generated reports, evidence, manifests, and fixtures."
   },
   "phases": [
     {
@@ -240,9 +240,235 @@
           "notes": "Report is complete for the stated falsifiable bar; named runtime limitations remain explicit and do not become positive support claims."
         }
       ]
+    },
+    {
+      "id": "P4",
+      "title": "Current upstream, video, and Forge-50 synthesis",
+      "goal": "Re-derive the current Matt Pocock delta, extract both requested videos honestly, and independently review every Forge seat before changing the release.",
+      "status": "done",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "P4-G1",
+          "title": "Current upstream and both video analyses are evidence-bound",
+          "command": "test -s ops/research/pocock-gap-analysis-2026-08-19.md && test -s ops/research/video-skill-usage-analysis-0oXOOlqVu5M.md && test -s ops/research/video-supply-chain-threat-analysis-4f5AJrJPilM.md",
+          "status": "passed",
+          "evidence": "ops/research/",
+          "lastRun": "2026-08-19T18:45:25Z",
+          "notes": "Pocock head pinned at 885e2ca; transcript channels captured for both videos. First-video frame extraction is explicitly unverified after YouTube 403/reload failures."
+        },
+        {
+          "id": "P4-G2",
+          "title": "All fifty islands receive independent semantic/security review",
+          "command": "python scripts/validate_skills.py --json",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/forge-50-review-2026-08-19.md",
+          "lastRun": "2026-08-19T18:30:36Z",
+          "notes": "Three Luna cohorts covered all 50 islands; de-slop preserved operational meaning and the review's high-confidence security findings were repaired."
+        },
+        {
+          "id": "P4-G3",
+          "title": "Registry, 50 machine records, and deterministic rendered report agree",
+          "command": "python scripts/verify_validation_records.py",
+          "status": "passed",
+          "evidence": "ops/validation/skill-records.json",
+          "lastRun": "2026-08-19T18:45:25Z",
+          "notes": "50 records and 150 cases; negative tests remove a record, alter embedded content, and alter visible aggregates to prove both semantic and full-render byte gates can fail."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "P4-T1",
+          "title": "Compare current Pocock repository to the immutable historical source",
+          "status": "done",
+          "dependsOn": [],
+          "pr": null,
+          "notes": "Two narrow improvements earned fusion; no distinct challenger was nominated for an identical-case seat duel or replacement."
+        },
+        {
+          "id": "P4-T2",
+          "title": "Analyze skill usage and supply-chain threat videos",
+          "status": "done",
+          "dependsOn": [],
+          "pr": null,
+          "notes": "Transcript claims are timestamped; absent frames are not laundered into visual evidence."
+        },
+        {
+          "id": "P4-T3",
+          "title": "Fan out all-fifty independent review and close F-02/F-03 gaps",
+          "status": "done",
+          "dependsOn": [],
+          "pr": null,
+          "notes": "Machine-readable 50-record evidence and exact historical upstream blob-tree proofs now exist; the missing fusion-time ICM commit remains explicit."
+        }
+      ]
+    },
+    {
+      "id": "P5",
+      "title": "Signed Skill Integrity Gate",
+      "goal": "Bind all 50 skill trees and the security control plane to the external Forge key, then prove every claimed defense red before green.",
+      "status": "in_progress",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "P5-G1",
+          "title": "Security, installer, authority, and record fixture matrices pass",
+          "command": "python -m unittest discover -s tests -p test_*.py && skills/agent-guardrails/scripts/test-block-dangerous-git.sh",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/forge-50-review-2026-08-19.md",
+          "lastRun": "2026-08-19T18:47:32Z",
+          "notes": "67 unit tests, 37/37 git-authority fixtures, 50/50 canonical validation, and the current-worktree reacceptance passed after the signing freeze; exact committed-clone replay remains required."
+        },
+        {
+          "id": "P5-G2",
+          "title": "Release profile verifies 5/5 against the stable Forge key",
+          "command": "python scripts/skill_integrity.py verify",
+          "status": "passed",
+          "evidence": "integrity/manifest.json.sig",
+          "lastRun": "2026-08-19T18:47:32Z",
+          "notes": "Stable 1Password-held Ed25519 key signed the final canonical manifest; release verification returned pass=true, readyToRun=true, score=5/5, skillsChecked=50."
+        },
+        {
+          "id": "P5-G3",
+          "title": "Independent Claude-family review approves the exact committed candidate",
+          "command": "claude -p <exact-head-review-brief>",
+          "status": "pending",
+          "evidence": "ops/mission/evidence/cross-family-review-2.0.2.md",
+          "lastRun": null,
+          "notes": "Must bind the reviewer verdict to the final candidate SHA and void on any repair commit."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "P5-T1",
+          "title": "Build manifest, signature, installer, and PreToolUse enforcement",
+          "status": "done",
+          "dependsOn": [
+            "P4-T3"
+          ],
+          "pr": null,
+          "notes": "One repository gate; no circular per-skill self-checkers."
+        },
+        {
+          "id": "P5-T2",
+          "title": "Adversarially attack trust anchor, encodings, paths, links, and installed copies",
+          "status": "done",
+          "dependsOn": [
+            "P5-T1"
+          ],
+          "pr": null,
+          "notes": "Adversarial passes found a fingerprint-override false green, optional installed-tree binding, wide-encoding and control-path bypasses, a manifest-swap race, and a live-tree change after first hash; all were repaired and regression-tested."
+        },
+        {
+          "id": "P5-T3",
+          "title": "Freeze, sign, and obtain exact-head cross-family verdict",
+          "status": "in_progress",
+          "dependsOn": [
+            "P5-T2"
+          ],
+          "pr": null,
+          "notes": "Do not change signed control or skill bytes after signing without regenerating and re-signing."
+        }
+      ]
+    },
+    {
+      "id": "P6",
+      "title": "PR #3, promotion, tag, and fleet resync",
+      "goal": "Reaccept the exact candidate from a fresh clone, merge PR #3, promote the exact merged tree to the public org, tag 2.0.2, and prove installed copies match.",
+      "status": "pending",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "P6-G1",
+          "title": "Fresh clone passes reacceptance and remains byte-clean",
+          "command": "python scripts/reaccept.py",
+          "status": "pending",
+          "evidence": "ops/mission/evidence/fresh-clone-reacceptance-2.0.2.json",
+          "lastRun": null,
+          "notes": null
+        },
+        {
+          "id": "P6-G2",
+          "title": "PR #3 merges with required CI green",
+          "command": "gh pr checks 3 --watch",
+          "status": "pending",
+          "evidence": null,
+          "lastRun": null,
+          "notes": null
+        },
+        {
+          "id": "P6-G3",
+          "title": "Public main, tag, and installed trees resolve to released bytes",
+          "command": "git ls-remote idc refs/heads/main refs/tags/2.0.2 && python scripts/install.py install --verify-integrity --target claude --target agents --verify-only",
+          "status": "pending",
+          "evidence": null,
+          "lastRun": null,
+          "notes": null
+        }
+      ],
+      "tasks": [
+        {
+          "id": "P6-T1",
+          "title": "Commit candidate and reaccept from a fresh clone",
+          "status": "pending",
+          "dependsOn": [
+            "P5-T3"
+          ],
+          "pr": null,
+          "notes": null
+        },
+        {
+          "id": "P6-T2",
+          "title": "Push branch, open and merge PR #3",
+          "status": "pending",
+          "dependsOn": [
+            "P6-T1"
+          ],
+          "pr": null,
+          "notes": null
+        },
+        {
+          "id": "P6-T3",
+          "title": "Promote exact merged tree, tag release, and resync Claude/Codex",
+          "status": "pending",
+          "dependsOn": [
+            "P6-T2"
+          ],
+          "pr": null,
+          "notes": null
+        }
+      ]
     }
   ],
   "metrics": [
+    {
+      "label": "Signed release integrity checks",
+      "baseline": "0/5",
+      "current": "5/5 readyToRun",
+      "target": "5/5 readyToRun",
+      "direction": "up"
+    },
+    {
+      "label": "Semantic validation records matching registry",
+      "baseline": "40/50",
+      "current": "50/50 (150 cases)",
+      "target": "50/50",
+      "direction": "up"
+    },
+    {
+      "label": "Git authority attack/allow fixtures",
+      "baseline": "28/28",
+      "current": "37/37",
+      "target": "37/37",
+      "direction": "up"
+    },
+    {
+      "label": "Retained upstream archives exact to historical Git blob trees",
+      "baseline": "0/2 independently recomputed",
+      "current": "2/2 exact (75/75 + 167/167)",
+      "target": "2/2",
+      "direction": "up"
+    },
     {
       "label": "Named harnesses with tier, source, and probe",
       "baseline": "4",
@@ -288,9 +514,9 @@
   ],
   "risks": [
     {
-      "title": "No different-family reviewer is callable from this Codex session",
-      "severity": "medium",
-      "note": "The three critiques are blind and non-author, but cross-family-review was unavailable and no output is labeled a cross-family verdict."
+      "title": "Historical P0-P3 review lacked a different-family seat",
+      "severity": "low",
+      "note": "That historical limitation remains accurately recorded. Release 2.0.2 has a callable Claude CLI and requires a new exact-head verdict before shipping."
     },
     {
       "title": "Several requested harnesses may not expose a native Agent Skills loader",
@@ -306,28 +532,46 @@
       "title": "Whole-run rollback stops at the unexpected-I/O boundary",
       "severity": "medium",
       "note": "Every destination is preflighted and each skill replacement is atomic, but a multi-skill or multi-target run is not rollback-atomic after an unexpected mid-run I/O failure."
+    },
+    {
+      "title": "Trusted bootstrap cannot be established by repository code",
+      "severity": "high",
+      "note": "A consumer must compare the signing-key fingerprint through a trusted out-of-band channel before executing the verifier. Five green checks without that bootstrap do not establish authorship."
+    },
+    {
+      "title": "First requested video's visual channel is unavailable",
+      "severity": "low",
+      "note": "Transcript extraction succeeded, but YouTube rejected source-video retrieval. The report makes no frame or screen claim."
+    },
+    {
+      "title": "Historical ICM fusion commit remains unpinned",
+      "severity": "medium",
+      "note": "The live head and MIT license are recorded, but no current revision is substituted for the missing fusion-time source commit or archive."
     }
   ],
   "prLog": [],
   "resume": {
-    "activePhase": "P3",
+    "activePhase": "P5",
     "nextActions": [
-      "If publication is desired, review local branch codex/gauntlet-integration and explicitly authorize a push or pull request.",
-      "Run authenticated loader and invocation probes for the matrix entries still marked partial, unrun, failed, or unsupported.",
-      "Treat claude.ai description shortening as a separate skill-tune experiment: preserve routing on representative tasks before accepting any <=200-character rewrite."
+      "Commit the signed candidate without changing any skill or controlled byte, then obtain an independent Claude-family verdict bound to that exact SHA; void the verdict if any repair moves the head.",
+      "Reaccept the exact candidate from a fresh clone, then push, open and merge PR #3 only after required CI is green.",
+      "Promote the exact merged tree to IslandDevCrew, tag 2.0.2 on both remotes, reinstall Claude/Codex targets with integrity verification, and compare installed bytes."
     ],
     "blockers": [
-      "Universal runtime portability is not proved: Buzz and Grok Bot remain unsupported/unknown, and native-Windows Hermes did not load the sampled Forge islands.",
-      "Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; a live upload was not run.",
-      "Cross-family verdict unavailable: this session could spawn only OpenAI-family sub-agents.",
-      "Remote publication remains outside current authority; all branches and commits are local."
+      "Exact-head Claude-family review and fresh-clone reacceptance remain pending until the candidate bytes are frozen.",
+      "Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; this product limitation is not a blocker for the native 2.0.2 release.",
+      "The first requested video's source frames remain unavailable after YouTube 403/reload failures; transcript evidence is complete and no visual claim is made.",
+      "The historical ICM fusion commit remains unknown; the live head and license are recorded without substituting current provenance for missing historical evidence."
     ],
     "conventions": [
       "ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.",
       "Positive harness claims require an authoritative source and reproducible probe.",
       "Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.",
       "Worktree evidence is draft evidence until re-derived from a fresh clone.",
-      "A historical compatibility transform preserves metadata values only; it never asserts invocation semantics."
+      "A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.",
+      "The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.",
+      "Any signed skill, policy, verifier, installer, hook, workflow, or other controlled-byte change invalidates the release and requires manifest regeneration plus a new signature.",
+      "The user explicitly authorized push, PR #3 merge after green gates, public-org promotion, the 2.0.2 tag, and verified fleet reinstall; force-push and unrelated mutation remain unauthorized."
     ]
   }
 }

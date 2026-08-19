@@ -59,11 +59,24 @@ gh run watch "$RUN_ID" --exit-status
 
 # 4. CI green -> confirm the deploy promoted THIS SHA (not a neighbour).
 #    Verify the deployment even for "docs-only" commits — never skip on a judgment call.
-gh api "repos/<org>/<repo>/deployments?sha=$SHA&environment=Production&per_page=1" --jq '.[0].id'
-# poll the deployment status until it reaches success
+DEPLOYMENT_ID=$(gh api "repos/<org>/<repo>/deployments?sha=$SHA&environment=Production&per_page=1" --jq '.[0].id // empty')
+[ -n "$DEPLOYMENT_ID" ] || { echo "transport: no Production deployment for $SHA" >&2; exit 1; }
+DEPLOY_STATUS=""
+for i in 1 2 3 4 5 6 7 8 9 10 11 12; do
+  DEPLOY_STATUS=$(gh api "repos/<org>/<repo>/deployments/$DEPLOYMENT_ID/statuses?per_page=1" --jq '.[0].state // empty')
+  [ "$DEPLOY_STATUS" = success ] && break
+  case "$DEPLOY_STATUS" in error|failure|inactive) echo "transport: deployment $DEPLOY_STATUS" >&2; exit 1;; esac
+  sleep 10
+done
+[ "$DEPLOY_STATUS" = success ] || { echo "transport: deployment did not reach success" >&2; exit 1; }
 
 # 5. Prove production serves it.
-curl -sS -m 15 https://<prod-host>/<health-path>
+curl -fsS -m 15 https://<prod-host>/<health-path>
+SERVED_SHA=$(curl -fsS -m 15 https://<prod-host>/<build-sha-path>)
+[ "$SERVED_SHA" = "$SHA" ] || {
+  echo "transport: production serves $SERVED_SHA, expected $SHA" >&2
+  exit 1
+}
 ```
 
 **Done = green CI + a successful Production deployment + a healthy check, all for the exact `$SHA`.** Then report what shipped.

@@ -1,11 +1,11 @@
 ---
 name: merge-resolve
-description: Resolve an in-progress git merge or rebase by tracing every conflicting hunk back to the intent that authored it — the commit, PR, or issue — then keeping both intents where they compose and recording the trade-off where they collide, and running the project's checks before finishing. Use when a merge or rebase is mid-conflict and the user says "resolve conflicts", "fix the merge", "finish the rebase", or "merge conflict". Differentiator - each hunk is resolved against its traced originating intent and the merge is never aborted, where diagnose debugs bugs and transport-complete ships the resolved commit live.
+description: Resolve an in-progress git merge or rebase by tracing every conflicting hunk back to the intent that authored it — the commit, PR, or issue — then keeping both intents where they compose, recording collisions, and running the project's checks before finishing. Use when a merge or rebase is mid-conflict and the user says "resolve conflicts", "fix the merge", "finish the rebase", or "merge conflict". Differentiator - each hunk is resolved against its traced originating intent; aborting or skipping is an explicit operator decision, never an agent shortcut.
 ---
 
-# Merge Resolve: resolve to intent, never abort
+# Merge Resolve: resolve to intent
 
-A conflict is two intents disagreeing about the same lines. You cannot resolve it by picking the prettier diff; you resolve it by knowing *why each side wrote what it wrote*. The spine of this skill is **intent**: every hunk is traced to the change that authored it before a single line is chosen. **Never `git --abort`.** Abort throws away the resolution work and the intent you recovered; always finish the merge or rebase.
+A conflict is two intents disagreeing about the same lines. You cannot resolve it by picking the prettier diff; you resolve it by knowing *why each side wrote what it wrote*. The spine of this skill is **intent**: every hunk is traced to the change that authored it before a single line is chosen. Preserve the current state and recovered intent before any terminal action. Do not abort or skip merely to escape difficulty; if continuing would be unsafe, outside scope, or contrary to the user's goal, report the evidence and ask the operator whether to continue, abort, or skip.
 
 The covenant: a resolution is **verified** only once the project's checks pass on it. A hunk you resolved without recovering its intent is **advisory**: say so; never launder a guess into a verified merge.
 
@@ -60,11 +60,11 @@ git diff --cached --check                 # refuse trailing conflict cruft / whi
 # rebase: git rebase --continue  # then repeat from §1 for the next conflicting commit
 ```
 
-For a rebase, loop §1 through §5 until `git status` reports no rebase in progress. **Never `git rebase --skip`**: skipping drops a commit's intent whole; resolve it instead. The merge/rebase is done only when the working tree is clean, no markers remain, and the checks are green.
+For a rebase, loop §1 through §5 until `git status` reports no rebase in progress. `git rebase --skip` drops a commit's intent whole, so it requires explicit operator authorization after the dropped intent is identified and preserved in the report. The merge/rebase is done only when the working tree is clean, no markers remain, and the checks are green.
 
 ## Hard rules
 
-- Never `git --abort`, never `git rebase --skip`. Finish the resolution you started.
+- Never abort or skip as an agent shortcut. Preserve evidence and obtain explicit operator authorization for either terminal action.
 - Every dropped intent is recorded in the commit body; every untraceable hunk is marked advisory.
 - Resolution is verified only by passing project checks; never report a merge "resolved" without them.
 

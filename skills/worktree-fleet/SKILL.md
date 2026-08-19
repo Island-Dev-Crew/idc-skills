@@ -43,7 +43,7 @@ A branch can be checked out in only one worktree at a time (including main). Two
 
 A fresh worktree has only tracked files; everything gitignored is missing, and an agent dropped into a bare worktree fails confusingly. Replicate:
 
-1. **Env/secrets**: copy `.env`, `.env.local` from the primary. Copy, never symlink (editing a symlinked env corrupts the original).
+1. **Env/secrets**: prefer process-scoped injection from the approved secret manager. If a local env file is genuinely required, first verify the destination is the intended worktree, set `umask 077`, copy (never symlink), force mode `0600`, and verify the mode before running anything. Never copy an env file into an unverified path or commit it.
 2. **Dependencies**: run the install (`npm ci`, `pnpm install`, `uv sync`). Never symlink `node_modules`.
 3. **Local DBs/services**: shared server, pin identity (Docker Compose top-level `name:`) so worktrees don't fight over a port. Per-worktree state (SQLite): copy or re-seed.
 4. **Ports**: run one at a time, or make the port configurable per worktree.

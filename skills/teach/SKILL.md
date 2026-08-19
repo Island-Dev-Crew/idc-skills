@@ -36,6 +36,10 @@ Split two kinds of learning: **fluency strength** (in-the-moment retrieval, whic
 
 Each lesson should challenge 'just enough'. If the user names an exact thing, teach it. Otherwise read their learning records for the active mission, weigh the mission, and teach the most relevant thing that fits their current reach.
 
+## Completion
+
+For each teaching turn, done means `MISSION.md` names the active mission, every technical claim in the delivered lesson resolves to a source in `RESOURCES.md`, the new lesson/reference/learning-record path is reported, and the user receives exactly one concrete next action. A multi-session course remains open until the mission's stated outcome is demonstrated by a learner artifact or assessment; lesson creation alone is activity, not completion.
+
 ## Credit
 
 Original version created by [Matt Pocock](https://github.com/mattpocock/skills). Adopted into the IDC archipelago with attribution, per covenant: supersede and preserve.

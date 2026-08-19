@@ -4,7 +4,7 @@
 
 > *"In the multitude of counsellors there is safety."* — Proverbs 11:14
 
-This is the **staging forge** (`Navigata1/idc-skills-forge`, release 2.0.1). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
+This is the **staging forge** (`Navigata1/idc-skills-forge`, release 2.0.2). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
 
 **Cross-harness by contract, not assumption:** the canonical source is preserved once, while each harness gets a documented loader path, metadata profile, and evidence tier. The current matrix covers fifteen surfaces, including Codex, Claude Code, claude.ai, Cursor, VS Code, Amp, Kimi, Antigravity, OpenClaw, Grok, Buzz, Pi, and Hermes. A shared folder proves byte distribution; it does not by itself prove invocation semantics. See the [human-readable matrix](docs/harness-support.md) and its [machine-readable contract](docs/harness-support.json).
 
@@ -77,7 +77,7 @@ Twelve islands are IDC's own. **Five exist nowhere else** — the IDC-origin isl
 
 ## Design palette
 
-The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust · gold · jade · steel — with a faceted-gem motif. The landing experience is a journey across the chain, not a file listing: see [`docs/index.html`](docs/index.html), the full seven-act tour in [`docs/walkthrough.html`](docs/walkthrough.html), and the live [`docs/report.html`](docs/report.html) — the rendered validation records from the v1.6.0 uniform re-vet (40 of the 50 islands; the 10 added in releases 1.7.0–2.0.0 are validated but not yet folded into this render), generated from the vet, not the author's confidence. Repo-as-artifact, matching the thesis.
+The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust · gold · jade · steel — with a faceted-gem motif. The landing experience is a journey across the chain, not a file listing: see [`docs/index.html`](docs/index.html), the full seven-act tour in [`docs/walkthrough.html`](docs/walkthrough.html), and [`docs/report.html`](docs/report.html) — now generated from machine-readable records for all 50 registry islands. Reacceptance fails unless the registry, source records, embedded records, visible cards, and aggregate report bytes are the deterministic expected output. Repo-as-artifact, matching the thesis.
 
 ## Install
 
@@ -85,8 +85,8 @@ The dependency-free Python installer works from PowerShell, Command Prompt, and 
 
 ```text
 python scripts/validate_skills.py
-python scripts/install.py install --target agents --json
-python scripts/install.py install --target agents --verify-only --json
+python scripts/install.py install --verify-integrity --target agents --json
+python scripts/install.py install --verify-integrity --target agents --verify-only --json
 ```
 
 The native fleet aliases are `agents=~/.agents/skills`, `claude=~/.claude/skills` when that directory exists, `pi=~/.pi/agent/skills` when it exists, and the legacy Hermes topology `hermes=~/.hermes/skills`. Use `--custom-target name=path` only after the [support contract](docs/harness-support.md) establishes that the receiving harness loads that path. Native installs preserve canonical bytes and POSIX executable modes, preflight every selected destination, replace one skill directory atomically, and verify exact manifests. A whole multi-target run is not rollback-atomic after an unexpected I/O failure.
@@ -97,11 +97,13 @@ claude.ai is a compatibility export, not a native install. The current profile f
 python scripts/install.py export-claude-ai-snapshot --output .exports/claude-ai --json
 ```
 
-Run `python scripts/reaccept.py` for the full fifty-island validator, installer, deterministic-export, critique-record, and no-source-drift gate. The original `scripts/install.sh` remains a legacy POSIX convenience; the Python interface is the portability source of truth. See [`skills/idc-skill-authoring`](skills/idc-skill-authoring/SKILL.md) §5 for authoring guidance.
+Release 2.0.2 adds the [signed five-check integrity gate](integrity/README.md). It binds every byte of all 50 skill trees, the registry and security controls, every discovered external reference and network-command occurrence, and reviewed fetch/execute exceptions to a detached OpenSSH signature from the stable 1Password-held Forge key. A new consumer must still verify the public-key fingerprint out of band before executing repository code; the repository cannot establish its own root of trust. `5/5 ready-to-run` is a point-in-time signed preflight, not a sandbox or a full execution trace.
 
-## Provenance & the pending inputs
+Run `python scripts/reaccept.py` for the full fifty-island validator, signed integrity check, installer, deterministic export, 50-record registry/report gate, and no-source-drift gate. `scripts/install.sh` is a thin POSIX convenience that always enables integrity verification; it is not a bypass. The Python interface is the portability source of truth. See [`skills/idc-skill-authoring`](skills/idc-skill-authoring/SKILL.md) §5 for authoring guidance.
 
-The fusion recipe is `IDC-SKILLS-FUSION-REPORT-v1`. Release **1.5.0** adds six earned islands after a full re-review of the David-Ondrej and Matt-Pocock source canons against the exact ICM-architect skill — `video-analysis` (transcript + frames), `arch-survey`, `merge-resolve`, `issue-triage`, `agent-schedule`, and `prose-craft` — each gauntleted to 9/10 with a value-check (86 source skills triaged: 51 already covered, 25 out of scope, only these earned a slot); the 7 ICM-cluster islands were also strengthened from Jake Van Clief's canonical `RinDig/icm-architect` repo. Release **1.4.0** adds one earned island — `gauntlet-loop` (Matt Schumer's fan-out-with-blind-critic technique, attributed, with the IDC edits: a *falsifiable* bar and a no-cold-start rule) — after all 33 prior islands cleared confidence ≥9 under a defect-tied vet and the pack was promoted to `Island-Dev-Crew`. Release **1.3.1** adds four earned islands — `data-source-map` (Jake's OKF, the ICM external-data leaf), `prototype`, `wayfinder`, and `domain-modeling` — chosen because they fill genuine gaps, not to hit a count; growth stops when a cut stops earning its place. Release **1.3.0** adds the six ICM-native islands, fusing Jake Van Clief's Interpretable Context Methodology (folder-as-workspace, the three-layer routing map, become-the-agent, model-agnostic, survives-updates) — grounded in his own talks and cross-checked against the public ICM community templates — with the forge's evidence discipline. Release **1.2.0** folds in Matt Pocock's skills v1.2 — `writing-for-agents` (the universal levers the canon now points to), the `wizard` + `to-questionnaire` + `wait-what` productivity islands, the fixed grill rounds, and the Codex `agents/openai.yaml` sidecars — plus three IDC-native islands drawn from IDC's own work: `domain-wire` (the domain doctrine), `console-as-code` (named in the Garnet×Buzz synthesis as the first candidate to graduate into Garnet ops), and `evidence-packet` (the Contributor-Road artifact). Two companion inputs — the Buzz conversations and the owner transcripts — arrived empty at the original authoring time; nothing here was reconstructed from them, and no claim in these skills represents Buzz's analysis or the owners' commentary. The Garnet ceremony layer rests on IDC's own verified production record.
+## Provenance
+
+The fusion recipe is `IDC-SKILLS-FUSION-REPORT-v1`. The immutable archive hashes, exact David Ondrej and Matt Pocock source commits, live comparison heads, per-island lineage pointer, and the one honestly unresolved historical ICM commit are recorded in [`provenance.json`](provenance.json). Required upstream MIT notices are preserved in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md). Release **1.5.0** added six earned islands after a full re-review of the David-Ondrej and Matt-Pocock source canons; release **1.4.0** added `gauntlet-loop`; release **1.3.1** added `data-source-map`, `prototype`, `wayfinder`, and `domain-modeling`; release **1.3.0** added the ICM-native cluster; release **1.2.0** folded in Matt Pocock's v1.2 writing and productivity material plus IDC-native islands. The Garnet ceremony layer rests on IDC's own verified production record.
 
 ## Pipeline — staging to official
 
@@ -112,6 +114,6 @@ The fusion recipe is `IDC-SKILLS-FUSION-REPORT-v1`. Release **1.5.0** adds six e
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT — see [LICENSE](LICENSE) and [third-party notices](THIRD-PARTY-NOTICES.md).
 
 — **Island Development Crew** · Huntsville, AL · *No authority without evidence.* · Roll Tide 💎

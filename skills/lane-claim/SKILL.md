@@ -11,6 +11,8 @@ A **lane** is a unit of parallelizable work with one owner at a time: a subsyste
 
 This is an **advisory, cooperative** protocol, a halt-on-honor coordination, not a lock: nothing here mechanically blocks a colliding write, because the collision it prevents is *cross-machine* and no single machine can bar another. The pushed claim is the evidence every seat reads before acting; the enforcement is each seat honoring it. State that plainly: a reader must not infer a mechanical lock the protocol does not provide.
 
+Claiming, releasing, pulling, committing, and pushing mutate shared state. This skill never grants that authority by being invoked: obtain explicit operator/dispatcher authorization for the exact lane and remote before the first mutation. Without it, perform only the read-only fetch/status inspection and return the proposed claim or release record for approval.
+
 ## The claim record
 
 Claims live in the repo (the shared memory every machine can fetch), not in any one agent's context. A claim is a small file or a row keyed by lane id:
@@ -48,7 +50,7 @@ Never claim from a stale tree; a claim written against week-old state is the exa
 - **Lane free** (no active claim, or your own released claim) → write the claim file, commit it alone (`git add ops/lanes/<lane>.claim.json && git commit`), push it. The pushed claim is the declaration; an unpushed claim binds nobody.
 - **Lane already active under another seat/machine** → **halt.** Report who holds it and since when. Do not edit files on that lane. Pick a different free lane or wait for release. Two seats on one lane is split ownership, and split ownership is how the duplicate-ID and double-work incidents happened.
 
-**Done when** your push of the claim succeeds *and* a re-fetch shows no competing active claim landed first. If a competing claim raced you to the push, yield: your rejected local commit holds the lone claim file and nothing else (per the rule above), so discard it safely (`git reset --hard origin/main`), then halt and report who won. If your local HEAD holds more than that one commit, do not reset; revert the claim file instead and reconcile by hand.
+**Done when** your authorized push of the claim succeeds *and* a re-fetch shows no competing active claim landed first. If a competing claim raced you to the push, yield: park the rejected claim commit on a clearly named local branch so it is recoverable, return the checkout to the verified remote head through the repo's approved reconciliation path, then halt and report who won. Never use `reset --hard` as a generic cleanup recipe; if unrelated local work exists, stop and reconcile by hand.
 
 ### 3. Work the lane
 

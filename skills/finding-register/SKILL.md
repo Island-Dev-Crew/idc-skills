@@ -13,6 +13,8 @@ An IDC-only island. It is the memory that lets findings survive sessions and mac
 2. **Mark provenance, both directions.** Every entry names the seat that raised it (`OpenAI Codex`, `Claude Fable 5`, `Jon Isaac`) and the seat that confirmed it. When provenance is wrong it is corrected against *either* seat: the register has been corrected against the chat seat and against the reviewer, on the record. Provenance is a claim the register defends, not a courtesy.
 3. **Sweep for id collisions before you allocate, then gate the write.** Before issuing the next id, scan every existing id across the whole register (including entries created on other machines/lanes this cycle) and allocate strictly above the true maximum. The sweep alone doesn't close the race: two seats can sweep the same maximum and both push a clean merge. Hold a `lane-claim` on the register while you allocate, and run the uniqueness gate below before any push lands.
 
+Allocation, tracker updates, commits, and pushes mutate shared state. Reading and proposing a row does not authorize those writes: require explicit operator or designated record-seat authority before allocation or publication, and keep the read-only enumeration separate from the mutating step.
+
 ## Entry shape
 
 ```

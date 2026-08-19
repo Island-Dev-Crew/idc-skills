@@ -44,8 +44,31 @@ jobs:
       - name: Reaccept all fifty skills and installer profiles
         run: python -B scripts/reaccept.py
 
+      - name: Exercise authority and integrity attack fixtures
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          skills/agent-guardrails/scripts/test-block-dangerous-git.sh
+          scripts/test-skill-integrity.sh
+
+      - name: Shellcheck release shell surfaces
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          shellcheck \
+            scripts/install.sh \
+            scripts/setup-signing-wizard.sh \
+            scripts/test-skill-integrity.sh \
+            skills/agent-guardrails/scripts/block-dangerous-git.sh \
+            skills/agent-guardrails/scripts/test-block-dangerous-git.sh \
+            skills/computer-use-smoke/scripts/smoke.sh \
+            skills/video-analysis/scripts/grab.sh \
+            skills/wizard/template.sh
+
       - name: Regenerate the mission report
-        run: node ops/mission/render-sotu.mjs
+        run: |
+          python -B scripts/render_validation_report.py
+          node ops/mission/render-sotu.mjs
 
       - name: Verify the checkout remains byte-clean
         shell: bash

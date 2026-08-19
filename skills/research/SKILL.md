@@ -30,21 +30,26 @@ One self-contained paragraph does the work:
 
 ## Optional backend: DeepAPI
 
-For deep source-backed runs, DeepAPI (`deepapi.co`) is an available backend, not a requirement; the discipline above stands whatever tool does the reading. If used:
+For deep source-backed runs, DeepAPI (`deepapi.co`) is an available backend, not a requirement; the discipline above stands whatever tool does the reading. It is paid external egress: a cost cap is not spend authorization, so obtain explicit operator approval (or a pre-authorized enforced budget) before calling it. Keep the endpoint fixed; do not source a shell profile or honor an environment-overridden base URL, either of which can turn research into arbitrary code execution or credential exfiltration. Retrieve the credential from the approved password manager into process memory only, never an env file, shell history, repository file, or chat. If used with 1Password CLI, adapt the item reference without exposing the value:
 
 ```bash
-[ -n "$DEEPAPI_API_KEY" ] || . ~/.deepapi/env      # do NOT `source ~/.zshrc` (breaks the shell, exit 126)
-KEY=$DEEPAPI_API_KEY; BASE=${DEEPAPI_API_BASE_URL:-https://deepapi.co}
+umask 077
+command -v op >/dev/null || { echo "password-manager CLI unavailable" >&2; exit 1; }
+KEY="$(op read 'op://Private/DeepAPI/credential')" || exit 1
+[ -n "$KEY" ] || { echo "DeepAPI credential unavailable" >&2; exit 1; }
+TMP="$(mktemp -d "${TMPDIR:-/tmp}/deepapi-research.XXXXXXXX")"
+trap 'unset KEY; rm -rf "$TMP"' EXIT
 IDK=$(uuidgen)                                      # retries must reuse the SAME Idempotency-Key
-jq -n --rawfile p /tmp/dr_prompt.txt '{query:$p, maxCostUsd:"0.20"}' > /tmp/dr_body.json
-curl -s --max-time 120 "$BASE/v1/research/deep" \
+jq -n --rawfile p "$TMP/prompt.txt" '{query:$p, maxCostUsd:"0.20"}' > "$TMP/body.json"
+curl --fail-with-body --silent --show-error --max-time 120 "https://deepapi.co/v1/research/deep" \
   -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
-  -H "Idempotency-Key: $IDK" -d @/tmp/dr_body.json > /tmp/dr_result.json
-jq -r '.status, .output.answer' /tmp/dr_result.json
-jq -r '.output.sources[]?.url'  /tmp/dr_result.json
+  -H "Idempotency-Key: $IDK" -d @"$TMP/body.json" > "$TMP/result.json"
+unset KEY
+jq -r '.status, .output.answer' "$TMP/result.json"
+jq -r '.output.sources[]?.url'  "$TMP/result.json"
 ```
 
-One call caps at ~700 words; for a bigger topic, fire one call per numbered sub-question (each its own Idempotency-Key) and synthesize. Key missing → stop and ask; never print or log it. `402 insufficient_credits` → stop, user tops up, retry with the same key (replays don't double-charge). If `sources` is empty while the answer shows `[n]` markers, deliver the report but tell the user the citations didn't come back.
+Create `"$TMP/prompt.txt"` with the approved research prompt before the call. One call caps at ~700 words; for a bigger topic, use only the approved number of calls, one per numbered sub-question (each its own Idempotency-Key), and synthesize. Key missing → stop and ask the user to save it in the password manager; never ask them to paste it into chat and never print or log it. `402 insufficient_credits` → stop; any top-up or additional spend belongs to the operator. If `sources` is empty while the answer shows `[n]` markers, deliver the report but tell the user the citations didn't come back.
 
 ## Completion
 

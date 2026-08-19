@@ -18,12 +18,20 @@ done
 ID="$(yt-dlp --no-playlist --get-id "$URL" 2>/dev/null | head -1 || true)"
 [ -n "$ID" ] || ID="video"
 OUT="${3:-./va-$ID}"
+if [ -e "$OUT" ] && [ ! -d "$OUT" ]; then
+  echo "output path exists and is not a directory: $OUT" >&2
+  exit 2
+fi
+if [ -d "$OUT" ] && [ -n "$(find "$OUT" -mindepth 1 -maxdepth 1 -print -quit)" ]; then
+  echo "output directory must be new or empty (refusing stale evidence): $OUT" >&2
+  exit 2
+fi
 mkdir -p "$OUT/frames"
 
 echo "[1/4] transcript…"
 yt-dlp --skip-download --write-auto-subs --write-subs --sub-langs "en" --convert-subs srt \
   --no-playlist -o "$OUT/%(id)s.%(ext)s" "$URL" >/dev/null 2>&1 || true
-srt="$(ls "$OUT"/*.srt 2>/dev/null | head -1 || true)"
+srt="$(find "$OUT" -maxdepth 1 -type f -name '*.srt' -print | sort | head -1)"
 if [ -n "$srt" ]; then
   python3 - "$srt" "$OUT/transcript.txt" <<'PY'
 import re, sys
@@ -44,14 +52,22 @@ fi
 
 echo "[2/4] video (<=480p)…"
 yt-dlp -f 'best[height<=480]/bestvideo[height<=480]+bestaudio/best' --no-playlist \
-  -o "$OUT/source.%(ext)s" "$URL" >/dev/null || true   # let the exit-4 guard below own the failure
-vf="$(ls "$OUT"/source.* 2>/dev/null | head -1 || true)"
-[ -n "$vf" ] || { echo "download failed — check the URL and network" >&2; exit 4; }
+  -o "$OUT/source.%(ext)s" "$URL" >/dev/null \
+  || { echo "download failed — check the URL and network" >&2; exit 4; }
+if find "$OUT" -maxdepth 1 -type f -name '*.part' -print -quit | grep -q .; then
+  echo "download left a partial file; evidence is invalid" >&2
+  exit 4
+fi
+sources=("$OUT"/source.*)
+[ "${#sources[@]}" -eq 1 ] && [ -s "${sources[0]}" ] \
+  || { echo "download did not produce exactly one non-empty source file" >&2; exit 4; }
+vf="${sources[0]}"
 
 echo "[3/4] frames (N=$N, dedup=$DEDUP)…"
-dur="$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$vf" | cut -d. -f1)"
-case "$dur" in ''|*[!0-9]*) dur=1 ;; esac
-[ "$dur" -ge 1 ] || dur=1
+dur="$(ffprobe -v error -show_entries format=duration -of csv=p=0 "$vf" | cut -d. -f1)" \
+  || { echo "ffprobe could not validate the downloaded source" >&2; exit 4; }
+case "$dur" in ''|*[!0-9]*) echo "invalid or missing video duration" >&2; exit 4 ;; esac
+[ "$dur" -ge 1 ] || { echo "video duration must be at least one second" >&2; exit 4; }
 fps="$(python3 -c "print(f'{$N/max(1,$dur):.4f}')")"
 if [ "$DEDUP" = "1" ]; then
   # Sample evenly at the cadence, then mpdecimate drops any frame too similar to the last
@@ -64,7 +80,8 @@ if [ "$DEDUP" = "1" ]; then
 else
   ffmpeg -v error -i "$vf" -vf "fps=$fps" -qscale:v 3 "$OUT/frames/f_%04d.jpg"
 fi
-kept="$(ls "$OUT/frames" 2>/dev/null | wc -l | tr -d ' ')"
+kept="$(find "$OUT/frames" -maxdepth 1 -type f -name 'f_*.jpg' -print | wc -l | tr -d ' ')"
+[ "$kept" -ge 1 ] || { echo "frame extraction produced no evidence" >&2; exit 5; }
 
 echo "[4/4] done → $OUT"
 if [ "$DEDUP" = "1" ]; then

@@ -5,7 +5,7 @@ description: Jon's full-cycle, evidence-gated build protocol — typed contracts
 
 # Archipelago: the evidence-gated build protocol
 
-Source of truth: **`Navigata1/archipelago`** (public). This island is the covenant and the operating procedure; the runnable scripts and JSON schemas live in that repo (or vendored under a `protocol/` folder). Apply the methodology when invoked: run it, don't narrate it back.
+The signed local island is the operating covenant. Upstream provenance is **`Navigata1/archipelago`**, reviewed at `b9f7cee2823f9791503db20f33b22c9e20af7abe` on 2026-08-19. Runnable scripts and JSON schemas must be vendored under a reviewed `protocol/` folder or obtained at an explicitly reviewed immutable commit; never fetch or execute a mutable upstream head at runtime. Apply the methodology when invoked: run the locally reviewed procedure, don't narrate it back.
 
 > **The one rule that governs everything: nothing crosses a gate on claims alone.**
 

@@ -9,6 +9,7 @@ import tempfile
 import unittest
 import zipfile
 from pathlib import Path
+from unittest import mock
 
 from scripts import install
 
@@ -41,6 +42,65 @@ def write_skill(root: Path, name: str, data: bytes, extra: bytes = b"payload\x00
 
 
 class InstallerTests(unittest.TestCase):
+    def test_integrity_failure_refuses_install_before_target_write(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            write_skill(root, "alpha", MODEL_SKILL)
+            target = root / "target"
+            with mock.patch.object(
+                install.skill_integrity,
+                "verify_repository",
+                return_value={"readyToRun": False, "score": "4/5"},
+            ):
+                with self.assertRaisesRegex(
+                    install.InstallError, "integrity verification failed"
+                ):
+                    install.run_install(
+                        root / "skills",
+                        [install.TargetSpec("custom", target)],
+                        verify_integrity=True,
+                        repo_root=root,
+                    )
+            self.assertFalse(target.exists())
+
+    def test_signed_file_map_binds_staged_install_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = write_skill(root, "alpha", MODEL_SKILL)
+            expected_files = {
+                path.relative_to(source).as_posix(): {
+                    "sha256": install.skill_integrity.sha256_file(path),
+                    "size": path.stat().st_size,
+                }
+                for path in source.rglob("*")
+                if path.is_file()
+            }
+            (source / "SKILL.md").write_bytes(
+                MODEL_SKILL.replace(b"# Alpha", b"# Poisoned Alpha")
+            )
+            target = root / "target"
+            with mock.patch.object(
+                install.skill_integrity,
+                "verify_repository",
+                return_value={
+                    "readyToRun": True,
+                    "score": "5/5",
+                    "_verifiedManifest": {
+                        "skills": {"alpha": {"files": expected_files}}
+                    },
+                },
+            ):
+                with self.assertRaisesRegex(
+                    install.InstallError, "source differs from signed manifest"
+                ):
+                    install.run_install(
+                        root / "skills",
+                        [install.TargetSpec("custom", target)],
+                        verify_integrity=True,
+                        repo_root=root,
+                    )
+            self.assertFalse(target.exists())
+
     def test_native_install_detects_drift_repairs_and_is_idempotent(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

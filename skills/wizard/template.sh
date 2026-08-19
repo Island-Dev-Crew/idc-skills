@@ -5,11 +5,13 @@
 # Helpers: stage · say/step · open_url · ask/ask_secret · write_env ·
 #          set_secret/set_var · confirm · pause
 set -euo pipefail
+umask 077
 
 # ── config the authored stages set ──
 TOTAL_STAGES="${TOTAL_STAGES:-1}"     # set to the real number of stages
 TOTAL_MINUTES="${TOTAL_MINUTES:-5}"   # honest estimate; drives time-remaining
 ENV_FILE="${ENV_FILE:-.env}"
+WIZARD_ALLOWED_HOSTS="${WIZARD_ALLOWED_HOSTS:-}"
 
 # ── palette (degrade to plain if no TTY) ──
 if [ -t 1 ]; then
@@ -42,7 +44,21 @@ step() { printf '  %s→%s %s\n' "$JADE" "$RESET" "$1"; }
 
 # open_url "<url>" — open in the human's browser, cross-platform incl. WSL.
 open_url() {
-  local url="$1"
+  local url="$1" authority host allowed=""
+  case "$url" in
+    https://*) ;;
+    http://localhost/*|http://127.0.0.1/*) ;;
+    *) printf '  %srefusing non-HTTPS or malformed URL:%s %s\n' "$GARNET" "$RESET" "$url" >&2; return 2 ;;
+  esac
+  authority="${url#*://}"; authority="${authority%%/*}"; authority="${authority##*@}"
+  host="${authority%%:*}"
+  [ -n "$host" ] || { printf '  %sinvalid URL host:%s %s\n' "$GARNET" "$RESET" "$url" >&2; return 2; }
+  for allowed in $WIZARD_ALLOWED_HOSTS; do
+    [ "$host" = "$allowed" ] && break
+  done
+  if [ "$host" != "localhost" ] && [ "$host" != "127.0.0.1" ] && [ "$host" != "$allowed" ]; then
+    confirm "Open reviewed external host '$host'?" || return 1
+  fi
   printf '  %sopening%s %s\n' "$STEEL" "$RESET" "$url"
   if command -v open >/dev/null 2>&1; then open "$url" >/dev/null 2>&1 || true
   elif command -v wslview >/dev/null 2>&1; then wslview "$url" >/dev/null 2>&1 || true
@@ -70,15 +86,28 @@ ask_secret() {
 
 # write_env KEY "<value>" — idempotent upsert into $ENV_FILE (KEY=value).
 write_env() {
-  local key="$1" val="$2"
+  local key="$1" val="$2" env_dir tmp="" mode=""
+  case "$key" in ''|[!A-Za-z_]*|*[!A-Za-z0-9_]*) printf 'invalid env key: %s\n' "$key" >&2; return 2 ;; esac
+  case "$val" in *$'\n'*|*$'\r'*) printf 'refusing multiline env value for %s\n' "$key" >&2; return 2 ;; esac
+  [ ! -L "$ENV_FILE" ] || { printf 'refusing symlinked ENV_FILE: %s\n' "$ENV_FILE" >&2; return 2; }
+  env_dir="$(dirname "$ENV_FILE")"
+  [ -d "$env_dir" ] || { printf 'ENV_FILE directory does not exist: %s\n' "$env_dir" >&2; return 2; }
   touch "$ENV_FILE"
+  chmod 600 "$ENV_FILE"
   if grep -qE "^${key}=" "$ENV_FILE" 2>/dev/null; then
-    local tmp; tmp="$(mktemp)"
+    tmp="$(mktemp "$env_dir/.wizard-env.XXXXXX")"
+    chmod 600 "$tmp"
+    trap 'rm -f "$tmp"' RETURN
     grep -vE "^${key}=" "$ENV_FILE" > "$tmp" || true
     printf '%s=%s\n' "$key" "$val" >> "$tmp"
     mv "$tmp" "$ENV_FILE"
+    trap - RETURN
   else
     printf '%s=%s\n' "$key" "$val" >> "$ENV_FILE"
+  fi
+  chmod 600 "$ENV_FILE"
+  if mode="$(stat -f '%Lp' "$ENV_FILE" 2>/dev/null)" || mode="$(stat -c '%a' "$ENV_FILE" 2>/dev/null)"; then
+    [ "$mode" = "600" ] || { printf 'ENV_FILE mode verification failed: %s\n' "$mode" >&2; return 2; }
   fi
   printf '  %s✓ wrote %s to %s%s\n' "$JADE" "$key" "$ENV_FILE" "$RESET"
 }

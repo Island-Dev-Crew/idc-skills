@@ -19,7 +19,7 @@ Before drawing anything, name the criteria a candidate must satisfy, **falsifiab
 
 ## 2. Draw N: the sampling economics
 
-N is a **spend**. Each draw costs credits, tokens, or wall-clock; each additional draw buys *diminishing* marginal quality. Draw independent candidates from the **same** prompt in parallel, not one nudged toward the bar.
+N is a **spend**. A cap controls magnitude; it does not authorize external cost. Before any paid draw, obtain the operator's explicit spend approval or use an already-enforced budget they authorized for this run. Each draw costs credits, tokens, or wall-clock; each additional draw buys *diminishing* marginal quality. Draw independent candidates from the **same** prompt in parallel, not one nudged toward the bar.
 
 - **Start small** (3-5). If the best of the batch already clears the rubric, **stop**; more draws are pure waste.
 - **If none clear, the gap is usually the prompt, not the count.** Fix the prompt and redraw; drawing 50 of a mis-specified thing burns spend on the wrong target.

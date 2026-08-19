@@ -1,0 +1,35 @@
+# Forge 50 independent review evidence — 2026-08-19
+
+## Scope
+
+- Base reviewed: `2528a28e62940e5bdb29074da4f9da6aa4184df1`
+- Local 2.0.2 foundation: `574346ec5b7c50fe7e023d04426ad09072f11209`
+- De-slop commit: `31b7598`
+- Three independent Luna cohorts covered all 50 islands.
+- Preservation checks compared frontmatter, fenced code, inline code, commands, URLs, trigger meaning, and local links; no semantic loss was found in the de-slop change itself.
+
+## Security defects found and repaired
+
+- Git authority classifier quote/backslash/global-option bypasses; matrix expanded 28→37.
+- Incomplete database read-only guidance and broad “mechanically impossible” overclaim.
+- Unbounded unattended authority/spend/delegation language.
+- UI smoke arbitrary origin/driver and missing failed-readiness verdict.
+- Video capture stale-output and swallowed-download failures.
+- Credential wizard unsafe URL and file-mode behavior.
+- Missing secret/PII boundaries in diagnosis and evidence packets.
+- Untrusted issue/PR/inbox content not separated from authority.
+- Mutation authority gaps in lane/register/merge/prototype workflows.
+- Unpinned dependency installation and mutable protocol-source guidance.
+- Integrity failures: attacker-controlled CLI fingerprint, optional installed-tree hook, UTF-16/UTF-32 scan bypass, control-file path escape, a manifest-swap time-of-check/time-of-use race, and a live-tree change after first hash.
+
+## Current measured gates before final signing
+
+- Unit tests: 67 passing.
+- Git authority fixtures: 37/37 passing.
+- Semantic records: 50 records / 150 cases / registry=report exact.
+- Canonical validator: run again at final candidate.
+- Shellcheck: run again at final candidate.
+- Signed integrity: pending final byte freeze and biometric signature.
+- Cross-family review: pending exact committed candidate.
+
+This file is chronological evidence, not the final verdict. The final exact-head results are appended in the release report and mission state after signature and independent review.

@@ -1,6 +1,6 @@
 ---
 name: domain-modeling
-description: Actively build and sharpen a project's domain model — challenge terms, invent edge-case scenarios, and write the glossary and decisions down the moment they crystallise. Use when pinning down domain terminology or a ubiquitous language, recording an architectural decision, or when another skill needs the domain model maintained. Differentiator - the active discipline that changes the model; merely reading CONTEXT.md for vocabulary is a one-line habit, not this skill.
+description: Actively build and sharpen a project's domain model — challenge terms, invent edge-case scenarios, and write the glossary and term-derived decisions down the moment they crystallise. Use when pinning down domain terminology or a ubiquitous language, creating or editing a domain CONTEXT.md, recording an ADR that arose from resolving a term, or when another skill needs the domain model maintained. Differentiator - the active discipline that changes the model; merely reading CONTEXT.md for vocabulary is a one-line habit, not this skill.
 ---
 
 # Domain Modeling: sharpen the language as you design

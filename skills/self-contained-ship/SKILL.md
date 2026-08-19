@@ -22,9 +22,9 @@ It catches, case-insensitively so `HTTPS://` can't bypass: absolute schemes `htt
 
 This rung is **advisory-leaning**: a regex cannot see egress that string-concatenation or obfuscation builds at runtime. It is the cheap first cut, not the certificate. Say so; never imply a green grep means contained.
 
-## Rung 2: the sealed load (the enforced evidence)
+## Rung 2: the sealed load (enforced for the states it exercises)
 
-The check that could have failed is opening the artifact **offline with every request aborted** and asserting zero outbound. This is the enforced runtime rung, real evidence that the thing phones home to nobody:
+The check that could have failed is opening the artifact **offline with every request aborted** and asserting zero outbound. The generic probe below enforces the initial-load state plus a 1.5-second observation window; it does not cover delayed timers, service-worker behavior, later navigation, or interaction-triggered requests it never exercises. Add an artifact-specific interaction script and justified delay for every reachable state that could initiate network before calling the artifact fully sealed.
 
 ```bash
 node --input-type=module -e '
@@ -41,17 +41,17 @@ const p = await ctx.newPage();
 await p.goto("file://" + process.argv[1], { waitUntil: "load" }).catch(() => {});
 await p.waitForTimeout(1500); await b.close();
 if (out.length) { console.error("SEALED-LOAD FAIL — outbound attempts:\n" + out.join("\n")); process.exit(1); }
-console.log("SEALED-LOAD PASS — phones home to nobody");
+console.log("SEALED-LOAD PASS — no outbound attempt in initial-load probe");
 ' "$PWD/artifact.html"
 ```
 
-Every non-`file:`/`data:`/`blob:` request the page attempts is a violation; the rung exits non-zero on the first one. Capture its stdout as the containment evidence: this is the rung that goes on the ladder when [`evidence-packet`](../evidence-packet/SKILL.md) bundles the change, discriminating red (an artifact with one CDN link) against green (the inlined build).
+Every non-`file:`/`data:`/`blob:` request the exercised states attempt is a violation; the rung exits non-zero when it observes one. Capture its stdout and the exact interaction/observation plan as the containment evidence. This is the rung that goes on the ladder when [`evidence-packet`](../evidence-packet/SKILL.md) bundles the change, discriminating red (an artifact with one CDN link) against green (the inlined build).
 
 ## Enforced vs advisory
 
-- **Enforced:** rung 2 (sealed offline load, zero outbound) and rung 1's exit code (any un-waived hit → non-zero). Both are commands that go red on real egress.
+- **Enforced:** rung 2's sealed offline observation for the exact states and time window the script exercises, and rung 1's exit code (any un-waived hit → non-zero). Both are commands that go red on egress they observe.
 - **Advisory:** rung 1's *completeness*. The regex is a denylist of known vectors, not a proof of none. A clean grep with a failed sealed load is still a fail. When the artifact legitimately needs one endpoint, that is not a containment waiver; it is a **provenance** fact, mapped once via [`data-source-map`](../data-source-map/SKILL.md), and the sealed-load allow-list is widened deliberately, not silently.
 
-**Done when** rung 1 exits 0 (or every hit carries a bounded trailing `egress-ok` with a stated reason) **and** rung 2 loads the artifact offline with zero outbound requests, its output captured. A green rung 1 alone is not done.
+**Done when** rung 1 exits 0 (or every hit carries a bounded trailing `egress-ok` with a stated reason) **and** rung 2 loads the artifact offline with zero outbound requests across the documented initial, delayed, navigation, service-worker, and relevant interaction states, with its output and interaction plan captured. If only the generic probe ran, report `initial-load sealed`; do not promote it to full-lifecycle containment.
 
-**No authority without evidence. A grep is a hint; the sealed offline load is the proof it phones home to nobody.**
+**No authority without evidence. A grep is a hint; a sealed offline run proves only the states it actually exercised.**

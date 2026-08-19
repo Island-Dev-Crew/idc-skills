@@ -25,13 +25,15 @@ block() {
   exit 2
 }
 
-# Strip one layer of surrounding matching quotes so `git "push"` is still seen.
-strip_quotes() {
+# Normalize a single shell word conservatively. Shell permits adjacent quoted
+# fragments and backslash escapes inside one word (`p'u'sh`, `pu\sh`, `g''it`).
+# Removing those syntax characters recreates the direct word for classification;
+# it may over-block an exotic read-only spelling, which is safer than a bypass.
+normalize_word() {
   local s="$1"
-  case "$s" in
-    \"*\") s="${s#\"}"; s="${s%\"}" ;;
-    \'*\') s="${s#\'}"; s="${s%\'}" ;;
-  esac
+  s="${s//\\/}"
+  s="${s//\'/}"
+  s="${s//\"/}"
   printf '%s' "$s"
 }
 
@@ -50,7 +52,7 @@ NW=0
 classify_from() {
   local i=$(( $1 + 1 )) t k danger="" sub
   while [ "$i" -lt "$NW" ]; do
-    t="$(strip_quotes "${WORDS[$i]}")"
+    t="$(normalize_word "${WORDS[$i]}")"
     case "$t" in
       --)      i=$(( i + 1 )); break ;;      # explicit end of options
       --*=*)   i=$(( i + 1 )); continue ;;   # --opt=value (single token)
@@ -59,17 +61,41 @@ classify_from() {
     esac
   done
   [ "$i" -lt "$NW" ] || return 0
-  sub="$(strip_quotes "${WORDS[$i]}")"
+  sub="$(normalize_word "${WORDS[$i]}")"
   case "$sub" in
     push)  danger="git push" ;;
-    reset) for (( k=i+1; k<NW; k++ )); do [ "$(strip_quotes "${WORDS[$k]}")" = "--hard" ] && danger="git reset --hard"; done ;;
+    reset) for (( k=i+1; k<NW; k++ )); do [ "$(normalize_word "${WORDS[$k]}")" = "--hard" ] && danger="git reset --hard"; done ;;
     clean) for (( k=i+1; k<NW; k++ )); do
-             t="$(strip_quotes "${WORDS[$k]}")"
+             t="$(normalize_word "${WORDS[$k]}")"
              case "$t" in -*f*) case "$t" in *n*) : ;; *) danger="git clean -f" ;; esac ;; esac
            done ;;
-    branch)   for (( k=i+1; k<NW; k++ )); do [ "$(strip_quotes "${WORDS[$k]}")" = "-D" ] && danger="git branch -D"; done ;;
-    checkout) for (( k=i+1; k<NW; k++ )); do [ "$(strip_quotes "${WORDS[$k]}")" = "." ] && danger="git checkout ."; done ;;
-    restore)  for (( k=i+1; k<NW; k++ )); do [ "$(strip_quotes "${WORDS[$k]}")" = "." ] && danger="git restore ."; done ;;
+    branch)
+      local delete=0 force=0
+      for (( k=i+1; k<NW; k++ )); do
+        t="$(normalize_word "${WORDS[$k]}")"
+        [ "$t" = "-D" ] && danger="git branch -D"
+        [ "$t" = "--delete" ] && delete=1
+        [ "$t" = "--force" ] && force=1
+      done
+      [ "$delete" -eq 1 ] && [ "$force" -eq 1 ] && danger="git branch --delete --force"
+      ;;
+    checkout)
+      for (( k=i+1; k<NW; k++ )); do
+        t="$(normalize_word "${WORDS[$k]}")"
+        [ "$t" = "." ] && danger="git checkout ."
+        case "$t" in -f|--force) danger="git checkout --force" ;; esac
+      done
+      ;;
+    restore)
+      local worktree=0 staged=0
+      for (( k=i+1; k<NW; k++ )); do
+        t="$(normalize_word "${WORDS[$k]}")"
+        [ "$t" = "." ] && danger="git restore ."
+        [ "$t" = "--worktree" ] && worktree=1
+        [ "$t" = "--staged" ] && staged=1
+      done
+      [ "$worktree" -eq 1 ] && [ "$staged" -eq 1 ] && danger="git restore --worktree --staged"
+      ;;
   esac
   [ -n "$danger" ] && block "matched: $danger"
   return 0
@@ -77,6 +103,8 @@ classify_from() {
 
 # Split the command on shell separators (; & | and && ||), then classify each
 # segment. `<<<` keeps the loop in this shell so block()'s exit propagates.
+continuation=$'\\\n'
+cmd="${cmd//$continuation/}"
 while IFS= read -r seg; do
   [ -n "$seg" ] || continue
   WORDS=()
@@ -84,7 +112,7 @@ while IFS= read -r seg; do
   NW=${#WORDS[@]}
   [ "$NW" -gt 0 ] || continue
   for (( gi=0; gi<NW; gi++ )); do
-    case "$(strip_quotes "${WORDS[$gi]}")" in
+    case "$(normalize_word "${WORDS[$gi]}")" in
       git|*/git) classify_from "$gi" ;;
     esac
   done

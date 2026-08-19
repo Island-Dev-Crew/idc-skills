@@ -9,6 +9,8 @@ A discipline for hard bugs. The whole skill is Phase 1; everything after is mech
 
 Two leading words: a **tight** loop (fast, deterministic, sharp) and a loop that goes **red** on *this* bug (not merely "runs without erroring").
 
+**Redact before display or persistence.** Repro commands, traces, headers, fixtures, screenshots, and captured output must not expose credentials, authorization headers, session cookies, private keys, customer PII, or secret-bearing environment values. Replace sensitive values with typed markers such as `[REDACTED:AUTH_HEADER]` while preserving the shape needed to reproduce; never put a live secret into a test fixture or committed artifact. If redaction would destroy the only useful evidence, stop and ask for a protected review path rather than printing it.
+
 ## Phase 1: Build a feedback loop (this is the skill)
 
 Get a pass/fail signal that goes **red on this exact bug** and green once it's fixed. With one, bisection and hypothesis-testing just consume it; without one, no amount of staring at code will save you. **Be aggressive, be creative, refuse to give up.** But red only proves the assertion disagrees with the code, not that the code is wrong; Phase 2 gates on which one it is. Try these in roughly this order:

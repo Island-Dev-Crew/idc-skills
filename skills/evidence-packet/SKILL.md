@@ -22,6 +22,8 @@ evidence/<change-slug>/
 
 Every claim in `ladder.md` points at a file in `out/` a reviewer can recompute. A claim with no captured output is not evidence; it is a sentence.
 
+**Secret/PII boundary:** capture only output safe to persist and share with the named reviewers. Before writing `diff.patch`, `out/`, logs, screenshots, or the checksum roll-up, deterministically redact credentials, authorization headers, cookies, private keys, customer PII, private paths, and confidential source material with typed placeholders. Record the redaction rule and its version in `ladder.md` so the reviewer applies the same normalization. If a rung cannot be made safe without destroying its evidentiary value, keep it out of the packet and arrange a protected review; never preserve a leak merely because the checksum would be reproducible.
+
 ## The verification ladder
 
 The ladder is the ordered set of checks that, run green, prove the change. Each rung is **a command that could have failed**: a check that can't go red proves nothing (see [`diagnose`](../diagnose/SKILL.md) and the band caps in [`archipelago`](../archipelago/SKILL.md)). Build it from the change:
