@@ -144,3 +144,10 @@
 - Every temporary OpenSSH operation now receives a fresh private `HOME`, `USERPROFILE`, and temp-root tuple while retaining the pinned executable-only `PATH`; no caller home, loader, proxy, Git, or TLS environment is restored.
 - The Windows install test also exposed parser-time `Path.home()` resolution before the freshness handoff check. `--home` is now lazily resolved only after a valid handoff marker, so a missing marker fails closed without consulting ambient user state.
 - The replacement run remains red and merge remains blocked. These controlled changes invalidate the preceding signature and review; the full sign/replay/review/CI sequence restarts.
+
+## 2026-08-20T10:43Z — Windows CI isolates Git-for-Windows runtime selection
+
+- PR #4 run `32359757190` passed macOS and Ubuntu. Windows completed the copied-runtime setup but all 19 freshness errors were the same `ssh-keygen -lf` exit 255 under the minimal Windows-native verification environment.
+- Key generation had succeeded before the hardened invocation. The fixture had selected Git-for-Windows OpenSSH from ambient `PATH`, then treated that MSYS-linked executable as if it were the native Windows runtime.
+- Windows Server 2025 already installs native OpenSSH. Freshness fixtures now prefer `%SystemRoot%\\System32\\OpenSSH\\ssh-keygen.exe` when present, bind that exact executable and digest in their signed config, and preserve the private HOME/temp and stripped-environment boundary. Other platforms retain exact `PATH` resolution.
+- The failed run does not authorize merge. Because the fixture and mission evidence are signed controlled bytes, manifest regeneration, biometric re-signing, clean-clone replay, independent review, and replacement CI remain mandatory.

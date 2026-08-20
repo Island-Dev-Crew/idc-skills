@@ -17,6 +17,21 @@ from unittest import mock
 from bootstrap import idc_verify_fresh as fresh
 
 
+def _ssh_keygen_executable() -> str:
+    """Prefer the native Windows OpenSSH tool over Git-for-Windows shims."""
+
+    if os.name == "nt":
+        system_root = os.environ.get("SystemRoot") or os.environ.get("WINDIR")
+        if system_root:
+            native = Path(system_root) / "System32" / "OpenSSH" / "ssh-keygen.exe"
+            if native.is_file():
+                return str(native.resolve())
+    candidate = shutil.which("ssh-keygen")
+    if candidate is None:
+        raise RuntimeError("ssh-keygen is required for freshness tests")
+    return str(Path(candidate).resolve())
+
+
 def _sign(path: Path, private_key: Path, namespace: str) -> Path:
     signature = Path(str(path) + ".sig")
     if signature.exists():
@@ -54,12 +69,12 @@ class FreshnessFixture:
         (self.repo / "bootstrap").mkdir()
 
         self.private_key = self.trust / "signing"
-        self.ssh_keygen = str(Path(shutil.which("ssh-keygen") or "").resolve())
+        self.ssh_keygen = _ssh_keygen_executable()
         self.git = str(Path(shutil.which("git") or "").resolve())
         self.python = str(Path(os.path.realpath(os.sys.executable)).resolve())
         subprocess.run(
             [
-                "ssh-keygen",
+                self.ssh_keygen,
                 "-q",
                 "-t",
                 "ed25519",
@@ -879,7 +894,7 @@ class FreshnessTests(unittest.TestCase):
             )
             python = str(Path(os.path.realpath(os.sys.executable)).resolve())
             git = str(Path(shutil.which("git") or "").resolve())
-            ssh_keygen = str(Path(shutil.which("ssh-keygen") or "").resolve())
+            ssh_keygen = _ssh_keygen_executable()
             config: dict[str, object] = {
                 "executables": {
                     "python": python,
