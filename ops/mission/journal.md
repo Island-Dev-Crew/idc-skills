@@ -172,3 +172,10 @@
 - Windows selected the native OpenSSH executable and generated fixture keys successfully under the runner environment. All 19 failures occurred only when fingerprinting under the stripped environment, each with native `ssh-keygen` exit 255.
 - Win32 OpenSSH expands the current profile path read from the registry; hosted Windows profile records commonly use `%SystemDrive%`. The verification environment already retains `SystemRoot` and now derives only its drive prefix as `SYSTEMDRIVE`, preserving the stripped PATH/home/loader/proxy boundary. A regression asserts derivation and continued `PYTHONPATH` exclusion.
 - Because bootstrap, tests, and mission evidence are controlled bytes, `70ffc9e` is no longer the final candidate. Manifest regeneration, biometric signing, clean-clone replay, exact-head review, and three-platform CI restart.
+
+## 2026-08-20T12:40Z — unsigned Windows diagnostic proves the minimal ProgramData dependency
+
+- Derived-`SYSTEMDRIVE` head `15436fe4ff8f8c954bc43c905cfa4ad95c8f54b3` passed local signing, clean-clone reacceptance, and different-family review, but replacement run `32369472573` again passed macOS/Ubuntu and failed all 19 Windows freshness fixtures. Merge remained blocked.
+- An explicitly unsigned diagnostic commit was pushed only to measure the Windows process bootstrap and was never a release candidate. It selected `C:\\Windows\\System32\\OpenSSH\\ssh-keygen.exe`. Production, identity, home-drive, and app-data variants exited 255; the `PROGRAMDATA` variant and full ambient environment exited 0.
+- Win32 OpenSSH process initialization fatally requires `ProgramData`. The diagnostic workflow has been removed. The launcher derives `C:\\ProgramData` from the already retained trusted system drive, adds no caller-supplied environment value, and retains the stripped PATH/home/loader/proxy/Git/TLS boundary.
+- The assertion now proves both deterministic `SYSTEMDRIVE` and `PROGRAMDATA` derivation plus `PYTHONPATH` exclusion. Manifest generation, biometric signing, clean-clone replay, exact-head review, and three-platform CI restart on the diagnostic-free candidate.

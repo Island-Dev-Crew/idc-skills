@@ -401,9 +401,9 @@
           "title": "Exact 2.0.3 transport candidate has required CI green",
           "command": "gh pr checks <release-pr> --watch",
           "status": "pending",
-          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32368246838",
-          "lastRun": "2026-08-20T12:23:29Z",
-          "notes": "PR #4 run 32368246838 passed macOS and Ubuntu. Windows selected native OpenSSH but all 19 freshness fixtures still exited 255 only under the stripped environment. Win32 OpenSSH expands the registry profile path through SystemDrive; the minimal environment now derives that drive from the retained trusted SystemRoot while continuing to exclude caller PATH, home, loader, proxy, Git, and TLS variables. Final signing, replay/review, and replacement CI remain pending."
+          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32369890504",
+          "lastRun": "2026-08-20T12:38:59Z",
+          "notes": "Unsigned diagnostic run 32369890504 proved Windows selected native OpenSSH. Production, identity, home-drive, and app-data environments exited 255; adding ProgramData alone cleared fingerprinting, matching Win32 OpenSSH's fatal startup requirement. The diagnostic workflow is removed. The minimal environment now derives SystemDrive and C:\\ProgramData from retained trusted SystemRoot while continuing to exclude caller PATH, home, loader, proxy, Git, and TLS variables. Final signing, replay/review, and replacement CI remain pending."
         },
         {
           "id": "P6-G3",

@@ -228,6 +228,7 @@ def _verification_environment(
         system_root = environment.get("SYSTEMROOT") or environment.get("WINDIR", "")
         if len(system_root) >= 2 and system_root[1] == ":":
             environment["SYSTEMDRIVE"] = system_root[:2]
+            environment["PROGRAMDATA"] = system_root[:2] + r"\ProgramData"
     return environment
 
 

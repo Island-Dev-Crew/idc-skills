@@ -885,6 +885,7 @@ class FreshnessTests(unittest.TestCase):
         ):
             bootstrap_environment = fresh._verification_environment(())
         self.assertEqual(bootstrap_environment["SYSTEMDRIVE"], "C:")
+        self.assertEqual(bootstrap_environment["PROGRAMDATA"], r"C:\ProgramData")
         self.assertNotIn("PYTHONPATH", bootstrap_environment)
 
         with tempfile.TemporaryDirectory() as temporary:
