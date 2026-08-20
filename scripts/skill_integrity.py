@@ -1430,7 +1430,7 @@ def cmd_verify(args: argparse.Namespace) -> int:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument(
         "--repo-root",
         type=Path,
@@ -1441,17 +1441,25 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--policy", type=Path, help="override integrity policy")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    manifest = subparsers.add_parser("manifest", help="generate a canonical policy-checked manifest")
+    manifest = subparsers.add_parser(
+        "manifest",
+        help="generate a canonical policy-checked manifest",
+        allow_abbrev=False,
+    )
     manifest.add_argument("--out", type=Path, help="manifest output path")
     manifest.set_defaults(function=cmd_manifest)
 
-    sign = subparsers.add_parser("sign", help="sign through the 1Password SSH agent")
+    sign = subparsers.add_parser(
+        "sign", help="sign through the 1Password SSH agent", allow_abbrev=False
+    )
     sign.add_argument("--manifest", type=Path, help="canonical manifest path")
     sign.add_argument("--public-key", type=Path, help="agent-served public-key path")
     sign.add_argument("--allowed-signers", type=Path, help="OpenSSH allowed_signers path")
     sign.set_defaults(function=cmd_sign)
 
-    verify = subparsers.add_parser("verify", help="run the fail-closed five-check gate")
+    verify = subparsers.add_parser(
+        "verify", help="run the fail-closed five-check gate", allow_abbrev=False
+    )
     verify.add_argument("--manifest", type=Path, help="signed manifest path")
     verify.add_argument("--public-key", type=Path, help="trusted public-key path")
     verify.add_argument("--allowed-signers", type=Path, help="OpenSSH allowed_signers path")

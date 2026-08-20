@@ -114,91 +114,20 @@ root override and environment injection, CI no-downgrade, offline exit `3`, and
 an actual captured 50-skill verifier run. Any later wording in this section that
 conflicts with this block is superseded.
 
-### Superseded pre-build design record
-Round-2 re-verify verdict: the design is "materially better but not yet safe to implement as written." This
-revision closes the five gaps Codex named. Ship **(a)+(b)** with the corrections below; **(c)** optional.
+### Historical design reconciliation
 
-**Problem:** `verify` re-reads the repo each run; a repo-editor can present any *previously valid, signed*
-state and it lights green. **The root-of-trust constraint (state it in code + docs, do not paper over it):**
-a **whole-tree** rollback restores the old manifest AND the old `skill_integrity.py` together, so the verifier
-is rolled back too — an in-repo control cannot detect it, because the thing doing the detecting is also old.
-True whole-tree anti-rollback therefore needs BOTH (i) a freshness reference the victim trusts that is not in
-the rolled-back tree, AND (ii) an **enforcing component pinned outside the tree** (the tree's own verifier
-cannot be trusted to enforce a floor it was rolled back to ignore). This is the TUF shape: no in-tree,
-fully-offline verifier can defend against whole-tree rollback — say so, do not imply otherwise.
+The pre-build proposal used an in-tree `--index` decision, an optional expiry,
+an operator-floor fallback, and a TOFU path. Independent review rejected those
+elements because the deciding verifier would roll back with the tree, a single
+old signed index is replayable on first use, and opportunistic source selection
+can silently downgrade authority. None of those mechanisms is part of 2.0.3.
 
-**(a) Monotonic `manifestSequence`** (integer ≥1) in the signed manifest, incremented every release, plus a
-`MIN_MANIFEST_SEQUENCE` constant in `skill_integrity.py` (itself a signed controlFile). `verify` fails if
-`manifestSequence < MIN_MANIFEST_SEQUENCE`. Defeats a **partial** rollback (old manifest against a *current*
-verifier). Document that it does NOT defeat a whole-tree rollback (the constant rolls back with the file).
-
-**(b) External freshness FLOOR — the whole-tree defense.** Two pieces, both required by their mode:
-
-- **(b0) Verifier-hash bootstrap — CLOSES Codex gap #1 (the verifier rolls back too).** The freshness check
-  must NOT be trusted to the tree's own verifier. The external signed index (b2) records the expected
-  **`verifierSHA256`** of `skill_integrity.py`. A **trusted launcher that lives OUTSIDE any rolled-back tree**
-  — in CI a pinned action/step or container; for the operator a tiny `verify-fresh` wrapper installed in the
-  operator's environment, not the repo — (1) fetches the external index + its signature, (2) verifies the
-  signature against the out-of-band `keys/allowed_signers` fingerprint, (3) compares the tree's
-  `skill_integrity.py` SHA-256 to the index's `verifierSHA256`, and only THEN delegates to the (now-trusted)
-  tree verifier with `--index`. Tree verifier hash ≠ index → REFUSE (rolled-back verifier). The launcher is
-  the root of trust; document that it must not be sourced from the tree.
-- **(b1) OS-protected floor, NOT a bare env var — CLOSES gap #2.** `IDC_SKILLS_MIN_SEQUENCE` (env) is
-  **caller-controlled**, so it is **advisory only**: it may RAISE the floor for a run, but its absence or a
-  low value is NEVER trusted as "fresh." The AUTHORITATIVE floor is an OS-protected monotonic store outside
-  the workspace: a macOS Keychain generic-password item, a root-owned file, or a CI-platform secret managed
-  by the provider (not the repo). **Fail-closed when required state is missing** (see modes): a required
-  floor that is absent/unreadable → NOT-READY, never a silent pass.
-- **(b2) Signed release index — the auditable external reference.** A `releases.json` published where a tree
-  rollback cannot rewrite it (a protected branch, a GitHub Release asset, a pinned HTTPS raw URL), signed
-  detached with the SAME Forge key + `keys/allowed_signers` principal. Schema — **CLOSES gap #5:**
-  ```json
-  { "schemaVersion": 1, "indexSequence": 7, "generatedAt": "2026-08-19T00:00:00Z", "validUntil": null,
-    "releases": [ { "release": "2.0.3", "manifestSequence": 3,
-                    "manifestSHA256": "<hex>", "verifierSHA256": "<hex of skill_integrity.py>",
-                    "gitCommit": "<sha>" } ] }
-  ```
-  and a detached `releases.json.sig` over the **canonical** bytes (sorted keys, LF, no trailing space).
-  - **Anti-replay — CLOSES gap #3.** The index carries its OWN monotonic `indexSequence` (+ `generatedAt`,
-    optional `validUntil`). The launcher persists a **last-seen checkpoint** (highest `indexSequence` ever
-    accepted) in the OS-protected store (b1) and REFUSES any index with `indexSequence` < checkpoint (replay
-    of an old, validly-signed index) or a past `validUntil`. First run seeds the checkpoint only under an
-    explicit `--trust-on-first-use` (or an operator-supplied initial floor) — document the TOFU risk. Honest
-    residual: with neither a persisted checkpoint NOR a live timestamp authority, a one-snapshot replay of an
-    old signed index is undetectable; the OS checkpoint closes it for the operator, and CI always fetches the
-    current index from the protected branch. State it.
-  - **Equivocation — part of gap #5.** Two index entries with equal `manifestSequence` but different
-    `manifestSHA256` (or an `indexSequence` collision), OR a tree manifest whose `manifestSequence` matches an
-    index entry but whose `manifestSHA256` differs → HARD FAIL (fork/equivocation).
-  - **External-path enforcement — part of gap #5.** `--index <path|url>` MUST resolve OUTSIDE `repo_root`
-    (reject any path under the tree — else the rollback rewrites the index too); a URL must be HTTPS with a
-    pinned host; the `.sig` is fetched from the same external location and verified before any field is read.
-  - **Atomic publication — part of gap #5.** Publish `releases.json` + `.sig` atomically (write temp, verify
-    the pair locally, rename both) so a verifier never sees a new index with a stale/absent signature; a new
-    index whose signature doesn't cover its exact bytes → FAIL.
-
-**No silent downgrade — CLOSES gap #4.** "Strongest-available-wins" is REPLACED by **required-by-mode**:
-- `--mode release` / `--mode ci`: the signed index (b2) **and** the verifier-hash bootstrap (b0) are
-  REQUIRED; a missing/unreachable/suppressed required source → **FAIL CLOSED**, never a fall-through to a
-  weaker check.
-- `--mode operator`: the OS floor (b1) OR the signed index (b2) is REQUIRED (fail-closed if neither present).
-- `--mode offline`: nothing required, but the result is a distinct `freshness: UNVERIFIED` that is **never
-  counted as READY** and prints the honest whole-tree hole. A required source never becomes optional because
-  it was suppressed or unavailable.
-
-**(c) Optional TUF-style timestamp role** — future work; build only if judged worth the weight.
-
-**Red fixtures (fail-before / pass-after) — each MUST have a test:**
-1. old manifest (lower `manifestSequence`) + current verifier → FAIL under (a).
-2. tree `manifestSequence` below the OS/index floor → FAIL under (b1/b2); below only the advisory env → the
-   env RAISES the floor but its absence never passes a stale tree.
-3. index `indexSequence` < persisted checkpoint → FAIL (b2 replay); expired `validUntil` → FAIL.
-4. index entry equal `manifestSequence`, different `manifestSHA256` → FAIL (equivocation).
-5. tree `skill_integrity.py` SHA-256 ≠ index `verifierSHA256` → FAIL at the launcher (b0 rolled-back verifier).
-6. `--index` path INSIDE `repo_root` → FAIL (refuse in-tree index); new index with stale/absent `.sig` → FAIL.
-7. `--mode ci` with the index unreachable → FAIL CLOSED (no downgrade).
-8. `--mode offline`, no index, no OS floor → `freshness: UNVERIFIED`, exit distinct-from-READY (documents the
-   honest hole), never green.
+The implemented contract above replaces them with an out-of-tree launcher,
+mandatory bounded index expiry, an exact externally provisioned first-use
+digest, complete checkpoint history, and the same signed-index requirement in
+`release`, `ci`, and `operator` modes. The detailed canonical schemas and
+deployment ceremony live in `integrity/README.md`; this file intentionally does
+not preserve a second executable-looking schema.
 
 ## 3. Re-sign + release loop — CORRECT ORDER (Codex finding #4: my earlier order signed before bumping)
 Claude's edits changed controlFiles, so `verify` is now RED locally (local_bytes) by design — that means the

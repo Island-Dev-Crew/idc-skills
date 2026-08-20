@@ -19,6 +19,10 @@
   consumer environment, fixed repository-root routing, and exact staged
   installer/hook/reacceptance paths. Offline verification remains explicitly
   freshness-unverified and exits distinctly without running a child.
+- Bound the captured launcher, verifier, and signing-anchor bytes back to their
+  reviewed signed repository sources before any content verifier can run,
+  including offline mode; documented the external clean-process boundary needed
+  to exclude pre-start loader injection.
 - Hardened the advisory dangerous-Git classifier and static egress scanner with
   expanded macOS Bash 3.2 fixtures, while retaining their honest scope: the Git
   string classifier remains advisory beneath OS/repository controls, and static

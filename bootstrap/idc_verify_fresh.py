@@ -457,6 +457,23 @@ def _manifest_file_record(value: Any, label: str) -> tuple[str, int, int]:
     return digest, size, posix_mode
 
 
+def _require_captured_repository_file(
+    manifest: Mapping[str, Any], relative: str, data: bytes, label: str
+) -> None:
+    """Bind an already captured authority input to the signed source record."""
+
+    files = manifest["repositoryFiles"]
+    if relative not in files:
+        raise FreshnessError(f"signed repository closure is missing {relative!r}")
+    expected_digest, expected_size, _expected_mode = _manifest_file_record(
+        files[relative], f"repositoryFiles[{relative!r}]"
+    )
+    if len(data) != expected_size or sha256_bytes(data) != expected_digest:
+        raise FreshnessError(
+            f"captured {label} differs from signed repository source {relative}"
+        )
+
+
 @contextlib.contextmanager
 def _staged_repository(
     repo_root: Path,
@@ -637,7 +654,6 @@ def parse_config(data: bytes, *, repo_root: Path, config_path: Path) -> dict[str
         for path, label in ((index_path, "indexPath"), (signature_path, "signaturePath")):
             if not path.is_absolute():
                 raise FreshnessError(f"{label} must be absolute")
-            resolved = path.resolve(strict=False)
             if _path_is_within(path, repo_root):
                 raise FreshnessError(f"{label} must be outside the repository")
     else:
@@ -1206,6 +1222,13 @@ def verify_release(
         ssh_keygen,
     )
     manifest = parse_manifest(manifest_data)
+    for relative, data, label in (
+        ("bootstrap/idc_verify_fresh.py", launcher_data, "freshness launcher"),
+        ("scripts/skill_integrity.py", verifier_data, "content verifier"),
+        ("keys/idc-skills-signing.pub", public_data, "public signing key"),
+        ("keys/allowed_signers", allowed_data, "allowed_signers"),
+    ):
+        _require_captured_repository_file(manifest, relative, data, label)
     if manifest["manifestSequence"] < config["minimumManifestSequence"]:
         raise FreshnessError("integrity manifest is below the configured manifest floor")
 
@@ -1224,6 +1247,18 @@ def verify_release(
                 ssh_keygen,
             )
             _require_content_ready(content_report, manifest)
+            if _read_regular_snapshot(
+                manifest_path, "integrity manifest", MAX_MANIFEST_BYTES
+            ) != manifest_data:
+                raise FreshnessError(
+                    "integrity manifest changed during offline content verification"
+                )
+            if _read_regular_snapshot(
+                verifier_path, "content verifier", MAX_VERIFIER_BYTES
+            ) != verifier_data:
+                raise FreshnessError(
+                    "content verifier changed during offline content verification"
+                )
         return {
             "schema": REPORT_SCHEMA,
             "pass": False,

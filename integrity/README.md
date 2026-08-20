@@ -72,9 +72,12 @@ entry binds:
 }
 ```
 
-The launcher requires the signed Git-tracked execution closure to equal the
-newest entry's manifest and exact Git tree. Ignored and untracked live extras
-are excluded rather than treated as executable release content. The index is
+The launcher requires its own installed bytes, the captured content verifier,
+and the captured signing-anchor files to equal their signed Git-tracked source
+records before either verifier mode can execute. It also requires that complete
+execution closure to equal the newest entry's manifest and exact Git tree.
+Ignored and untracked live extras are excluded rather than treated as
+executable release content. The index is
 strictly canonical, has unique increasing manifest sequences, carries its own
 monotonic `indexSequence`, and expires within at most 31 days. A checkpoint
 stores the accepted index sequence, exact index digest, and release history.
@@ -145,10 +148,16 @@ An external protected file pair may be used instead with `source.type=file`,
 absolute `indexPath`, and absolute `signaturePath`. Repository-relative or
 repository-resolving authority paths are refused.
 
-The authoritative command must invoke the launcher through the exact absolute
-Python path named and hashed in this configuration; relying on the source
-file's `env` shebang is not an authoritative launch path. `consumerPath` names
-only protected directories needed by reacceptance (for example Bash and Node).
+The authoritative process must be created by an external protected wrapper or
+runner that builds its environment from scratch, sets a protected temp root and
+home, and then invokes the launcher through the exact absolute Python path named
+and hashed in this configuration. Loader variables can execute before Python
+code starts; neither a digest check performed by that Python process nor `-I`
+can undo pre-start injection. The command examples below assume that clean
+external process boundary already exists. Relying on the source file's `env`
+shebang—or on candidate-controlled `scripts/install.sh` to bootstrap trust—is
+not authoritative. `consumerPath` names only protected directories needed by
+reacceptance (for example Bash and Node).
 Digest-pinned Python, Git, and OpenSSH directories take precedence. Consumer
 children receive a private temp directory, configured home, and a minimal
 environment; caller `PATH`, Python loaders, dynamic-loader variables, shell
@@ -195,17 +204,20 @@ proof, emits `freshness=UNVERIFIED`, never emits readiness, and exits `3`.
 Offline mode never launches a consumer.
 
 The installer still binds staged and installed skill bytes to the authenticated
-manifest, but direct CLI use is refused because it lacks external freshness.
-The hook returns blocking exit 2 on missing freshness routing, malformed input,
-content red, unknown skill, installed-byte drift, payload disagreement, or any
-unexpected exception. The handoff marker prevents accidental direct routing;
-it is explicitly not the trust boundary.
+manifest. Current direct CLI entrypoints refuse when the launcher's syntactic
+handoff marker is absent; that caller-supplied marker is forgeable and prevents
+only accidental bypass. It neither authenticates the launcher nor upgrades a
+content-only invocation to release authority. The only supported authoritative
+route is the independently pinned launcher above. The hook returns blocking
+exit 2 on an absent marker, malformed input, content red, unknown skill,
+installed-byte drift, payload disagreement, or any unexpected exception.
 
-`scripts/install.sh` requires `IDC_SKILLS_FRESHNESS_PYTHON`,
+After external bootstrap, `scripts/install.sh` is a convenience delegate. It
+requires `IDC_SKILLS_FRESHNESS_PYTHON`,
 `IDC_SKILLS_FRESHNESS_LAUNCHER`, and `IDC_SKILLS_FRESHNESS_CONFIG` to name those
 external paths and delegates through `python -I -B`. Those variables locate
 externally protected artifacts; they do not replace signature, digest, runtime,
-path, or checkpoint verification.
+path, clean-process-environment, or checkpoint verification.
 
 ## Release ceremony
 
@@ -220,7 +232,9 @@ path, or checkpoint verification.
    approval ceremony.
 6. Publish index and signature as one immutable pair/protected commit, provision
    the external configuration's bootstrap digest and pinned runtime hashes, and
-   run the launcher through that exact Python runtime.
+   run the launcher through a protected clean-environment wrapper and that exact
+   Python runtime. A failed consumer does not roll the accepted freshness
+   checkpoint backward.
 7. Only after external `readyToRun=true` may the release be tagged, promoted,
    installed, or described as ready.
 

@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import http.server
+import io
 import json
 import os
 import subprocess
@@ -545,6 +546,8 @@ class SkillIntegrityTests(unittest.TestCase):
         }
         self.assertNotIn("--expected-fingerprint", options)
         self.assertNotIn("--allow-fixture", options)
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            parser.parse_args(["--repo-roo=.", "verify"])
 
     @unittest.skipIf(os.name == "nt", "symlink creation requires extra Windows privileges")
     def test_symlink_escape_is_denied(self) -> None:

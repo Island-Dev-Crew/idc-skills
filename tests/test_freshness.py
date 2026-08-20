@@ -51,6 +51,7 @@ class FreshnessFixture:
         (self.repo / "keys").mkdir()
         (self.repo / "integrity").mkdir()
         (self.repo / "scripts").mkdir()
+        (self.repo / "bootstrap").mkdir()
 
         self.private_key = self.trust / "signing"
         self.ssh_keygen = str(Path(shutil.which("ssh-keygen") or "").resolve())
@@ -87,8 +88,16 @@ class FreshnessFixture:
         self.installer = self.repo / "scripts" / "install.py"
         self.installer.write_text("# original installer bytes\n", encoding="utf-8")
         os.chmod(self.installer, 0o755)
+        self.launcher_source = self.repo / "bootstrap" / "idc_verify_fresh.py"
+        self.launcher_source.write_bytes(Path(fresh.__file__).read_bytes())
         repository_files = {}
-        for path in (self.public_key, self.allowed, self.verifier, self.installer):
+        for path in (
+            self.public_key,
+            self.allowed,
+            self.verifier,
+            self.installer,
+            self.launcher_source,
+        ):
             relative = path.relative_to(self.repo).as_posix()
             data = path.read_bytes()
             repository_files[relative] = {
@@ -113,7 +122,7 @@ class FreshnessFixture:
             self.manifest, self.private_key, fresh.MANIFEST_NAMESPACE
         )
         self.launcher = self.runtime / "idc-verify-fresh"
-        self.launcher.write_bytes(Path(fresh.__file__).read_bytes())
+        self.launcher.write_bytes(self.launcher_source.read_bytes())
         os.chmod(self.launcher, 0o700)
         subprocess.run([self.git, "init", "-q", str(self.repo)], check=True)
         subprocess.run(
@@ -440,10 +449,151 @@ class FreshnessTests(unittest.TestCase):
             runner = mock.Mock(side_effect=AssertionError("content runner must not execute"))
 
             with self.assertRaisesRegex(
-                fresh.FreshnessError, "signed repository file drifted|release tuple"
+                fresh.FreshnessError,
+                "captured content verifier differs|signed repository file drifted|release tuple",
             ):
                 fixture.verify(content_runner=runner)
             runner.assert_not_called()
+
+    def test_captured_verifier_and_launcher_must_equal_signed_sources(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = FreshnessFixture(Path(temporary))
+            runner = mock.Mock(side_effect=AssertionError("content runner must not execute"))
+
+            fixture.launcher.write_bytes(b"# separately indexed but unreviewed launcher\n")
+            fixture.entry["launcherSHA256"] = fresh.sha256_bytes(
+                fixture.launcher.read_bytes()
+            )
+            fixture.write_index([fixture.entry])
+            fixture.write_config()
+            with self.assertRaisesRegex(
+                fresh.FreshnessError, "captured freshness launcher differs"
+            ):
+                fixture.verify(content_runner=runner)
+            runner.assert_not_called()
+
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = FreshnessFixture(Path(temporary))
+            captured_verifier = b"# separately indexed but unreviewed verifier\n"
+            fixture.entry["verifierSHA256"] = fresh.sha256_bytes(captured_verifier)
+            fixture.write_index([fixture.entry])
+            fixture.write_config()
+            original_snapshot = fresh._read_regular_snapshot
+            supplied = False
+
+            def split_snapshot(
+                path: Path,
+                label: str,
+                maximum: int,
+                *,
+                require_single_link: bool = False,
+            ) -> bytes:
+                nonlocal supplied
+                if path == fixture.verifier and label == "content verifier" and not supplied:
+                    supplied = True
+                    return captured_verifier
+                return original_snapshot(
+                    path,
+                    label,
+                    maximum,
+                    require_single_link=require_single_link,
+                )
+
+            with (
+                mock.patch.object(fresh, "_read_regular_snapshot", split_snapshot),
+                self.assertRaisesRegex(
+                    fresh.FreshnessError, "captured content verifier differs"
+                ),
+            ):
+                fixture.verify(content_runner=runner)
+            runner.assert_not_called()
+
+    def test_git_commit_rejects_extra_blob_drift_and_mode_drift(self) -> None:
+        def commit_head(fixture: FreshnessFixture, message: str) -> str:
+            subprocess.run(
+                [fixture.git, "-C", str(fixture.repo), "commit", "-q", "-m", message],
+                check=True,
+            )
+            return subprocess.run(
+                [fixture.git, "-C", str(fixture.repo), "rev-parse", "HEAD"],
+                text=True,
+                capture_output=True,
+                check=True,
+            ).stdout.strip()
+
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = FreshnessFixture(Path(temporary))
+            (fixture.repo / "EXTRA.txt").write_text("not in signed closure\n", encoding="utf-8")
+            subprocess.run(
+                [fixture.git, "-C", str(fixture.repo), "add", "EXTRA.txt"], check=True
+            )
+            fixture.entry["gitCommit"] = commit_head(fixture, "unexpected tracked file")
+            fixture.write_index([fixture.entry])
+            fixture.write_config()
+            with self.assertRaisesRegex(
+                fresh.FreshnessError, "signed repository closure differs"
+            ):
+                fixture.verify()
+
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = FreshnessFixture(Path(temporary))
+            changed = b"# signed live installer bytes absent from committed blob\n"
+            fixture.installer.write_bytes(changed)
+            manifest = fresh.load_canonical_json(
+                fixture.manifest.read_bytes(), "manifest", fresh.MAX_MANIFEST_BYTES
+            )
+            manifest["repositoryFiles"]["scripts/install.py"] = {
+                "sha256": fresh.sha256_bytes(changed),
+                "size": len(changed),
+                "posixMode": 0o755,
+            }
+            fixture.manifest.write_bytes(fresh.canonical_bytes(manifest))
+            fixture.manifest_signature = _sign(
+                fixture.manifest, fixture.private_key, fresh.MANIFEST_NAMESPACE
+            )
+            subprocess.run(
+                [
+                    fixture.git,
+                    "-C",
+                    str(fixture.repo),
+                    "add",
+                    "integrity/manifest.json",
+                    "integrity/manifest.json.sig",
+                ],
+                check=True,
+            )
+            fixture.entry["gitCommit"] = commit_head(fixture, "manifest without blob")
+            fixture.entry["manifestSHA256"] = fresh.sha256_bytes(
+                fixture.manifest.read_bytes()
+            )
+            fixture.write_index([fixture.entry])
+            fixture.write_config()
+            with self.assertRaisesRegex(
+                fresh.FreshnessError,
+                "signed bytes differ from Git tree object: scripts/install.py",
+            ):
+                fixture.verify()
+
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = FreshnessFixture(Path(temporary))
+            subprocess.run(
+                [
+                    fixture.git,
+                    "-C",
+                    str(fixture.repo),
+                    "update-index",
+                    "--chmod=-x",
+                    "scripts/install.py",
+                ],
+                check=True,
+            )
+            fixture.entry["gitCommit"] = commit_head(fixture, "mode-only drift")
+            fixture.write_index([fixture.entry])
+            fixture.write_config()
+            with self.assertRaisesRegex(
+                fresh.FreshnessError, "signed POSIX mode differs from Git tree"
+            ):
+                fixture.verify()
 
     def test_first_run_requires_externally_pinned_exact_index_digest(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -667,6 +817,18 @@ class FreshnessTests(unittest.TestCase):
             self.assertEqual(exit_code, 3)
             self.assertIn("FRESHNESS UNVERIFIED", stderr.getvalue())
             self.assertNotIn("READY 5/5", stdout.getvalue())
+
+            def mutate_live_verifier(*args: object) -> dict[str, object]:
+                report = FreshnessFixture.content_runner(*args)  # type: ignore[arg-type]
+                fixture.verifier.write_text(
+                    "# changed after the signed snapshot\n", encoding="utf-8"
+                )
+                return report
+
+            with self.assertRaisesRegex(
+                fresh.FreshnessError, "changed during offline content verification"
+            ):
+                fixture.verify(mode="offline", content_runner=mutate_live_verifier)
 
     def test_private_stage_excludes_ignored_bytes_and_preserves_signed_mode(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
