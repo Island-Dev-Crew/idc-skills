@@ -878,6 +878,15 @@ class FreshnessTests(unittest.TestCase):
             self.assertEqual(report["consumerExitCode"], 0)
 
     def test_consumer_rejects_root_abbreviation_and_strips_hostile_environment(self) -> None:
+        with mock.patch.object(fresh.os, "name", "nt"), mock.patch.dict(
+            fresh.os.environ,
+            {"SYSTEMROOT": r"C:\Windows", "PYTHONPATH": r"C:\attacker"},
+            clear=True,
+        ):
+            bootstrap_environment = fresh._verification_environment(())
+        self.assertEqual(bootstrap_environment["SYSTEMDRIVE"], "C:")
+        self.assertNotIn("PYTHONPATH", bootstrap_environment)
+
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
             staged = root / "stage"

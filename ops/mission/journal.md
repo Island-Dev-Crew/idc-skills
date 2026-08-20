@@ -165,3 +165,10 @@
 - The review still returned **CHANGES_REQUIRED** because the metric headline, changelog, durable state note, and build-spec context retained present-tense 2.0.2/pre-sign wording. P5 was also marked done while task P5-T3 remained in progress.
 - Every current-state document now describes the checked-in v3, 2.0.3, sequence-1 content candidate as signed at 5/5 while keeping external `readyToRun`, final review, CI, merge, promotion, tag, and reinstall pending. Historical journal and doctrine references remain explicitly historical.
 - P5 remains in progress until the exact-head review receipt exists. These controlled corrections invalidate `12287c3`; the final manifest/signature and acceptance loop restart on the next immutable commit.
+
+## 2026-08-20T12:27Z — Windows native OpenSSH requires its OS drive bootstrap
+
+- Exact signed head `70ffc9ebb308e4c3652cc8deda65e52b8fd60c3e` received different-family **APPROVE**, then PR #4 run `32368246838` passed macOS and Ubuntu but failed Windows after four minutes. Merge remained blocked.
+- Windows selected the native OpenSSH executable and generated fixture keys successfully under the runner environment. All 19 failures occurred only when fingerprinting under the stripped environment, each with native `ssh-keygen` exit 255.
+- Win32 OpenSSH expands the current profile path read from the registry; hosted Windows profile records commonly use `%SystemDrive%`. The verification environment already retains `SystemRoot` and now derives only its drive prefix as `SYSTEMDRIVE`, preserving the stripped PATH/home/loader/proxy boundary. A regression asserts derivation and continued `PYTHONPATH` exclusion.
+- Because bootstrap, tests, and mission evidence are controlled bytes, `70ffc9e` is no longer the final candidate. Manifest regeneration, biometric signing, clean-clone replay, exact-head review, and three-platform CI restart.

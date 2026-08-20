@@ -401,9 +401,9 @@
           "title": "Exact 2.0.3 transport candidate has required CI green",
           "command": "gh pr checks <release-pr> --watch",
           "status": "pending",
-          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32359757190",
-          "lastRun": "2026-08-20T10:40:12Z",
-          "notes": "PR #4 run 32359757190 passed macOS and Ubuntu. Windows proved the remaining failure was test selection of Git-for-Windows ssh-keygen under a Windows-native stripped environment: all 19 errors were the same exit 255 fingerprint failure. Freshness fixtures now prefer the installed native Windows OpenSSH executable and still bind its exact path and digest; final signing, replay/review, and replacement CI remain pending."
+          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32368246838",
+          "lastRun": "2026-08-20T12:23:29Z",
+          "notes": "PR #4 run 32368246838 passed macOS and Ubuntu. Windows selected native OpenSSH but all 19 freshness fixtures still exited 255 only under the stripped environment. Win32 OpenSSH expands the registry profile path through SystemDrive; the minimal environment now derives that drive from the retained trusted SystemRoot while continuing to exclude caller PATH, home, loader, proxy, Git, and TLS variables. Final signing, replay/review, and replacement CI remain pending."
         },
         {
           "id": "P6-G3",

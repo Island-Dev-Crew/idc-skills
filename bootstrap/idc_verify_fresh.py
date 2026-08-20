@@ -224,6 +224,10 @@ def _verification_environment(
     for key in ("SYSTEMROOT", "WINDIR", "COMSPEC", "PATHEXT"):
         if os.name == "nt" and key in os.environ:
             environment[key] = os.environ[key]
+    if os.name == "nt":
+        system_root = environment.get("SYSTEMROOT") or environment.get("WINDIR", "")
+        if len(system_root) >= 2 and system_root[1] == ":":
+            environment["SYSTEMDRIVE"] = system_root[:2]
     return environment
 
 
