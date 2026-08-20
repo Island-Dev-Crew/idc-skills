@@ -20,8 +20,10 @@
 # (re)creation (`checkout -B`, `switch -C`) AND forced ref updates (`branch -f/-M/-C`, which move or
 # clobber refs destructively), and whole-tree pathspecs (`.`, `./`, `./.`, `:/`, `*`, `**`, pathless
 # `:(top)`, and EVERY exclude-magic spec — `:!x`, `:^x`, `:(exclude)x`, `:(top,exclude)x` — because an
-# exclude-only pathspec means "everything EXCEPT x" = a whole-tree discard) while ALLOWING a
-# single-file magic pathspec (`:(top)README.md`, `:/README.md`). It reaches git through more leading
+# exclude-only pathspec means "everything EXCEPT x" = a whole-tree discard) while intentionally
+# ALLOWING concrete single-file restores/checkouts (`restore README.md`, `restore --worktree
+# README.md`, `checkout HEAD -- README.md`) and their magic pathspecs (`:(top)README.md`,
+# `:/README.md`). It reaches git through more leading
 # grammar — a redirection (`>/x git push`), an fd-duplication (`2>&1 git push`, `>&2 git push`), a
 # `+=`/array assignment (`VAR+=x git push`, `A[0]=x git push`), `!`, a `{ }` group, an `if/then`,
 # `|&`, and recognized wrappers (`command -p`, `nice -n 5`, `env --unset X`, `exec -a name`,
@@ -31,10 +33,14 @@
 # `-calias.x=push`, `config alias.x '!git push'`) — tested by the alias VALUE actually expanding to a
 # guarded subcommand, so `alias.sb=show-branch` is NOT a false positive — PLUS alias values that only
 # become dangerous once COMBINED with call-site args (`-c alias.n=reset n --hard`), git's official
-# config-injection surfaces (`--config-env=alias.p=P`, `GIT_CONFIG_KEY_*/VALUE_*`), and NESTED alias
-# chains (`-c alias.n='-c alias.p=push p' n`): alias expansion is resolved RECURSIVELY, bounded by a
-# depth cap (deeper chains block as evasion) and a cycle set (git refuses an alias loop, so a pure
-# cycle allows).
+# config-injection surfaces (`--config-env=alias.p=P`, inherited `GIT_CONFIG_COUNT` + indexed
+# `GIT_CONFIG_KEY_*/VALUE_*`, and inherited `GIT_CONFIG_PARAMETERS`), and NESTED alias chains
+# (`-c alias.n='-c alias.p=push p' n`). Runtime layers follow Git precedence (COUNT, PARAMETERS,
+# then argv-ordered `-c`/`--config-env`, last duplicate wins), case-fold alias names, and apply visible
+# assignments plus `env -u/-i` before classification. Malformed/oversized runtime config is an
+# explicit block, with 256-entry/64-KiB parser bounds; values are parsed as data and never evaluated.
+# Alias expansion is recursive, bounded by a depth cap (deeper chains block as evasion) and a cycle
+# set (git refuses a pure alias loop, so it allows).
 #
 # It is NOT a sandbox and CANNOT be one. Documented residuals a string classifier cannot
 # close (keep a real OS/repo-level control underneath — this is one layer):
@@ -44,7 +50,8 @@
 #     runtime), and command substitution INSIDE double quotes (`"$(git push)"`)
 #   - git reached only via an UNRECOGNIZED wrapper (`xargs -I{} git push`, a shell function) or an
 #     abbreviated GLOBAL value-option in separate form (`git --git-di /x push`)
-#   - a persistent alias set in a PRIOR command, then invoked in a later one
+#   - an alias stored in repo/global/system config (rather than one of the inspected runtime-config
+#     environment/argv layers), then invoked later
 #   - malformed hook payloads / missing interpreters: extraction fails or python3/jq is
 #     absent -> guard OPENS (announces it, allows), by design, so a parse error cannot wedge
 #     every command.
@@ -135,6 +142,11 @@ SHELL_KEYWORDS = {
 REDIR_RE = re.compile(r"^[0-9]*(>>?|<<?<?)(.*)$")
 # bounded recursive alias resolution: a chain deeper than this blocks as evasion (safe over-block).
 MAX_ALIAS_DEPTH = 8
+# Runtime Git config is attacker-controlled inherited state. Bound both entry count and individual
+# serialized values before parsing so a hook cannot be held in an unbounded loop. Crossing either
+# ceiling is a positive block reason, not an exception that could fall into the wrapper's fail-open.
+MAX_RUNTIME_CONFIG_ENTRIES = 256
+MAX_RUNTIME_CONFIG_BYTES = 65536
 
 BACKTICK = chr(96)
 
@@ -310,27 +322,18 @@ def is_alias_key(s):
     return "." in s and s.split(".", 1)[0].lower() == "alias"
 
 
+def alias_name(s):
+    # Git config keys, including the alias subsection/name, compare case-insensitively.
+    return s.split(".", 1)[1].lower()
+
+
 def alias_defs(tokens, depth=0):
-    # tokens[0] is the git word. Alias DEFINITIONS live in exactly two POSITION-scoped places, so
-    # ordinary later argv (a `-- config alias.p push` pathspec, a `commit -c <commitish>`) is never
-    # mistaken for one:
-    #   - inline `-c alias.x=val` / glued `-calias.x=val`: a GLOBAL option, valid only BEFORE the
-    #     subcommand. Scanning past the subcommand would misread a subcommand's own `-c`.
-    #   - `config alias.x val` / `config alias.x=val`: ONLY when `config` is the actual SUBCOMMAND
-    #     (tokens[subcommand] == "config"), never a `config` token sitting in argv after `--`.
+    # Persistent alias DEFINITIONS live only when `config` is the actual SUBCOMMAND. Runtime
+    # `-c`/`--config-env` definitions are resolved together, in argv order, by
+    # command_config_alias_map(); pre-scanning one would incorrectly block a lower dangerous value
+    # that a later safe value overrides. Ordinary argv after the subcommand is never config input.
     n = len(tokens)
     sub_idx = find_subcommand(tokens)
-    globals_end = sub_idx if sub_idx is not None else n
-    for i in range(1, globals_end):
-        t = tokens[i]
-        pair = None
-        if t == "-c" and i + 1 < n:                 # -c alias.x=val
-            pair = tokens[i + 1]
-        elif t.startswith("-c") and t != "-c" and is_alias_key(t[2:]):   # -calias.x=val (glued)
-            pair = t[2:]
-        if pair and is_alias_key(pair) and "=" in pair:
-            if alias_value_dangerous(pair.split("=", 1)[1], depth):
-                return "alias injection (-c alias to a blocked op)"
     if sub_idx is not None and tokens[sub_idx] == "config":
         for j in range(sub_idx + 1, n):             # config alias.x val  /  config alias.x=val
             a = tokens[j]
@@ -566,106 +569,198 @@ def command_word_index(tokens):
     return None
 
 
-def inline_c_alias_map(git_slice):
-    # {name: value} for inline `-c alias.X=Y` and glued `-calias.X=Y` on THIS invocation.
-    m = {}
-    n = len(git_slice)
-    for i, t in enumerate(git_slice):
-        pair = None
-        if t == "-c" and i + 1 < n:
-            pair = git_slice[i + 1]
-        elif t.startswith("-c") and t != "-c":
-            pair = t[2:]
-        if pair and is_alias_key(pair) and "=" in pair:
-            key, val = pair.split("=", 1)
-            m[key.split(".", 1)[1]] = val
-    return m
-
-
-def env_config_alias_map(assigns, git_slice):
-    # {name: value} for git's OFFICIAL env/config-env injection surfaces, resolved against the
-    # segment's leading assignments:
-    #   - GIT_CONFIG_COUNT / GIT_CONFIG_KEY_<i> / GIT_CONFIG_VALUE_<i>  (env config injection)
-    #   - `--config-env=alias.x=ENVVAR` / `--config-env alias.x=ENVVAR` (value read from $ENVVAR)
-    m = {}
-    keys, vals = {}, {}
-    for var, val in assigns.items():
-        mk = re.match(r"GIT_CONFIG_KEY_(\d+)$", var)
-        if mk:
-            keys[mk.group(1)] = val
-        mv = re.match(r"GIT_CONFIG_VALUE_(\d+)$", var)
-        if mv:
-            vals[mv.group(1)] = val
-    for idx, k in keys.items():
-        if is_alias_key(k) and idx in vals:
-            m[k.split(".", 1)[1]] = vals[idx]
-    n = len(git_slice)
-    for i, t in enumerate(git_slice):
-        spec = None
-        if t.startswith("--config-env="):
-            spec = t.split("=", 1)[1]
-        elif t == "--config-env" and i + 1 < n:
-            spec = git_slice[i + 1]
-        if spec and is_alias_key(spec) and "=" in spec:
-            k, env = spec.split("=", 1)
-            if is_alias_key(k) and env in assigns:
-                m[k.split(".", 1)[1]] = assigns[env]
-    return m
+def effective_environment(tokens, command_index):
+    # Reconstruct the environment the visible git command receives. Start with the hook process
+    # environment, then apply shell/wrapper assignments in order. `env -u/-i` are modeled because
+    # claiming inherited-state fidelity while ignoring their removal semantics creates false blocks.
+    # No value is evaluated; tokens came from the inert shell lexer above.
+    eff = dict(os.environ)
+    assign = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)=(.*)$", re.DOTALL)
+    i = 0
+    while i < command_index:
+        t = tokens[i]
+        mm = assign.match(t)
+        if mm:
+            eff[mm.group(1)] = mm.group(2)
+            i += 1
+            continue
+        base = re.split(r"[\\/]", t)[-1].lower()
+        if base != "env":
+            i += 1
+            continue
+        i += 1
+        while i < command_index:
+            w = tokens[i]
+            mm = assign.match(w)
+            if mm:
+                eff[mm.group(1)] = mm.group(2)
+                i += 1
+                continue
+            if w in ("-i", "--ignore-environment", "-"):
+                eff.clear()
+                i += 1
+                continue
+            if w in ("-u", "--unset"):
+                if i + 1 >= command_index:
+                    return {}, "malformed env --unset runtime-config wrapper"
+                eff.pop(tokens[i + 1], None)
+                i += 2
+                continue
+            if w.startswith("--unset="):
+                eff.pop(w.split("=", 1)[1], None)
+                i += 1
+                continue
+            if w.startswith("-u") and len(w) > 2:
+                eff.pop(w[2:], None)
+                i += 1
+                continue
+            if w == "--":
+                i += 1
+                break
+            if w in ("-C", "--chdir"):
+                i += 2                              # directory value; environment unchanged
+                continue
+            if w.startswith("--chdir=") or w.startswith("-"):
+                i += 1
+                continue
+            break                                   # the command run by env (possibly another wrapper)
+    return eff, None
 
 
 def parse_git_config_parameters(raw):
-    # GIT_CONFIG_PARAMETERS is git's OWN env encoding of `-c` items (real git 2.x reads it and
-    # applies each as config): whitespace-separated, single-quoted elements, each either
-    #   'section.key'='value'  |  'section.key=value'  |  'section.key'   (boolean true).
-    # A literal single quote inside a value is git-encoded as '\'' . We parse quote-aware and return
-    # ONLY the {name: value} for `alias.*` keys — we never treat the value as shell here, so this
-    # adds no arbitrary-eval claim; alias_value_dangerous decides if that value resolves to a block.
+    # Strictly parse Git's own serialized `-c` environment: quoted entries only, each
+    # `'section.key'='value'`, `'section.key=value'`, or `'section.key'`. A malformed or oversized
+    # channel returns an explicit BLOCK reason; it never throws into the wrapper's fail-open.
+    if len(raw) > MAX_RUNTIME_CONFIG_BYTES:
+        return {}, "GIT_CONFIG_PARAMETERS exceeds the bounded parser"
     out = {}
-    i, n = 0, len(raw)
+    i, n, entries = 0, len(raw), 0
 
-    def read_sq(i):
+    def read_sq(pos):
         buf = []
-        i += 1                                      # skip opening quote
-        while i < n:
-            if raw[i] == "'":
-                if raw[i:i + 4] == "'\\''":         # git's escaped literal quote: close, \' , reopen
+        pos += 1                                    # opening single quote
+        while pos < n:
+            if raw[pos] == "'":
+                if raw[pos:pos + 4] == "'\\''":    # Git's escaped literal quote
                     buf.append("'")
-                    i += 4
+                    pos += 4
                     continue
-                return "".join(buf), i + 1
-            buf.append(raw[i])
-            i += 1
-        return "".join(buf), i                       # unterminated -> best effort (fail-safe)
+                return "".join(buf), pos + 1, None
+            buf.append(raw[pos])
+            pos += 1
+        return "", pos, "unterminated GIT_CONFIG_PARAMETERS quote"
 
     while i < n:
-        if raw[i] in " \t":
+        while i < n and raw[i] in " \t":
             i += 1
-            continue
-        if raw[i] == "'":
-            key, i = read_sq(i)
-        else:
-            j = i
-            while j < n and raw[j] not in " \t=":
-                j += 1
-            key, i = raw[i:j], j
+        if i >= n:
+            break
+        entries += 1
+        if entries > MAX_RUNTIME_CONFIG_ENTRIES:
+            return {}, "GIT_CONFIG_PARAMETERS exceeds the entry bound"
+        if raw[i] != "'":
+            return {}, "malformed GIT_CONFIG_PARAMETERS entry"
+        key, i, issue = read_sq(i)
+        if issue:
+            return {}, issue
         val = ""
         if i < n and raw[i] == "=":
             i += 1
-            if i < n and raw[i] == "'":
-                val, i = read_sq(i)
-            else:
-                j = i
-                while j < n and raw[j] not in " \t":
-                    j += 1
-                val, i = raw[i:j], j
-        if "=" in key and not val:                   # 'section.key=value' single-token form
+            if i >= n or raw[i] != "'":
+                return {}, "malformed GIT_CONFIG_PARAMETERS value"
+            val, i, issue = read_sq(i)
+            if issue:
+                return {}, issue
+        elif "=" in key:                           # serialized one-token `key=value` form
             key, val = key.split("=", 1)
+        if not key or len(key) > MAX_RUNTIME_CONFIG_BYTES or len(val) > MAX_RUNTIME_CONFIG_BYTES:
+            return {}, "GIT_CONFIG_PARAMETERS key/value exceeds the bound"
+        if i < n and raw[i] not in " \t":
+            return {}, "malformed GIT_CONFIG_PARAMETERS separator"
         if is_alias_key(key):
-            out[key.split(".", 1)[1]] = val
-    return out
+            out[alias_name(key)] = val              # last duplicate in this layer wins
+    return out, None
 
 
-def git_invocation_danger(git_slice, inherited, depth=0, seen=None):
+def inherited_runtime_alias_map(eff):
+    # Git applies indexed COUNT entries first, then GIT_CONFIG_PARAMETERS. Preserve that precedence
+    # and last-duplicate-wins behavior exactly for aliases; stray indexed vars outside COUNT are inert.
+    out = {}
+    if "GIT_CONFIG_COUNT" in eff and eff.get("GIT_CONFIG_COUNT", "") != "":
+        raw_count = eff.get("GIT_CONFIG_COUNT", "")
+        if len(raw_count) > 32 or not re.fullmatch(r"[ \t]*\+?[0-9]+[ \t]*", raw_count):
+            return {}, "malformed GIT_CONFIG_COUNT"
+        count = int(raw_count, 10)
+        if count > MAX_RUNTIME_CONFIG_ENTRIES:
+            return {}, "GIT_CONFIG_COUNT exceeds the entry bound"
+        for idx in range(count):
+            kname, vname = "GIT_CONFIG_KEY_%d" % idx, "GIT_CONFIG_VALUE_%d" % idx
+            if kname not in eff or vname not in eff:
+                return {}, "GIT_CONFIG_COUNT entry is missing key/value"
+            key, val = eff[kname], eff[vname]
+            if len(key) > MAX_RUNTIME_CONFIG_BYTES or len(val) > MAX_RUNTIME_CONFIG_BYTES:
+                return {}, "GIT_CONFIG_COUNT key/value exceeds the bound"
+            if is_alias_key(key):
+                out[alias_name(key)] = val           # ascending index => last duplicate wins
+    if "GIT_CONFIG_PARAMETERS" in eff:
+        params, issue = parse_git_config_parameters(eff.get("GIT_CONFIG_PARAMETERS", ""))
+        if issue:
+            return {}, issue
+        out.update(params)                           # PARAMETERS has higher precedence than COUNT
+    return out, None
+
+
+def command_config_alias_map(git_slice, eff, lower):
+    # Overlay the highest runtime-config layer in actual argv order. Only Git GLOBAL options before
+    # the resolved subcommand count; `git status -- -c alias.p=push` is ordinary argv, not config.
+    out = dict(lower)
+    n = len(git_slice)
+    sub_idx = find_subcommand(git_slice)
+    end = sub_idx if sub_idx is not None else n
+    i, entries = 1, 0
+    while i < end:
+        t, pair, spec = git_slice[i], None, None
+        if t == "-c":
+            if i + 1 >= end:
+                return {}, "malformed git -c runtime config"
+            pair = git_slice[i + 1]
+            i += 2
+        elif t.startswith("-c") and t != "-c":
+            pair = t[2:]
+            i += 1
+        elif t == "--config-env":
+            if i + 1 >= end:
+                return {}, "malformed git --config-env runtime config"
+            spec = git_slice[i + 1]
+            i += 2
+        elif t.startswith("--config-env="):
+            spec = t.split("=", 1)[1]
+            i += 1
+        else:
+            i += 1
+            continue
+        entries += 1
+        if entries > MAX_RUNTIME_CONFIG_ENTRIES:
+            return {}, "git command config exceeds the entry bound"
+        if pair is not None:
+            if len(pair) > MAX_RUNTIME_CONFIG_BYTES:
+                return {}, "git -c value exceeds the bound"
+            key, val = pair.split("=", 1) if "=" in pair else (pair, "")
+        else:
+            if not spec or "=" not in spec:
+                return {}, "malformed git --config-env specification"
+            key, env_name = spec.split("=", 1)
+            if env_name not in eff:
+                return {}, "git --config-env names a missing variable"
+            val = eff[env_name]
+            if len(key) > MAX_RUNTIME_CONFIG_BYTES or len(val) > MAX_RUNTIME_CONFIG_BYTES:
+                return {}, "git --config-env key/value exceeds the bound"
+        if is_alias_key(key):
+            out[alias_name(key)] = val               # argv order: later -c/config-env wins
+    return out, None
+
+
+def git_invocation_danger(git_slice, inherited, depth=0, seen=None, config_env=None):
     # Classify ONE git invocation (git_slice[0] is the git word), resolving an INVOKED alias
     # RECURSIVELY the way git itself expands nested aliases: the alias name is replaced by the
     # value's tokens, keeping the call-site args (`git -c alias.n='-c alias.p=push p' n X` ->
@@ -676,17 +771,26 @@ def git_invocation_danger(git_slice, inherited, depth=0, seen=None):
         return "alias chain deeper than the bounded resolver (blocked as evasion)"
     if seen is None:
         seen = set()
-    # 1) alias DEFINITIONS whose value alone resolves to a blocked op (inline -c, persistent config).
+    if config_env is None:
+        config_env = {}
+    # 1) Resolve COUNT/PARAMETERS (already in `inherited`) plus the single highest command-line
+    #    layer (-c and --config-env in argv order), then inspect only the effective final aliases.
+    amap, issue = command_config_alias_map(git_slice, config_env, inherited)
+    if issue:
+        return issue
+    for val in amap.values():
+        if alias_value_dangerous(val, depth):
+            return "effective runtime-config alias resolves to a blocked op"
+    # A persistent `git config alias...` mutation is a separate subcommand surface.
     reason = alias_defs(git_slice, depth)
     if reason:
         return reason
-    # 2) an alias INVOKED here: expand it (inherited env/config-env map + this invocation's -c map)
-    #    and re-classify the expansion, so nesting and call-site args are both resolved.
-    amap = dict(inherited)
-    amap.update(inline_c_alias_map(git_slice))
+    # 2) An alias INVOKED here: expand it while retaining call-site args. Alias names are
+    #    case-insensitive in Git config, even though real subcommand names are not.
     idx = find_subcommand(git_slice)
-    if idx is not None and git_slice[idx] in amap and git_slice[idx] not in seen:
-        name = git_slice[idx]
+    invoked = git_slice[idx].lower() if idx is not None else None
+    if idx is not None and invoked in amap and invoked not in seen:
+        name = invoked
         val = amap[name].strip()
         if val.startswith("!"):
             r = classify(val[1:], depth + 1)
@@ -698,7 +802,7 @@ def git_invocation_danger(git_slice, inherited, depth=0, seen=None):
             except ValueError:
                 vtoks = val.split()
             expanded = git_slice[:idx] + vtoks + git_slice[idx + 1:]
-            r = git_invocation_danger(expanded, amap, depth + 1, seen | {name})
+            r = git_invocation_danger(expanded, inherited, depth + 1, seen | {name}, config_env)
             if r:
                 return r
     # 3) direct invocation.
@@ -710,22 +814,13 @@ def classify_segment(tokens, depth=0):
     if ci is None or not is_git_word(tokens[ci]):
         return None
     git_slice = tokens[ci:]
-    # leading `VAR=val` env assignments before the git word (for GIT_CONFIG_* / --config-env).
-    assign = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)=(.*)$")
-    assigns = {}
-    for t in tokens[:ci]:
-        mm = assign.match(t)
-        if mm:
-            assigns[mm.group(1)] = mm.group(2)
-    # env / config-env / GIT_CONFIG_PARAMETERS alias definitions to a blocked op (git's official
-    # injection surfaces). GIT_CONFIG_PARAMETERS entries are merged UNDER the -c/env-config map so an
-    # explicit inline surface still wins on a name collision; both feed the call-site expander below.
-    env_map = parse_git_config_parameters(assigns.get("GIT_CONFIG_PARAMETERS", ""))
-    env_map.update(env_config_alias_map(assigns, git_slice))
-    for name, val in env_map.items():
-        if alias_value_dangerous(val, depth):
-            return "alias injection (env/config-env/GIT_CONFIG_PARAMETERS alias to a blocked op)"
-    return git_invocation_danger(git_slice, env_map, depth)
+    eff, issue = effective_environment(tokens, ci)
+    if issue:
+        return issue
+    runtime_map, issue = inherited_runtime_alias_map(eff)
+    if issue:
+        return issue
+    return git_invocation_danger(git_slice, runtime_map, depth, config_env=eff)
 
 
 def classify(command, depth=0):

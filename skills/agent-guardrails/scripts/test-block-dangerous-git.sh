@@ -9,11 +9,55 @@ pass=0; fail=0
 
 check() { # <expected-exit> <command-string> <label>
   local want="$1" cmd="$2" label="$3" got
-  printf '{"tool_input":{"command":%s}}' "$(printf '%s' "$cmd" | jq -R -s .)" | bash "$GUARD" >/dev/null 2>&1
+  printf '{"tool_input":{"command":%s}}' "$(printf '%s' "$cmd" | jq -R -s .)" \
+    | env -i PATH="$PATH" HOME="${HOME:-/tmp}" TMPDIR="${TMPDIR:-/tmp}" bash "$GUARD" >/dev/null 2>&1
   got=$?
   if [ "$got" = "$want" ]; then pass=$((pass+1)); printf '  ok    [%s] %s\n' "$got" "$label"
   else fail=$((fail+1)); printf '  FAIL  want=%s got=%s :: %s\n' "$want" "$got" "$label"; fi
 }
+
+check_inherited() { # <expected-exit> <command-string> <label> [NAME=value ...]
+  # Unlike command-string assignments, these variables exist in the GUARD PROCESS environment.
+  # That is the exact surface Git inherits when the hook host itself was launched with runtime
+  # config. `env` receives only literal NAME=value argv; it never evaluates a value.
+  local want="$1" cmd="$2" label="$3" got; shift 3
+  printf '{"tool_input":{"command":%s}}' "$(printf '%s' "$cmd" | jq -R -s .)" \
+    | env -i PATH="$PATH" HOME="${HOME:-/tmp}" TMPDIR="${TMPDIR:-/tmp}" "$@" bash "$GUARD" >/dev/null 2>&1
+  got=$?
+  if [ "$got" = "$want" ]; then pass=$((pass+1)); printf '  ok    [%s] %s\n' "$got" "$label"
+  else fail=$((fail+1)); printf '  FAIL  want=%s got=%s :: %s\n' "$want" "$got" "$label"; fi
+}
+
+check_inherited_count_bound() { # <expected-exit> <count> <label>
+  local want="$1" count="$2" label="$3" got i=0
+  local cfg=("GIT_CONFIG_COUNT=$count")
+  while [ "$i" -lt "$count" ]; do
+    cfg+=("GIT_CONFIG_KEY_$i=user.name" "GIT_CONFIG_VALUE_$i=safe")
+    i=$((i + 1))
+  done
+  printf '{"tool_input":{"command":"git status"}}' \
+    | env -i PATH="$PATH" HOME="${HOME:-/tmp}" TMPDIR="${TMPDIR:-/tmp}" "${cfg[@]}" bash "$GUARD" >/dev/null 2>&1
+  got=$?
+  if [ "$got" = "$want" ]; then pass=$((pass+1)); printf '  ok    [%s] %s\n' "$got" "$label"
+  else fail=$((fail+1)); printf '  FAIL  want=%s got=%s :: %s\n' "$want" "$got" "$label"; fi
+}
+
+check_inherited_parameters_bound() { # <expected-exit> <entry-count> <label>
+  local want="$1" count="$2" label="$3" got i=0 raw=""
+  while [ "$i" -lt "$count" ]; do
+    raw="$raw'user.k$i'='safe' "
+    i=$((i + 1))
+  done
+  printf '{"tool_input":{"command":"git status"}}' \
+    | env -i PATH="$PATH" HOME="${HOME:-/tmp}" TMPDIR="${TMPDIR:-/tmp}" \
+      "GIT_CONFIG_PARAMETERS=$raw" bash "$GUARD" >/dev/null 2>&1
+  got=$?
+  if [ "$got" = "$want" ]; then pass=$((pass+1)); printf '  ok    [%s] %s\n' "$got" "$label"
+  else fail=$((fail+1)); printf '  FAIL  want=%s got=%s :: %s\n' "$want" "$got" "$label"; fi
+}
+
+CANARY_DIR="$(mktemp -d)"
+trap 'rm -rf "$CANARY_DIR"' EXIT
 
 echo "== must BLOCK (exit 2) — plain forms =="
 check 2 'git push origin main'                 'plain push'
@@ -241,6 +285,110 @@ check 0 'git reset --soft HEAD~1'             'reset --soft'
 check 0 'git branch -d merged'                'branch -d (safe delete)'
 check 0 'git --no-pager log'                   '--no-pager log'
 check 0 'ls -la'                               'non-git command'
+
+echo "== must BLOCK/ALLOW — 2.0.3-r7 inherited Git runtime-config environment =="
+# These values are inherited by the hook process, not visible in the payload command. Real Git
+# expands both aliases; the guard must therefore close the same call path before authorizing it.
+check_inherited 2 'git p' 'inherited GIT_CONFIG_PARAMETERS alias -> push' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push'"
+check_inherited 2 'git p' 'inherited GIT_CONFIG_COUNT alias -> push' \
+  'GIT_CONFIG_COUNT=1' 'GIT_CONFIG_KEY_0=alias.p' 'GIT_CONFIG_VALUE_0=push'
+check_inherited 2 'git x' 'inherited bang alias -> nested git push' \
+  "GIT_CONFIG_PARAMETERS='alias.x=!git push'"
+check_inherited 2 'git n' 'inherited nested alias chain -> push' \
+  "GIT_CONFIG_PARAMETERS='alias.n=-c alias.p=push p'"
+check_inherited 2 'git n --hard' 'inherited PARAMETERS reset + call-site --hard' \
+  "GIT_CONFIG_PARAMETERS='alias.n'='reset'"
+check_inherited 2 'git x' 'inherited COUNT bang alias -> push' \
+  'GIT_CONFIG_COUNT=1' 'GIT_CONFIG_KEY_0=alias.x' 'GIT_CONFIG_VALUE_0=!git push'
+check_inherited 2 'git n --hard' 'inherited COUNT reset + call-site --hard' \
+  'GIT_CONFIG_COUNT=1' 'GIT_CONFIG_KEY_0=alias.n' 'GIT_CONFIG_VALUE_0=reset'
+check_inherited 2 'git p' 'inherited alias name is case-folded' \
+  "GIT_CONFIG_PARAMETERS='alias.P'='push'"
+check_inherited 2 'git --config-env=alias.p=P p' 'inherited config-env source is resolved' \
+  'P=push'
+check_inherited 2 'git p' 'last duplicate PARAMETERS value dangerous' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='status' 'alias.p'='push'"
+# Multiple sources, Git's precedence (COUNT first, PARAMETERS after it), and a command-visible
+# assignment overriding the inherited variable are each isolated. Safe overrides stay usable.
+check_inherited 2 'git p' 'inherited PARAMETERS wins collision over COUNT' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push'" \
+  'GIT_CONFIG_COUNT=1' 'GIT_CONFIG_KEY_0=alias.p' 'GIT_CONFIG_VALUE_0=status'
+check_inherited 0 "GIT_CONFIG_PARAMETERS=\"'alias.p'='status'\" git p" \
+  'command assignment overrides inherited PARAMETERS' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push'"
+check_inherited 0 'GIT_CONFIG_COUNT=0 git status' \
+  'command count zero disables inherited COUNT entries' \
+  'GIT_CONFIG_COUNT=1' 'GIT_CONFIG_KEY_0=alias.p' 'GIT_CONFIG_VALUE_0=push'
+check_inherited 0 'env -u GIT_CONFIG_PARAMETERS git status' \
+  'env -u removes inherited PARAMETERS before git' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push'"
+# Benign and non-alias runtime config stays open. Malformed/missing families block explicitly as an
+# unclassifiable injection surface; they must never throw into the wrapper's documented fail-open.
+check_inherited 0 'git st' 'inherited safe alias -> status' \
+  "GIT_CONFIG_PARAMETERS='alias.st'='status'"
+check_inherited 0 'git status' 'inherited non-alias config' \
+  "GIT_CONFIG_PARAMETERS='user.name'='x'"
+check_inherited 2 'git p' 'malformed inherited PARAMETERS blocks explicitly' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push"
+check_inherited 2 'git p' 'missing COUNT value blocks explicitly' \
+  'GIT_CONFIG_COUNT=1' 'GIT_CONFIG_KEY_0=alias.p'
+check_inherited 2 'git status' 'invalid unquoted PARAMETERS entry blocks explicitly' \
+  'GIT_CONFIG_PARAMETERS=alias.p=push'
+# At the explicit resource ceiling a valid safe family is parsed; above it blocks as evasion.
+check_inherited_count_bound 0 256 'COUNT at resource ceiling with safe entries'
+check_inherited_count_bound 2 257 'COUNT above resource ceiling blocks as evasion'
+check_inherited_parameters_bound 0 256 'PARAMETERS at resource ceiling with safe entries'
+check_inherited_parameters_bound 2 257 'PARAMETERS above resource ceiling blocks as evasion'
+long_cfg="$(printf '%*s' 65537 '' | tr ' ' x)"
+check_inherited 2 'git status' 'oversized PARAMETERS raw blocks as evasion' \
+  "GIT_CONFIG_PARAMETERS=$long_cfg"
+check_inherited 2 'git status' 'oversized COUNT value blocks as evasion' \
+  'GIT_CONFIG_COUNT=1' 'GIT_CONFIG_KEY_0=user.name' "GIT_CONFIG_VALUE_0=$long_cfg"
+check_inherited 2 'git a' 'alias nesting beyond resolver cap blocks as evasion' \
+  "GIT_CONFIG_PARAMETERS='alias.a'='b' 'alias.b'='c' 'alias.c'='d' 'alias.d'='e' 'alias.e'='f' 'alias.f'='g' 'alias.g'='h' 'alias.h'='i' 'alias.i'='j' 'alias.j'='status'"
+
+echo "== must ALLOW — 2.0.3-r7 precedence, scope, and single-file controls =="
+check_inherited 0 'git status' 'stray indexed vars without COUNT are inert' \
+  'GIT_CONFIG_KEY_0=alias.p' 'GIT_CONFIG_VALUE_0=push'
+check_inherited 0 'git status' 'indexed vars above COUNT are inert' \
+  'GIT_CONFIG_COUNT=1' 'GIT_CONFIG_KEY_0=user.name' 'GIT_CONFIG_VALUE_0=safe' \
+  'GIT_CONFIG_KEY_1=alias.p' 'GIT_CONFIG_VALUE_1=push'
+check_inherited 0 'git status' 'COUNT zero ignores stray pairs' \
+  'GIT_CONFIG_COUNT=0' 'GIT_CONFIG_KEY_0=alias.p' 'GIT_CONFIG_VALUE_0=push'
+check_inherited 0 'git p' 'last duplicate PARAMETERS value safe' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push' 'alias.p'='status'"
+check_inherited 0 'git p' 'PARAMETERS safe overrides dangerous COUNT' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='status'" \
+  'GIT_CONFIG_COUNT=1' 'GIT_CONFIG_KEY_0=alias.p' 'GIT_CONFIG_VALUE_0=push'
+check_inherited 0 'git -c alias.p=status p' 'inline safe overrides inherited PARAMETERS danger' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push'"
+check_inherited 0 'P=status git -c alias.p=push --config-env=alias.p=P p' \
+  'later config-env safe wins within argv layer'
+check_inherited 2 'P=push git -c alias.p=status --config-env=alias.p=P p' \
+  'later config-env dangerous wins within argv layer'
+check_inherited 0 'env -i git status' 'env -i clears inherited runtime config' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push'"
+check 0 'git status -- -c alias.p=push' 'post-subcommand -c text is ordinary argv'
+check 0 'git status -- --config-env=alias.p=P' 'post-subcommand config-env text is ordinary argv'
+check 0 'git restore README.md' 'single-file restore intentionally allowed'
+check 0 'git restore --worktree README.md' 'single-file worktree restore intentionally allowed'
+check 0 'git checkout HEAD -- README.md' 'single-file checkout-from-HEAD intentionally allowed'
+
+check_inherited 0 'git status' 'PARAMETERS parser never evaluates config bytes' \
+  "GIT_CONFIG_PARAMETERS='user.name=\$(touch $CANARY_DIR/gcp-pwned)'"
+if [ -e "$CANARY_DIR/gcp-pwned" ]; then
+  fail=$((fail + 1)); printf '  FAIL  PARAMETERS no-eval canary created a file\n'
+else
+  pass=$((pass + 1)); printf '  ok    [0] PARAMETERS no-eval canary\n'
+fi
+check_inherited 0 'git status' 'COUNT parser never evaluates config bytes' \
+  'GIT_CONFIG_COUNT=1' 'GIT_CONFIG_KEY_0=user.name' "GIT_CONFIG_VALUE_0=\$(touch $CANARY_DIR/count-pwned)"
+if [ -e "$CANARY_DIR/count-pwned" ]; then
+  fail=$((fail + 1)); printf '  FAIL  COUNT no-eval canary created a file\n'
+else
+  pass=$((pass + 1)); printf '  ok    [0] COUNT no-eval canary\n'
+fi
 
 echo
 echo "RESULT pass=$pass fail=$fail"
