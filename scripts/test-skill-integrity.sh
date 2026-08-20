@@ -5,5 +5,5 @@ set -euo pipefail
 REPO="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$REPO"
 
-python3 -m unittest -v tests.test_skill_integrity
-printf '\nRESULT skill-integrity matrix=green\n'
+python3 -B -m unittest -v tests.test_skill_integrity tests.test_freshness
+printf '\nRESULT skill-integrity+freshness fixture matrix=green\n'

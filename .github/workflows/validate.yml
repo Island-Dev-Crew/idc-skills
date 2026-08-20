@@ -41,7 +41,12 @@ jobs:
         with:
           node-version: "22"
 
-      - name: Reaccept all fifty skills and installer profiles
+      # This repository-owned workflow is intentionally content-only. A
+      # whole-tree readiness check must be required from outside candidate
+      # code (pinned org workflow/action/runner policy).
+      - name: Content-reaccept all fifty skills and installer profiles
+        env:
+          IDC_SKILLS_FRESHNESS_HANDOFF: sha256:0000000000000000000000000000000000000000000000000000000000000000
         run: python -B scripts/reaccept.py
 
       - name: Exercise authority and integrity attack fixtures

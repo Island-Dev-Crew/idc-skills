@@ -132,12 +132,28 @@ class SecurityScriptTests(unittest.TestCase):
                 for path in skill_integrity._walk_regular_files(source)
             }
             verified = {
-                "readyToRun": True,
+                "contentReady": True,
+                "profile": "release",
                 "score": "5/5",
                 "_verifiedManifest": {
                     "skills": {"short": {"files": expected}}
                 },
             }
+
+            with mock.patch.dict(os.environ, {}, clear=True):
+                with contextlib.redirect_stderr(io.StringIO()) as direct_error:
+                    direct_code = module.main(
+                        [
+                            "--repo-root",
+                            str(REPO),
+                            "--installed-skills",
+                            str(installed),
+                            "--skill",
+                            "short",
+                        ]
+                    )
+            self.assertEqual(direct_code, 2)
+            self.assertIn("external idc-verify-fresh", direct_error.getvalue())
 
             def invoke(
                 report: dict[str, object],
@@ -154,29 +170,34 @@ class SecurityScriptTests(unittest.TestCase):
                         "verify_repository",
                         return_value=copy.deepcopy(report),
                     ):
-                        with contextlib.redirect_stdout(output):
-                            with contextlib.redirect_stderr(error):
-                                exit_code = module.main(
-                                    [
-                                        "--repo-root",
-                                        str(REPO),
-                                        "--installed-skills",
-                                        str(installed),
-                                        "--skill",
-                                        skill,
-                                    ]
-                                )
+                        with mock.patch.dict(
+                            os.environ,
+                            {module.FRESHNESS_HANDOFF_ENV: "sha256:" + "a" * 64},
+                        ):
+                            with contextlib.redirect_stdout(output):
+                                with contextlib.redirect_stderr(error):
+                                    exit_code = module.main(
+                                        [
+                                            "--repo-root",
+                                            str(REPO),
+                                            "--installed-skills",
+                                            str(installed),
+                                            "--skill",
+                                            skill,
+                                        ]
+                                    )
                 return exit_code, output.getvalue(), error.getvalue()
 
             red_code, _, red_error = invoke(
-                {"readyToRun": False, "score": "0/5"}, "short"
+                {"contentReady": False, "profile": "release", "score": "0/5"},
+                "short",
             )
             self.assertEqual(red_code, 2)
-            self.assertIn("integrity gate is 0/5", red_error)
+            self.assertIn("content gate is 0/5", red_error)
 
             ready_code, ready_output, ready_error = invoke(verified, "short")
             self.assertEqual(ready_code, 0, ready_error)
-            self.assertIn("READY 5/5", ready_output)
+            self.assertIn("CONTENT VERIFIED 5/5", ready_output)
 
             unknown_code, _, unknown_error = invoke(verified, "not-in-forge")
             self.assertEqual(unknown_code, 2)

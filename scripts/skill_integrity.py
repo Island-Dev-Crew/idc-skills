@@ -4,8 +4,11 @@
 The release profile binds all 50 registered skill trees, security-control files,
 the external-reference set, and denied fetch/execute findings to one canonical
 manifest signed by the 1Password-held Forge key. A passing repository check is
-necessary before installation or skill invocation. It is not a sandbox and it
-does not make permitted remote content or a signed author trustworthy.
+necessary before installation or skill invocation. This in-tree verifier
+establishes content integrity only; an independently installed freshness
+launcher must establish anti-rollback state before any ready-to-run claim. It
+is not a sandbox and it does not make permitted remote content or a signed
+author trustworthy.
 
 Bootstrap is deliberately external: a consumer must first compare the public
 key fingerprint with the trusted, out-of-band fingerprint documented below and
@@ -20,6 +23,7 @@ import hashlib
 import json
 import os
 import re
+import shutil
 import stat
 import subprocess
 import sys
@@ -32,7 +36,8 @@ from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
 
 
-MANIFEST_SCHEMA = "idc-skill-integrity/v2"
+MANIFEST_SCHEMA = "idc-skill-integrity/v3"
+REPORT_SCHEMA = "idc-skill-integrity-report/v2"
 POLICY_SCHEMA = "idc-skill-integrity-policy/v1"
 SIGN_NAMESPACE = "file"
 SIGN_IDENTITY = "idc-skills"
@@ -41,11 +46,15 @@ MAX_REMOTE_BYTES = 4 * 1024 * 1024
 MAX_MANIFEST_BYTES = 64 * 1024 * 1024
 MAX_ANCHOR_BYTES = 64 * 1024
 MAX_SIGNATURE_BYTES = 1024 * 1024
+MIN_MANIFEST_SEQUENCE = 1
+MAX_MANIFEST_SEQUENCE = (1 << 53) - 1
+SHA256_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
 
 REQUIRED_RELEASE_CONTROL_FILES = (
     ".gitattributes",
     ".github/workflows/validate.yml",
     "AGENTS.md",
+    "bootstrap/idc_verify_fresh.py",
     "CONTEXT.md",
     "integrity/README.md",
     "integrity/policy.json",
@@ -60,6 +69,7 @@ REQUIRED_RELEASE_CONTROL_FILES = (
     "scripts/test-skill-integrity.sh",
     "skills/registry.json",
     "tests/test_install.py",
+    "tests/test_freshness.py",
     "tests/test_security_scripts.py",
     "tests/test_skill_integrity.py",
 )
@@ -277,6 +287,16 @@ def _scan_text(data: bytes, relative_path: str) -> tuple[list[dict[str, Any]], l
 
 def _load_registry(skills_dir: Path) -> tuple[dict[str, Any], list[str]]:
     registry = _load_json(skills_dir / "registry.json", "skills registry")
+    sequence = registry.get("manifestSequence")
+    if (
+        isinstance(sequence, bool)
+        or not isinstance(sequence, int)
+        or not MIN_MANIFEST_SEQUENCE <= sequence <= MAX_MANIFEST_SEQUENCE
+    ):
+        raise IntegrityError(
+            "skills/registry.json .manifestSequence must be an integer "
+            f"between {MIN_MANIFEST_SEQUENCE} and {MAX_MANIFEST_SEQUENCE}"
+        )
     records = registry.get("skills")
     if not isinstance(records, list):
         raise IntegrityError("skills/registry.json .skills must be an array")
@@ -472,7 +492,7 @@ def _fetch_remote(entry: Mapping[str, Any]) -> tuple[str, str, int]:
         raise IntegrityError(f"invalid maxBytes for {url}: {maximum}")
     request = urllib.request.Request(
         url,
-        headers={"User-Agent": "IDC-Skills-Integrity/2.0.2", "Accept-Encoding": "identity"},
+        headers={"User-Agent": "IDC-Skills-Integrity/2.0.3", "Accept-Encoding": "identity"},
     )
     try:
         with urllib.request.urlopen(request, timeout=15) as response:
@@ -514,7 +534,159 @@ def _control_files(repo_root: Path, policy: Mapping[str, Any]) -> dict[str, Any]
     return records
 
 
-def build_manifest(repo_root: Path, skills_dir: Path, policy_path: Path, *, fetch_remotes: bool) -> dict[str, Any]:
+def _repository_files(
+    repo_root: Path,
+    *,
+    windows_mode_overrides: Mapping[str, Any] | None = None,
+    repository_file_paths: Iterable[str] | None = None,
+) -> dict[str, Any]:
+    """Bind every repository byte and canonical POSIX file mode.
+
+    Windows has no faithful POSIX mode representation. During verification on
+    Windows, authenticated manifest modes are therefore carried forward while
+    bytes are independently recomputed; the external launcher restores those
+    signed modes in its private execution snapshot.
+    """
+
+    excluded = {
+        ".git",
+        "integrity/manifest.json",
+        "integrity/manifest.json.sig",
+    }
+    selected: set[str] | None = None
+    selected_directories: set[str] = set()
+    if repository_file_paths is not None:
+        selected = set(repository_file_paths) - excluded
+        _assert_path_set_portable(selected, "repository files")
+        for relative in selected:
+            path = Path(relative)
+            if path.is_absolute() or any(part in {"", ".", ".."} for part in path.parts):
+                raise IntegrityError(f"unsafe repository file path: {relative!r}")
+            selected_directories.update(
+                parent.as_posix() for parent in path.parents if parent.as_posix() != "."
+            )
+    records: dict[str, Any] = {}
+    for current, directories, names in os.walk(repo_root, followlinks=False):
+        current_path = Path(current)
+        relative_current = current_path.relative_to(repo_root).as_posix()
+        if relative_current == ".":
+            relative_current = ""
+        kept_directories: list[str] = []
+        for name in directories:
+            relative = f"{relative_current}/{name}".lstrip("/")
+            candidate = current_path / name
+            if relative == ".git":
+                continue
+            if selected is not None and relative not in selected_directories:
+                continue
+            try:
+                mode = candidate.lstat().st_mode
+            except OSError as exc:
+                raise IntegrityError(
+                    f"repository directory changed during enumeration: {relative}"
+                ) from exc
+            if stat.S_ISLNK(mode) or not stat.S_ISDIR(mode):
+                raise IntegrityError(f"unsafe repository directory type: {relative}")
+            kept_directories.append(name)
+        directories[:] = kept_directories
+        for name in names:
+            relative = f"{relative_current}/{name}".lstrip("/")
+            if relative in excluded:
+                continue
+            if selected is not None and relative not in selected:
+                continue
+            candidate = current_path / name
+            try:
+                mode = candidate.lstat().st_mode
+            except OSError as exc:
+                raise IntegrityError(
+                    f"repository file changed during enumeration: {relative}"
+                ) from exc
+            if stat.S_ISLNK(mode) or not stat.S_ISREG(mode):
+                raise IntegrityError(f"unsafe repository file type: {relative}")
+            record = _file_record(candidate)
+            posix_mode = stat.S_IMODE(mode) & 0o777
+            if os.name == "nt" and windows_mode_overrides is not None:
+                override = windows_mode_overrides.get(relative)
+                if isinstance(override, dict):
+                    posix_mode = override.get("posixMode", posix_mode)
+            if type(posix_mode) is not int or not 0 <= posix_mode <= 0o777:
+                raise IntegrityError(f"invalid canonical POSIX mode: {relative}")
+            record["posixMode"] = posix_mode
+            records[relative] = record
+    if selected is not None and set(records) != selected:
+        raise IntegrityError(
+            "tracked repository file set differs: "
+            f"missing={sorted(selected - set(records))} "
+            f"unexpected={sorted(set(records) - selected)}"
+        )
+    _assert_path_set_portable(records, "repository files")
+    return dict(sorted(records.items()))
+
+
+def _tracked_repository_paths(repo_root: Path) -> list[str]:
+    """Capture the Git-tracked release closure without inheriting Git config."""
+
+    git = shutil.which("git", path=os.defpath)
+    if git is None:
+        raise IntegrityError("git is required to generate a release manifest")
+    with tempfile.TemporaryDirectory(prefix="idc-manifest-git-") as temporary:
+        root = Path(temporary)
+        empty_config = root / "empty.gitconfig"
+        empty_hooks = root / "hooks"
+        empty_config.write_text("", encoding="utf-8")
+        empty_hooks.mkdir()
+        environment = {
+            "PATH": str(Path(git).resolve().parent),
+            "LANG": "C",
+            "LC_ALL": "C",
+            "TZ": "UTC",
+            "GIT_CONFIG_NOSYSTEM": "1",
+            "GIT_CONFIG_GLOBAL": str(empty_config),
+            "GIT_CONFIG_SYSTEM": str(empty_config),
+            "GIT_ATTR_NOSYSTEM": "1",
+            "GIT_TERMINAL_PROMPT": "0",
+            "GIT_OPTIONAL_LOCKS": "0",
+        }
+        process = subprocess.run(
+            [
+                str(Path(git).resolve()),
+                "-c",
+                "core.fsmonitor=false",
+                "-c",
+                f"core.hooksPath={empty_hooks}",
+                "-c",
+                "submodule.recurse=false",
+                "-C",
+                str(repo_root),
+                "ls-files",
+                "-z",
+                "--cached",
+            ],
+            capture_output=True,
+            check=False,
+            env=environment,
+        )
+    if process.returncode != 0:
+        detail = process.stderr.decode("utf-8", errors="replace").strip()
+        raise IntegrityError(f"tracked repository inventory failed: {detail}")
+    try:
+        paths = [item.decode("utf-8") for item in process.stdout.split(b"\0") if item]
+    except UnicodeDecodeError as exc:
+        raise IntegrityError("tracked repository paths must be UTF-8") from exc
+    _assert_path_set_portable(paths, "tracked repository files")
+    return paths
+
+
+def build_manifest(
+    repo_root: Path,
+    skills_dir: Path,
+    policy_path: Path,
+    *,
+    fetch_remotes: bool,
+    windows_mode_overrides: Mapping[str, Any] | None = None,
+    repository_file_paths: Iterable[str] | None = None,
+) -> dict[str, Any]:
     repo_root = repo_root.resolve()
     skills_dir = skills_dir.resolve()
     policy_path = policy_path.resolve()
@@ -579,10 +751,31 @@ def build_manifest(repo_root: Path, skills_dir: Path, policy_path: Path, *, fetc
     approved_denied = _validate_denied_exceptions(policy, skills)
     controls = _control_files(repo_root, policy)
     policy_relative = policy_path.relative_to(repo_root).as_posix()
+    repository_files = _repository_files(
+        repo_root,
+        windows_mode_overrides=windows_mode_overrides,
+        repository_file_paths=repository_file_paths,
+    )
+    required_repository_files = set(controls) | {
+        policy_relative,
+        "skills/registry.json",
+    }
+    required_repository_files.update(
+        f"skills/{skill_name}/{relative}"
+        for skill_name, skill in skills.items()
+        for relative in skill["files"]
+    )
+    missing_required_files = sorted(required_repository_files - set(repository_files))
+    if missing_required_files:
+        raise IntegrityError(
+            "required files are not in the tracked release closure: "
+            + ", ".join(missing_required_files)
+        )
     return {
         "schema": MANIFEST_SCHEMA,
         "profile": policy["profile"],
         "release": registry.get("release"),
+        "manifestSequence": registry["manifestSequence"],
         "anchor": {
             "expectedFingerprint": policy.get("expectedSigningFingerprint"),
             "identity": SIGN_IDENTITY,
@@ -593,6 +786,7 @@ def build_manifest(repo_root: Path, skills_dir: Path, policy_path: Path, *, fetc
         "skillNames": registered,
         "skills": dict(sorted(skills.items())),
         "controlFiles": controls,
+        "repositoryFiles": repository_files,
         "approvedDeniedPatterns": approved_denied,
         "remoteObservations": sorted(remote_observations, key=lambda item: item["url"]),
     }
@@ -750,6 +944,69 @@ def _load_canonical_manifest_bytes(data: bytes) -> dict[str, Any]:
         raise IntegrityError("integrity manifest must be a JSON object")
     if manifest.get("schema") != MANIFEST_SCHEMA:
         raise IntegrityError(f"manifest schema must be {MANIFEST_SCHEMA!r}")
+    expected_keys = {
+        "schema",
+        "profile",
+        "release",
+        "manifestSequence",
+        "anchor",
+        "policy",
+        "skillCount",
+        "skillNames",
+        "skills",
+        "controlFiles",
+        "repositoryFiles",
+        "approvedDeniedPatterns",
+        "remoteObservations",
+    }
+    if set(manifest) != expected_keys:
+        raise IntegrityError(
+            "manifest top-level keys differ: "
+            f"missing={sorted(expected_keys - set(manifest))} "
+            f"unknown={sorted(set(manifest) - expected_keys)}"
+        )
+    sequence = manifest.get("manifestSequence")
+    if (
+        isinstance(sequence, bool)
+        or not isinstance(sequence, int)
+        or not MIN_MANIFEST_SEQUENCE <= sequence <= MAX_MANIFEST_SEQUENCE
+    ):
+        raise IntegrityError(
+            "manifestSequence must be an integer "
+            f"between {MIN_MANIFEST_SEQUENCE} and {MAX_MANIFEST_SEQUENCE}"
+        )
+    if manifest.get("profile") not in {"release", "fixture"}:
+        raise IntegrityError("manifest profile must be 'release' or 'fixture'")
+    if not isinstance(manifest.get("release"), str) or not manifest["release"]:
+        raise IntegrityError("manifest release must be a non-empty string")
+    if (
+        type(manifest.get("skillCount")) is not int
+        or manifest["skillCount"] < 1
+        or not isinstance(manifest.get("skillNames"), list)
+        or not all(isinstance(item, str) for item in manifest["skillNames"])
+        or not isinstance(manifest.get("skills"), dict)
+        or not isinstance(manifest.get("controlFiles"), dict)
+        or not isinstance(manifest.get("repositoryFiles"), dict)
+        or not isinstance(manifest.get("anchor"), dict)
+        or not isinstance(manifest.get("policy"), dict)
+        or not isinstance(manifest.get("approvedDeniedPatterns"), list)
+        or not isinstance(manifest.get("remoteObservations"), list)
+    ):
+        raise IntegrityError("manifest has invalid top-level value types")
+    for relative, record in manifest["repositoryFiles"].items():
+        if not isinstance(relative, str) or not isinstance(record, dict):
+            raise IntegrityError("repositoryFiles must map paths to file records")
+        if set(record) != {"sha256", "size", "posixMode"}:
+            raise IntegrityError(f"repositoryFiles record keys differ: {relative}")
+        if (
+            not isinstance(record["sha256"], str)
+            or SHA256_RE.fullmatch(record["sha256"]) is None
+            or type(record["size"]) is not int
+            or record["size"] < 0
+            or type(record["posixMode"]) is not int
+            or not 0 <= record["posixMode"] <= 0o777
+        ):
+            raise IntegrityError(f"invalid repositoryFiles record: {relative}")
     if data != canonical_bytes(manifest):
         raise IntegrityError("manifest JSON is not canonical")
     return manifest
@@ -846,7 +1103,23 @@ def verify_repository(
     current: dict[str, Any] | None = None
     build_failure: str | None = None
     try:
-        current = build_manifest(repo_root, skills_dir, policy_path, fetch_remotes=False)
+        current = build_manifest(
+            repo_root,
+            skills_dir,
+            policy_path,
+            fetch_remotes=False,
+            windows_mode_overrides=(
+                stored.get("repositoryFiles")
+                if os.name == "nt" and isinstance(stored, dict)
+                else None
+            ),
+            repository_file_paths=(
+                stored.get("repositoryFiles", {}).keys()
+                if isinstance(stored, dict)
+                and isinstance(stored.get("repositoryFiles"), dict)
+                else None
+            ),
+        )
     except (IntegrityError, OSError) as exc:
         build_failure = str(exc)
 
@@ -862,7 +1135,16 @@ def verify_repository(
         external_failures.append(build_failure or "current repository could not be analyzed")
         denied_failures.append(build_failure or "current repository could not be analyzed")
     if stored is not None and current is not None:
-        for key in ("release", "anchor", "skillCount", "skillNames", "controlFiles", "policy"):
+        for key in (
+            "release",
+            "manifestSequence",
+            "anchor",
+            "skillCount",
+            "skillNames",
+            "controlFiles",
+            "repositoryFiles",
+            "policy",
+        ):
             local_failures.extend(_compare_section(stored.get(key), current.get(key), key))
         stored_files = {
             name: skill.get("files") for name, skill in stored.get("skills", {}).items()
@@ -949,6 +1231,17 @@ def verify_repository(
             skills_dir,
             policy_path,
             fetch_remotes=False,
+            windows_mode_overrides=(
+                stored.get("repositoryFiles")
+                if os.name == "nt" and isinstance(stored, dict)
+                else None
+            ),
+            repository_file_paths=(
+                stored.get("repositoryFiles", {}).keys()
+                if isinstance(stored, dict)
+                and isinstance(stored.get("repositoryFiles"), dict)
+                else None
+            ),
         )
     except (IntegrityError, OSError) as exc:
         final_snapshot = None
@@ -966,19 +1259,20 @@ def verify_repository(
     passed_count = sum(1 for check in checks.values() if check["pass"])
     profile = stored.get("profile") if stored else None
     passed = passed_count == 5
-    ready = (
-        passed
-        and profile == "release"
-        and expected_fingerprint == EXPECTED_SIGNING_FINGERPRINT
-        and stored is not None
-        and stored.get("skillCount") == 50
-    )
+    # Content readiness is deliberately narrower than release authority. A
+    # fixture may prove that these five checks work without becoming eligible
+    # for installation; the external launcher separately requires the release
+    # profile, Forge fingerprint, 50 skills, and signed freshness index.
+    content_ready = passed
     report = {
-        "schema": "idc-skill-integrity-report/v1",
+        "schema": REPORT_SCHEMA,
         "pass": passed,
-        "readyToRun": ready,
+        "contentReady": content_ready,
+        "authority": "content-only",
         "score": f"{passed_count}/5",
         "profile": profile,
+        "release": stored.get("release") if stored else None,
+        "manifestSequence": stored.get("manifestSequence") if stored else None,
         "skillsChecked": current.get("skillCount", 0) if current else 0,
         "manifest": str(manifest_path),
         "expectedSigningFingerprint": expected_fingerprint,
@@ -1032,7 +1326,13 @@ def cmd_manifest(args: argparse.Namespace) -> int:
     output = (args.out or repo_root / "integrity" / "manifest.json").resolve()
     try:
         _safe_manifest_output(output, skills_dir)
-        manifest = build_manifest(repo_root, skills_dir, policy_path, fetch_remotes=True)
+        manifest = build_manifest(
+            repo_root,
+            skills_dir,
+            policy_path,
+            fetch_remotes=True,
+            repository_file_paths=_tracked_repository_paths(repo_root),
+        )
         output.parent.mkdir(parents=True, exist_ok=True)
         output.write_bytes(canonical_bytes(manifest))
     except (IntegrityError, OSError) as exc:
@@ -1099,7 +1399,7 @@ def cmd_sign(args: argparse.Namespace) -> int:
 
 
 def _print_report(report: Mapping[str, Any]) -> None:
-    label = "READY" if report["readyToRun"] else "NOT READY"
+    label = "CONTENT READY" if report["contentReady"] else "CONTENT NOT READY"
     print(
         f"{label} {report['score']} — skills={report['skillsChecked']} "
         f"profile={report.get('profile') or 'unverified'}"
@@ -1126,7 +1426,7 @@ def cmd_verify(args: argparse.Namespace) -> int:
         print(json.dumps(report, sort_keys=True, indent=2))
     else:
         _print_report(report)
-    return 0 if report["readyToRun"] else 1
+    return 0 if report["contentReady"] else 1
 
 
 def build_parser() -> argparse.ArgumentParser:

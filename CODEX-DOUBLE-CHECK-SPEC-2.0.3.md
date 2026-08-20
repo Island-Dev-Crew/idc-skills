@@ -62,7 +62,59 @@ path. Claude round 3 **rebuilt** both (the guard as a scoped model, not a patch)
   scanner 21/0, integrity matrix green, `manifest --out <tmp>` OK, `verify` RED-by-design (local_bytes +
   external_reference_set differ until the finalized-order re-sign).
 
-## 2. BUILD — anti-rollback freshness (yours to implement in `skill_integrity.py`; Claude/Kimi verify)
+## 2. IMPLEMENTATION RECORD — anti-rollback freshness (Codex-built; independent review required)
+
+> **The design text below is retained as the pre-build decision record, not the
+> executable contract.** Implementation review proved that freshness could not
+> safely be delegated back to `skill_integrity.py`, that arbitrary TOFU was too
+> weak, and that an OS-floor-only operator path left the verifier closure
+> unauthenticated. The authoritative 2.0.3 contract is the code plus
+> `integrity/README.md`, summarized here.
+
+Implemented contract:
+
+- `scripts/skill_integrity.py` emits report schema v2 with `contentReady` and
+  never emits `readyToRun`. Manifest schema v3 carries strict positive
+  `manifestSequence`; 2.0.3 is sequence `1`, the first evidenced monotonic
+  record—not an invented sequence `3`.
+- `bootstrap/idc_verify_fresh.py` is distributable source. Only an independently
+  installed copy, invoked through the absolute digest-pinned Python runtime in
+  an external canonical configuration, can emit `readyToRun=true`.
+- Canonical index schema is `idc-skills-release-index/v1`; `validUntil` is
+  mandatory, whole-second UTC, and at most 31 days after `generatedAt`. Every
+  newest entry binds release, manifest sequence, raw manifest SHA-256, verifier
+  SHA-256, launcher SHA-256, and exact Git commit. Index signatures use the
+  separate `idc-skills-release-index-v1` namespace.
+- First use requires the exact externally provisioned index digest. The
+  protected checkpoint binds index sequence, exact digest, and complete
+  accepted history; replay, same-sequence equivocation, or history rewrite is
+  red. No `--trust-on-first-use` escape exists.
+- The external configuration pins Python, Git, and OpenSSH by absolute path and
+  SHA-256, plus protected consumer home/search directories. Candidate Git
+  hooks, filters, fsmonitor, replacement/lazy-fetch behavior, caller loader
+  variables, and caller `PATH` do not participate in authorization.
+- The signed Git-tracked closure binds SHA-256, size, and canonical POSIX mode.
+  It is compared to Git tree blobs without worktree conversion, copied to a
+  private snapshot, and only that snapshot is verified or consumed. Ignored and
+  untracked local files never enter execution.
+- `release`, `ci`, and `operator` modes all require the signed live index in
+  2.0.3; suppression/unreachability is a hard failure. `offline` is content-only,
+  reports `freshness=UNVERIFIED`, never runs a consumer, and exits `3`.
+- Repository-owned CI can test content and launcher fixtures but cannot be a
+  whole-tree freshness root. That claim requires an organization-controlled
+  required workflow, pinned action/container, or runner policy outside candidate
+  code.
+
+The RED matrix now covers strict sequence types/floors, first-use pinning,
+namespace separation, expiry before state transition, replay/equivocation and
+history rewrite, verifier and runtime digest drift, in-tree/case-aliased
+authority paths, linked Git metadata, Git fsmonitor/filter non-execution,
+ignored-file exclusion, signed mode restoration, post-stage mutation, consumer
+root override and environment injection, CI no-downgrade, offline exit `3`, and
+an actual captured 50-skill verifier run. Any later wording in this section that
+conflicts with this block is superseded.
+
+### Superseded pre-build design record
 Round-2 re-verify verdict: the design is "materially better but not yet safe to implement as written." This
 revision closes the five gaps Codex named. Ship **(a)+(b)** with the corrections below; **(c)** optional.
 
@@ -160,12 +212,15 @@ signing (a version bump, a changelog line, a sequence field) invalidates the sig
 2. **Finalize ALL content FIRST:** bump `registry.json` release → `2.0.3`; set the new `manifestSequence`;
    write the changelog; land every control-file edit (guard, scanner, `skill_integrity.py`, wizard). Nothing
    else may change after this point.
-3. **THEN** `skill_integrity.py manifest` → regenerate over the finalized tree; operator runs `sign`
-   (1Password biometric); `verify` → READY 5/5. If anything needs changing after this, go back to step 2.
+3. **THEN** `skill_integrity.py manifest` → regenerate over the finalized tracked tree; operator runs `sign`
+   (1Password biometric); the in-tree `verify` may report only `contentReady=true` at 5/5. If anything needs
+   changing after this, go back to step 2.
 4. Independent exact-head review (a different family than the builder) BEFORE any PR/release action.
-5. PR #4 on the forge; merge; promote to `Island-Dev-Crew`; annotated tag `2.0.3`; set the external freshness
-   floor / update the signed release index; verified reinstall.
-6. Then the loop continues: **Kimi K3 red-teams the real 2.0.3**; anything new → 2.0.4. Nothing is "done"
+5. PR #4 on the forge; merge; promote that exact commit object to `Island-Dev-Crew` without rewriting it.
+6. Construct and biometrically sign the second, domain-separated release index artifact; publish its immutable
+   pair, provision the external config/checkpoint, and obtain external `readyToRun=true`. Only then create the
+   annotated `2.0.3` tag and run the verified reinstall.
+7. Then the loop continues: **Kimi K3 red-teams the real 2.0.3**; anything new → 2.0.4. Nothing is "done"
    until an independent family re-breaks the shipped tag and comes back empty.
 
 ## The law

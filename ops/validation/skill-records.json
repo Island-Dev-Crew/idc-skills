@@ -1353,7 +1353,7 @@
       "standoutStrength": "Makes bidirectional evidence invalidation explicit without laundering a procedural mandate into mechanical enforcement."
     }
   ],
-  "release": "2.0.2",
+  "release": "2.0.3",
   "schema": "idc-skill-validation/v1",
   "sourceNote": "Forty historical records were mechanically migrated from docs/report.html; ten missing records were independently re-derived for F-02 closure. Each card preserves its residual and case limits."
 }

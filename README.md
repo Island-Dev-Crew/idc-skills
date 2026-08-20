@@ -4,7 +4,7 @@
 
 > *"In the multitude of counsellors there is safety."* — Proverbs 11:14
 
-This is the **staging forge** (`Navigata1/idc-skills-forge`, release 2.0.2). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
+This is the **staging forge** (`Navigata1/idc-skills-forge`, release 2.0.3). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
 
 **Cross-harness by contract, not assumption:** the canonical source is preserved once, while each harness gets a documented loader path, metadata profile, and evidence tier. The current matrix covers fifteen surfaces, including Codex, Claude Code, claude.ai, Cursor, VS Code, Amp, Kimi, Antigravity, OpenClaw, Grok, Buzz, Pi, and Hermes. A shared folder proves byte distribution; it does not by itself prove invocation semantics. See the [human-readable matrix](docs/harness-support.md) and its [machine-readable contract](docs/harness-support.json).
 
@@ -81,25 +81,28 @@ The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust
 
 ## Install
 
-The dependency-free Python installer works from PowerShell, Command Prompt, and POSIX shells. Targets are explicit so the external write set is visible before execution:
+The dependency-free Python installer works from PowerShell, Command Prompt, and POSIX shells. Release 2.0.3 routes it through an independently installed freshness launcher; the repository's own verifier can prove signed content, but it cannot prove that its whole tree was not rolled back. Targets remain explicit so the external write set is visible before execution:
 
 ```text
 python scripts/validate_skills.py
-python scripts/install.py install --target agents --json
-python scripts/install.py install --target agents --verify-only --json
+/trusted/runtime/python3 -I -B /trusted/bin/idc-verify-fresh --repo-root /absolute/idc-skills --config /trusted/etc/idc-skills-freshness.json verify
+/trusted/runtime/python3 -I -B /trusted/bin/idc-verify-fresh --repo-root /absolute/idc-skills --config /trusted/etc/idc-skills-freshness.json install -- --target agents --json
+/trusted/runtime/python3 -I -B /trusted/bin/idc-verify-fresh --repo-root /absolute/idc-skills --config /trusted/etc/idc-skills-freshness.json install -- --target agents --verify-only --json
 ```
 
-The native fleet aliases are `agents=~/.agents/skills`, `claude=~/.claude/skills` when that directory exists, `pi=~/.pi/agent/skills` when it exists, and the legacy Hermes topology `hermes=~/.hermes/skills`. Use `--custom-target name=path` only after the [support contract](docs/harness-support.md) establishes that the receiving harness loads that path. Native installs preserve canonical bytes and POSIX executable modes, preflight every selected destination, replace one skill directory atomically, and verify exact manifests. Both Claude.ai export modes also require the green signed release, stage selected skills against the authenticated per-file map, and build ZIPs only from that verified snapshot. A whole multi-target run is not rollback-atomic after an unexpected I/O failure.
+The launcher source is tracked at [`bootstrap/idc_verify_fresh.py`](bootstrap/idc_verify_fresh.py), but that in-tree copy is deliberately non-authoritative and refuses to run from a checkout. The reviewed bytes must be installed outside the repository with an external canonical configuration, signed live release index, exact first-run index digest, and protected checkpoint. Only this launcher emits `readyToRun=true`; `scripts/skill_integrity.py` emits the narrower `contentReady`. See the [full deployment, schema, threat boundary, and release ceremony](integrity/README.md).
+
+The native fleet aliases are `agents=~/.agents/skills`, `claude=~/.claude/skills` when that directory exists, `pi=~/.pi/agent/skills` when it exists, and the legacy Hermes topology `hermes=~/.hermes/skills`. Use `--custom-target name=path` only after the [support contract](docs/harness-support.md) establishes that the receiving harness loads that path. Native installs preserve canonical bytes and POSIX executable modes, preflight every selected destination, replace one skill directory atomically, and verify exact signed manifests after freshness passes. Both Claude.ai export modes stage selected skills against the authenticated per-file map and build ZIPs only from that verified snapshot. A whole multi-target run is not rollback-atomic after an unexpected I/O failure.
 
 claude.ai is a compatibility export, not a native install. The current profile fails closed because 48 canonical descriptions exceed the documented 200-character upload limit and thirteen user-only skills have no documented explicit-only equivalent. The historical supplied snapshot can still be reproduced without changing the canonical tree, but nesting extension keys under `metadata` preserves values only—not invocation behavior:
 
 ```text
-python scripts/install.py export-claude-ai-snapshot --output .exports/claude-ai --json
+/trusted/runtime/python3 -I -B /trusted/bin/idc-verify-fresh --repo-root /absolute/idc-skills --config /trusted/etc/idc-skills-freshness.json export-claude-ai-snapshot -- --output .exports/claude-ai --json
 ```
 
-Release 2.0.2 adds the [signed five-check integrity gate](integrity/README.md). It binds every byte of all 50 skill trees, the registry and security controls, every discovered external reference and network-command occurrence, and reviewed fetch/execute exceptions to a detached OpenSSH signature from the stable 1Password-held Forge key. A new consumer must still verify the public-key fingerprint out of band before executing repository code; the repository cannot establish its own root of trust. `5/5 ready-to-run` is a point-in-time signed preflight, not a sandbox or a full execution trace.
+The five-check content gate binds every byte of all 50 skill trees, the registry and security controls, every discovered external reference and network-command occurrence, and reviewed fetch/execute exceptions to a detached OpenSSH signature from the stable 1Password-held Forge key. The separate index signature uses a domain-separated namespace and binds release sequence, raw manifest digest, verifier digest, launcher digest, and final Git commit. Neither result is a sandbox or a full execution trace.
 
-Run `python scripts/reaccept.py` for the full fifty-island validator, signed integrity check, installer, deterministic export, 50-record registry/report gate, and no-source-drift gate. Signed verification is mandatory and default-on for every release install and export; there is no command-line opt-out. The retained install-only `--verify-integrity` flag explicitly affirms that default for older commands. `scripts/install.sh` is a thin POSIX convenience that selects the same enforced path, not a bypass. The Python interface is the portability source of truth. See [`skills/idc-skill-authoring`](skills/idc-skill-authoring/SKILL.md) §5 for authoring guidance.
+Run the external launcher's `reaccept` command for the full fifty-island validator, signed content check, installer, deterministic export, 50-record registry/report gate, and no-source-drift gate. Direct installer, hook, and reacceptance CLI routes refuse missing freshness handoff. `scripts/install.sh` delegates only when `IDC_SKILLS_FRESHNESS_PYTHON`, `IDC_SKILLS_FRESHNESS_LAUNCHER`, and `IDC_SKILLS_FRESHNESS_CONFIG` name the externally pinned runtime, launcher, and policy. Repository-owned CI tests content and the launcher attack fixtures; whole-tree CI readiness still requires an organization-controlled required check outside candidate code. See [`skills/idc-skill-authoring`](skills/idc-skill-authoring/SKILL.md) §5 for authoring guidance.
 
 ## Provenance
 

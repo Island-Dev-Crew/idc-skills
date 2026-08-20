@@ -28,6 +28,12 @@ not assert that a harness which ignores those metadata fields retains invocation
 behavior.
 
 No mode edits the repository's canonical ``skills/`` tree.
+
+The command-line interface is a content-copy consumer, not a freshness root.
+Release operations are routed through the independently installed
+``idc-verify-fresh`` launcher, which sets a handoff marker only after external
+signed-index verification. The marker prevents accidental direct routing; the
+external launcher and index, not the marker, are the security boundary.
 """
 
 from __future__ import annotations
@@ -62,6 +68,8 @@ CLAUDE_AI_ALLOWED_KEYS = (
     "name",
 )
 CLAUDE_AI_TRANSFORM_KEYS = ("disable-model-invocation", "argument-hint")
+FRESHNESS_HANDOFF_ENV = "IDC_SKILLS_FRESHNESS_HANDOFF"
+SHA256_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
 CLAUDE_AI_ASSUMPTION = (
     "historical user-supplied prior-upload audit captured 2026-08-11: the upload "
     "validator was reported to accept exactly allowed-tools, compatibility, "
@@ -909,9 +917,13 @@ def _verify_signed_skill_sources(
         include_verified_manifest=True,
     )
     signed_manifest = integrity_report.pop("_verifiedManifest", None)
-    if not integrity_report.get("readyToRun"):
+    if not (
+        integrity_report.get("contentReady") is True
+        and integrity_report.get("profile") == "release"
+        and integrity_report.get("score") == "5/5"
+    ):
         raise InstallError(
-            "signed integrity verification failed before output preflight: "
+            "signed content verification failed before output preflight: "
             f"score={integrity_report.get('score')}"
         )
     signed_skill_files: dict[str, Mapping[str, object]] = {}
@@ -1391,7 +1403,7 @@ def _add_common_mode_flags(parser: argparse.ArgumentParser) -> None:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument(
         "--repo-root",
         type=Path,
@@ -1402,6 +1414,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     install = subparsers.add_parser(
         "install",
+        allow_abbrev=False,
         help="byte/mode-preserving native fleet/custom install",
         description=(
             "Install skills after whole-run destination preflight. Fleet paths: "
@@ -1444,6 +1457,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     export = subparsers.add_parser(
         "export-claude-ai",
+        allow_abbrev=False,
         help="current documented claude.ai upload profile; fails closed on unsafe skills",
         description=(
             "Export deterministic root-folder ZIP bundles using the current documented "
@@ -1456,6 +1470,7 @@ def build_parser() -> argparse.ArgumentParser:
 
     snapshot = subparsers.add_parser(
         "export-claude-ai-snapshot",
+        allow_abbrev=False,
         help="historical supplied 2026-08-11 schema snapshot; not current acceptance proof",
         description=(
             "Export deterministic root-folder ZIP bundles for the historical user-supplied "
@@ -1475,7 +1490,7 @@ def _print_human(report: InstallReport) -> None:
     if report.integrity:
         print(
             f"integrity-score={report.integrity.get('score')} "
-            f"ready-to-run={str(report.integrity.get('readyToRun')).lower()}"
+            f"content-ready={str(report.integrity.get('contentReady')).lower()}"
         )
     if report.assumption:
         print(f"assumption={report.assumption}")
@@ -1511,6 +1526,12 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser = build_parser()
     args = parser.parse_args(argv)
     try:
+        handoff = os.environ.get(FRESHNESS_HANDOFF_ENV, "")
+        if SHA256_RE.fullmatch(handoff) is None:
+            raise InstallError(
+                "release install/export must be invoked through the external "
+                "idc-verify-fresh launcher"
+            )
         source_skills = args.repo_root.resolve() / "skills"
         if args.command == "install":
             custom = parse_custom_targets(args.custom_target)
