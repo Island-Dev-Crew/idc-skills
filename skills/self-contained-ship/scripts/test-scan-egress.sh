@@ -141,6 +141,98 @@ printf 'export const x = "%sdocs";\n' "$_pr"                          > "$T/r6ko
 mkdir -p "$T/r6esc"
 ln -s /etc/hosts "$T/r6esc/$(printf 'evil\033[32mFORGED-PASS\033[0m')" 2>/dev/null || true
 
+# --- 2.0.3-r7 fixtures (scanner attack-matrix), each class ISOLATED ---
+# WHATWG network-path spellings: three slashes, mixed slash/backslash, percent-decoded host, and
+# userinfo all resolve to an external authority. The percent-encoded slash control is an invalid
+# host and must stay clean. `_bs` is two source backslashes (one runtime JS backslash).
+mkdir -p "$T/r7triple" "$T/r7pcthost" "$T/r7userinfo0" "$T/r7userinfo1" \
+         "$T/r7mix3" "$T/r7mix2" "$T/r7badpct" "$T/r7hyphenhost" \
+         "$T/r7underhost" "$T/r7pctuserinfo"
+printf 'fetch("%s%s%sevil.invalid/x")\n' "$_sl" "$_sl" "$_sl" > "$T/r7triple/a.js"
+printf 'fetch("%s%s%%65vil.invalid/x")\n' "$_sl" "$_sl"       > "$T/r7pcthost/a.js"
+printf 'fetch("%s%s@evil.invalid/x")\n' "$_sl" "$_sl"        > "$T/r7userinfo0/a.js"
+printf 'fetch("%s%s:pw@evil.invalid/x")\n' "$_sl" "$_sl"     > "$T/r7userinfo1/a.js"
+printf 'fetch("%s%s%sevil.invalid/x")\n' "$_sl" "$_sl" "$_bs" > "$T/r7mix3/a.js"
+printf 'fetch("%s%sevil.invalid/x")\n' "$_sl" "$_bs"        > "$T/r7mix2/a.js"
+printf 'fetch("%s%s%%2fevil.invalid/x")\n' "$_sl" "$_sl"     > "$T/r7badpct/a.js"
+printf 'fetch("%s%s-evil.invalid/x")\n' "$_sl" "$_sl"       > "$T/r7hyphenhost/a.js"
+printf 'fetch("%s%s_evil.invalid/x")\n' "$_sl" "$_sl"       > "$T/r7underhost/a.js"
+printf 'fetch("%s%su%%2F:p@evil.invalid/x")\n' "$_sl" "$_sl" > "$T/r7pctuserinfo/a.js"
+
+# HTML character references are decoded exactly once in fetching attributes. Each decoded output
+# carries a raw-source offset so findings, line waivers, and two-candidate counts remain exact.
+mkdir -p "$T/r7enthex" "$T/r7entdec" "$T/r7entnamed" "$T/r7entabs" \
+         "$T/r7entsrcset" "$T/r7entmeta" "$T/r7entcss" "$T/r7enttitle" \
+         "$T/r7entdouble" "$T/r7entjs" "$T/r7escaped" "$T/r7entwaive"
+printf '<img src="&#x2f;&#x2f;evil.invalid/x">\n'              > "$T/r7enthex/i.html"
+printf '<img src="&#47;&#47;evil.invalid/x">\n'                  > "$T/r7entdec/i.html"
+printf '<img src="&sol;&sol;evil.invalid/x">\n'                  > "$T/r7entnamed/i.html"
+printf '<img src="https&colon;&sol;&sol;evil.invalid/x">\n'      > "$T/r7entabs/i.html"
+printf '<img srcset="&sol;&sol;a.invalid/1.png 1x, &sol;&sol;b.invalid/2.png 2x">\n' > "$T/r7entsrcset/i.html"
+printf '<meta http-equiv="refresh" content="0;url=&sol;&sol;evil.invalid/next">\n' > "$T/r7entmeta/i.html"
+printf '<div style="background:url(&sol;&sol;evil.invalid/bg.png)"></div>\n' > "$T/r7entcss/i.html"
+printf '<div title="&sol;&sol;docs.invalid/title">text</div>\n'  > "$T/r7enttitle/i.html"
+printf '<img src="&amp;#47;&amp;#47;docs.invalid/not-network">\n' > "$T/r7entdouble/i.html"
+printf '<script>fetch("&sol;&sol;docs.invalid/not-decoded")</script>\n' > "$T/r7entjs/i.html"
+printf '&lt;img src=&quot;&sol;&sol;docs.invalid/not-markup&quot;&gt;\n' > "$T/r7escaped/i.html"
+printf '<img src="&sol;&sol;reviewed.invalid/x"> /* egress-ok */\n' > "$T/r7entwaive/i.html"
+
+# JS grammar: comments may surround tokens, but commented-out/code-shaped text is inert. Bracket
+# location, window.open, and DOM attribute setters are fetching APIs; unrelated db.open/new URL are not.
+mkdir -p "$T/r7fetchcomment" "$T/r7importcomment" "$T/r7exportcomment" "$T/r7importclause" \
+         "$T/r7locbracket" "$T/r7windowopen" "$T/r7setsrc" "$T/r7sethrefns" \
+         "$T/r7setsrcset" "$T/r7setaction" "$T/r7setformaction" "$T/r7linecomment" \
+         "$T/r7blockcomment" "$T/r7htmlcomment" "$T/r7codestring" "$T/r7urlcomment" \
+         "$T/r7plaintriple" "$T/r7newurl" "$T/r7dbopen" "$T/r7hashlocal" \
+         "$T/r7cssurl" "$T/r7csscomment" "$T/r7prosescript" "$T/r7markwstring"
+mkdir -p "$T/r7optional" "$T/r7bracketfetch" "$T/r7localdouble" "$T/r7jsmarkup" "$T/r7bodycode" \
+         "$T/r7winloc" "$T/r7docloc" "$T/r7bracketloc" "$T/r7srcdoc"
+mkdir -p "$T/r7ping2"
+mkdir -p "$T/r7image2"
+mkdir -p "$T/r7brackethref"
+mkdir -p "$T/r7quotehost" "$T/r7banghost" "$T/r7unclosedscript" "$T/r7unclosedstyle" "$T/r7srcdocunclosed"
+printf 'fetch/* audit */("%sevil.invalid/x")\n' "$_pr" > "$T/r7fetchcomment/a.js"
+printf 'import/* audit */"%sevil.invalid/side.js"\n' "$_pr" > "$T/r7importcomment/a.js"
+printf 'export/* a */{x}/* b */from/* c */"%sevil.invalid/mod.js"\n' "$_pr" > "$T/r7exportcomment/a.js"
+printf 'import/* a */{x as y, z}/* b */from/* c */"%sevil.invalid/full.js"\n' "$_pr" > "$T/r7importclause/a.js"
+printf 'location["href"]="%sevil.invalid/nav"\n' "$_pr" > "$T/r7locbracket/a.js"
+printf 'window.open("%sevil.invalid/popup")\n' "$_pr" > "$T/r7windowopen/a.js"
+printf 'document.querySelector("img").setAttribute("src","%sevil.invalid/i.png")\n' "$_pr" > "$T/r7setsrc/a.js"
+printf 'node.setAttributeNS(null,"href","%sevil.invalid/x")\n' "$_pr" > "$T/r7sethrefns/a.js"
+printf 'node.setAttribute("srcset","%sa.invalid/1.png 1x, %sb.invalid/2.png 2x")\n' "$_pr" "$_pr" > "$T/r7setsrcset/a.js"
+printf 'form.setAttribute("action","%sevil.invalid/post")\n' "$_pr" > "$T/r7setaction/a.js"
+printf 'button.setAttribute("formaction","%sevil.invalid/post")\n' "$_pr" > "$T/r7setformaction/a.js"
+printf '// fetch("%sdocs.invalid/comment")\nconst x=1;\n' "$_pr" > "$T/r7linecomment/a.js"
+printf '/* import "%sdocs.invalid/comment" */\nconst x=1;\n' "$_pr" > "$T/r7blockcomment/a.js"
+printf '<!-- <img src="%sdocs.invalid/comment"> -->\n<p>ok</p>\n' "$_pr" > "$T/r7htmlcomment/i.html"
+printf "const sample='fetch(\"%sdocs.invalid/example\")';\n" "$_pr" > "$T/r7codestring/a.js"
+printf 'fetch("%sevil.invalid/a/*still-url*/b")\n' "$_pr" > "$T/r7urlcomment/a.js"
+printf 'const docs="%s%s%sdocs";\n' "$_sl" "$_sl" "$_sl" > "$T/r7plaintriple/a.js"
+printf 'const u=new URL("%sdocs.invalid/path", location.href);\n' "$_pr" > "$T/r7newurl/a.js"
+printf 'db.open("%sdocs.invalid/database")\n' "$_pr" > "$T/r7dbopen/a.js"
+printf '<a href="#part">x</a><img src="/local.png"><div title="%sdocs">t</div>\n' "$_pr" > "$T/r7hashlocal/i.html"
+printf 'body{background:url(%sevil.invalid/bg.png)}\n' "$_pr" > "$T/r7cssurl/a.css"
+printf '/* body{background:url(%sdocs.invalid/comment.png)} */\n' "$_pr" > "$T/r7csscomment/a.css"
+printf "<p>don't mask this:</p><script>fetch(\"%sevil.invalid/live\")</script>\n" "$_pr" > "$T/r7prosescript/i.html"
+printf "<script>const sample='<img src=\"%sdocs.invalid/example\">';</script>\n" "$_pr" > "$T/r7markwstring/i.html"
+printf 'fetch?.("%sevil.invalid/optional")\n' "$_pr" > "$T/r7optional/a.js"
+printf 'window["fetch"]("%sevil.invalid/bracket")\n' "$_pr" > "$T/r7bracketfetch/a.js"
+printf 'fetch("/api/%ssame-origin/path")\n' "$_pr" > "$T/r7localdouble/a.js"
+printf "const sample='<img src=\"%sdocs.invalid/example\">';\n" "$_pr" > "$T/r7jsmarkup/a.js"
+printf '<p>Example: fetch("%sdocs.invalid/example")</p>\n' "$_pr" > "$T/r7bodycode/i.html"
+printf 'window.location="%sevil.invalid/window"\n' "$_pr" > "$T/r7winloc/a.js"
+printf 'document.location="%sevil.invalid/document"\n' "$_pr" > "$T/r7docloc/a.js"
+printf 'window["location"]="%sevil.invalid/bracket-location"\n' "$_pr" > "$T/r7bracketloc/a.js"
+printf '<iframe srcdoc="&lt;img src=&quot;%sevil.invalid/nested&quot;&gt;"></iframe>\n' "$_pr" > "$T/r7srcdoc/i.html"
+printf '<a ping="%sa.invalid/p %sb.invalid/p">x</a>\n' "$_pr" "$_pr" > "$T/r7ping2/i.html"
+printf 'body{background-image:image-set("%sa.invalid/1.png" 1x, "%sb.invalid/2.png" 2x)}\n' "$_pr" "$_pr" > "$T/r7image2/a.css"
+printf 'window["location"]["href"]="%sevil.invalid/chained"\n' "$_pr" > "$T/r7brackethref/a.js"
+printf 'fetch("%s\047evil.invalid/punct")\n' "$_pr" > "$T/r7quotehost/a.js"
+printf 'fetch("%s!evil.invalid/punct")\n' "$_pr" > "$T/r7banghost/a.js"
+printf '<script>fetch("%sevil.invalid/unclosed")\n' "$_pr" > "$T/r7unclosedscript/i.html"
+printf '<style>body{background:url(%sevil.invalid/unclosed)}\n' "$_pr" > "$T/r7unclosedstyle/i.html"
+printf '<iframe srcdoc="&lt;script&gt;fetch(&quot;%sevil.invalid/nested-unclosed&quot;)"></iframe>\n' "$_pr" > "$T/r7srcdocunclosed/i.html"
+
 check() { # <label> <want-exit> <needle-or-empty> -- <scan args...>
   local label="$1" want="$2" needle="$3"; shift 3
   local out got
@@ -249,6 +341,74 @@ if printf '%s' "$r6esc_out" | grep -q 'SYMLINK .*FORGED-PASS'; then
 else
   no "S3 sanitized SYMLINK still shown"
 fi
+
+echo "== 2.0.3-r7 (scanner attack-matrix) =="
+check "WHATWG triple-slash authority is caught"       1 "EGRESS" "$T/r7triple"
+check "WHATWG percent-decoded host is caught"         1 "EGRESS" "$T/r7pcthost"
+check "WHATWG empty-userinfo authority is caught"     1 "EGRESS" "$T/r7userinfo0"
+check "WHATWG password-userinfo authority is caught"  1 "EGRESS" "$T/r7userinfo1"
+check "WHATWG slash-slash-backslash is caught"        1 "EGRESS" "$T/r7mix3"
+check "WHATWG slash-backslash authority is caught"    1 "EGRESS" "$T/r7mix2"
+check "percent-encoded slash host is invalid, not egress" 0 ""    "$T/r7badpct"
+check_count "leading-hyphen WHATWG host count==1"        1 1     "$T/r7hyphenhost"
+check_count "leading-underscore WHATWG host count==1"    1 1     "$T/r7underhost"
+check_count "percent-encoded userinfo cannot hide host"  1 1     "$T/r7pctuserinfo"
+
+check "hex HTML entities in src are caught"           1 "EGRESS" "$T/r7enthex"
+check "decimal HTML entities in src are caught"       1 "EGRESS" "$T/r7entdec"
+check "named HTML entities in src are caught"         1 "EGRESS" "$T/r7entnamed"
+check_count "entity-encoded absolute URL count==1"    1 1        "$T/r7entabs"
+check_count "entity srcset candidates count==2"       1 2        "$T/r7entsrcset"
+check "entity meta-refresh URL is caught"             1 "EGRESS" "$T/r7entmeta"
+check "entity inline-CSS URL is caught"               1 "EGRESS" "$T/r7entcss"
+check "entity in non-fetching title stays clean"      0 ""       "$T/r7enttitle"
+check "double-encoded entity is decoded only once"    0 ""       "$T/r7entdouble"
+check "entity in script is not HTML-decoded"          0 ""       "$T/r7entjs"
+check "escaped markup stays ordinary text"            0 ""       "$T/r7escaped"
+check "entity finding keeps source-line waiver"       0 "WAIVED" "$T/r7entwaive"
+
+check "comment between fetch and call cannot hide it" 1 "EGRESS" "$T/r7fetchcomment"
+check "commented bare import is still caught"         1 "EGRESS" "$T/r7importcomment"
+check "comments around export/from are still caught"  1 "EGRESS" "$T/r7exportcomment"
+check "comments around full import clause are caught" 1 "EGRESS" "$T/r7importclause"
+check "bracket location href navigation is caught"    1 "EGRESS" "$T/r7locbracket"
+check "window.open navigation is caught"              1 "EGRESS" "$T/r7windowopen"
+check "setAttribute src is caught"                    1 "EGRESS" "$T/r7setsrc"
+check "setAttributeNS href is caught"                 1 "EGRESS" "$T/r7sethrefns"
+check_count "setAttribute srcset candidates count==2" 1 2        "$T/r7setsrcset"
+check "setAttribute action is caught"                 1 "EGRESS" "$T/r7setaction"
+check "setAttribute formaction is caught"             1 "EGRESS" "$T/r7setformaction"
+
+check "JS line-commented call stays clean"            0 ""       "$T/r7linecomment"
+check "JS block-commented module stays clean"         0 ""       "$T/r7blockcomment"
+check "HTML-commented markup stays clean"             0 ""       "$T/r7htmlcomment"
+check "code-shaped ordinary string stays clean"       0 ""       "$T/r7codestring"
+check "comment marker inside real URL still blocks"   1 "EGRESS" "$T/r7urlcomment"
+check "plain triple-slash JS variable stays clean"    0 ""       "$T/r7plaintriple"
+check "new URL construction alone stays clean"        0 ""       "$T/r7newurl"
+check "unrelated db.open stays clean"                 0 ""       "$T/r7dbopen"
+check "hash/local/title controls stay clean"          0 ""       "$T/r7hashlocal"
+check "real CSS url() still blocks"                   1 "EGRESS" "$T/r7cssurl"
+check "CSS-commented url() stays clean"               0 ""       "$T/r7csscomment"
+check "prose quote cannot mask live script body"      1 "EGRESS" "$T/r7prosescript"
+check "markup-shaped JS string stays clean"           0 ""       "$T/r7markwstring"
+check_count "optional fetch call count==1"            1 1        "$T/r7optional"
+check_count "window bracket fetch count==1"           1 1        "$T/r7bracketfetch"
+check "same-origin path containing double slash stays clean" 0 "" "$T/r7localdouble"
+check "standalone JS markup string stays clean"       0 ""       "$T/r7jsmarkup"
+check "HTML body code example stays clean"            0 ""       "$T/r7bodycode"
+check_count "window.location assignment count==1"     1 1        "$T/r7winloc"
+check_count "document.location assignment count==1"   1 1        "$T/r7docloc"
+check_count "window bracket location count==1"        1 1        "$T/r7bracketloc"
+check_count "decoded srcdoc nested fetch count==1"    1 1        "$T/r7srcdoc"
+check_count "space-separated ping URLs count==2"      1 2        "$T/r7ping2"
+check_count "CSS image-set candidates count==2"       1 2        "$T/r7image2"
+check_count "chained bracket location href count==1"  1 1        "$T/r7brackethref"
+check_count "apostrophe-leading WHATWG host count==1" 1 1        "$T/r7quotehost"
+check_count "bang-leading WHATWG host count==1"       1 1        "$T/r7banghost"
+check_count "unclosed script executes through EOF"    1 1        "$T/r7unclosedscript"
+check_count "unclosed style parses through EOF"       1 1        "$T/r7unclosedstyle"
+check_count "nested srcdoc unclosed script count==1"  1 1        "$T/r7srcdocunclosed"
 
 # S1: unit-test the REAL trusted-counts validator lifted from the shipped scanner. A honest canonical
 # record is accepted; every producer/runtime fault (leading-zero/octal, overflow, extra line, no
