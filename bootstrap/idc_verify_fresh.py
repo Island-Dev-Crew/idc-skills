@@ -228,17 +228,21 @@ def _verification_environment(
 
 
 def _fingerprint_public_key(key_data: str, ssh_keygen: str | None = None) -> str:
+    executable = ssh_keygen or _trusted_executable("ssh-keygen")
     try:
-        process = subprocess.run(
-            [ssh_keygen or _trusted_executable("ssh-keygen"), "-lf", "-"],
-            input=key_data,
-            text=True,
-            capture_output=True,
-            check=False,
-            env=_verification_environment(
-                (Path(ssh_keygen).parent,) if ssh_keygen is not None else ()
-            ),
-        )
+        with tempfile.TemporaryDirectory(prefix="idc-fingerprint-") as temporary:
+            public_key = Path(temporary) / "signing.pub"
+            public_key.write_text(key_data, encoding="utf-8", newline="")
+            os.chmod(public_key, 0o600)
+            process = subprocess.run(
+                [executable, "-lf", str(public_key)],
+                text=True,
+                capture_output=True,
+                check=False,
+                env=_verification_environment(
+                    (Path(ssh_keygen).parent,) if ssh_keygen is not None else ()
+                ),
+            )
     except FileNotFoundError as exc:
         raise FreshnessError("ssh-keygen is required") from exc
     if process.returncode != 0:

@@ -131,3 +131,9 @@
 - GitHub Actions run `32357025682` failed Ubuntu because the setup-python toolcache executable was group/world writable. The freshness tests correctly refused to model that runtime as externally protected; merge was not attempted.
 - The workflow now creates a private `venv --copies` runtime and places its platform-specific executable directory first for all later steps. A local owner-controlled copied runtime passes the complete 101-test suite.
 - Because the workflow and mission evidence are controlled signed bytes, the prior manifest, signature, clean-clone receipt, and exact-head verdict are stale. Manifest regeneration, biometric re-signing, clean-clone replay, independent review, and replacement three-OS CI are mandatory before merge.
+
+## 2026-08-20T10:08Z — completed CI logs expose Windows OpenSSH stdin incompatibility
+
+- The completed run confirmed macOS shared Ubuntu's unprotected setup-python runtime failure. Windows reached the freshness fixtures but rejected `ssh-keygen -lf -`; its OpenSSH build does not accept the Unix stdin pseudo-filename for public-key fingerprinting.
+- Fingerprinting now writes the already-captured public key to a private temporary file and passes that real path to the exact digest-pinned `ssh-keygen`. This preserves the same trust decision while using the portable OpenSSH interface.
+- The first copied-runtime replacement signature and clean-clone replay are void-on-move. All pre-sign gates, biometric signing, clean-clone replay, exact-head review, and replacement CI remain required.
