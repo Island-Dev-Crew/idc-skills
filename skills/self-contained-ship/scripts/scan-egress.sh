@@ -57,7 +57,46 @@ set -uo pipefail
 EGRESS_BIN='(https?|wss?|ftp):[/\\][/\\]|(^|[^a-z])(stun|turns?):[a-z0-9]'
 
 usage() { echo "usage: scan-egress.sh [--allow-binary <glob>]... <file-or-dir> ..." >&2; exit 2; }
-is_count() { case "$1" in ''|*[!0-9]*) return 1 ;; *) return 0 ;; esac; }  # strict all-digit field
+
+# Neutralize control bytes (NUL/ESC/LF/tab/DEL, all of C0 + 0x7F) in an UNTRUSTED path or diagnostic
+# before it reaches the terminal, so a crafted filename can't forge output or inject escape sequences.
+# High bytes (0x80-0xFF) are preserved so a legitimate UTF-8 name stays readable.
+san_path() { LC_ALL=C printf '%s' "$1" | LC_ALL=C tr '\000-\037\177' '?'; }
+
+# A CANONICAL base-10 count: literal "0", or a 1-9 leading digit with up to 8 more (< 10^9). Rejecting
+# leading zeros kills bash octal ambiguity (`08` -> "value too great for base"); the 9-digit ceiling
+# keeps the later `$(())` well inside 64-bit range so no silent overflow-wrap can reach the gate.
+is_canon_count() {
+  case "$1" in
+    0) return 0 ;;
+    ''|*[!0-9]*) return 1 ;;                        # empty or a non-digit byte
+    0*) return 1 ;;                                 # leading zero (and not the literal "0")
+    ?|??|???|????|?????|??????|???????|????????|?????????) return 0 ;;  # 1..9 digits
+    *) return 1 ;;                                  # >= 10 digits -> reject (overflow risk)
+  esac
+}
+
+# Validate the trusted counts side-channel as a WHOLE: the file must be EXACTLY one newline-terminated
+# record "<v> <w> <b>\n" with three canonical fields and nothing else — no NUL, no non-ASCII, no extra
+# line, no trailing bytes. Echoes "v w b" and returns 0 only then; every producer/runtime fault (a
+# crash mid-write, a partial line, an overflowed field) returns non-zero so the caller FAILS CLOSED.
+validate_counts_file() {
+  local f="$1"
+  # (a) reject any byte outside the canonical alphabet {0-9, space, LF} — catches NUL / ESC / UTF-8.
+  [ "$(LC_ALL=C tr -d '0-9 \n' < "$f" 2>/dev/null | wc -c | tr -cd '0-9')" = "0" ] || return 1
+  # (b) exactly one newline in the file AND it is the final byte (one terminated record, no more).
+  [ "$(LC_ALL=C wc -l < "$f" 2>/dev/null | tr -cd '0-9')" = "1" ] || return 1
+  [ "$(LC_ALL=C tail -c 1 "$f" 2>/dev/null | od -An -tu1 | tr -cd '0-9')" = "10" ] || return 1
+  # (c) the single line is exactly three space-separated canonical integers.
+  local line; line="$(head -n 1 "$f")"
+  set -f
+  # shellcheck disable=SC2086  # intentional word split of the already-charset-validated line
+  set -- $line
+  set +f
+  [ "$#" -eq 3 ] || return 1
+  is_canon_count "$1" && is_canon_count "$2" && is_canon_count "$3" || return 1
+  printf '%s %s %s' "$1" "$2" "$3"
+}
 
 # --- args: collect --allow-binary globs, then scan targets ---
 targets=()
@@ -111,11 +150,11 @@ for p in "${targets[@]}"; do
   elif [ -e "$p" ]; then
     classify_file "$p"
   else
-    echo "scan-egress: no such path: $p" >&2; exit 2
+    echo "scan-egress: no such path: $(san_path "$p")" >&2; exit 2
   fi
 done
 if [ $(( ${#files[@]} + ${#symlinks[@]} + ${#binaries[@]} + ${#specials[@]} + ${#unreadable[@]} )) -lt 1 ] && [ "$traversal_err" -eq 0 ]; then
-  echo "scan-egress: no scannable files under: ${targets[*]}" >&2; exit 2
+  echo "scan-egress: no scannable files under: $(san_path "${targets[*]}")" >&2; exit 2
 fi
 
 violations=0
@@ -170,7 +209,16 @@ CSS     = re.compile(r'(?is)(?:@import\s+|(?:url|image-set|image)\s*\(\s*)' + Q 
 JSCALL  = re.compile(r'(?is)\b(?:fetch|import|importScripts|WebSocket|EventSource|sendBeacon|Worker|SharedWorker)\s*\(\s*' + Q + PR)
 XHROPEN = re.compile(r'(?is)\.open\s*\(\s*(["\'`])[^"\'`]*\1\s*,\s*' + Q + PR)
 SWREG   = re.compile(r'(?is)\bserviceWorker\s*\.\s*register\s*\(\s*' + Q + PR)
-ESMOD   = re.compile(r'(?is)\b(?:import|export)\s+(?:[\w$*{},\s]+from\s+)?["\'`]\s*' + PR)
+# static ES modules, TOKEN-BOUNDARY aware so the valid compact forms `import{a}from"//h"` /
+# `export{a}from"//h"` / `import*as n from"//h"` parse (no whitespace required after the keyword).
+# `from` is the fetch signal: keyword, then a clause of identifiers/`{}`/`*`/commas/whitespace —
+# NOT `=`, `;`, `(`, `.` or a quote, so the lazy run can't cross a statement into a distant `from`
+# — then `from`, then the URL string. This deliberately does NOT match `export const x = "//h"`
+# (a string constant with no `from`, which the browser never fetches).
+ESMOD_FROM = re.compile(r'(?is)\b(?:import|export)\b[\w$*{},\s]*?\bfrom\b\s*["\'`]\s*' + PR)
+# a bare side-effect import `import"//h"` / `import "//h"`, anchored to a statement boundary so a
+# member-access substring can't trip it.
+ESMOD_BARE = re.compile(r'(?is)(?:^|[;{}\s])import\s*["\'`]\s*' + PR)
 LOC     = re.compile(r'(?is)(?:\blocation\s*\.\s*(?:assign|replace)\s*\(\s*|\blocation\s*(?:\.\s*href\s*)?=\s*)' + Q + PR)
 JSPROP  = re.compile(r'(?is)\.\s*(?:srcset|src|href|action|formaction|poster|background|cite|ping)\s*=\s*["\'`]\s*' + PR)
 URLEQ   = re.compile(r'(?i)\burl\s*=\s*' + Q + PR)
@@ -192,7 +240,12 @@ ATTR    = re.compile(r'(?is)\b(' + FETCH_ATTRS + r')\s*=\s*(?:"([^"]*)"|\'([^\']
 # enclosing tag and is NOT suppressed (it is real egress).
 XMLNSATTR = re.compile(r'(?is)\bxmlns(?::[\w.-]+)?\s*=\s*("[^"]*"|\'[^\']*\')')
 
-CTRL = re.compile(r'[\x00-\x08\x0b-\x1f\x7f]')     # display sanitizer: finding text carries no authority
+CTRL = re.compile(r'[\x00-\x08\x0b-\x1f\x7f]')     # body sanitizer (keeps tab; body is single-line)
+PATHCTRL = re.compile(r'[\x00-\x1f\x7f]')          # path sanitizer: strip ALL controls incl NUL/LF/tab
+
+
+def sanp(p):                                       # an untrusted path must not forge terminal output
+    return PATHCTRL.sub("?", p)
 
 
 def proto_offsets_in_value(val, base):
@@ -215,7 +268,7 @@ for pb in paths:
             text = fh.read().decode("latin-1")     # latin-1: byte<->char 1:1, stable offsets, no decode err
     except OSError:
         violations += 1
-        print("UNREADABLE %s (could not read during scan — fail closed)" % path)
+        print("UNREADABLE %s (could not read during scan — fail closed)" % sanp(path))
         continue
 
     starts = [0]
@@ -244,7 +297,7 @@ for pb in paths:
         hits[m.start()] = 1
     for m in STUN.finditer(text):
         hits[m.start(1)] = 1
-    for rx in (CSS, JSCALL, XHROPEN, SWREG, ESMOD, LOC, JSPROP, URLEQ):
+    for rx in (CSS, JSCALL, XHROPEN, SWREG, ESMOD_FROM, ESMOD_BARE, LOC, JSPROP, URLEQ):
         for m in rx.finditer(text):
             hits[m.end() - 3] = 1
     for tm in TAGSPAN.finditer(text):
@@ -268,7 +321,7 @@ for pb in paths:
             waived += 1
         else:
             violations += 1
-        print("%s %s:%d:%s" % (verdict, path, ln, CTRL.sub("?", body)))
+        print("%s %s:%d:%s" % (verdict, sanp(path), ln, CTRL.sub("?", body)))
 
 # counts go to a SEPARATE trusted file, never in-band with (attacker-influenced) finding text.
 with open(os.environ["SCAN_EGRESS_COUNTS"], "w") as cf:
@@ -282,41 +335,42 @@ PY
     exit 1
   fi
   cat "$sc_out"                                     # findings: display-only, control bytes sanitized
-  # Fold in the counts from the trusted side channel. STRICT validation — exactly one line of
-  # exactly three all-digit fields — and anything else FAILS CLOSED: arbitrary finding bytes must
-  # never be able to zero the gate (a NUL in stdout once collapsed an in-band trailer to PASS).
-  counts="$(head -n 1 "$sc_cnt" 2>/dev/null | tr -d '\n')"
-  set -f
-  # shellcheck disable=SC2086  # intentional word split of the validated counts line
-  set -- $counts
-  set +f
-  if [ "$#" -ne 3 ] || ! is_count "$1" || ! is_count "$2" || ! is_count "$3"; then
-    echo "scan-egress: counts channel invalid ('$counts') — FAIL CLOSED" >&2
+  # Fold in the counts from the trusted side channel, validating the WHOLE file (not just line 1) as
+  # one canonical record. Anything a faulting producer could emit — a leading-zero/octal field, an
+  # overflowed field, a NUL, an extra line, an unterminated line — is rejected and FAILS CLOSED, so
+  # arbitrary/fault bytes can never zero the gate into a false PASS.
+  if ! counts_line="$(validate_counts_file "$sc_cnt")"; then
+    echo "scan-egress: counts channel invalid — FAIL CLOSED" >&2
     rm -f "$sc_in" "$sc_out" "$sc_err" "$sc_cnt"
     exit 1
   fi
+  set -f
+  # shellcheck disable=SC2086  # counts_line is three validated canonical integers
+  set -- $counts_line
+  set +f
   violations=$((violations + $1))
   waived=$((waived + $2))
   benign=$((benign + $3))
   rm -f "$sc_in" "$sc_out" "$sc_err" "$sc_cnt"
 fi
 
-# Symlinks break self-containment: the referenced bytes live outside the shipped tree.
+# Symlinks break self-containment: the referenced bytes live outside the shipped tree. Both the path
+# and the readlink target are untrusted → sanitized so a crafted name can't forge terminal output.
 for s in ${symlinks[@]+"${symlinks[@]}"}; do
   violations=$((violations + 1))
-  echo "SYMLINK $s -> $(readlink "$s" 2>/dev/null || echo '?') (breaks self-containment)"
+  echo "SYMLINK $(san_path "$s") -> $(san_path "$(readlink "$s" 2>/dev/null || echo '?')") (breaks self-containment)"
 done
 
 # Non-regular files can't be scanned (and reading a FIFO would hang) — fail closed.
 for sp in ${specials[@]+"${specials[@]}"}; do
   violations=$((violations + 1))
-  echo "SPECIAL $sp (non-regular file: FIFO/socket/device — unscannable, fail closed)"
+  echo "SPECIAL $(san_path "$sp") (non-regular file: FIFO/socket/device — unscannable, fail closed)"
 done
 
 # Unreadable regular files: we never saw the bytes, so no glob waiver may launder them — fail closed.
 for u in ${unreadable[@]+"${unreadable[@]}"}; do
   violations=$((violations + 1))
-  echo "UNREADABLE $u (regular file not readable — cannot certify, fail closed)"
+  echo "UNREADABLE $(san_path "$u") (regular file not readable — cannot certify, fail closed)"
 done
 
 # A traversal error (an unreadable directory) means the walk was incomplete; a clean sibling can't
@@ -344,16 +398,18 @@ review_bin=0
 for b in ${binaries[@]+"${binaries[@]}"}; do
   raw="$(LC_ALL=C grep -aoiE -- "$EGRESS_BIN" "$b" 2>/dev/null)"; grc=$?
   if [ "$grc" -ge 2 ]; then
-    violations=$((violations + 1)); echo "UNREADABLE(binary) $b (grep error rc=$grc — cannot certify, fail closed)"
+    violations=$((violations + 1)); echo "UNREADABLE(binary) $(san_path "$b") (grep error rc=$grc — cannot certify, fail closed)"
   elif [ -n "$raw" ]; then
+    # both the path and the grep-extracted string come from untrusted bytes -> sanitize both.
     hits="$(printf '%s' "$raw" | head -5 | tr '\n' ' ')"
-    violations=$((violations + 1)); echo "EGRESS(binary) $b :: $hits"
+    hits="$(san_path "$hits")"
+    violations=$((violations + 1)); echo "EGRESS(binary) $(san_path "$b") :: $hits"
   elif is_waived_binary "$b"; then
-    waived_bin=$((waived_bin + 1)); echo "WAIVED-BINARY $b"
+    waived_bin=$((waived_bin + 1)); echo "WAIVED-BINARY $(san_path "$b")"
   else
     review_bin=$((review_bin + 1))
     violations=$((violations + 1))
-    echo "UNSCANNED(binary) $b (static scan cannot certify; --allow-binary <glob> to waive a reviewed asset)"
+    echo "UNSCANNED(binary) $(san_path "$b") (static scan cannot certify; --allow-binary <glob> to waive a reviewed asset)"
   fi
 done
 

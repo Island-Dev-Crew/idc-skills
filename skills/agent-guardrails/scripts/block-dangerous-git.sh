@@ -311,9 +311,18 @@ def is_alias_key(s):
 
 
 def alias_defs(tokens, depth=0):
-    # Scan a GIT invocation's tokens for alias DEFINITIONS to a guarded op.
+    # tokens[0] is the git word. Alias DEFINITIONS live in exactly two POSITION-scoped places, so
+    # ordinary later argv (a `-- config alias.p push` pathspec, a `commit -c <commitish>`) is never
+    # mistaken for one:
+    #   - inline `-c alias.x=val` / glued `-calias.x=val`: a GLOBAL option, valid only BEFORE the
+    #     subcommand. Scanning past the subcommand would misread a subcommand's own `-c`.
+    #   - `config alias.x val` / `config alias.x=val`: ONLY when `config` is the actual SUBCOMMAND
+    #     (tokens[subcommand] == "config"), never a `config` token sitting in argv after `--`.
     n = len(tokens)
-    for i, t in enumerate(tokens):
+    sub_idx = find_subcommand(tokens)
+    globals_end = sub_idx if sub_idx is not None else n
+    for i in range(1, globals_end):
+        t = tokens[i]
         pair = None
         if t == "-c" and i + 1 < n:                 # -c alias.x=val
             pair = tokens[i + 1]
@@ -322,18 +331,18 @@ def alias_defs(tokens, depth=0):
         if pair and is_alias_key(pair) and "=" in pair:
             if alias_value_dangerous(pair.split("=", 1)[1], depth):
                 return "alias injection (-c alias to a blocked op)"
-        if t == "config":                           # config alias.x val  /  config alias.x=val
-            for j in range(i + 1, n):
-                a = tokens[j]
-                if is_alias_key(a) and "=" in a:
-                    if alias_value_dangerous(a.split("=", 1)[1], depth):
-                        return "alias injection (config alias to a blocked op)"
-                    break
-                if is_alias_key(a):
-                    val = tokens[j + 1] if j + 1 < n else ""
-                    if alias_value_dangerous(val, depth):
-                        return "alias injection (config alias to a blocked op)"
-                    break
+    if sub_idx is not None and tokens[sub_idx] == "config":
+        for j in range(sub_idx + 1, n):             # config alias.x val  /  config alias.x=val
+            a = tokens[j]
+            if is_alias_key(a) and "=" in a:
+                if alias_value_dangerous(a.split("=", 1)[1], depth):
+                    return "alias injection (config alias to a blocked op)"
+                break
+            if is_alias_key(a):
+                val = tokens[j + 1] if j + 1 < n else ""
+                if alias_value_dangerous(val, depth):
+                    return "alias injection (config alias to a blocked op)"
+                break
     return None
 
 
@@ -425,10 +434,21 @@ def normalize_separators(s):
             prev = " "
             continue
         if c == ">" and i + 1 < n and s[i + 1] == "|":
-            out.append(" ")                          # `>|file` (noclobber override) == `>file`
+            # `>|file` / `2>|file` (noclobber-override clobber): the `|` is NOT a pipe. Strip any
+            # glued fd-digit prefix (so `2>|`/`9>|` leave no orphan `2`/`9` command word) exactly as
+            # the fd-dup branch does, then rewrite to a plain ` > ` so the redirection skipper eats
+            # the target token. A SPACE-separated digit (`echo 2 >|x`) is a real arg and is untouched.
+            k = 0
+            while k < len(out) and len(out[-1 - k]) == 1 and out[-1 - k].isdigit():
+                k += 1
+            before = out[-1 - k][-1] if len(out) > k else ""
+            if k and (before == "" or before in " \t\n;&|()" or before == BACKTICK):
+                del out[len(out) - k:]
+            out.append(" ")
             out.append(">")
+            out.append(" ")
             i += 2
-            prev = ">"
+            prev = " "
             continue
         if c == "\n" or c == BACKTICK or c == "(" or c == ")":
             out.append(" ; ")
@@ -593,6 +613,58 @@ def env_config_alias_map(assigns, git_slice):
     return m
 
 
+def parse_git_config_parameters(raw):
+    # GIT_CONFIG_PARAMETERS is git's OWN env encoding of `-c` items (real git 2.x reads it and
+    # applies each as config): whitespace-separated, single-quoted elements, each either
+    #   'section.key'='value'  |  'section.key=value'  |  'section.key'   (boolean true).
+    # A literal single quote inside a value is git-encoded as '\'' . We parse quote-aware and return
+    # ONLY the {name: value} for `alias.*` keys — we never treat the value as shell here, so this
+    # adds no arbitrary-eval claim; alias_value_dangerous decides if that value resolves to a block.
+    out = {}
+    i, n = 0, len(raw)
+
+    def read_sq(i):
+        buf = []
+        i += 1                                      # skip opening quote
+        while i < n:
+            if raw[i] == "'":
+                if raw[i:i + 4] == "'\\''":         # git's escaped literal quote: close, \' , reopen
+                    buf.append("'")
+                    i += 4
+                    continue
+                return "".join(buf), i + 1
+            buf.append(raw[i])
+            i += 1
+        return "".join(buf), i                       # unterminated -> best effort (fail-safe)
+
+    while i < n:
+        if raw[i] in " \t":
+            i += 1
+            continue
+        if raw[i] == "'":
+            key, i = read_sq(i)
+        else:
+            j = i
+            while j < n and raw[j] not in " \t=":
+                j += 1
+            key, i = raw[i:j], j
+        val = ""
+        if i < n and raw[i] == "=":
+            i += 1
+            if i < n and raw[i] == "'":
+                val, i = read_sq(i)
+            else:
+                j = i
+                while j < n and raw[j] not in " \t":
+                    j += 1
+                val, i = raw[i:j], j
+        if "=" in key and not val:                   # 'section.key=value' single-token form
+            key, val = key.split("=", 1)
+        if is_alias_key(key):
+            out[key.split(".", 1)[1]] = val
+    return out
+
+
 def git_invocation_danger(git_slice, inherited, depth=0, seen=None):
     # Classify ONE git invocation (git_slice[0] is the git word), resolving an INVOKED alias
     # RECURSIVELY the way git itself expands nested aliases: the alias name is replaced by the
@@ -645,11 +717,14 @@ def classify_segment(tokens, depth=0):
         mm = assign.match(t)
         if mm:
             assigns[mm.group(1)] = mm.group(2)
-    # env / config-env alias definitions to a blocked op (official injection surfaces).
-    env_map = env_config_alias_map(assigns, git_slice)
+    # env / config-env / GIT_CONFIG_PARAMETERS alias definitions to a blocked op (git's official
+    # injection surfaces). GIT_CONFIG_PARAMETERS entries are merged UNDER the -c/env-config map so an
+    # explicit inline surface still wins on a name collision; both feed the call-site expander below.
+    env_map = parse_git_config_parameters(assigns.get("GIT_CONFIG_PARAMETERS", ""))
+    env_map.update(env_config_alias_map(assigns, git_slice))
     for name, val in env_map.items():
         if alias_value_dangerous(val, depth):
-            return "alias injection (env/config-env alias to a blocked op)"
+            return "alias injection (env/config-env/GIT_CONFIG_PARAMETERS alias to a blocked op)"
     return git_invocation_danger(git_slice, env_map, depth)
 
 

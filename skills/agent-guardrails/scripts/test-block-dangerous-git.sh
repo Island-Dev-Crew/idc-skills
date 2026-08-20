@@ -172,6 +172,37 @@ check 0 'git -c alias.self=self self'               'alias cycle: git refuses it
 check 0 'git branch -u origin/x topic'              'branch -u upstream (not a force)'
 check 0 'git branch --merged main'                  'branch --merged (read-only listing)'
 
+echo "== must BLOCK (exit 2) — 2.0.3-r6 (Codex round-5 exact-head) =="
+# G1: fd-prefixed noclobber-override clobber redirection still runs git (fd prefix must not orphan)
+check 2 '2>|/dev/null git push'                     'fd2 clobber-override redirect then push'
+check 2 '1>|/dev/null git push'                     'fd1 clobber-override redirect then push'
+check 2 '9>|/dev/null git push'                     'fd9 clobber-override redirect then push'
+check 2 '2>| /dev/null git push'                    'fd clobber-override with spaced target'
+check 2 '0>|/dev/null git reset --hard'             'fd0 clobber-override then reset --hard'
+# G2: GIT_CONFIG_PARAMETERS is git'"'"'s own -c env encoding; real git resolves the alias into push
+check 2 "GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\" git p"       'GIT_CONFIG_PARAMETERS split key=value alias'
+check 2 "GIT_CONFIG_PARAMETERS=\"'alias.p=push'\" git p"         'GIT_CONFIG_PARAMETERS single-token alias'
+check 2 "GIT_CONFIG_PARAMETERS=\"'alias.a'='status' 'alias.p'='push'\" git p" 'GIT_CONFIG_PARAMETERS multiple entries'
+check 2 "GIT_CONFIG_PARAMETERS=\"'alias.n'='reset --hard'\" git n" 'GIT_CONFIG_PARAMETERS alias to reset --hard'
+check 2 "GIT_CONFIG_PARAMETERS=\"'alias.x=!git push'\" git x"    'GIT_CONFIG_PARAMETERS bang-alias to push'
+
+echo "== must ALLOW (exit 0) — 2.0.3-r6 safe forms (no over-block) =="
+# G3: a `config` token in ordinary argv (after --) is NOT an alias definition
+check 0 'git status -- config alias.p push'         'config as status pathspec, not an alias def'
+check 0 'git diff -- config alias.p push'           'config as diff pathspec, not an alias def'
+check 0 'git log -- config alias.p push'            'config as log pathspec, not an alias def'
+check 0 'git add -- config alias.p push'            'config as add pathspec, not an alias def'
+check 0 'git log config alias.p push'               'config as a plain log argument'
+check 0 'git show config alias.p push'              'config as a plain show argument'
+# GIT_CONFIG_PARAMETERS benign entries must not over-block
+check 0 "GIT_CONFIG_PARAMETERS=\"'user.name'='x'\" git status"   'GIT_CONFIG_PARAMETERS non-alias entry'
+check 0 "GIT_CONFIG_PARAMETERS=\"'alias.st'='status'\" git st"   'GIT_CONFIG_PARAMETERS alias to safe status'
+check 0 "GIT_CONFIG_PARAMETERS=\"'alias.p'\" git p"              'GIT_CONFIG_PARAMETERS boolean alias (no value)'
+check 0 'echo 2 >|/tmp/x'                           'a spaced digit before >| is an arg, no git'
+# G3 control: a REAL config alias definition still blocks
+check 2 'git config alias.p push'                   'real config alias.p=push still blocked'
+check 2 'git config --global alias.co checkout'     'real config --global alias.co still blocked'
+
 echo "== must ALLOW (exit 0) — 2.0.3-r4 safe forms (no over-block) =="
 check 0 'command -v git push'                    'command -v git only prints a path'
 check 0 'git checkout -bfeature'                 'checkout -b<name> attached (create branch)'
