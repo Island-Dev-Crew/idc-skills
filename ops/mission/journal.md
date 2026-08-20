@@ -151,3 +151,10 @@
 - Key generation had succeeded before the hardened invocation. The fixture had selected Git-for-Windows OpenSSH from ambient `PATH`, then treated that MSYS-linked executable as if it were the native Windows runtime.
 - Windows Server 2025 already installs native OpenSSH. Freshness fixtures now prefer `%SystemRoot%\\System32\\OpenSSH\\ssh-keygen.exe` when present, bind that exact executable and digest in their signed config, and preserve the private HOME/temp and stripped-environment boundary. Other platforms retain exact `PATH` resolution.
 - The failed run does not authorize merge. Because the fixture and mission evidence are signed controlled bytes, manifest regeneration, biometric re-signing, clean-clone replay, independent review, and replacement CI remain mandatory.
+
+## 2026-08-20T12:03Z — exact-head review corrects final signed-state language
+
+- Signed commit `32b3030536e771e09428e2b22bdd088b040ec11a` passed local and clean-clone 5/5 content verification plus 101 tests, but the different-family exact-head review returned **CHANGES_REQUIRED**.
+- The blocking inconsistency was signed mission state that still described the checked-in artifact as historical 2.0.2/v2. The state now records the v3, 2.0.3, sequence-1 content candidate as 5/5 while keeping `readyToRun`, external freshness, merge, promotion, tag, and reinstall explicitly pending.
+- The review also found one test signing helper still resolving bare `ssh-keygen`. All fixture generation, signing, fingerprinting, verification, and signed config now reuse the same native-Windows-preferred exact executable selector.
+- These tracked corrections invalidate `32b3030` as the final candidate. The manifest/signature, clean-clone replay, exact-head review, and three-platform CI restart on the next immutable commit.

@@ -38,7 +38,7 @@ def _sign(path: Path, private_key: Path, namespace: str) -> Path:
         signature.unlink()
     subprocess.run(
         [
-            "ssh-keygen",
+            _ssh_keygen_executable(),
             "-Y",
             "sign",
             "-f",

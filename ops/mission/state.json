@@ -307,7 +307,7 @@
       "id": "P5",
       "title": "Signed Skill Integrity Gate",
       "goal": "Bind all 50 skill trees and the security control plane to the external Forge key, then prove every claimed defense red before green.",
-      "status": "in_progress",
+      "status": "done",
       "sessionsEstimate": "1",
       "gates": [
         {
@@ -323,10 +323,10 @@
           "id": "P5-G2",
           "title": "Release profile verifies 5/5 against the stable Forge key",
           "command": "python scripts/skill_integrity.py verify",
-          "status": "pending",
-          "evidence": "integrity/manifest.json (historical 2.0.2/v2)",
-          "lastRun": "2026-08-19T20:42:25Z",
-          "notes": "The checked-in manifest/signature are historical 2.0.2/v2 bytes. Final 2.0.3/v3 biometric signing is pending; do not report readyToRun or treat the historical signature as 2.0.3 authority."
+          "status": "passed",
+          "evidence": "integrity/manifest.json and integrity/manifest.json.sig",
+          "lastRun": "2026-08-20T12:03:13Z",
+          "notes": "The checked-in release candidate uses the v3 schema for 2.0.3 sequence 1 and verifies contentReady=true at 5/5 under the stable Forge key. This is content authority only; readyToRun remains exclusively external and pending."
         },
         {
           "id": "P5-G3",
@@ -549,9 +549,9 @@
       "note": "Buzz and Grok Bot remain unsupported/unknown, native-Windows Hermes has a failed observation, and several authenticated behavior probes remain partial or unrun. The matrix does not invent installation paths."
     },
     {
-      "title": "2.0.3 biometric signature and external freshness are pending",
+      "title": "2.0.3 external freshness and promotion are pending",
       "severity": "high",
-      "note": "The checked-in manifest/signature are historical 2.0.2/v2 artifacts. Final 2.0.3/v3 signing, external index/checkpoint, and readyToRun proof are separate pending gates."
+      "note": "The checked-in v3 manifest/signature bind the 2.0.3 sequence-1 content candidate and verify 5/5. External index/checkpoint publication and readyToRun proof remain separate pending gates."
     },
     {
       "title": "Guard and scanner are bounded defense-in-depth controls",
@@ -586,14 +586,14 @@
   ],
   "prLog": [],
   "resume": {
-    "activePhase": "P5",
+    "activePhase": "P6",
     "nextActions": [
-      "Generate and biometrically sign the finalized 2.0.3/v3 manifest without any later tracked-byte mutation.",
-      "Reaccept the exact signed tree from a clean clone, obtain CI/review and external readyToRun proof, then transport and promote only that exact tree."
+      "Reaccept the exact signed tree from a clean clone and require exact-head independent review plus three-platform CI.",
+      "Construct and sign the external freshness index from the final staging merge, prove readyToRun, then promote, tag, publish, and reinstall only that exact tree."
     ],
     "blockers": [
-      "The checked-in manifest/signature remain historical 2.0.2/v2 bytes; final 2.0.3/v3 biometric signing and external freshness proof remain pending.",
-      "Exact final clean-clone replay, independent review, required CI, transport, merge, promotion, tag, and reinstall are all downstream of those gates.",
+      "The checked-in 2.0.3/v3 content candidate is signed and verifies 5/5, but external freshness and readyToRun proof remain pending.",
+      "Exact final clean-clone replay, independent review, required CI, transport, merge, promotion, tag, and reinstall remain downstream release gates.",
       "Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; this product limitation is not a blocker for the native 2.0.3 candidate.",
       "The first requested video's source frames remain unavailable after YouTube 403/reload failures; transcript evidence is complete and no visual claim is made.",
       "The historical ICM fusion commit remains unknown; the live head and license are recorded without substituting current provenance for missing historical evidence."
