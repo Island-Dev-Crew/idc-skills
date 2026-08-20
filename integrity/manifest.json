@@ -122,8 +122,8 @@
       "size": 19
     },
     ".github/workflows/validate.yml": {
-      "sha256": "sha256:6d558e1d55b47c8b655b7ee291f60ec564871566f0251adf17be180ecd840eca",
-      "size": 3378
+      "sha256": "sha256:07378bfb4cd55bcaa5975ecb1561a8e08b686cfc446a73195e0d8ff19d2b8a87",
+      "size": 3771
     },
     "AGENTS.md": {
       "sha256": "sha256:911c88fa2439a3b9f12d204f74075309b40e86914f283f3ee8c111d9093b56ce",
@@ -262,8 +262,8 @@
     },
     ".github/workflows/validate.yml": {
       "posixMode": 420,
-      "sha256": "sha256:6d558e1d55b47c8b655b7ee291f60ec564871566f0251adf17be180ecd840eca",
-      "size": 3378
+      "sha256": "sha256:07378bfb4cd55bcaa5975ecb1561a8e08b686cfc446a73195e0d8ff19d2b8a87",
+      "size": 3771
     },
     ".gitignore": {
       "posixMode": 420,
@@ -457,8 +457,8 @@
     },
     "ops/mission/journal.md": {
       "posixMode": 420,
-      "sha256": "sha256:27898d1fb8318b7edc0bebeb126b14cdb011390931d1e209ca8615c1e708e8ff",
-      "size": 17217
+      "sha256": "sha256:c4e65d66cbf020956e29dd04950c7125d7d57ef0e525638d08c2ac80ff14689d",
+      "size": 18218
     },
     "ops/mission/render-sotu.mjs": {
       "posixMode": 420,
@@ -467,13 +467,13 @@
     },
     "ops/mission/state-of-the-union.html": {
       "posixMode": 420,
-      "sha256": "sha256:edf2d4d559ed7b86b059a1951c2583b18b1cfe008406abd68270f264a0384986",
-      "size": 73575
+      "sha256": "sha256:898d6602d9ac25a82f06f7ac58234d78184e1e327aaf65590b813ca776099c8b",
+      "size": 74149
     },
     "ops/mission/state.json": {
       "posixMode": 420,
-      "sha256": "sha256:385f77659869ceed592c6863bdbc6741275cb0dd32be6947d78223594fb2e403",
-      "size": 28658
+      "sha256": "sha256:e610d8cac85972e2379daa6f56c107987cb17d6e0e65cd67009506865d2087c8",
+      "size": 28967
     },
     "ops/research/pocock-gap-analysis-2026-08-19.md": {
       "posixMode": 420,
