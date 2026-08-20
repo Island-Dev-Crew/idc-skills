@@ -270,6 +270,16 @@ def find_subcommand(tokens):
     return i if i < n else None
 
 
+def option_args_before_pathspec_separator(rest):
+    # Git's `--` ends option parsing for checkout/restore pathspecs. Keep force/config
+    # detection scoped to the option side so a concrete filename such as `--force` or
+    # `--pathspec-from-file` remains an intentionally usable single-file recovery target.
+    try:
+        return rest[:rest.index("--")]
+    except ValueError:
+        return rest
+
+
 def argv_danger(tokens):
     # tokens[0] = git word. Return a reason string or None.
     idx = find_subcommand(tokens)
@@ -277,20 +287,21 @@ def argv_danger(tokens):
         return None
     sub = tokens[idx]
     rest = tokens[idx + 1:]
-    flags = effective_flags(sub, rest)              # decoded short-flag bundles, arg-values excluded
+    option_rest = option_args_before_pathspec_separator(rest)
+    flags = effective_flags(sub, option_rest)       # decoded short-flag bundles, arg-values excluded
     if sub == "push":
         return "git push"
     if sub == "reset":
-        return "git reset --hard" if has_long_opt(rest, "hard") else None
+        return "git reset --hard" if has_long_opt(option_rest, "hard") else None
     if sub == "clean":
-        force = "f" in flags or has_long_opt(rest, "force")
-        dry = "n" in flags or has_long_opt(rest, "dry-run")
+        force = "f" in flags or has_long_opt(option_rest, "force")
+        dry = "n" in flags or has_long_opt(option_rest, "dry-run")
         return "git clean -f" if (force and not dry) else None
     if sub == "branch":
-        force = "f" in flags or has_long_opt(rest, "force")
-        delete = "d" in flags or has_long_opt(rest, "delete")
-        move = "m" in flags or has_long_opt(rest, "move")
-        copy = "c" in flags or has_long_opt(rest, "copy")
+        force = "f" in flags or has_long_opt(option_rest, "force")
+        delete = "d" in flags or has_long_opt(option_rest, "delete")
+        move = "m" in flags or has_long_opt(option_rest, "move")
+        copy = "c" in flags or has_long_opt(option_rest, "copy")
         if "D" in flags or (delete and force):
             return "git branch force-delete"
         if "M" in flags or (move and force):
@@ -301,9 +312,9 @@ def argv_danger(tokens):
             return "git branch --force (destructive ref move)"
         return None
     if sub in ("checkout", "restore", "switch"):
-        if "f" in flags or has_long_opt(rest, "force") or has_long_opt(rest, "discard-changes"):
+        if "f" in flags or has_long_opt(option_rest, "force") or has_long_opt(option_rest, "discard-changes"):
             return "git " + sub + " --force"
-        if sub in ("checkout", "restore") and has_long_opt(rest, "pathspec-from-file"):
+        if sub in ("checkout", "restore") and has_long_opt(option_rest, "pathspec-from-file"):
             # The visible argv does not reveal whether the external file/stdin contains `.`, a
             # wildcard, or every tracked path. Do not let an opaque pathspec source bypass the
             # whole-tree rule; a concrete single-file argv remains the intentional recovery path.
@@ -311,14 +322,14 @@ def argv_danger(tokens):
         # forced branch (re)creation discards the ref's current tip: checkout -B / switch -C.
         if sub == "checkout" and "B" in flags:
             return "git checkout -B (force branch reset)"
-        if sub == "switch" and ("C" in flags or has_long_opt(rest, "force-create")):
+        if sub == "switch" and ("C" in flags or has_long_opt(option_rest, "force-create")):
             return "git switch -C (force branch reset)"
         for t in rest:
             if whole_tree_pathspec(t):
                 return "git " + sub + " <whole-tree pathspec>"
         if sub == "restore":
-            staged = "S" in flags or has_long_opt(rest, "staged")
-            worktree = "W" in flags or has_long_opt(rest, "worktree")
+            staged = "S" in flags or has_long_opt(option_rest, "staged")
+            worktree = "W" in flags or has_long_opt(option_rest, "worktree")
             if staged and worktree:
                 return "git restore --worktree --staged"
         return None

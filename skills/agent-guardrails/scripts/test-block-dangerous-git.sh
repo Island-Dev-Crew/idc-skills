@@ -474,6 +474,22 @@ check 2 'git checkout HEAD --pathspec-from-file=-' \
 check 2 'git restore --pathspec-from-f=/tmp/paths' \
   'restore unambiguous long-option abbreviation remains blocked'
 
+# Git's `--` ends option parsing. Option-looking names after it are concrete pathspecs and must stay
+# usable, while the real pre-boundary options remain blocked. Keep these isolated so a future option
+# scan cannot silently regress the single-file recovery contract.
+check 0 "git restore -- '-f'" \
+  'post-boundary -f is a concrete restore filename'
+check 0 "git checkout HEAD -- '--pathspec-from-file'" \
+  'post-boundary --pathspec-from-file is a concrete checkout filename'
+check 0 "git restore -- '--force'" \
+  'post-boundary --force is a concrete restore filename'
+check 2 'git restore -f README.md' \
+  'pre-boundary -f remains a restore force option'
+check 2 'git restore --force README.md' \
+  'pre-boundary --force remains a restore force option'
+check 2 'git checkout HEAD --pathspec-from-file=/tmp/paths' \
+  'pre-boundary --pathspec-from-file remains opaque'
+
 # Git's own sq_quote_buf encoding emits escaped `!` outside adjacent single-quoted chunks. Accept that
 # official form as data, while still resolving an encoded bang alias and never evaluating bytes.
 check_inherited 0 'git status' 'Git-generated escaped-bang non-alias config is benign' \
