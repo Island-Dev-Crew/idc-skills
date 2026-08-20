@@ -9,11 +9,14 @@ git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
   || { echo "refusing to assemble: not a git repository" >&2; exit 1; }
 # Refuse to stamp a dirty tree: a commit id that does not contain these exact blocks would be
 # a lying stamp — a reader who checks it out and re-assembles gets a different SHA. Fail closed.
-git diff --quiet && git diff --cached --quiet \
-  || { echo "refusing to assemble: uncommitted changes — commit the blocks first" >&2; exit 1; }
+if ! git diff --quiet || ! git diff --cached --quiet; then
+  echo "refusing to assemble: uncommitted changes — commit the blocks first" >&2
+  exit 1
+fi
 # Refuse on case-folded block-name collisions (case-insensitive FS collapses them to one inode).
 # Ask git, not the working tree: git's index stays case-sensitive even where the checkout collapsed.
-dupes=$(git ls-files 'console/blocks/*.md' | xargs -n1 basename | tr 'A-Z' 'a-z' | sort | uniq -d)
+dupes=$(git ls-files 'console/blocks/*.md' | xargs -n1 basename | \
+  tr '[:upper:]' '[:lower:]' | sort | uniq -d)
 [ -z "$dupes" ] \
   || { echo "refusing to assemble: case-folded block name collision — $dupes" >&2; exit 1; }
 # Refuse on an UNTRACKED block: the `cat blocks/*.md` glob would bake it into the lock and

@@ -4,7 +4,7 @@
 
 > *"In the multitude of counsellors there is safety."* — Proverbs 11:14
 
-This is the **staging forge** (`Navigata1/idc-skills-forge`, release 2.0.3). Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
+This is the **staging forge** (`Navigata1/idc-skills-forge`) with registry candidate and integrity protocol `2.0.3`; that version string is not a shipped, public-ready, or tagged claim. Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
 
 **Cross-harness by contract, not assumption:** the canonical source is preserved once, while each harness gets a documented loader path, metadata profile, and evidence tier. The current matrix covers fifteen surfaces, including Codex, Claude Code, claude.ai, Cursor, VS Code, Amp, Kimi, Antigravity, OpenClaw, Grok, Buzz, Pi, and Hermes. A shared folder proves byte distribution; it does not by itself prove invocation semantics. See the [human-readable matrix](docs/harness-support.md) and its [machine-readable contract](docs/harness-support.json).
 
@@ -81,7 +81,7 @@ The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust
 
 ## Install
 
-The dependency-free Python installer works from PowerShell, Command Prompt, and POSIX shells. Release 2.0.3 routes it through an independently installed freshness launcher; the repository's own verifier can prove signed content, but it cannot prove that its whole tree was not rolled back. Targets remain explicit so the external write set is visible before execution:
+The dependency-free Python installer works from PowerShell, Command Prompt, and POSIX shells. The 2.0.3 protocol routes it through an independently installed freshness launcher; the repository's own verifier can prove signed content, but it cannot prove that its whole tree was not rolled back. Targets remain explicit so the external write set is visible before execution:
 
 ```text
 python scripts/validate_skills.py

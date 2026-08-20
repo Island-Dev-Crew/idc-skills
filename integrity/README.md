@@ -224,19 +224,29 @@ path, clean-process-environment, or checkpoint verification.
 1. Finalize every repository byte, release number, sequence, test, and document;
    stage every new required control so the tracked closure is complete.
 2. Generate and biometrically sign the v3 manifest under namespace `file`.
-3. Commit/merge the exact manifest and signature; determine the final release
-   commit.
-4. Build the canonical index entry from that commit and the exact manifest,
-   verifier, and externally installed launcher bytes.
-5. Sign the index under namespace `idc-skills-release-index-v1` as a second
-   approval ceremony.
-6. Publish index and signature as one immutable pair/protected commit, provision
-   the external configuration's bootstrap digest and pinned runtime hashes, and
-   run the launcher through a protected clean-environment wrapper and that exact
-   Python runtime. A failed consumer does not roll the accepted freshness
-   checkpoint backward.
-7. Only after external `readyToRun=true` may the release be tagged, promoted,
-   installed, or described as ready.
+3. Commit the exact manifest and signature, replay that signed candidate from an
+   ordinary clean clone, and obtain a different-family exact-head approval. No
+   repository-controlled byte may change after this point.
+4. Push that exact candidate to staging, require the repository CI, and merge
+   through the protected review path. Capture the final staging merge commit and
+   prove its tree is byte-identical to the reviewed signed candidate.
+5. Build the canonical index entry from that final staging merge and the exact
+   manifest, verifier, and externally installed launcher bytes. Sign the index
+   under namespace `idc-skills-release-index-v1` as a second approval ceremony.
+6. Publish index and signature as one immutable pair/protected staging commit,
+   provision the external configuration's bootstrap digest and pinned runtime
+   hashes, and run the launcher against an ordinary clean staging clone through
+   a protected clean-environment wrapper and that exact Python runtime. Require
+   staging `readyToRun=true` before promotion. A failed consumer does not roll
+   the accepted freshness checkpoint backward.
+7. Promote the exact staging merge and the exact index-pair commit to the public
+   repository without rewriting either. Create an ordinary clean public clone,
+   switch only the protected source configuration to the public raw URLs, and
+   require the same `readyToRun=true` tuple and index digest from the public
+   source. Reusing the checkpoint is valid only when index sequence, digest, and
+   complete history are byte-identical.
+8. Only after the public-source proof may the exact merge be annotated and
+   SSH-signed as `2.0.3`, installed, reaccepted, or described as released.
 
 Any repository mutation after manifest signing returns to step 1. Any final
 commit rewrite after index construction returns to step 4.

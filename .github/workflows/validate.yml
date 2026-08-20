@@ -57,11 +57,24 @@ jobs:
           skills/self-contained-ship/scripts/test-scan-egress.sh
           scripts/test-skill-integrity.sh
 
-      - name: Shellcheck release shell surfaces
+      - name: Parse and shellcheck release shell surfaces
         if: runner.os == 'Linux'
         shell: bash
         run: |
+          bash -n \
+            console/assemble.sh \
+            scripts/install.sh \
+            scripts/setup-signing-wizard.sh \
+            scripts/test-skill-integrity.sh \
+            skills/agent-guardrails/scripts/block-dangerous-git.sh \
+            skills/agent-guardrails/scripts/test-block-dangerous-git.sh \
+            skills/self-contained-ship/scripts/scan-egress.sh \
+            skills/self-contained-ship/scripts/test-scan-egress.sh \
+            skills/computer-use-smoke/scripts/smoke.sh \
+            skills/video-analysis/scripts/grab.sh \
+            skills/wizard/template.sh
           shellcheck \
+            console/assemble.sh \
             scripts/install.sh \
             scripts/setup-signing-wizard.sh \
             scripts/test-skill-integrity.sh \

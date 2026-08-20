@@ -19,6 +19,7 @@ def e(value: object) -> str:
 def render(payload: dict[str, Any]) -> str:
     records = payload["records"]
     release = e(payload["release"])
+    generated = e(payload["generated"])
     average = sum(float(record["caseAvg"]) for record in records) / len(records)
     cards: list[str] = []
     for record in records:
@@ -38,7 +39,7 @@ def render(payload: dict[str, Any]) -> str:
     embedded = html.escape(json.dumps(records, ensure_ascii=False, separators=(",", ":")))
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Forge 50 validation record · release {release}</title>
+<title>Forge 50 validation record · release candidate {release}</title>
 <style>
 :root{{--bg:#090b10;--panel:#11151d;--line:#293140;--ink:#edf1f6;--muted:#9aa6b5;--gold:#d6ad45;--jade:#4db79e;--rust:#c66b42}}
 *{{box-sizing:border-box}} body{{margin:0;background:radial-gradient(circle at 80% -10%,#293044 0,transparent 32%),var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,sans-serif;line-height:1.5}}
@@ -53,7 +54,7 @@ ol{{padding-left:20px}} li{{margin:14px 0}} .case-head{{display:flex;justify-con
 footer{{padding:28px 0 60px;border-top:1px solid var(--line);color:var(--muted);font-size:12px}} .hidden{{display:none}}
 @media(max-width:800px){{.stats,.grid{{grid-template-columns:1fr 1fr}}}} @media(max-width:620px){{.stats,.grid,.split{{grid-template-columns:1fr}}header{{padding-top:45px}}}}
 </style></head><body>
-<header><div class="kicker">IDC Skills · evidence ledger · 2026-08-19</div><h1>Fifty islands. One inspectable record.</h1><p class="deck">Machine-readable semantic validation for every registry seat, rendered from <code>ops/validation/skill-records.json</code>. Scores describe the recorded cases; they do not erase each card's residual boundary.</p><div class="law"><b>No authority without evidence.</b> The full rendered report must be the deterministic byte-for-byte output of the source records, or reacceptance fails.</div><div class="stats"><div class="stat"><strong>50</strong><span>registry-matched records</span></div><div class="stat"><strong>150</strong><span>falsifiable cases</span></div><div class="stat"><strong>{average:.1f}</strong><span>mean case score</span></div><div class="stat"><strong>{release}</strong><span>release candidate · signing gate separate</span></div></div></header>
+<header><div class="kicker">IDC Skills · evidence ledger · {generated}</div><h1>Fifty islands. One inspectable record.</h1><p class="deck">Machine-readable semantic validation for every registry seat, rendered from <code>ops/validation/skill-records.json</code>. Scores describe the recorded cases; they do not erase each card's residual boundary.</p><div class="law"><b>No authority without evidence.</b> The full rendered report must be the deterministic byte-for-byte output of the source records, or reacceptance fails.</div><div class="stats"><div class="stat"><strong>50</strong><span>registry-matched records</span></div><div class="stat"><strong>150</strong><span>falsifiable cases</span></div><div class="stat"><strong>{average:.1f}</strong><span>mean case score</span></div><div class="stat"><strong>{release}</strong><span>release candidate · signing gate separate</span></div></div></header>
 <main><div class="tools"><input id="q" type="search" placeholder="Filter the archipelago…" aria-label="Filter skills"></div><section class="grid">{''.join(cards)}</section></main>
 <footer>Generated deterministically from the source records. Structural and semantic evidence are separate claims; read the residual on every island.</footer>
 <script id="validation-data" type="application/json">{embedded}</script>
