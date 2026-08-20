@@ -51,6 +51,77 @@ jobs:
         with:
           node-version: "22"
 
+      - name: Diagnose Windows OpenSSH bootstrap environment
+        if: runner.os == 'Windows'
+        shell: bash
+        run: |
+          python - <<'PY'
+          import os
+          import shutil
+          import subprocess
+          import tempfile
+          from pathlib import Path
+
+          from bootstrap import idc_verify_fresh as fresh
+          from tests.test_freshness import _ssh_keygen_executable
+
+          executable = _ssh_keygen_executable()
+          with tempfile.TemporaryDirectory(prefix="idc-windows-openssh-diagnostic-") as temporary:
+              root = Path(temporary)
+              private_key = root / "diagnostic"
+              subprocess.run(
+                  [executable, "-q", "-t", "ed25519", "-N", "", "-f", str(private_key)],
+                  check=True,
+              )
+              public_key = Path(str(private_key) + ".pub")
+              base = fresh._temporary_verification_environment((Path(executable).parent,), root)
+              groups = [
+                  ("production", ()),
+                  ("identity", ("USERNAME", "USERDOMAIN")),
+                  ("home-drive", ("HOMEDRIVE", "HOMEPATH")),
+                  ("program-data", ("PROGRAMDATA", "ALLUSERSPROFILE")),
+                  ("app-data", ("APPDATA", "LOCALAPPDATA")),
+                  (
+                      "identity-home-program",
+                      (
+                          "USERNAME",
+                          "USERDOMAIN",
+                          "HOMEDRIVE",
+                          "HOMEPATH",
+                          "PROGRAMDATA",
+                          "ALLUSERSPROFILE",
+                      ),
+                  ),
+              ]
+              print(f"selected={executable}")
+              print(f"ambientWhich={shutil.which('ssh-keygen')}")
+              for label, keys in groups:
+                  environment = dict(base)
+                  for key in keys:
+                      if key in os.environ:
+                          environment[key] = os.environ[key]
+                  process = subprocess.run(
+                      [executable, "-lf", str(public_key)],
+                      text=True,
+                      capture_output=True,
+                      check=False,
+                      env=environment,
+                  )
+                  detail = (process.stderr or process.stdout).strip().replace("\n", " | ")
+                  print(
+                      f"{label}: exit={process.returncode} "
+                      f"added={','.join(keys) or '<none>'} detail={detail!r}"
+                  )
+              ambient = subprocess.run(
+                  [executable, "-lf", str(public_key)],
+                  text=True,
+                  capture_output=True,
+                  check=False,
+              )
+              print(f"ambient: exit={ambient.returncode}")
+          raise SystemExit("intentional diagnostic stop before release reacceptance")
+          PY
+
       # This repository-owned workflow is intentionally content-only. A
       # whole-tree readiness check must be required from outside candidate
       # code (pinned org workflow/action/runner policy).
