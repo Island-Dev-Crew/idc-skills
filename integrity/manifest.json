@@ -150,8 +150,8 @@
       "size": 3551
     },
     "bootstrap/idc_verify_fresh.py": {
-      "sha256": "sha256:ac6e9da69bfccbb37e07b26eb5331678fe9d98d624069cbe26e07635c8a37c52",
-      "size": 63452
+      "sha256": "sha256:be3863c2e0b0af98f3fd60d98fcfc612fbe1db739bcaa98459153d6f1ae15a87",
+      "size": 63678
     },
     "docs/report.html": {
       "sha256": "sha256:f5173d9004de12ce5b84ab09b6166e1d058e8e748e1086f3e0806a0db85387f8",
@@ -226,8 +226,8 @@
       "size": 33552
     },
     "tests/test_freshness.py": {
-      "sha256": "sha256:2c4f72e2e639e9338d9541fe08e1e02312a61da4caf4525e9d34c728cf3f669e",
-      "size": 43735
+      "sha256": "sha256:5afcaf667d9b5c98341de6198ce93182b26be4c69917675ac8b9a31f0be622e0",
+      "size": 44150
     },
     "tests/test_install.py": {
       "sha256": "sha256:8e51fa0cf03453001407e5d330a327cfb265289d9803f8d9f838fa2201f133eb",
@@ -322,8 +322,8 @@
     },
     "bootstrap/idc_verify_fresh.py": {
       "posixMode": 420,
-      "sha256": "sha256:ac6e9da69bfccbb37e07b26eb5331678fe9d98d624069cbe26e07635c8a37c52",
-      "size": 63452
+      "sha256": "sha256:be3863c2e0b0af98f3fd60d98fcfc612fbe1db739bcaa98459153d6f1ae15a87",
+      "size": 63678
     },
     "console/assemble.sh": {
       "posixMode": 493,
@@ -457,8 +457,8 @@
     },
     "ops/mission/journal.md": {
       "posixMode": 420,
-      "sha256": "sha256:4c796cbee0d89e2e97fa5898d647eaecfa510f2c75019eaff47b24bfedff5337",
-      "size": 23140
+      "sha256": "sha256:6b734d1fe61b6bd5c8dd1c2b07c026e4e8042fce104b8b5a22de44800f53bbda",
+      "size": 24283
     },
     "ops/mission/render-sotu.mjs": {
       "posixMode": 420,
@@ -467,13 +467,13 @@
     },
     "ops/mission/state-of-the-union.html": {
       "posixMode": 420,
-      "sha256": "sha256:c6c94c5a71dfaad452e865600619b3469eb337b4bfbc85e3998a30dc859c7583",
-      "size": 74525
+      "sha256": "sha256:3f71392b8e432eeb15428eb23e7135c6e7d54aac8293e4c9d92666854c92093c",
+      "size": 74887
     },
     "ops/mission/state.json": {
       "posixMode": 420,
-      "sha256": "sha256:095a76de51910806a1210acc8a8b110ec1ec154b950764479d9f0c8650c1d94e",
-      "size": 29134
+      "sha256": "sha256:151fb5134f13b06401966c7ea839db57c0e1815523b7c5d298c466c4d2f50f96",
+      "size": 29180
     },
     "ops/research/pocock-gap-analysis-2026-08-19.md": {
       "posixMode": 420,
@@ -1167,8 +1167,8 @@
     },
     "tests/test_freshness.py": {
       "posixMode": 420,
-      "sha256": "sha256:2c4f72e2e639e9338d9541fe08e1e02312a61da4caf4525e9d34c728cf3f669e",
-      "size": 43735
+      "sha256": "sha256:5afcaf667d9b5c98341de6198ce93182b26be4c69917675ac8b9a31f0be622e0",
+      "size": 44150
     },
     "tests/test_install.py": {
       "posixMode": 420,
