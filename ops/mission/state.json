@@ -401,9 +401,9 @@
           "title": "Exact 2.0.3 transport candidate has required CI green",
           "command": "gh pr checks <release-pr> --watch",
           "status": "pending",
-          "evidence": null,
-          "lastRun": null,
-          "notes": "Pending final signed exact head, required CI, and independent review. No merge or transport authorization is implied."
+          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32357025682",
+          "lastRun": "2026-08-20T10:03:58Z",
+          "notes": "PR #4 run 32357025682 failed Ubuntu because the setup-python toolcache executable was group/world writable and therefore correctly rejected by the freshness runtime trust check. The workflow now provisions an owner-controlled --copies virtual environment; final signing, exact-head replay/review, and replacement three-OS CI remain pending."
         },
         {
           "id": "P6-G3",

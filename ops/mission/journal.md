@@ -124,3 +124,10 @@
 - The integrated candidate passes 101 repository unit tests, the 40-test integrity/freshness matrix, canonical validation 50/50 with zero errors and 13 named advisories, harness verification 15/50, gauntlet verification 3/3, and validation records 50/150.
 - Bash syntax, the exact workflow ShellCheck list, both deterministic report gates, and `git diff --check` are green. A scratch v3 manifest builds with 50 skills, 12 classified references, and 715 signed network-command occurrences.
 - The checked-in 2.0.2/v2 signature remains historical. The next controlled mutation is the final 2.0.3/v3 manifest/signature ceremony; after signing, tracked bytes freeze and all staging, index, public-source, tag, and reinstall receipts remain external.
+
+## 2026-08-20T10:06Z — PR #4 CI rejects an unprotected hosted Python runtime
+
+- Exact signed head `3139972f165ee8b5288a55bee89b560c375085ce` passed clean-clone reacceptance and a different-family Claude Opus review, then opened PR #4 without force.
+- GitHub Actions run `32357025682` failed Ubuntu because the setup-python toolcache executable was group/world writable. The freshness tests correctly refused to model that runtime as externally protected; merge was not attempted.
+- The workflow now creates a private `venv --copies` runtime and places its platform-specific executable directory first for all later steps. A local owner-controlled copied runtime passes the complete 101-test suite.
+- Because the workflow and mission evidence are controlled signed bytes, the prior manifest, signature, clean-clone receipt, and exact-head verdict are stale. Manifest regeneration, biometric re-signing, clean-clone replay, independent review, and replacement three-OS CI are mandatory before merge.
