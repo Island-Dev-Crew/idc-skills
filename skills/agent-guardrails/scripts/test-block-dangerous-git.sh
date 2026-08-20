@@ -104,6 +104,42 @@ check 2 'git -c Alias.p=push p'                 'case-variant config section Ali
 check 2 "git -c 'alias.p=-p push' p"            'alias value with leading global flag -p'
 check 2 "git -c 'alias.x=!git push;' x"         'bang alias with glued semicolon'
 
+echo "== must BLOCK (exit 2) — 2.0.3-r4 (Codex round-3 exact-head) =="
+# inline alias VALUE combined with CALL-SITE args (value alone is not dangerous)
+check 2 'git -c alias.n=reset n --hard'         'inline alias reset + call-site --hard'
+check 2 'git -c alias.n=clean n -fd'            'inline alias clean + call-site -fd'
+check 2 'git -c alias.n=branch n -D feature'    'inline alias branch + call-site -D'
+# official config-injection surfaces resolved against leading env assignments
+check 2 'P=push git --config-env=alias.p=P p origin main'                       '--config-env alias from env var'
+check 2 'GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=alias.p GIT_CONFIG_VALUE_0=push git p origin main' 'GIT_CONFIG_* env alias injection'
+# forced branch (re)creation discards the ref tip
+check 2 'git checkout -B main origin/main'      'checkout -B force branch reset'
+check 2 'git switch -C main origin/main'        'switch -C force branch reset'
+# static bash grammar the shell would actually run git through
+check 2 "\$'git' push"                          "ANSI-C quoted git word \$'git'"
+check 2 "git \$'push'"                          "ANSI-C quoted subcommand \$'push'"
+check 2 'echo ok |& git push'                   '|& pipe-both separator then push'
+check 2 '>/tmp/x git push'                       'leading redirection then push'
+check 2 '! git push'                             'leading ! negation then push'
+check 2 '{ git push; }'                          'brace group then push'
+check 2 'if true; then git push; fi'             'if/then/fi with push in body'
+# wrapper grammars that DO execute the following git word
+check 2 'command -p git push'                    'command -p (default PATH) runs git'
+check 2 'nice -n 5 git push'                      'nice -n <value> then push'
+check 2 'env --unset FOO git push'               'env --unset <var> then push'
+check 2 'exec -a gitname git push'               'exec -a <name> then push'
+
+echo "== must ALLOW (exit 0) — 2.0.3-r4 safe forms (no over-block) =="
+check 0 'command -v git push'                    'command -v git only prints a path'
+check 0 'git checkout -bfeature'                 'checkout -b<name> attached (create branch)'
+check 0 'git switch -cfeature'                   'switch -c<name> attached (create branch)'
+check 0 'git restore -sfeature README.md'        'restore -s<source> attached (single file)'
+check 0 'git clean -efoo'                         'clean -e<pattern> attached (exclude)'
+check 0 "git checkout ':(literal)README.md'"     'magic pathspec single file :(literal)'
+check 0 "git checkout ':(top)README.md'"         'magic pathspec single file :(top)path'
+check 0 "git checkout ':/README.md'"             'root-relative single file :/path'
+check 0 'git status # docs; git push origin main' 'push is shell-comment text, not a command'
+
 echo "== must ALLOW (exit 0) — read-only / dry-run / non-dangerous =="
 check 0 'echo git push'                                          'unquoted git as echo argument'
 check 0 'grep -r git push'                                       'unquoted git as grep argument'

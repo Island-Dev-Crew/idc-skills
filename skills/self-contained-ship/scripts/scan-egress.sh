@@ -1,31 +1,45 @@
 #!/usr/bin/env bash
 # self-contained-ship: STATIC egress scanner. Fails closed (exit 1) on any un-waived external
-# reference, symlink, non-regular file, OR binary in a deliverable. This is the static rung —
-# necessary, not sufficient. Obfuscation and string-built URLs slip past a regex; the ENFORCED
-# proof is the sealed-load runtime rung in SKILL.md. State that boundary; never imply this grep
-# alone certifies containment.
+# reference, symlink, non-regular file, unreadable file, traversal error, OR binary in a
+# deliverable. This is the static rung — necessary, not sufficient. Obfuscation and string-built
+# URLs slip past a static matcher; the ENFORCED proof is the sealed-load runtime rung in SKILL.md.
+# State that boundary; never imply this scan alone certifies containment.
 #
 # SECURE-BY-DEFAULT: a green result means "every file was scanned clean OR explicitly human-waived"
 # — never "some files we could not look at." A symlink fails closed (bytes outside the tree); a
 # non-regular file (FIFO/socket/device) fails closed and is NEVER read (reading a FIFO would hang);
-# a binary fails closed too — its strings are `grep -a`-scanned, an embedded URL is reported and
-# fails EVEN IF the binary is glob-waived (a waiver must not launder a live URL), and a URL-free
-# binary fails as uncertifiable until reviewed and waived with `--allow-binary <glob>`.
+# an UNREADABLE file fails closed (a glob waiver cannot launder bytes we never saw); a traversal
+# error (an unreadable directory) fails closed (a clean-looking sibling cannot certify a tree we
+# could not fully walk); a binary fails closed too — its strings are `grep -a`-scanned, an embedded
+# URL is reported and fails EVEN IF the binary is glob-waived, and a URL-free binary fails as
+# uncertifiable until reviewed and waived with `--allow-binary <glob>`.
+#
+# CONTENT CLASSIFICATION (exact boundary): a file is TEXT iff its first 8192 bytes contain NO NUL
+# and NO C0/C1 control byte outside the text-whitespace set {tab, LF, VT, FF, CR}; high bytes
+# 0x80-0xFF are treated as text so UTF-8 is never misflagged. A NUL-FREE binary that carries raw
+# control bytes — e.g. a P6 Netpbm rawbits image whose pixel bytes include 0x01-0x08 — is therefore
+# classified BINARY (and scanned/waived on the binary path), NOT clean text. This is stricter than a
+# NUL-only heuristic (which such a file would slip past).
+#
+# The text egress scan is a WHOLE-FILE (multiline-aware) static match, run by python3, so a fetching
+# context split across lines (`src\n="//h"`, `fetch(\n"//h")`) and every srcset candidate are caught
+# — a per-line regex structurally cannot. python3 is REQUIRED for the text rung: if it is missing the
+# scan cannot certify text files and FAILS CLOSED (exit 1), never open. `jq` is not used here.
+#
+# Documented residuals a static scan cannot close (keep the sealed-load runtime rung underneath):
+#   - egress that string-concatenation / obfuscation / runtime code BUILDS after load
+#   - a request issued by a service worker, a delayed timer, or an interaction the scan never runs
 set -uo pipefail
 
-# What a browser (or an XML/CSS/JS consumer) FETCHES, caught case-INSENSITIVELY. Absolute schemes
-# `http(s)/ws(s)/ftp` and WebRTC `stun/turn(s)` match anywhere; protocol-relative `//host` is caught
-# only in a fetching CONTEXT (a URL attribute, CSS url()/image-set()/@import, a JS network-API call,
-# or a `url=` redirect) and only when a hostname char follows the `//`, so a JS `// comment` is not a
-# false positive. NOTE: a bare `fetch(x)` / `XMLHttpRequest` with a same-origin, `data:`, or `blob:`
-# target is NOT flagged (that is not an external reference; a runtime-built external URL is the
-# disclosed obfuscation residual that rung 2 catches).
-EGRESS="(https?|wss?|ftp)://|(^|[^a-z])(stun|turns?):[a-z0-9]|@import[^;{]*(https?:)?//[a-z0-9]|(url|image-set|image)[[:space:]]*\([[:space:]]*[\"']?(https?:)?//[a-z0-9]|(src|srcset|imagesrcset|href|xlink:href|action|formaction|poster|background|cite|ping|manifest)[[:space:]]*=[[:space:]]*[\"']?(https?:)?//[a-z0-9]|(^|[^a-z])url[[:space:]]*=[[:space:]]*[\"']?(https?:)?//[a-z0-9]|(fetch|import|importscripts|websocket|eventsource)[[:space:]]*\([[:space:]]*[\"']?(https?:)?//[a-z0-9]"
-
-# The waiver: a BOUNDED, case-SENSITIVE, TRAILING comment. A hit is suppressed only when ITS line
-# ends with a real `# egress-ok` / `// egress-ok` / `/* egress-ok */`. The delimiter must sit at
-# line-start or after whitespace, so a URL-internal `//` can't act as the comment delimiter.
-WAIVER='(^|[[:space:]])(#|//|/\*)[[:space:]]*egress-ok([[:space:]]*\*/)?[[:space:]]*$'
+# What a browser (or an XML/CSS/JS consumer) FETCHES. Absolute schemes http(s)/ws(s)/ftp and WebRTC
+# stun/turn(s) match anywhere; protocol-relative `//host` is caught only in a fetching CONTEXT (a URL
+# attribute incl. every srcset candidate, CSS url()/image-set()/@import, a JS network-API call incl.
+# navigator.sendBeacon and XHR.open, or a `url=` redirect) and only when a hostname char follows the
+# `//`, so a JS `// comment` and a same-origin/`data:`/`blob:` target are NOT flagged (a runtime-built
+# external URL is the disclosed residual rung 2 catches). The full context set lives in the python
+# matcher below; this bash-visible regex is the ABSOLUTE-scheme set used for BINARY string scanning
+# (protocol-relative has no meaning inside a compiled binary).
+EGRESS_BIN='(https?|wss?|ftp)://|(^|[^a-z])(stun|turns?):[a-z0-9]'
 
 usage() { echo "usage: scan-egress.sh [--allow-binary <glob>]... <file-or-dir> ..." >&2; exit 2; }
 
@@ -45,61 +59,189 @@ done
 
 # Enumerate by CONTENT, not extension (closes extensionless / UPPERCASE / novel extensions), NUL-safely
 # (`find -print0` + `read -d ''`) so a filename with an embedded newline can't split or hide an entry.
-# A non-regular file (FIFO/socket/device) is tracked separately and NEVER read.
+# A non-regular file (FIFO/socket/device) is tracked separately and NEVER read; an unreadable file and a
+# find/traversal error each fail closed.
 files=()
 symlinks=()
 binaries=()
 specials=()
-classify_file() {  # <path> -> files (text/empty) | binaries | specials
-  if [ ! -f "$1" ]; then specials+=("$1"); return; fi        # FIFO/socket/device -> never grep (would hang)
+unreadable=()
+traversal_err=0
+classify_file() {  # <path> -> files (text/empty) | binaries | specials | unreadable
+  if [ ! -f "$1" ]; then specials+=("$1"); return; fi       # FIFO/socket/device -> never grep (would hang)
+  if [ ! -r "$1" ]; then unreadable+=("$1"); return; fi      # bytes we cannot see -> fail closed, no waiver
   if [ ! -s "$1" ]; then files+=("$1"); return; fi           # empty file: no content, benign
-  if LC_ALL=C grep -Iq . "$1" 2>/dev/null; then files+=("$1"); else binaries+=("$1"); fi
+  # TEXT iff no non-whitespace control byte survives (see CONTENT CLASSIFICATION header). tr deletes
+  # printable, text-whitespace, and high (UTF-8) bytes; anything left is NUL or a C0/C1 control -> binary.
+  local nt
+  nt="$(head -c 8192 "$1" 2>/dev/null | LC_ALL=C tr -d '[:print:][:space:]\200-\377' | wc -c | tr -cd '0-9')"
+  if [ "${nt:-1}" -gt 0 ]; then binaries+=("$1"); else files+=("$1"); fi
+}
+scan_tree() {  # <dir>: enumerate; any find stderr (e.g. an unreadable dir) fails the tree closed.
+  local p="$1" ef; ef="$(mktemp)"
+  while IFS= read -r -d '' f; do symlinks+=("$f"); done < <(find "$p" -type l -print0 2>"$ef")
+  [ -s "$ef" ] && traversal_err=1; : > "$ef"
+  while IFS= read -r -d '' f; do classify_file "$f"; done < <(find "$p" -type f -print0 2>"$ef")
+  [ -s "$ef" ] && traversal_err=1; : > "$ef"
+  while IFS= read -r -d '' f; do specials+=("$f"); done < <(find "$p" \( -type p -o -type s -o -type b -o -type c \) -print0 2>"$ef")
+  [ -s "$ef" ] && traversal_err=1
+  rm -f "$ef"
 }
 for p in "${targets[@]}"; do
   if [ -L "$p" ]; then
     symlinks+=("$p")
   elif [ -d "$p" ]; then
-    while IFS= read -r -d '' f; do symlinks+=("$f"); done < <(find "$p" -type l -print0 2>/dev/null)
-    while IFS= read -r -d '' f; do classify_file "$f"; done < <(find "$p" -type f -print0 2>/dev/null)
-    while IFS= read -r -d '' f; do specials+=("$f"); done < <(find "$p" \( -type p -o -type s -o -type b -o -type c \) -print0 2>/dev/null)
+    scan_tree "$p"
   elif [ -e "$p" ]; then
     classify_file "$p"
   else
     echo "scan-egress: no such path: $p" >&2; exit 2
   fi
 done
-if [ $(( ${#files[@]} + ${#symlinks[@]} + ${#binaries[@]} + ${#specials[@]} )) -lt 1 ]; then
+if [ $(( ${#files[@]} + ${#symlinks[@]} + ${#binaries[@]} + ${#specials[@]} + ${#unreadable[@]} )) -lt 1 ] && [ "$traversal_err" -eq 0 ]; then
   echo "scan-egress: no scannable files under: ${targets[*]}" >&2; exit 2
 fi
 
 violations=0
 waived=0
 benign=0
-for f in ${files[@]+"${files[@]}"}; do
-  while IFS= read -r line; do
-    [ -n "$line" ] || continue
-    n="${line%%:*}"
-    body="${line#*:}"
-    # Non-fetching URI context: an xmlns / xmlns:* namespace declaration — e.g. inline-SVG
-    # xmlns="http://www.w3.org/2000/svg" — is a pure identifier a browser never fetches. Strip ONLY
-    # that BOUNDED, quoted value (never an unbounded span — the old <!DOCTYPE ...> strip ate to the
-    # first '>' and could launder a real hit); if NO egress survives, it was a namespace URI. A
-    # DTD/schema SYSTEM URL is a real external reference and is deliberately NOT stripped (it is
-    # fetched by XML consumers).
-    stripped="$(printf '%s' "$body" | sed -E \
-      -e 's/(^|[^A-Za-z0-9_-])xmlns(:[A-Za-z0-9_.-]+)?[[:space:]]*=[[:space:]]*"[^"]*"/\1/g' \
-      -e "s/(^|[^A-Za-z0-9_-])xmlns(:[A-Za-z0-9_.-]+)?[[:space:]]*=[[:space:]]*'[^']*'/\1/g")"
-    if ! printf '%s' "$stripped" | grep -Eqi -- "$EGRESS"; then
-      benign=$((benign + 1)); echo "NSURI   $f:$n:$body"
-      continue
-    fi
-    if printf '%s' "$body" | grep -Eq -- "$WAIVER"; then
-      waived=$((waived + 1)); echo "WAIVED  $f:$n:$body"
-    else
-      violations=$((violations + 1)); echo "EGRESS  $f:$n:$body"
-    fi
-  done < <(grep -niE -- "$EGRESS" "$f" || true)
-done
+
+# --- text files: whole-file, multiline-aware static match in python3 (fails closed if absent) ---
+# The file list is passed via a temp-file path in the environment and the program via a heredoc on
+# stdin — NEVER as `$(python3 - <<PY ...)`, because a heredoc carrying parens/backticks inside a
+# command substitution breaks bash's parser (same residual the git guard documents). python3 stdout
+# is captured to a temp file; a non-zero python exit (a crash) FAILS CLOSED.
+if [ "${#files[@]}" -gt 0 ]; then
+  if ! command -v python3 >/dev/null 2>&1; then
+    echo "scan-egress: python3 not found; cannot certify text files — FAIL CLOSED" >&2
+    exit 1
+  fi
+  sc_in="$(mktemp)"; sc_out="$(mktemp)"; sc_err="$(mktemp)"
+  printf '%s\0' "${files[@]}" > "$sc_in"
+  SCAN_EGRESS_FILELIST="$sc_in" python3 - >"$sc_out" 2>"$sc_err" <<'PY'
+import re, os, bisect
+
+paths = [p for p in open(os.environ["SCAN_EGRESS_FILELIST"], "rb").read().split(b"\0") if p]
+
+# Waiver: a BOUNDED, case-sensitive, TRAILING comment on the hit's own line. The delimiter must sit
+# at line-start or after whitespace, so a URL-internal `//` can't act as the comment delimiter.
+WAIVER = re.compile(r'(?:^|[ \t])(?:#|//|/\*)[ \t]*egress-ok(?:[ \t]*\*/)?[ \t]*$')
+
+# Absolute schemes anywhere; WebRTC stun/turn anywhere (with a non-letter boundary before the scheme).
+ABS  = re.compile(r'(?i)(?:https?|wss?|ftp)://')
+STUN = re.compile(r'(?i)(?:^|[^a-z])(stun|turns?):[a-z0-9]')
+
+# Fetching CONTEXTS for a protocol-relative `//host` (or an absolute one, already caught by ABS):
+#  - HTML/SVG fetching attributes (longest alternates first so `srcset`/`imagesrcset` win over `src`)
+#  - CSS url()/image-set()/image()/@import
+#  - JS network APIs incl. navigator.sendBeacon; XHR `.open("METHOD", "//host")`; a `url=` redirect
+# `(?is)` = case-insensitive + DOTALL so a context split across newlines still matches.
+FETCH_ATTRS = r'imagesrcset|srcset|src|xlink:href|href|formaction|action|poster|background|cite|ping|manifest|data'
+ATTR    = re.compile(r'(?is)\b(?:' + FETCH_ATTRS + r')\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'>]+))')
+CSS     = re.compile(r'(?is)(?:@import\s+|(?:url|image-set|image)\s*\(\s*)["\']?\s*//[a-z0-9]')
+JSCALL  = re.compile(r'(?is)\b(?:fetch|import|importScripts|WebSocket|EventSource|sendBeacon)\s*\(\s*["\']?\s*//[a-z0-9]')
+XHROPEN = re.compile(r'(?is)\.open\s*\(\s*(["\'])[^"\']*\1\s*,\s*["\']?\s*//[a-z0-9]')
+URLEQ   = re.compile(r'(?i)\burl\s*=\s*["\']?\s*//[a-z0-9]')
+PROTO   = re.compile(r'(?i)//[a-z0-9]')
+
+# A genuine XML namespace declaration — `xmlns`/`xmlns:pfx` as an ATTRIBUTE INSIDE A TAG, e.g.
+# `<svg xmlns="http://www.w3.org/2000/svg">` — is a pure identifier a browser never fetches. Suppress
+# ONLY that: the value must sit inside `<tag ... xmlns=...>` (bounded by `[^<>]`, so it is really inside
+# a tag). A bare `xmlns=` assignment in JS source, or a `fetch(xmlns=...)` argument, has no enclosing
+# tag and is NOT suppressed (it is real egress).
+XMLNS = re.compile(r'(?is)<[A-Za-z][^<>]*?\bxmlns(?::[\w.-]+)?\s*=\s*("[^"]*"|\'[^\']*\')')
+
+
+def proto_offsets_in_value(val, base):
+    # every protocol-relative candidate inside an attribute value (srcset comma-separated candidates,
+    # leading whitespace inside the quotes), excluding an absolute-scheme `//` (preceded by `:`).
+    out = []
+    for m in PROTO.finditer(val):
+        s = m.start()
+        if s > 0 and val[s - 1] == ":":
+            continue
+        out.append(base + s)
+    return out
+
+
+violations = waived = benign = 0
+for pb in paths:
+    path = os.fsdecode(pb)
+    try:
+        with open(pb, "rb") as fh:
+            text = fh.read().decode("latin-1")     # latin-1: byte<->char 1:1, stable offsets, no decode err
+    except OSError:
+        violations += 1
+        print("UNREADABLE %s (could not read during scan — fail closed)" % path)
+        continue
+
+    starts = [0]
+    for i, ch in enumerate(text):
+        if ch == "\n":
+            starts.append(i + 1)
+
+    def loc(off):
+        idx = bisect.bisect_right(starts, off) - 1
+        st = starts[idx]
+        en = text.find("\n", st)
+        if en < 0:
+            en = len(text)
+        return idx + 1, text[st:en]
+
+    ns = [(m.start(1), m.end(1)) for m in XMLNS.finditer(text)]
+
+    def in_ns(off):
+        return any(a <= off < b for a, b in ns)
+
+    hits = {}
+    for m in ABS.finditer(text):
+        hits[m.start()] = 1
+    for m in STUN.finditer(text):
+        hits[m.start(1)] = 1
+    for m in CSS.finditer(text):
+        hits[m.end() - 3] = 1
+    for m in JSCALL.finditer(text):
+        hits[m.end() - 3] = 1
+    for m in XHROPEN.finditer(text):
+        hits[m.end() - 3] = 1
+    for m in URLEQ.finditer(text):
+        hits[m.end() - 3] = 1
+    for m in ATTR.finditer(text):
+        for gi in (1, 2, 3):
+            if m.group(gi) is not None:
+                for off in proto_offsets_in_value(m.group(gi), m.start(gi)):
+                    hits[off] = 1
+                break
+
+    for off in sorted(hits):
+        ln, body = loc(off)
+        if in_ns(off):
+            benign += 1
+            print("NSURI  %s:%d:%s" % (path, ln, body))
+        elif WAIVER.search(body):
+            waived += 1
+            print("WAIVED %s:%d:%s" % (path, ln, body))
+        else:
+            violations += 1
+            print("EGRESS %s:%d:%s" % (path, ln, body))
+
+print("__COUNTS__ %d %d %d" % (violations, waived, benign))
+PY
+  sc_rc=$?
+  if [ "$sc_rc" -ne 0 ]; then
+    echo "scan-egress: text-scan interpreter error (rc=$sc_rc) — FAIL CLOSED" >&2
+    sed 's/^/  py: /' "$sc_err" >&2 || true
+    rm -f "$sc_in" "$sc_out" "$sc_err"
+    exit 1
+  fi
+  # print findings (drop the machine-readable trailer), then fold its counts into the bash totals.
+  grep -v '^__COUNTS__ ' "$sc_out" || true
+  counts="$(grep '^__COUNTS__ ' "$sc_out" | tail -1)"
+  violations=$(( violations + $(printf '%s' "$counts" | awk '{print $2+0}') ))
+  waived=$((    waived    + $(printf '%s' "$counts" | awk '{print $3+0}') ))
+  benign=$((    benign    + $(printf '%s' "$counts" | awk '{print $4+0}') ))
+  rm -f "$sc_in" "$sc_out" "$sc_err"
+fi
 
 # Symlinks break self-containment: the referenced bytes live outside the shipped tree.
 for s in ${symlinks[@]+"${symlinks[@]}"}; do
@@ -113,9 +255,24 @@ for sp in ${specials[@]+"${specials[@]}"}; do
   echo "SPECIAL $sp (non-regular file: FIFO/socket/device — unscannable, fail closed)"
 done
 
-# Binaries: `grep -a` their strings. An embedded URL fails ALWAYS (a --allow-binary glob must not
-# launder a live URL). A URL-free binary is waivable with --allow-binary <glob> (`*` crosses '/', so
-# scope the glob tightly — it is a deliberate human review, not a filesystem glob).
+# Unreadable regular files: we never saw the bytes, so no glob waiver may launder them — fail closed.
+for u in ${unreadable[@]+"${unreadable[@]}"}; do
+  violations=$((violations + 1))
+  echo "UNREADABLE $u (regular file not readable — cannot certify, fail closed)"
+done
+
+# A traversal error (an unreadable directory) means the walk was incomplete; a clean sibling can't
+# certify what we couldn't reach — fail the whole tree closed.
+if [ "$traversal_err" -ne 0 ]; then
+  violations=$((violations + 1))
+  echo "TRAVERSAL (find could not fully walk a target directory — incomplete enumeration, fail closed)"
+fi
+
+# Binaries: `grep -a` their strings for ABSOLUTE-scheme URLs. Three outcomes, kept distinct so a
+# read error can never be laundered into a waiver:
+#   grep rc>=2 (unreadable / grep error) -> fail closed, NEVER waived
+#   a hit                                 -> fail ALWAYS (a --allow-binary glob must not launder a live URL)
+#   no hit                               -> waivable with --allow-binary <glob>, else fail as uncertifiable
 is_waived_binary() {  # <path>
   local b="$1" pat
   for pat in ${allow[@]+"${allow[@]}"}; do
@@ -127,8 +284,11 @@ is_waived_binary() {  # <path>
 waived_bin=0
 review_bin=0
 for b in ${binaries[@]+"${binaries[@]}"}; do
-  hits="$(LC_ALL=C grep -aoiE -- "$EGRESS" "$b" 2>/dev/null | head -5 | tr '\n' ' ' || true)"
-  if [ -n "${hits// /}" ]; then
+  raw="$(LC_ALL=C grep -aoiE -- "$EGRESS_BIN" "$b" 2>/dev/null)"; grc=$?
+  if [ "$grc" -ge 2 ]; then
+    violations=$((violations + 1)); echo "UNREADABLE(binary) $b (grep error rc=$grc — cannot certify, fail closed)"
+  elif [ -n "$raw" ]; then
+    hits="$(printf '%s' "$raw" | head -5 | tr '\n' ' ')"
     violations=$((violations + 1)); echo "EGRESS(binary) $b :: $hits"
   elif is_waived_binary "$b"; then
     waived_bin=$((waived_bin + 1)); echo "WAIVED-BINARY $b"
@@ -139,9 +299,9 @@ for b in ${binaries[@]+"${binaries[@]}"}; do
   fi
 done
 
-echo "--- scan-egress: $violations un-waived, $waived waived, $benign non-fetching URI(s), ${#files[@]} text file(s), ${#symlinks[@]} symlink(s), ${#specials[@]} special, $review_bin binary fail(s), $waived_bin binary waived ---"
+echo "--- scan-egress: $violations un-waived, $waived waived, $benign non-fetching URI(s), ${#files[@]} text file(s), ${#symlinks[@]} symlink(s), ${#specials[@]} special, ${#unreadable[@]} unreadable, $review_bin binary fail(s), $waived_bin binary waived ---"
 if [ "$violations" -ne 0 ]; then
-  echo "scan-egress: FAIL — un-waived external reference(s), symlink(s), non-regular file(s), or binary file(s)" >&2
+  echo "scan-egress: FAIL — un-waived external reference(s), symlink(s), non-regular/unreadable file(s), traversal error, or binary file(s)" >&2
   exit 1
 fi
 echo "scan-egress: PASS — every file scanned clean or explicitly waived"

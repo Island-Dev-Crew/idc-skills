@@ -70,6 +70,30 @@ printf 'ok\n' > "$T/fifo/ok.txt"
 # a binary carrying an embedded URL must FAIL even when glob-waived (no laundering)
 printf 'PRE\x00%s\x00POST\n' "$(url_https tracker.invalid/beacon)" > "$T/binurl/tracker.bin"
 
+# --- 2.0.3-r4 fixtures (Codex round-3 exact-head), each class ISOLATED in its own dir ---
+_pr="${_sl}${_sl}"                                              # protocol-relative '//' (assembled)
+mkdir -p "$T/nsfetch" "$T/nsvar" "$T/nssvg" "$T/ppm" \
+         "$T/objdata" "$T/beacon" "$T/xhropen" "$T/srcset2" "$T/leadws" "$T/mlattr" "$T/mlfetch" \
+         "$T/unreadbin" "$T/travtree/sub/secret"
+# finding 1: xmlns must NOT launder a real fetch/variable; only a genuine in-tag xmlns is benign
+printf 'fetch(xmlns="%s")\n' "$(url_https exfil.invalid/x)"           > "$T/nsfetch/app.js"
+printf 'const xmlns="%s"; fetch(xmlns)\n' "$(url_https exfil.invalid/y)" > "$T/nsvar/app.js"
+printf '<svg xmlns="%s"></svg>\n' "$(url_http www.w3.org/2000/svg)"   > "$T/nssvg/icon.svg"
+# finding 4: a NUL-free P6 Netpbm rawbits binary (control bytes, no NUL) must classify BINARY
+{ printf 'P6\n2 2\n255\n'; printf '\x01\x02\x03\x04\x05\x06\x07\x08\x09\x0a\x0b\x0c'; } > "$T/ppm/img.ppm"
+# finding 5: protocol-relative //host in each fetching context claimed by SKILL.md, isolated
+printf '<object data="%sevil.invalid/x.swf"></object>\n' "$_pr"       > "$T/objdata/i.html"
+printf 'navigator.sendBeacon("%sevil.invalid/b");\n' "$_pr"           > "$T/beacon/a.js"
+printf 'var x=new XMLHttpRequest(); x.open("GET","%sevil.invalid/d");\n' "$_pr" > "$T/xhropen/a.js"
+printf '<img srcset="%sa.invalid/1.png 1x, %sb.invalid/2.png 2x">\n' "$_pr" "$_pr" > "$T/srcset2/i.html"
+printf '<a href=" %sevil.invalid/lead">x</a>\n' "$_pr"               > "$T/leadws/i.html"
+printf '<img\n  src\n  ="%sevil.invalid/ml">\n' "$_pr"               > "$T/mlattr/i.html"   # multiline attr
+printf 'fetch(\n  "%sevil.invalid/mlf")\n' "$_pr"                    > "$T/mlfetch/a.js"    # multiline literal
+# finding 2 & 3: unreadable file / traversal error fixtures (chmod applied at check time, root-skipped)
+printf 'PRE\x00%s\x00POST\n' "$(url_https c2.invalid/x)"             > "$T/unreadbin/font.woff2"
+printf 'clean docs\n'                                                > "$T/travtree/visible.txt"
+printf 'download %s\n' "$(url_https evil.invalid/x)"                 > "$T/travtree/sub/secret/hidden.sh"
+
 check() { # <label> <want-exit> <needle-or-empty> -- <scan args...>
   local label="$1" want="$2" needle="$3"; shift 3
   local out got
@@ -103,6 +127,30 @@ check "same-origin/data fetch + README pass"     0 ""                 "$T/localo
 check "FIFO in dir fails closed (no hang)"        1 "SPECIAL"           "$T/fifo"
 check "direct FIFO target fails closed"          1 "SPECIAL"           "$T/fifo/pipe"
 check "embedded-URL binary fails even if waived" 1 "EGRESS(binary)"    --allow-binary '*' "$T/binurl"
+
+echo "== 2.0.3-r4 (Codex round-3 exact-head) =="
+check "xmlns cannot launder a real fetch()"      1 "EGRESS"            "$T/nsfetch"
+check "xmlns variable is real egress"            1 "EGRESS"            "$T/nsvar"
+check "genuine in-tag xmlns still benign"        0 "NSURI"             "$T/nssvg"
+check "NUL-free P6 rawbits classified binary"    1 "UNSCANNED(binary)" "$T/ppm"
+check "object data protocol-relative fails"      1 "EGRESS"            "$T/objdata"
+check "navigator.sendBeacon fails"               1 "EGRESS"            "$T/beacon"
+check "XHR.open URL argument fails"              1 "EGRESS"            "$T/xhropen"
+check "every srcset candidate fails"             1 "EGRESS"            "$T/srcset2"
+check "leading whitespace in quoted attr fails"  1 "EGRESS"            "$T/leadws"
+check "multiline attribute fails"                1 "EGRESS"            "$T/mlattr"
+check "multiline fetch literal fails"            1 "EGRESS"            "$T/mlfetch"
+# unreadable file / traversal error can only be simulated as non-root
+if [ "$(id -u)" -ne 0 ]; then
+  chmod 000 "$T/unreadbin/font.woff2"
+  check "unreadable URL-binary fails despite waiver" 1 "UNREADABLE" --allow-binary '*.woff2' "$T/unreadbin"
+  chmod 644 "$T/unreadbin/font.woff2"
+  chmod 000 "$T/travtree/sub/secret"
+  check "traversal error fails the tree closed"      1 "TRAVERSAL"  "$T/travtree"
+  chmod 755 "$T/travtree/sub/secret"
+else
+  printf '  skip  unreadable-file + traversal (running as root — cannot simulate unreadable)\n'
+fi
 
 echo
 echo "RESULT pass=$pass fail=$fail"
