@@ -26,22 +26,38 @@
 # — a per-line regex structurally cannot. python3 is REQUIRED for the text rung: if it is missing the
 # scan cannot certify text files and FAILS CLOSED (exit 1), never open. `jq` is not used here.
 #
+# TRUSTED COUNTS CHANNEL: the pass/fail gate is driven by a counts line python writes to a SEPARATE
+# temp file — never parsed out of the findings stream. Finding text is attacker-influenced bytes
+# (a NUL after the classification window can flip grep into "Binary file matches" mode and collapse
+# an in-band trailer to zero -> false green). The counts line is STRICTLY validated (exactly three
+# all-digit fields) and anything else FAILS CLOSED; finding lines are display-only, with control
+# bytes sanitized so they can't carry terminal escapes either.
+#
+# HTML/SVG attribute matching is TAG-BOUNDED: a fetching attribute (`src=`, `srcset=`, ...) counts
+# only INSIDE a `<tag ...>` span, so a plain JS variable `const src='//docs'` is not egress; the
+# `data=` attribute fetches only on `<object>`, so `<div data='//docs'>` is inert. JS PROPERTY
+# assignments (`img.src='//h'` — dot-prefixed) stay caught on their own pattern.
+#
 # Documented residuals a static scan cannot close (keep the sealed-load runtime rung underneath):
 #   - egress that string-concatenation / obfuscation / runtime code BUILDS after load
 #   - a request issued by a service worker, a delayed timer, or an interaction the scan never runs
 set -uo pipefail
 
-# What a browser (or an XML/CSS/JS consumer) FETCHES. Absolute schemes http(s)/ws(s)/ftp and WebRTC
-# stun/turn(s) match anywhere; protocol-relative `//host` is caught only in a fetching CONTEXT (a URL
-# attribute incl. every srcset candidate, CSS url()/image-set()/@import, a JS network-API call incl.
-# navigator.sendBeacon and XHR.open, or a `url=` redirect) and only when a hostname char follows the
-# `//`, so a JS `// comment` and a same-origin/`data:`/`blob:` target are NOT flagged (a runtime-built
-# external URL is the disclosed residual rung 2 catches). The full context set lives in the python
-# matcher below; this bash-visible regex is the ABSOLUTE-scheme set used for BINARY string scanning
-# (protocol-relative has no meaning inside a compiled binary).
-EGRESS_BIN='(https?|wss?|ftp)://|(^|[^a-z])(stun|turns?):[a-z0-9]'
+# What a browser (or an XML/CSS/JS consumer) FETCHES. Absolute schemes http(s)/ws(s)/ftp — including
+# the backslash forms (`https:\\h`, `https:\/\/h`) URL parsers normalize to slashes — and WebRTC
+# stun/turn(s) match anywhere; protocol-relative `//host` (or `\\host`, and an IPv6 `//[...]` literal)
+# is caught only in a fetching CONTEXT (a tag-bounded URL attribute incl. every srcset candidate, CSS
+# url()/image-set()/@import, a JS network-API call incl. navigator.sendBeacon / new Worker /
+# serviceWorker.register / XHR.open, static+dynamic module import / export-from, a location
+# navigation, a dot-prefixed fetching property assignment, or a `url=` redirect) and only when a
+# hostname char follows, so a JS `// comment` and a same-origin/`data:`/`blob:` target are NOT
+# flagged (a runtime-built external URL is the disclosed residual rung 2 catches). The full context
+# set lives in the python matcher below; this bash-visible regex is the ABSOLUTE-scheme set used for
+# BINARY string scanning (protocol-relative has no meaning inside a compiled binary).
+EGRESS_BIN='(https?|wss?|ftp):[/\\][/\\]|(^|[^a-z])(stun|turns?):[a-z0-9]'
 
 usage() { echo "usage: scan-egress.sh [--allow-binary <glob>]... <file-or-dir> ..." >&2; exit 2; }
+is_count() { case "$1" in ''|*[!0-9]*) return 1 ;; *) return 0 ;; esac; }  # strict all-digit field
 
 # --- args: collect --allow-binary globs, then scan targets ---
 targets=()
@@ -116,9 +132,9 @@ if [ "${#files[@]}" -gt 0 ]; then
     echo "scan-egress: python3 not found; cannot certify text files — FAIL CLOSED" >&2
     exit 1
   fi
-  sc_in="$(mktemp)"; sc_out="$(mktemp)"; sc_err="$(mktemp)"
+  sc_in="$(mktemp)"; sc_out="$(mktemp)"; sc_err="$(mktemp)"; sc_cnt="$(mktemp)"
   printf '%s\0' "${files[@]}" > "$sc_in"
-  SCAN_EGRESS_FILELIST="$sc_in" python3 - >"$sc_out" 2>"$sc_err" <<'PY'
+  SCAN_EGRESS_FILELIST="$sc_in" SCAN_EGRESS_COUNTS="$sc_cnt" python3 - >"$sc_out" 2>"$sc_err" <<'PY'
 import re, os, bisect
 
 paths = [p for p in open(os.environ["SCAN_EGRESS_FILELIST"], "rb").read().split(b"\0") if p]
@@ -127,29 +143,56 @@ paths = [p for p in open(os.environ["SCAN_EGRESS_FILELIST"], "rb").read().split(
 # at line-start or after whitespace, so a URL-internal `//` can't act as the comment delimiter.
 WAIVER = re.compile(r'(?:^|[ \t])(?:#|//|/\*)[ \t]*egress-ok(?:[ \t]*\*/)?[ \t]*$')
 
-# Absolute schemes anywhere; WebRTC stun/turn anywhere (with a non-letter boundary before the scheme).
-ABS  = re.compile(r'(?i)(?:https?|wss?|ftp)://')
-STUN = re.compile(r'(?i)(?:^|[^a-z])(stun|turns?):[a-z0-9]')
+# Absolute schemes anywhere — `[/\\]{2}` also matches the backslash spellings (`https:\\h`,
+# `https:\/\/h`) that URL parsers normalize to slashes for special schemes; WebRTC stun/turn
+# anywhere (with a non-letter boundary before the scheme, `[` admits an IPv6 literal host).
+ABS  = re.compile(r'(?i)(?:https?|wss?|ftp):[/\\][/\\]')
+STUN = re.compile(r'(?i)(?:^|[^a-z])(stun|turns?):[a-z0-9\[]')
 
-# Fetching CONTEXTS for a protocol-relative `//host` (or an absolute one, already caught by ABS):
-#  - HTML/SVG fetching attributes (longest alternates first so `srcset`/`imagesrcset` win over `src`)
+# One protocol-relative "URL start": two slash-class chars (backslash spellings normalize) then a
+# hostname char — `[` included so an IPv6 literal `//[2001:db8::1]/x` is caught. Q = an optional
+# JS quote (single/double/backtick) with inner whitespace. All context patterns end with PR (3
+# chars), so `m.end()-3` is the URL-start offset for every one of them.
+PR = r'[/\\][/\\][a-z0-9\[]'
+Q  = r'["\'`]?\s*'
+
+# Fetching CONTEXTS for a protocol-relative URL (an absolute one is already caught by ABS):
 #  - CSS url()/image-set()/image()/@import
-#  - JS network APIs incl. navigator.sendBeacon; XHR `.open("METHOD", "//host")`; a `url=` redirect
+#  - JS network APIs: fetch, dynamic import(), importScripts, WebSocket, EventSource, sendBeacon,
+#    Worker/SharedWorker; XHR `.open("METHOD", "//host")`; serviceWorker.register
+#  - static ES modules: `import ... from "//h"`, bare `import "//h"`, `export ... from "//h"`
+#  - a location navigation: location.assign()/replace(), `location.href =`, `location =`
+#  - a dot-prefixed JS FETCHING-PROPERTY assignment (`img.src = "//h"`) — dot-prefixed only, so a
+#    plain variable `const src='//docs'` is NOT egress
+#  - a `url=` redirect (meta refresh)
 # `(?is)` = case-insensitive + DOTALL so a context split across newlines still matches.
+CSS     = re.compile(r'(?is)(?:@import\s+|(?:url|image-set|image)\s*\(\s*)' + Q + PR)
+JSCALL  = re.compile(r'(?is)\b(?:fetch|import|importScripts|WebSocket|EventSource|sendBeacon|Worker|SharedWorker)\s*\(\s*' + Q + PR)
+XHROPEN = re.compile(r'(?is)\.open\s*\(\s*(["\'`])[^"\'`]*\1\s*,\s*' + Q + PR)
+SWREG   = re.compile(r'(?is)\bserviceWorker\s*\.\s*register\s*\(\s*' + Q + PR)
+ESMOD   = re.compile(r'(?is)\b(?:import|export)\s+(?:[\w$*{},\s]+from\s+)?["\'`]\s*' + PR)
+LOC     = re.compile(r'(?is)(?:\blocation\s*\.\s*(?:assign|replace)\s*\(\s*|\blocation\s*(?:\.\s*href\s*)?=\s*)' + Q + PR)
+JSPROP  = re.compile(r'(?is)\.\s*(?:srcset|src|href|action|formaction|poster|background|cite|ping)\s*=\s*["\'`]\s*' + PR)
+URLEQ   = re.compile(r'(?i)\burl\s*=\s*' + Q + PR)
+PROTO   = re.compile(r'(?i)' + PR)
+
+# HTML/SVG fetching attributes are TAG-BOUNDED: an attribute only fetches inside a real `<tag ...>`
+# span (quote-aware, so a `>` inside a quoted value doesn't end the span; DOTALL, so a multiline tag
+# still matches; an unclosed tag at EOF still counts). A bare `src=`/`data=` in plain JS source is a
+# variable, not markup, and is NOT matched here (JSPROP covers dot-prefixed property assignments).
+# `data` fetches ONLY on <object>; on any other element it is inert markup.
+TAGSPAN = re.compile(r'(?is)<([a-z][a-z0-9:-]*)((?:"[^"]*"|\'[^\']*\'|[^<>"\'])*)>?')
 FETCH_ATTRS = r'imagesrcset|srcset|src|xlink:href|href|formaction|action|poster|background|cite|ping|manifest|data'
-ATTR    = re.compile(r'(?is)\b(?:' + FETCH_ATTRS + r')\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'>]+))')
-CSS     = re.compile(r'(?is)(?:@import\s+|(?:url|image-set|image)\s*\(\s*)["\']?\s*//[a-z0-9]')
-JSCALL  = re.compile(r'(?is)\b(?:fetch|import|importScripts|WebSocket|EventSource|sendBeacon)\s*\(\s*["\']?\s*//[a-z0-9]')
-XHROPEN = re.compile(r'(?is)\.open\s*\(\s*(["\'])[^"\']*\1\s*,\s*["\']?\s*//[a-z0-9]')
-URLEQ   = re.compile(r'(?i)\burl\s*=\s*["\']?\s*//[a-z0-9]')
-PROTO   = re.compile(r'(?i)//[a-z0-9]')
+ATTR    = re.compile(r'(?is)\b(' + FETCH_ATTRS + r')\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'>]+))')
 
 # A genuine XML namespace declaration — `xmlns`/`xmlns:pfx` as an ATTRIBUTE INSIDE A TAG, e.g.
-# `<svg xmlns="http://www.w3.org/2000/svg">` — is a pure identifier a browser never fetches. Suppress
-# ONLY that: the value must sit inside `<tag ... xmlns=...>` (bounded by `[^<>]`, so it is really inside
-# a tag). A bare `xmlns=` assignment in JS source, or a `fetch(xmlns=...)` argument, has no enclosing
-# tag and is NOT suppressed (it is real egress).
-XMLNS = re.compile(r'(?is)<[A-Za-z][^<>]*?\bxmlns(?::[\w.-]+)?\s*=\s*("[^"]*"|\'[^\']*\')')
+# `<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="...">` — is a pure identifier a browser never
+# fetches. Suppress ONLY that, via the same tag-bounded span (EVERY xmlns attribute in the tag, not
+# just the first). A bare `xmlns=` assignment in JS source, or a `fetch(xmlns=...)` argument, has no
+# enclosing tag and is NOT suppressed (it is real egress).
+XMLNSATTR = re.compile(r'(?is)\bxmlns(?::[\w.-]+)?\s*=\s*("[^"]*"|\'[^\']*\')')
+
+CTRL = re.compile(r'[\x00-\x08\x0b-\x1f\x7f]')     # display sanitizer: finding text carries no authority
 
 
 def proto_offsets_in_value(val, base):
@@ -188,7 +231,10 @@ for pb in paths:
             en = len(text)
         return idx + 1, text[st:en]
 
-    ns = [(m.start(1), m.end(1)) for m in XMLNS.finditer(text)]
+    ns = []
+    for tm in TAGSPAN.finditer(text):
+        for am in XMLNSATTR.finditer(tm.group(2)):
+            ns.append((tm.start(2) + am.start(1), tm.start(2) + am.end(1)))
 
     def in_ns(off):
         return any(a <= off < b for a, b in ns)
@@ -198,49 +244,61 @@ for pb in paths:
         hits[m.start()] = 1
     for m in STUN.finditer(text):
         hits[m.start(1)] = 1
-    for m in CSS.finditer(text):
-        hits[m.end() - 3] = 1
-    for m in JSCALL.finditer(text):
-        hits[m.end() - 3] = 1
-    for m in XHROPEN.finditer(text):
-        hits[m.end() - 3] = 1
-    for m in URLEQ.finditer(text):
-        hits[m.end() - 3] = 1
-    for m in ATTR.finditer(text):
-        for gi in (1, 2, 3):
-            if m.group(gi) is not None:
-                for off in proto_offsets_in_value(m.group(gi), m.start(gi)):
-                    hits[off] = 1
-                break
+    for rx in (CSS, JSCALL, XHROPEN, SWREG, ESMOD, LOC, JSPROP, URLEQ):
+        for m in rx.finditer(text):
+            hits[m.end() - 3] = 1
+    for tm in TAGSPAN.finditer(text):
+        tag = tm.group(1).lower()
+        for m in ATTR.finditer(tm.group(2)):
+            if m.group(1).lower() == "data" and tag != "object":
+                continue                            # data= fetches only on <object>
+            for gi in (2, 3, 4):
+                if m.group(gi) is not None:
+                    for off in proto_offsets_in_value(m.group(gi), tm.start(2) + m.start(gi)):
+                        hits[off] = 1
+                    break
 
     for off in sorted(hits):
         ln, body = loc(off)
-        if in_ns(off):
+        verdict, cls = ("NSURI ", "benign") if in_ns(off) else \
+                       (("WAIVED", "waived") if WAIVER.search(body) else ("EGRESS", "violations"))
+        if cls == "benign":
             benign += 1
-            print("NSURI  %s:%d:%s" % (path, ln, body))
-        elif WAIVER.search(body):
+        elif cls == "waived":
             waived += 1
-            print("WAIVED %s:%d:%s" % (path, ln, body))
         else:
             violations += 1
-            print("EGRESS %s:%d:%s" % (path, ln, body))
+        print("%s %s:%d:%s" % (verdict, path, ln, CTRL.sub("?", body)))
 
-print("__COUNTS__ %d %d %d" % (violations, waived, benign))
+# counts go to a SEPARATE trusted file, never in-band with (attacker-influenced) finding text.
+with open(os.environ["SCAN_EGRESS_COUNTS"], "w") as cf:
+    cf.write("%d %d %d\n" % (violations, waived, benign))
 PY
   sc_rc=$?
   if [ "$sc_rc" -ne 0 ]; then
     echo "scan-egress: text-scan interpreter error (rc=$sc_rc) — FAIL CLOSED" >&2
     sed 's/^/  py: /' "$sc_err" >&2 || true
-    rm -f "$sc_in" "$sc_out" "$sc_err"
+    rm -f "$sc_in" "$sc_out" "$sc_err" "$sc_cnt"
     exit 1
   fi
-  # print findings (drop the machine-readable trailer), then fold its counts into the bash totals.
-  grep -v '^__COUNTS__ ' "$sc_out" || true
-  counts="$(grep '^__COUNTS__ ' "$sc_out" | tail -1)"
-  violations=$(( violations + $(printf '%s' "$counts" | awk '{print $2+0}') ))
-  waived=$((    waived    + $(printf '%s' "$counts" | awk '{print $3+0}') ))
-  benign=$((    benign    + $(printf '%s' "$counts" | awk '{print $4+0}') ))
-  rm -f "$sc_in" "$sc_out" "$sc_err"
+  cat "$sc_out"                                     # findings: display-only, control bytes sanitized
+  # Fold in the counts from the trusted side channel. STRICT validation — exactly one line of
+  # exactly three all-digit fields — and anything else FAILS CLOSED: arbitrary finding bytes must
+  # never be able to zero the gate (a NUL in stdout once collapsed an in-band trailer to PASS).
+  counts="$(head -n 1 "$sc_cnt" 2>/dev/null | tr -d '\n')"
+  set -f
+  # shellcheck disable=SC2086  # intentional word split of the validated counts line
+  set -- $counts
+  set +f
+  if [ "$#" -ne 3 ] || ! is_count "$1" || ! is_count "$2" || ! is_count "$3"; then
+    echo "scan-egress: counts channel invalid ('$counts') — FAIL CLOSED" >&2
+    rm -f "$sc_in" "$sc_out" "$sc_err" "$sc_cnt"
+    exit 1
+  fi
+  violations=$((violations + $1))
+  waived=$((waived + $2))
+  benign=$((benign + $3))
+  rm -f "$sc_in" "$sc_out" "$sc_err" "$sc_cnt"
 fi
 
 # Symlinks break self-containment: the referenced bytes live outside the shipped tree.

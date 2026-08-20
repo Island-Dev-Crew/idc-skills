@@ -129,6 +129,49 @@ check 2 'nice -n 5 git push'                      'nice -n <value> then push'
 check 2 'env --unset FOO git push'               'env --unset <var> then push'
 check 2 'exec -a gitname git push'               'exec -a <name> then push'
 
+echo "== must BLOCK (exit 2) — 2.0.3-r5 (Codex round-4 exact-head) =="
+# F2: exclude-only pathspecs address the WHOLE tree ("everything EXCEPT x")
+check 2 "git restore ':(exclude)does-not-exist'"    'restore exclude-only pathspec (whole tree)'
+check 2 "git checkout ':(exclude)does-not-exist'"   'checkout exclude-only pathspec (whole tree)'
+check 2 "git checkout ':(top,exclude)README.md'"    'checkout :(top,exclude) magic pathspec'
+# F3: leading execution grammar the shell strips before running git
+check 2 '2>&1 git push'                             'fd-dup 2>&1 then push'
+check 2 '1>&2 git push'                             'fd-dup 1>&2 then push'
+check 2 '>&2 git push'                              'bare fd-dup >&2 then push'
+check 2 'VAR+=x git push'                           'append-assignment prefix then push'
+check 2 'A[0]=x git push'                           'array-assignment prefix then push'
+check 2 '<<< x git push'                            'herestring then push'
+check 2 '>|/tmp/x git push'                         'noclobber-override redirection then push'
+# F4: env split-string hides a complete git command line in ONE shell word
+check 2 "env -S 'git push origin main'"             'env -S split-string push'
+check 2 "env --split-string='git push origin main'" 'env --split-string= push'
+check 2 "env -S'git push origin main'"              'env -S glued split-string push'
+check 2 "env -vS'git push origin main'"             'env bundled -vS split-string push'
+check 2 "env -u X -S 'git push'"                    'env -u then -S split-string push'
+# F5: nested alias chains resolved recursively (bounded, cycle-safe)
+check 2 "git -c alias.n='-c alias.p=push p' n"      'nested alias chain n -> p -> push (invoked)'
+check 2 "git -c alias.n='-c alias.p=push p' status" 'nested alias chain defined via -c'
+check 2 "git config alias.n '-c alias.p=push p'"    'persistent nested alias chain'
+check 2 "git -c alias.a='-c alias.b=reset b' a --hard" 'nested alias + call-site --hard'
+# F6: forced branch ref updates move/clobber refs destructively
+check 2 'git branch -f topic HEAD~1'                'branch -f force ref move'
+check 2 'git branch --force topic HEAD~1'           'branch --force ref move'
+check 2 'git branch -M old new'                     'branch -M force rename (clobbers target)'
+check 2 'git branch -C old new'                     'branch -C force copy (clobbers target)'
+check 2 'git branch --move --force a b'             'branch --move --force'
+check 2 'git branch --copy --force a b'             'branch --copy --force'
+
+echo "== must ALLOW (exit 0) — 2.0.3-r5 safe forms (no over-block) =="
+# F9: command -pv/-pV only PRINT a path (query), never execute
+check 0 'command -pv git push'                      'command -pv is a query (prints a path)'
+check 0 'command -pV git push'                      'command -pV is a query'
+check 0 'git branch -m old new'                     'branch -m safe rename (fails on clobber)'
+check 0 'git branch -c old new'                     'branch -c safe copy (fails on clobber)'
+check 0 "git -c alias.n='-c alias.p=status p' n"    'nested alias to a SAFE subcommand'
+check 0 'git -c alias.self=self self'               'alias cycle: git refuses it, nothing runs'
+check 0 'git branch -u origin/x topic'              'branch -u upstream (not a force)'
+check 0 'git branch --merged main'                  'branch --merged (read-only listing)'
+
 echo "== must ALLOW (exit 0) — 2.0.3-r4 safe forms (no over-block) =="
 check 0 'command -v git push'                    'command -v git only prints a path'
 check 0 'git checkout -bfeature'                 'checkout -b<name> attached (create branch)'

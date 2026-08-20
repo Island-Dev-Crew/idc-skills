@@ -16,17 +16,25 @@
 # forms), neutralizes ${IFS}/$IFS word-split tricks, understands quote/backslash/$'...' word
 # concatenation (posix tokenizer), honors shell comments (`git status # ... git push` -> the push
 # is comment text), decodes bundled short flags (`-df` == `-d -f`) WITHOUT mistaking an attached
-# option value for flags (`checkout -bfeature` creates a branch, not a force), catches forced branch
-# (re)creation (`checkout -B`, `switch -C`), and whole-tree pathspecs (`.`, `./`, `./.`, `:/`, `*`,
-# `**`, pathless `:(top)`) while ALLOWING a single-file magic pathspec (`:(top)README.md`,
-# `:/README.md`). It reaches git through more leading grammar — a redirection (`>/x git push`), `!`,
-# a `{ }` group, an `if/then`, `|&`, and recognized wrappers (`command -p`, `nice -n 5`,
-# `env --unset X`, `exec -a name`) — while treating a pure query (`command -v git`) as no invocation.
-# It resolves alias DEFINITIONS to a blocked op (`-c alias.x=push`, glued `-calias.x=push`,
-# `config alias.x '!git push'`) — tested by the alias VALUE actually expanding to a guarded
-# subcommand, so `alias.sb=show-branch` is NOT a false positive — PLUS alias values that only become
-# dangerous once COMBINED with call-site args (`-c alias.n=reset n --hard`), and git's official
-# config-injection surfaces (`--config-env=alias.p=P`, `GIT_CONFIG_KEY_*/VALUE_*`).
+# option value for flags (`checkout -bfeature` creates a branch, not a force), decodes forced branch
+# (re)creation (`checkout -B`, `switch -C`) AND forced ref updates (`branch -f/-M/-C`, which move or
+# clobber refs destructively), and whole-tree pathspecs (`.`, `./`, `./.`, `:/`, `*`, `**`, pathless
+# `:(top)`, and EVERY exclude-magic spec — `:!x`, `:^x`, `:(exclude)x`, `:(top,exclude)x` — because an
+# exclude-only pathspec means "everything EXCEPT x" = a whole-tree discard) while ALLOWING a
+# single-file magic pathspec (`:(top)README.md`, `:/README.md`). It reaches git through more leading
+# grammar — a redirection (`>/x git push`), an fd-duplication (`2>&1 git push`, `>&2 git push`), a
+# `+=`/array assignment (`VAR+=x git push`, `A[0]=x git push`), `!`, a `{ }` group, an `if/then`,
+# `|&`, and recognized wrappers (`command -p`, `nice -n 5`, `env --unset X`, `exec -a name`,
+# `env -S 'git push'` — env's split-string VALUE is word-split and re-classified, both GNU and BSD
+# execute it) — while treating a pure query (`command -v git`, bundled `command -pv git`) as no
+# invocation. It resolves alias DEFINITIONS to a blocked op (`-c alias.x=push`, glued
+# `-calias.x=push`, `config alias.x '!git push'`) — tested by the alias VALUE actually expanding to a
+# guarded subcommand, so `alias.sb=show-branch` is NOT a false positive — PLUS alias values that only
+# become dangerous once COMBINED with call-site args (`-c alias.n=reset n --hard`), git's official
+# config-injection surfaces (`--config-env=alias.p=P`, `GIT_CONFIG_KEY_*/VALUE_*`), and NESTED alias
+# chains (`-c alias.n='-c alias.p=push p' n`): alias expansion is resolved RECURSIVELY, bounded by a
+# depth cap (deeper chains block as evasion) and a cycle set (git refuses an alias loop, so a pure
+# cycle allows).
 #
 # It is NOT a sandbox and CANNOT be one. Documented residuals a string classifier cannot
 # close (keep a real OS/repo-level control underneath — this is one layer):
@@ -91,8 +99,10 @@ WRAPPERS = {"env", "command", "sudo", "doas", "nice", "ionice", "nohup", "setsid
 # wrapper options that consume a following value, PER WRAPPER — a global set is wrong (`command -p`
 # does NOT take a value, so a shared `-p` would eat the git word). Only the options a given wrapper
 # actually treats as value-taking are listed; everything else is a bare flag.
+# NOTE: env's -S/--split-string is NOT listed here — its value is a hidden COMMAND LINE, so the
+# wrapper skipper word-splits it back into the token stream instead of skipping it as a value.
 WRAPPER_VOPTS = {
-    "env": {"-u", "--unset", "-S", "--split-string", "-C", "--chdir"},
+    "env": {"-u", "--unset", "-C", "--chdir"},
     "command": set(),                               # -p/-v/-V are all bare flags, not value-takers
     "sudo": {"-u", "--user", "-g", "--group", "-C", "--close-from", "-p", "--prompt",
              "-U", "-r", "--role", "-t", "--type", "-h", "--host"},
@@ -120,8 +130,11 @@ SHELL_KEYWORDS = {
     "if", "then", "else", "elif", "fi", "do", "done", "while", "until",
     "for", "case", "esac", "select", "function",
 }
-# a redirection token: optional fd number then a >/>>/<[/<<] operator, target possibly glued.
-REDIR_RE = re.compile(r"^[0-9]*(>>?|<<?)(.*)$")
+# a redirection token: optional fd number then a >/>>/<{1,3} operator (incl. herestring <<<),
+# target possibly glued.
+REDIR_RE = re.compile(r"^[0-9]*(>>?|<<?<?)(.*)$")
+# bounded recursive alias resolution: a chain deeper than this blocks as evasion (safe over-block).
+MAX_ALIAS_DEPTH = 8
 
 BACKTICK = chr(96)
 
@@ -145,6 +158,12 @@ def whole_tree_pathspec(tok):
     if tok.startswith(":(") and not tok.startswith(":!") and not tok.startswith(":^"):
         m = re.match(r"^:\(([^)]*)\)(.*)$", tok)   # :(magic1,magic2)pathpart
         if m:
+            magics = [x.strip().split("=", 1)[0].lower() for x in m.group(1).split(",")]
+            if "exclude" in magics or "!" in magics or "^" in magics:
+                # exclude magic means "everything EXCEPT this path": with no positive pathspec the
+                # command discards the WHOLE tree (`restore ':(exclude)nope'` reverts everything),
+                # so any exclude spec is treated as whole-tree (positive+exclude over-blocks — safe).
+                return True
             path = m.group(2)
             return path == "" or path in ("*", "**", ".", "./")
         return True                            # malformed :( ... -> treat as whole-tree (safe over-block)
@@ -226,8 +245,16 @@ def argv_danger(tokens):
     if sub == "branch":
         force = "f" in flags or has_long_opt(rest, "force")
         delete = "d" in flags or has_long_opt(rest, "delete")
+        move = "m" in flags or has_long_opt(rest, "move")
+        copy = "c" in flags or has_long_opt(rest, "copy")
         if "D" in flags or (delete and force):
             return "git branch force-delete"
+        if "M" in flags or (move and force):
+            return "git branch -M (force rename clobbers the target ref)"
+        if "C" in flags or (copy and force):
+            return "git branch -C (force copy clobbers the target ref)"
+        if force:
+            return "git branch --force (destructive ref move)"
         return None
     if sub in ("checkout", "restore", "switch"):
         if "f" in flags or has_long_opt(rest, "force") or has_long_opt(rest, "discard-changes"):
@@ -249,28 +276,32 @@ def argv_danger(tokens):
     return None
 
 
-def alias_value_dangerous(value):
+def alias_value_dangerous(value, depth=0):
     # Does this alias VALUE expand to a guarded op? Precise, not a substring match:
     #  - `!<shell>`: run the shell body through the SAME segment classifier (so `!git push;` with a
     #    glued ';' and `!git status && git push` are both caught, and `!echo hi` is NOT).
-    #  - otherwise it expands to `git <value>`: skip the value's OWN global options (so `-p push` is
-    #    seen as push), then dangerous if the subcommand is dangerous-when-aliased (push/checkout/
-    #    restore/switch) OR the value itself is a blocked op (`reset --hard`, `clean -f`, `branch -D`).
-    #    A soft `reset HEAD` or a bare `log --oneline`/`show-branch` alias is NOT flagged.
+    #  - otherwise it expands to `git <value>`: dangerous if the subcommand is dangerous-when-aliased
+    #    (push/checkout/restore/switch) OR the expansion — resolved RECURSIVELY, so a nested chain
+    #    like `-c alias.p=push p` is followed to its real endpoint — is a blocked op. A soft
+    #    `reset HEAD` or a bare `log --oneline`/`show-branch` alias is NOT flagged.
     value = value.strip()
     if not value:
         return False
+    if depth > MAX_ALIAS_DEPTH:
+        return True                                 # can't certify a deeper chain -> safe over-block
     if value.startswith("!"):                       # shell-command alias: runs arbitrary shell
-        return classify(value[1:]) is not None
+        return classify(value[1:], depth + 1) is not None
     try:
         vtoks = shlex.split(value, posix=True)
     except ValueError:
         vtoks = value.split()
     argv = ["git"] + vtoks
     idx = find_subcommand(argv)
-    if idx is None:
-        return False
-    return argv[idx] in ALIAS_DANGEROUS_BARE or argv_danger(argv) is not None
+    if idx is not None and argv[idx] in ALIAS_DANGEROUS_BARE:
+        return True
+    # the value may itself DEFINE or INVOKE further aliases (`-c alias.p=push p`): resolve the
+    # whole expansion recursively (bounded) instead of only checking the literal argv.
+    return git_invocation_danger(argv, {}, depth + 1) is not None
 
 
 def is_alias_key(s):
@@ -279,7 +310,7 @@ def is_alias_key(s):
     return "." in s and s.split(".", 1)[0].lower() == "alias"
 
 
-def alias_defs(tokens):
+def alias_defs(tokens, depth=0):
     # Scan a GIT invocation's tokens for alias DEFINITIONS to a guarded op.
     n = len(tokens)
     for i, t in enumerate(tokens):
@@ -289,18 +320,18 @@ def alias_defs(tokens):
         elif t.startswith("-c") and t != "-c" and is_alias_key(t[2:]):   # -calias.x=val (glued)
             pair = t[2:]
         if pair and is_alias_key(pair) and "=" in pair:
-            if alias_value_dangerous(pair.split("=", 1)[1]):
+            if alias_value_dangerous(pair.split("=", 1)[1], depth):
                 return "alias injection (-c alias to a blocked op)"
         if t == "config":                           # config alias.x val  /  config alias.x=val
             for j in range(i + 1, n):
                 a = tokens[j]
                 if is_alias_key(a) and "=" in a:
-                    if alias_value_dangerous(a.split("=", 1)[1]):
+                    if alias_value_dangerous(a.split("=", 1)[1], depth):
                         return "alias injection (config alias to a blocked op)"
                     break
                 if is_alias_key(a):
                     val = tokens[j + 1] if j + 1 < n else ""
-                    if alias_value_dangerous(val):
+                    if alias_value_dangerous(val, depth):
                         return "alias injection (config alias to a blocked op)"
                     break
     return None
@@ -368,6 +399,37 @@ def normalize_separators(s):
             prev = c
             i += 1
             continue
+        if c in "<>" and i + 1 < n and s[i + 1] == "&":
+            # fd-duplication / fd-move (`2>&1`, `>&2`, `<&0`, `2>&1-`) is pure plumbing: neutralize
+            # it AND its glued fd prefix to whitespace so `2>&1 git push` still finds git as the
+            # command word. A non-numeric target (`>&file` = redirect-both) is rewritten to a plain
+            # ` > ` so the redirection skipper consumes its target token.
+            j = i + 2
+            while j < n and (s[j].isdigit() or s[j] == "-"):
+                j += 1
+            numeric = j > i + 2 and (j >= n or s[j] in " \t\n;&|()" or s[j] == BACKTICK)
+            k = 0
+            while k < len(out) and len(out[-1 - k]) == 1 and out[-1 - k].isdigit():
+                k += 1
+            before = out[-1 - k][-1] if len(out) > k else ""
+            if k and (before == "" or before in " \t\n;&|()" or before == BACKTICK):
+                del out[len(out) - k:]              # the fd prefix was its own word -> drop it
+            if numeric:
+                out.append(" ")
+                i = j
+            else:
+                out.append(" ")
+                out.append(c)
+                out.append(" ")
+                i += 2
+            prev = " "
+            continue
+        if c == ">" and i + 1 < n and s[i + 1] == "|":
+            out.append(" ")                          # `>|file` (noclobber override) == `>file`
+            out.append(">")
+            i += 2
+            prev = ">"
+            continue
         if c == "\n" or c == BACKTICK or c == "(" or c == ")":
             out.append(" ; ")
             prev = c
@@ -409,10 +471,12 @@ def command_word_index(tokens):
     # grammar — `!` negation, `{`/`}` group, reserved words like `then`, and redirections like
     # `>/tmp/x` — and recognized command wrappers), or None. git must be the COMMAND to be an
     # invocation — so `echo git push` and `grep -r git push` (git is an ARGUMENT) are NOT run-git.
-    # For `command`, a `-v`/`-V` query form (`command -v git`) only PRINTS git's path and is not an
-    # execution, so it returns None (no invocation).
+    # For `command`, a query form (`command -v git`, bundled `command -pv git`) only PRINTS git's
+    # path and is not an execution, so it returns None (no invocation).
+    # The assignment matcher covers plain, append, and array-element forms (`V=x`, `V+=x`, `A[0]=x`)
+    # — all are pure environment prefixes the shell strips before running git.
     i, n = 0, len(tokens)
-    assign = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*=")
+    assign = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\[[^]]*\])?\+?=")
     while i < n:
         t = tokens[i]
         if t in ("!", "{", "}") or t in SHELL_KEYWORDS:  # leading shell grammar -> look past it
@@ -441,9 +505,35 @@ def command_word_index(tokens):
                 if w == "--":
                     i += 1
                     break
+                if base == "env":
+                    # env's -S/--split-string VALUE is a hidden command line (GNU and BSD env both
+                    # word-split and execute it, incl. the bundled `-vS'...'` form) — splice the
+                    # split words back into the token stream so `env -S 'git push'` classifies.
+                    sval = None
+                    mS = re.match(r"^-[iv0]*S(.*)$", w, re.DOTALL)
+                    if w.startswith("--split-string="):
+                        sval = w.split("=", 1)[1]
+                        tokens[i:i + 1] = []
+                    elif w == "--split-string" and i + 1 < n:
+                        sval = tokens[i + 1]
+                        tokens[i:i + 2] = []
+                    elif mS and mS.group(1):
+                        sval = mS.group(1)
+                        tokens[i:i + 1] = []
+                    elif mS and i + 1 < n:
+                        sval = tokens[i + 1]
+                        tokens[i:i + 2] = []
+                    if sval is not None:
+                        try:
+                            parts = shlex.split(sval, posix=True)
+                        except ValueError:
+                            parts = sval.split()
+                        tokens[i:i] = parts
+                        n = len(tokens)
+                        continue
                 if w.startswith("-") and len(w) > 1:
-                    if base == "command" and w in ("-v", "-V"):
-                        query = True
+                    if base == "command" and re.fullmatch(r"-[pvV]+", w) and ("v" in w or "V" in w):
+                        query = True                    # -v/-V/-pv/-pV: prints a path, runs nothing
                     i += 1
                     if w in vopts and i < n and not tokens[i].startswith("-"):
                         i += 1                          # consume the option's value (e.g. nice -n 5)
@@ -503,7 +593,47 @@ def env_config_alias_map(assigns, git_slice):
     return m
 
 
-def classify_segment(tokens):
+def git_invocation_danger(git_slice, inherited, depth=0, seen=None):
+    # Classify ONE git invocation (git_slice[0] is the git word), resolving an INVOKED alias
+    # RECURSIVELY the way git itself expands nested aliases: the alias name is replaced by the
+    # value's tokens, keeping the call-site args (`git -c alias.n='-c alias.p=push p' n X` ->
+    # `git -c alias.n=... -c alias.p=push p X` -> ... -> `git ... push X`). Bounded two ways:
+    # a depth cap (a deeper chain blocks as evasion — safe over-block) and a seen-set for cycles
+    # (git refuses an alias loop outright, so nothing executes and a pure cycle is not danger).
+    if depth > MAX_ALIAS_DEPTH:
+        return "alias chain deeper than the bounded resolver (blocked as evasion)"
+    if seen is None:
+        seen = set()
+    # 1) alias DEFINITIONS whose value alone resolves to a blocked op (inline -c, persistent config).
+    reason = alias_defs(git_slice, depth)
+    if reason:
+        return reason
+    # 2) an alias INVOKED here: expand it (inherited env/config-env map + this invocation's -c map)
+    #    and re-classify the expansion, so nesting and call-site args are both resolved.
+    amap = dict(inherited)
+    amap.update(inline_c_alias_map(git_slice))
+    idx = find_subcommand(git_slice)
+    if idx is not None and git_slice[idx] in amap and git_slice[idx] not in seen:
+        name = git_slice[idx]
+        val = amap[name].strip()
+        if val.startswith("!"):
+            r = classify(val[1:], depth + 1)
+            if r:
+                return r
+        else:
+            try:
+                vtoks = shlex.split(val, posix=True)
+            except ValueError:
+                vtoks = val.split()
+            expanded = git_slice[:idx] + vtoks + git_slice[idx + 1:]
+            r = git_invocation_danger(expanded, amap, depth + 1, seen | {name})
+            if r:
+                return r
+    # 3) direct invocation.
+    return argv_danger(git_slice)
+
+
+def classify_segment(tokens, depth=0):
     ci = command_word_index(tokens)
     if ci is None or not is_git_word(tokens[ci]):
         return None
@@ -515,42 +645,17 @@ def classify_segment(tokens):
         mm = assign.match(t)
         if mm:
             assigns[mm.group(1)] = mm.group(2)
-    # 1) alias DEFINITIONS whose value alone is a blocked op (inline -c, persistent config).
-    reason = alias_defs(git_slice)
-    if reason:
-        return reason
-    # 2) env / config-env alias definitions to a blocked op (official injection surfaces).
+    # env / config-env alias definitions to a blocked op (official injection surfaces).
     env_map = env_config_alias_map(assigns, git_slice)
     for name, val in env_map.items():
-        if alias_value_dangerous(val):
+        if alias_value_dangerous(val, depth):
             return "alias injection (env/config-env alias to a blocked op)"
-    # 3) an alias INVOKED here whose value COMBINES with call-site args into a blocked op
-    #    (`git -c alias.n=reset n --hard` -> `git reset --hard`).
-    amap = dict(inline_c_alias_map(git_slice))
-    amap.update(env_map)
-    idx = find_subcommand(git_slice)
-    if idx is not None and git_slice[idx] in amap:
-        val = amap[git_slice[idx]].strip()
-        rest = git_slice[idx + 1:]
-        if val.startswith("!"):
-            r = classify(val[1:])
-            if r:
-                return r
-        else:
-            try:
-                vtoks = shlex.split(val, posix=True)
-            except ValueError:
-                vtoks = val.split()
-            r = argv_danger(["git"] + vtoks + rest)
-            if r:
-                return r
-    # 4) direct invocation.
-    return argv_danger(git_slice)
+    return git_invocation_danger(git_slice, env_map, depth)
 
 
-def classify(command):
+def classify(command, depth=0):
     for seg in segments(command):
-        reason = classify_segment(seg)
+        reason = classify_segment(seg, depth)
         if reason:
             return reason
     return None
