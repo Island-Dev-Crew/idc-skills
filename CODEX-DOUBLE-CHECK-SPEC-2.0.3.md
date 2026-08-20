@@ -1,8 +1,8 @@
 # CODEX DOUBLE-CHECK + BUILD SPEC — 2.0.3 hardening (post-2.0.2 red-team reconciliation)
 
 > Context: 2.0.3 is a candidate, not a shipped release. The registry is release
-> `2.0.3`, `manifestSequence: 1`; the checked-in manifest/signature remain historical
-> 2.0.2/v2 bytes pending the final 2.0.3/v3 biometric ceremony. The anti-rollback
+> `2.0.3`, `manifestSequence: 1`; the checked-in v3 manifest/signature bind the
+> 2.0.3 content candidate at 5/5 while external freshness remains pending. The anti-rollback
 > implementation is exact at `a58f59e`, with Claude Opus + OpenAI Codex **APPROVE**,
 > 100 unit tests plus 20 subtests, and canonical validation 50/50. The guard's
 > approved component lineage closes at `d0fac44` with 300/300 native macOS Bash
@@ -134,10 +134,11 @@ digest, complete checkpoint history, and the same signed-index requirement in
 deployment ceremony live in `integrity/README.md`; this file intentionally does
 not preserve a second executable-looking schema.
 
-## 3. Pre-sign + release loop — CORRECT ORDER
-The historical 2.0.2/v2 signature does not authorize this 2.0.3 tree. **The
-final biometric signature is the last controlled-byte mutation.** Any file
-change after signing invalidates it, so finalize EVERYTHING first:
+## 3. Signed-content + release loop — CORRECT ORDER
+The former 2.0.2/v2 signature did not authorize this 2.0.3 tree; the current v3
+signature establishes content authority only. **The final biometric signature
+is the last controlled-byte mutation.** Any file change after signing
+invalidates it, so finalize EVERYTHING first:
 1. Re-run the anti-rollback matrix (100 unit tests + 20 subtests),
    `validate_skills.py` (50/50), guard fixtures (300/300),
    scanner fixtures (589/589), integrity fixtures, full

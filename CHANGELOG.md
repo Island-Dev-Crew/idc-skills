@@ -2,14 +2,15 @@
 
 ## 2.0.3 — 2026-08-19 (candidate until external freshness, merge, promotion, and tag)
 
-Pre-sign reconciliation: the anti-rollback implementation is exact at
+Signed-content reconciliation: the anti-rollback implementation is exact at
 `a58f59e` with Claude Opus + OpenAI Codex **APPROVE**, 100 unit tests plus 20
 subtests, and canonical validation 50/50. The independently approved guard
 lineage closes at `d0fac44` and passes 300/300 native macOS Bash 3.2 fixtures.
 The independently approved scanner diff `e98cfac6` is committed at `04a5bd4`
-and passes 589/589 native macOS Bash 3.2 fixtures. The checked-in 2.0.2/v2
-manifest/signature remain historical until the final 2.0.3/v3 biometric
-ceremony; this entry is still a candidate record, not a shipped-release claim.
+and passes 589/589 native macOS Bash 3.2 fixtures. The checked-in v3 manifest
+and detached signature bind the 2.0.3 sequence-1 content candidate at 5/5;
+external freshness, promotion, and tag remain pending, so this entry is not yet
+a shipped-release claim.
 
 - Split content integrity from release authority. The in-tree verifier now emits
   `contentReady` under report schema v2; only the independently installed

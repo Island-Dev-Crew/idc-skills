@@ -1,6 +1,6 @@
 # STATE — 2.0.3 hardening (durable, survives context compaction)
 
-State, not instructions. This is the final pre-sign reconciliation snapshot for
+State, not instructions. This is the final signed-content snapshot for
 the Kimi → Codex → Claude loop.
 
 ## Where things stand
@@ -16,9 +16,10 @@ the Kimi → Codex → Claude loop.
 - **The scanner is accepted.** Exact reviewed diff `e98cfac6`, committed as
   `04a5bd4`, passes 589/589 on native macOS Bash 3.2. Its three-file review
   scope and opening/closing hashes matched.
-- **The signed manifest is historical.** The checked-in manifest/signature are
-  2.0.2/v2 artifacts. Final 2.0.3/v3 manifest generation and owner biometric
-  signing remain pending; the historical signature does not authorize 2.0.3.
+- **The content candidate is signed.** The checked-in v3 manifest and detached
+  signature bind release 2.0.3, `manifestSequence: 1`, and verify at 5/5.
+  External freshness is separate; no `readyToRun`, promotion, or tag claim is
+  made here.
 
 ## Control boundaries
 
@@ -28,16 +29,16 @@ Guard and scanner controls remain **advisory** classifiers/rungs. The signed
 manifest, external signed index, protected checkpoint, and owner/operator
 ceremony remain separate release gates.
 
-## Pre-sign snapshot
+## Signed content-candidate snapshot
 
 Registry release `2.0.3` and `manifestSequence: 1` are final candidate values.
 Anti-rollback is approved at `a58f59e`; guard is 300/300 at approved component
 `d0fac44`; scanner is 589/589 at approved diff `e98cfac6` committed as
 `04a5bd4`. The final candidate commit is established by the signed v3 manifest
 and the external release receipt rather than a self-referential SHA embedded in
-its own source tree. The 2.0.2/v2 manifest/signature is historical evidence
-only. This paragraph makes no 2.0.3 signature, `contentReady`, `readyToRun`,
-release, merge, promotion, tag, or reinstall claim.
+its own source tree. The checked-in v3 manifest/signature establishes 2.0.3
+content authority only. This paragraph makes no `readyToRun`, release, merge,
+promotion, tag, or reinstall claim.
 
 ## Required order
 

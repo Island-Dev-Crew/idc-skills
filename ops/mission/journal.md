@@ -158,3 +158,10 @@
 - The blocking inconsistency was signed mission state that still described the checked-in artifact as historical 2.0.2/v2. The state now records the v3, 2.0.3, sequence-1 content candidate as 5/5 while keeping `readyToRun`, external freshness, merge, promotion, tag, and reinstall explicitly pending.
 - The review also found one test signing helper still resolving bare `ssh-keygen`. All fixture generation, signing, fingerprinting, verification, and signed config now reuse the same native-Windows-preferred exact executable selector.
 - These tracked corrections invalidate `32b3030` as the final candidate. The manifest/signature, clean-clone replay, exact-head review, and three-platform CI restart on the next immutable commit.
+
+## 2026-08-20T12:15Z — full signed-document sweep closes present-tense drift
+
+- Signed commit `12287c302f6ad2b55afebed642d803f3e5249b8d` independently passed 101 tests, direct OpenSSH verification, 189 tracked-file digest/size recomputations, deterministic rendering, and contentReady 5/5.
+- The review still returned **CHANGES_REQUIRED** because the metric headline, changelog, durable state note, and build-spec context retained present-tense 2.0.2/pre-sign wording. P5 was also marked done while task P5-T3 remained in progress.
+- Every current-state document now describes the checked-in v3, 2.0.3, sequence-1 content candidate as signed at 5/5 while keeping external `readyToRun`, final review, CI, merge, promotion, tag, and reinstall pending. Historical journal and doctrine references remain explicitly historical.
+- P5 remains in progress until the exact-head review receipt exists. These controlled corrections invalidate `12287c3`; the final manifest/signature and acceptance loop restart on the next immutable commit.

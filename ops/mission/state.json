@@ -10,7 +10,7 @@
     "northStar": "Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.",
     "status": "in_progress",
     "started": "2026-08-11",
-    "updated": "2026-08-20T09:43:00Z",
+    "updated": "2026-08-20T12:15:00Z",
     "sessionCount": 3
   },
   "policies": {
@@ -307,7 +307,7 @@
       "id": "P5",
       "title": "Signed Skill Integrity Gate",
       "goal": "Bind all 50 skill trees and the security control plane to the external Forge key, then prove every claimed defense red before green.",
-      "status": "done",
+      "status": "in_progress",
       "sessionsEstimate": "1",
       "gates": [
         {
@@ -376,7 +376,7 @@
             "P5-T2"
           ],
           "pr": null,
-          "notes": "Guard/scanner component acceptance and the complete pre-sign integrated suite are green. Generate/sign the 2.0.3/v3 manifest, then clean-clone and review the exact signed head before transport."
+          "notes": "The v3 manifest/signature bind the 2.0.3 sequence-1 content candidate and verify 5/5. Exact clean-clone replay is green; the final different-family exact-head verdict and three-platform CI remain external release receipts before transport."
         }
       ]
     },
@@ -453,7 +453,7 @@
     {
       "label": "Signed release integrity checks",
       "baseline": "0/5",
-      "current": "Historical 2.0.2/v2 signature only; 2.0.3/v3 biometric signing pending",
+      "current": "2.0.3/v3 contentReady 5/5; external readyToRun pending",
       "target": "2.0.3/v3 contentReady plus external readyToRun",
       "direction": "up"
     },
@@ -586,7 +586,7 @@
   ],
   "prLog": [],
   "resume": {
-    "activePhase": "P6",
+    "activePhase": "P5",
     "nextActions": [
       "Reaccept the exact signed tree from a clean clone and require exact-head independent review plus three-platform CI.",
       "Construct and sign the external freshness index from the final staging merge, prove readyToRun, then promote, tag, publish, and reinstall only that exact tree."
