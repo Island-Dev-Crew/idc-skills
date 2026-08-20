@@ -20,8 +20,11 @@
 # (re)creation (`checkout -B`, `switch -C`) AND forced ref updates (`branch -f/-M/-C`, which move or
 # clobber refs destructively), and whole-tree pathspecs (`.`, `./`, `./.`, `:/`, `*`, `**`, pathless
 # `:(top)`, and EVERY exclude-magic spec — `:!x`, `:^x`, `:(exclude)x`, `:(top,exclude)x` — because an
-# exclude-only pathspec means "everything EXCEPT x" = a whole-tree discard) while intentionally
-# ALLOWING concrete single-file restores/checkouts (`restore README.md`, `restore --worktree
+# exclude-only pathspec means "everything EXCEPT x" = a whole-tree discard). Every non-literal
+# wildcard restore/checkout also blocks conservatively (`?*`, `[a-z]*`, `:(glob)**/*`); explicit
+# `:(literal)` keeps a concrete wildcard-named file usable. Opaque `--pathspec-from-file` input is
+# blocked because its visible argv cannot prove that `.`/wildcards/every tracked path are absent.
+# Concrete single-file restores/checkouts stay intentionally ALLOWED (`restore README.md`, `restore --worktree
 # README.md`, `checkout HEAD -- README.md`) and their magic pathspecs (`:(top)README.md`,
 # `:/README.md`). It reaches git through more leading
 # grammar — a redirection (`>/x git push`), an fd-duplication (`2>&1 git push`, `>&2 git push`), a
@@ -34,17 +37,22 @@
 # guarded subcommand, so `alias.sb=show-branch` is NOT a false positive — PLUS alias values that only
 # become dangerous once COMBINED with call-site args (`-c alias.n=reset n --hard`), git's official
 # config-injection surfaces (`--config-env=alias.p=P`, inherited `GIT_CONFIG_COUNT` + indexed
-# `GIT_CONFIG_KEY_*/VALUE_*`, and inherited `GIT_CONFIG_PARAMETERS`), and NESTED alias chains
+# `GIT_CONFIG_KEY_*/VALUE_*`, and inherited `GIT_CONFIG_PARAMETERS`), Bash `NAME+=value`, static
+# export/declare/typeset/set-a/unset state across separators, `env -u/-i/-` (including bundled `-iS`),
+# Git's escaped quote/bang PARAMETERS encoding, and NESTED alias chains
 # (`-c alias.n='-c alias.p=push p' n`). Runtime layers follow Git precedence (COUNT, PARAMETERS,
 # then argv-ordered `-c`/`--config-env`, last duplicate wins), case-fold alias names, and apply visible
-# assignments plus `env -u/-i` before classification. Malformed/oversized runtime config is an
-# explicit block, with 256-entry/64-KiB parser bounds; values are parsed as data and never evaluated.
+# assignments plus `env -u/-i` before classification. Linear lists have exact carried state;
+# conditional/pipeline/subshell syntax conservatively retains old and updated variants, capped at 32,
+# so a skipped safe override cannot launder inherited danger. Malformed/oversized runtime config is
+# an explicit block, with 256-entry/64-KiB parser bounds; values are parsed as data and never evaluated.
 # Alias expansion is recursive, bounded by a depth cap (deeper chains block as evasion) and a cycle
 # set (git refuses a pure alias loop, so it allows).
 #
 # It is NOT a sandbox and CANNOT be one. Documented residuals a string classifier cannot
 # close (keep a real OS/repo-level control underneath — this is one layer):
-#   - dynamic/indirect invocation: `C=git; $C push`, `$(printf push)`, `eval "git push"`,
+#   - dynamic/indirect invocation or state: `C=git; $C push`, `$(printf push)`, `eval "git push"`,
+#     sourced files, and shell functions,
 #     `sh -c "git push"`, a renamed/copied git binary, base64-then-decode
 #   - command substitution used to ASSEMBLE a subcommand token (`git $(echo)push` rejoins at
 #     runtime), and command substitution INSIDE double quotes (`"$(git push)"`)
@@ -58,8 +66,9 @@
 # Conservative OVER-blocks (SAFE direction — the human runs it): a heredoc BODY line that is itself a
 # git command (`cat <<EOF`/`git push`/`EOF`) is blocked (segmentation can't tell heredoc data from a
 # command without a full parser); `git push --dry-run` is blocked ON PURPOSE (still contacts the
-# remote — an authority boundary); aliasing a discard-capable subcommand (`alias.co=checkout`) is
-# blocked as the evasion pattern even though `checkout <branch>` alone is safe.
+# remote — an authority boundary); a wildcard pathspec is blocked even when it would match only a
+# subtree (use `:(literal)` for a wildcard-named file); aliasing a discard-capable subcommand
+# (`alias.co=checkout`) is blocked as the evasion pattern even though `checkout <branch>` alone is safe.
 # Requires `jq` (payload) and `python3` (classifier); if either is missing the guard fails
 # OPEN rather than wedging the agent — wire it only where both exist, and never as the only
 # barrier.
@@ -147,6 +156,18 @@ MAX_ALIAS_DEPTH = 8
 # ceiling is a positive block reason, not an exception that could fall into the wrapper's fail-open.
 MAX_RUNTIME_CONFIG_ENTRIES = 256
 MAX_RUNTIME_CONFIG_BYTES = 65536
+# Cross-segment shell state is exact for a linear `;`/newline list. Conditional, pipeline, loop,
+# background, and subshell syntax can leave either the old or the visibly updated exported state in
+# force. Retain both possibilities, but bound the conservative state lattice so adversarial command
+# text cannot turn this advisory hook into an exponential parser.
+MAX_SHELL_STATE_VARIANTS = 32
+
+# Keep shell assignment semantics separate from `env` utility operands. Bash's `NAME+=value`
+# prefix appends to NAME for the command it launches; `/usr/bin/env NAME+=value ...` instead sets
+# an unrelated variable literally named NAME+. Conflating them creates either a bypass or a false
+# block, so the two grammars intentionally have different matchers.
+SHELL_ASSIGN_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)(\+?=)(.*)$", re.DOTALL)
+ENV_ASSIGN_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_+]*?)=(.*)$", re.DOTALL)
 
 BACKTICK = chr(96)
 
@@ -177,12 +198,23 @@ def whole_tree_pathspec(tok):
                 # so any exclude spec is treated as whole-tree (positive+exclude over-blocks — safe).
                 return True
             path = m.group(2)
-            return path == "" or path in ("*", "**", ".", "./")
+            if path == "" or path in ("*", "**", ".", "./"):
+                return True
+            if "literal" in magics:
+                return False                         # explicit concrete wildcard-named path
+            # A Git pathspec wildcard can address the entire tree without spelling `*` exactly:
+            # `?*`, `[!.]*`, `:(glob)**/*`, and many equivalents. Conservatively treat every
+            # non-literal wildcard restore/checkout as broad; `:(literal)` is the usable escape.
+            return any(ch in path for ch in ("*", "?", "["))
         return True                            # malformed :( ... -> treat as whole-tree (safe over-block)
     if tok.startswith(":/") and tok != ":/:":  # :/  handled above; :/path-from-root is a single path
         rest = tok[2:]
-        return rest == "" or rest in ("*", "**", ".", "./")
-    return False
+        return (
+            rest == ""
+            or rest in ("*", "**", ".", "./")
+            or any(ch in rest for ch in ("*", "?", "["))
+        )
+    return any(ch in tok for ch in ("*", "?", "["))
 
 
 def has_long_opt(rest, name):
@@ -271,6 +303,11 @@ def argv_danger(tokens):
     if sub in ("checkout", "restore", "switch"):
         if "f" in flags or has_long_opt(rest, "force") or has_long_opt(rest, "discard-changes"):
             return "git " + sub + " --force"
+        if sub in ("checkout", "restore") and has_long_opt(rest, "pathspec-from-file"):
+            # The visible argv does not reveal whether the external file/stdin contains `.`, a
+            # wildcard, or every tracked path. Do not let an opaque pathspec source bypass the
+            # whole-tree rule; a concrete single-file argv remains the intentional recovery path.
+            return "git " + sub + " --pathspec-from-file (opaque whole-tree-capable pathspec)"
         # forced branch (re)creation discards the ref's current tip: checkout -B / switch -C.
         if sub == "checkout" and "B" in flags:
             return "git checkout -B (force branch reset)"
@@ -288,7 +325,25 @@ def argv_danger(tokens):
     return None
 
 
-def alias_value_dangerous(value, depth=0):
+def alias_body_environment(config_env, alias_context, omitted_name):
+    # A bang alias's shell inherits Git runtime config. Re-encode the other effective aliases through
+    # COUNT so nested calls (`!git n --hard`, alias.n=reset) resolve, while omitting the alias whose
+    # body is being inspected prevents a harmless `!git status` from recursively inspecting itself.
+    env = dict(os.environ if config_env is None else config_env)
+    for key in list(env):
+        if key in ("GIT_CONFIG_COUNT", "GIT_CONFIG_PARAMETERS") or re.fullmatch(
+            r"GIT_CONFIG_(?:KEY|VALUE)_[0-9]+", key
+        ):
+            env.pop(key, None)
+    items = [(name, val) for name, val in (alias_context or {}).items() if name != omitted_name]
+    env["GIT_CONFIG_COUNT"] = str(len(items))
+    for idx, (name, val) in enumerate(items):
+        env["GIT_CONFIG_KEY_%d" % idx] = "alias." + name
+        env["GIT_CONFIG_VALUE_%d" % idx] = val
+    return env
+
+
+def alias_value_dangerous(value, depth=0, alias_context=None, current_name=None, config_env=None):
     # Does this alias VALUE expand to a guarded op? Precise, not a substring match:
     #  - `!<shell>`: run the shell body through the SAME segment classifier (so `!git push;` with a
     #    glued ';' and `!git status && git push` are both caught, and `!echo hi` is NOT).
@@ -302,7 +357,8 @@ def alias_value_dangerous(value, depth=0):
     if depth > MAX_ALIAS_DEPTH:
         return True                                 # can't certify a deeper chain -> safe over-block
     if value.startswith("!"):                       # shell-command alias: runs arbitrary shell
-        return classify(value[1:], depth + 1) is not None
+        env = alias_body_environment(config_env, alias_context, current_name)
+        return classify(value[1:], depth + 1, initial_env=env) is not None
     try:
         vtoks = shlex.split(value, posix=True)
     except ValueError:
@@ -327,7 +383,7 @@ def alias_name(s):
     return s.split(".", 1)[1].lower()
 
 
-def alias_defs(tokens, depth=0):
+def alias_defs(tokens, depth=0, alias_context=None, config_env=None):
     # Persistent alias DEFINITIONS live only when `config` is the actual SUBCOMMAND. Runtime
     # `-c`/`--config-env` definitions are resolved together, in argv order, by
     # command_config_alias_map(); pre-scanning one would incorrectly block a lower dangerous value
@@ -338,12 +394,17 @@ def alias_defs(tokens, depth=0):
         for j in range(sub_idx + 1, n):             # config alias.x val  /  config alias.x=val
             a = tokens[j]
             if is_alias_key(a) and "=" in a:
-                if alias_value_dangerous(a.split("=", 1)[1], depth):
+                key, val = a.split("=", 1)
+                if alias_value_dangerous(
+                    val, depth, alias_context, alias_name(key), config_env
+                ):
                     return "alias injection (config alias to a blocked op)"
                 break
             if is_alias_key(a):
                 val = tokens[j + 1] if j + 1 < n else ""
-                if alias_value_dangerous(val, depth):
+                if alias_value_dangerous(
+                    val, depth, alias_context, alias_name(a), config_env
+                ):
                     return "alias injection (config alias to a blocked op)"
                 break
     return None
@@ -364,6 +425,7 @@ def normalize_separators(s):
     #    of line and is dropped, so `git status # docs; git push` treats the push as comment text; a
     #    `#` mid-word (`fix#123`) or inside quotes ("fix #1") is NOT a comment.
     out = []
+    complex_flow = False
     i, n = 0, len(s)
     quote = None                                    # None | "'" | '"'
     prev = None                                     # previous RAW char (for `#` word-boundary test)
@@ -454,6 +516,8 @@ def normalize_separators(s):
             prev = " "
             continue
         if c == "\n" or c == BACKTICK or c == "(" or c == ")":
+            if c != "\n":
+                complex_flow = True
             out.append(" ; ")
             prev = c
             i += 1
@@ -461,14 +525,14 @@ def normalize_separators(s):
         out.append(c)
         prev = c
         i += 1
-    return "".join(out)
+    return "".join(out), complex_flow
 
 
 def segments(command):
     command = command.replace("\\\n", "")           # join backslash-newline line continuations
     command = re.sub(r"\$\{IFS[^}]*\}", " ", command)  # ${IFS}, ${IFS:...} word-split trick
     command = re.sub(r"\$IFS", " ", command)            # $IFS
-    command = normalize_separators(command)
+    command, complex_flow = normalize_separators(command)
     try:
         lx = shlex.shlex(command, posix=True, punctuation_chars=";&|")
         lx.whitespace_split = True
@@ -476,6 +540,10 @@ def segments(command):
         toks = list(lx)
     except ValueError:                               # unbalanced quotes etc.
         toks = command.split()
+    if any(t in ("&", "|", "&&", "||", "&|", "|&") for t in toks):
+        complex_flow = True
+    if any(t in SHELL_KEYWORDS for t in toks):
+        complex_flow = True
     segs, cur = [], []
     for t in toks:
         if t in (";", "&", "|", "&&", "||", "&|", "|&", ";;"):
@@ -486,7 +554,7 @@ def segments(command):
             cur.append(t)
     if cur:
         segs.append(cur)
-    return segs
+    return segs, complex_flow
 
 
 def command_word_index(tokens):
@@ -533,27 +601,33 @@ def command_word_index(tokens):
                     # word-split and execute it, incl. the bundled `-vS'...'` form) — splice the
                     # split words back into the token stream so `env -S 'git push'` classifies.
                     sval = None
-                    mS = re.match(r"^-[iv0]*S(.*)$", w, re.DOTALL)
+                    mS = re.match(r"^-([iv0]*)S(.*)$", w, re.DOTALL)
+                    preserved = []
                     if w.startswith("--split-string="):
                         sval = w.split("=", 1)[1]
                         tokens[i:i + 1] = []
                     elif w == "--split-string" and i + 1 < n:
                         sval = tokens[i + 1]
                         tokens[i:i + 2] = []
-                    elif mS and mS.group(1):
-                        sval = mS.group(1)
-                        tokens[i:i + 1] = []
+                    elif mS and mS.group(2):
+                        sval = mS.group(2)
+                        preserved = ["-" + flag for flag in mS.group(1)]
+                        tokens[i:i + 1] = preserved
                     elif mS and i + 1 < n:
                         sval = tokens[i + 1]
-                        tokens[i:i + 2] = []
+                        preserved = ["-" + flag for flag in mS.group(1)]
+                        tokens[i:i + 2] = preserved
                     if sval is not None:
                         try:
                             parts = shlex.split(sval, posix=True)
                         except ValueError:
                             parts = sval.split()
-                        tokens[i:i] = parts
+                        tokens[i + len(preserved):i + len(preserved)] = parts
                         n = len(tokens)
                         continue
+                if base == "env" and w == "-":
+                    i += 1                              # obsolete spelling of env -i; still executes argv
+                    continue
                 if w.startswith("-") and len(w) > 1:
                     if base == "command" and re.fullmatch(r"-[pvV]+", w) and ("v" in w or "V" in w):
                         query = True                    # -v/-V/-pv/-pV: prints a path, runs nothing
@@ -569,30 +643,49 @@ def command_word_index(tokens):
     return None
 
 
-def effective_environment(tokens, command_index):
+def apply_shell_assignment(eff, token):
+    """Apply one inert Bash assignment word to a string environment; return whether it matched."""
+    mm = SHELL_ASSIGN_RE.match(token)
+    if not mm:
+        return False
+    name, op, val = mm.groups()
+    eff[name] = eff.get(name, "") + val if op == "+=" else val
+    return True
+
+
+def effective_environment(tokens, command_index, base_env=None):
     # Reconstruct the environment the visible git command receives. Start with the hook process
     # environment, then apply shell/wrapper assignments in order. `env -u/-i` are modeled because
     # claiming inherited-state fidelity while ignoring their removal semantics creates false blocks.
     # No value is evaluated; tokens came from the inert shell lexer above.
-    eff = dict(os.environ)
-    assign = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)=(.*)$", re.DOTALL)
-    i = 0
+    eff = dict(os.environ if base_env is None else base_env)
+    i, before_wrapper = 0, True
     while i < command_index:
         t = tokens[i]
-        mm = assign.match(t)
-        if mm:
+        if before_wrapper and apply_shell_assignment(eff, t):
+            i += 1
+            continue
+        # Recognized wrappers such as sudo can expose ordinary NAME=value operands. Keep the legacy
+        # model for those, but do not grant Bash `+=` semantics after the wrapper command word.
+        mm = re.match(r"^([A-Za-z_][A-Za-z0-9_]*)=(.*)$", t, re.DOTALL)
+        if not before_wrapper and mm:
             eff[mm.group(1)] = mm.group(2)
             i += 1
             continue
         base = re.split(r"[\\/]", t)[-1].lower()
         if base != "env":
+            if base in WRAPPERS:
+                before_wrapper = False
             i += 1
             continue
+        before_wrapper = False
         i += 1
         while i < command_index:
             w = tokens[i]
-            mm = assign.match(w)
+            mm = ENV_ASSIGN_RE.match(w)
             if mm:
+                # `env NAME+=x` creates NAME+, unlike a Bash prefix assignment. Preserve that exact
+                # name so it cannot poison the similarly-spelled Git runtime variable.
                 eff[mm.group(1)] = mm.group(2)
                 i += 1
                 continue
@@ -627,6 +720,133 @@ def effective_environment(tokens, command_index):
     return eff, None
 
 
+def shell_state_assignment(state, token, force_export=False):
+    """Apply a static shell assignment to the carried state without evaluating its bytes."""
+    mm = SHELL_ASSIGN_RE.match(token)
+    if not mm:
+        return False
+    name, op, val = mm.groups()
+    prior = state["vars"].get(name, "")
+    state["vars"][name] = prior + val if op == "+=" else val
+    if force_export or state["allexport"]:
+        state["exported"].add(name)
+    return True
+
+
+def update_persistent_shell_state(tokens, state):
+    # Carry only static, directly visible shell state across `;`/`&&` segments. This closes a real
+    # runtime-config path (`export GIT_CONFIG_PARAMETERS=...; git p`) without pretending to evaluate
+    # dynamic `eval`, sourced files, functions, or substitutions (documented classifier residuals).
+    if tokens and all(SHELL_ASSIGN_RE.match(t) for t in tokens):
+        for t in tokens:                              # assignment-only command persists in the shell
+            shell_state_assignment(state, t)
+        return
+
+    probe = list(tokens)
+    ci = command_word_index(probe)
+    if ci is None:
+        return
+    base = re.split(r"[\\/]", probe[ci])[-1].lower()
+    persistent = {":", "export", "readonly", "unset", "set", "declare", "typeset"}
+    if base not in persistent:
+        return
+
+    # Assignment prefixes to POSIX special builtins persist. Preserve an inherited export attribute;
+    # an unexported name becomes exported only through export/-x or `set -a`.
+    for t in probe[:ci]:
+        if SHELL_ASSIGN_RE.match(t):
+            shell_state_assignment(state, t)
+
+    args = probe[ci + 1:]
+    if base == ":":
+        return
+    if base == "set":
+        i = 0
+        while i < len(args):
+            if args[i] == "-a" or (args[i:i + 2] == ["-o", "allexport"]):
+                state["allexport"] = True
+                i += 2 if args[i] == "-o" else 1
+                continue
+            if args[i] == "+a" or (args[i:i + 2] == ["+o", "allexport"]):
+                state["allexport"] = False
+                i += 2 if args[i] == "+o" else 1
+                continue
+            i += 1
+        return
+    if base == "unset":
+        for t in args:
+            if t == "--" or t.startswith("-"):
+                continue
+            if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", t):
+                state["vars"].pop(t, None)
+                state["exported"].discard(t)
+        return
+    if base == "readonly":
+        for t in args:
+            if not t.startswith("-"):
+                shell_state_assignment(state, t)
+        return
+
+    if base in ("declare", "typeset"):
+        export_mode = None
+        for t in args:
+            if t.startswith("-") and "x" in t[1:]:
+                export_mode = True
+                continue
+            if t.startswith("+") and "x" in t[1:]:
+                export_mode = False
+                continue
+            if t.startswith("-") or t == "--":
+                continue
+            matched = shell_state_assignment(state, t, force_export=(export_mode is True))
+            name = SHELL_ASSIGN_RE.match(t).group(1) if matched else t
+            if re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+                if export_mode is True:
+                    state["exported"].add(name)
+                elif export_mode is False:
+                    state["exported"].discard(name)
+        return
+
+    # export [-n] NAME[=value] ...
+    unexport = False
+    for t in args:
+        if t == "-n":
+            unexport = True
+            continue
+        if t == "--" or t.startswith("-"):
+            continue
+        matched = shell_state_assignment(state, t, force_export=not unexport)
+        name = SHELL_ASSIGN_RE.match(t).group(1) if matched else t
+        if not re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", name):
+            continue
+        if unexport:
+            state["exported"].discard(name)
+        else:
+            state["exported"].add(name)
+
+
+def exported_shell_environment(state):
+    return {name: state["vars"][name] for name in state["exported"] if name in state["vars"]}
+
+
+def clone_shell_state(state):
+    return {
+        "vars": dict(state["vars"]),
+        "exported": set(state["exported"]),
+        "allexport": state["allexport"],
+    }
+
+
+def shell_state_fingerprint(state):
+    # Full exported-variable values matter: `--config-env=alias.p=P` may name any visible variable,
+    # not only the GIT_CONFIG_* family. The bounded variant count keeps this exact key affordable.
+    return (
+        tuple(sorted(state["vars"].items())),
+        tuple(sorted(state["exported"])),
+        state["allexport"],
+    )
+
+
 def parse_git_config_parameters(raw):
     # Strictly parse Git's own serialized `-c` environment: quoted entries only, each
     # `'section.key'='value'`, `'section.key=value'`, or `'section.key'`. A malformed or oversized
@@ -636,19 +856,29 @@ def parse_git_config_parameters(raw):
     out = {}
     i, n, entries = 0, len(raw), 0
 
-    def read_sq(pos):
+    def read_sq_component(pos, stop_on_equals):
+        # Git serializes each shell word as one or more adjacent single-quoted chunks. Outside a
+        # chunk, sq_quote_buf uses `\'` for a literal quote and `\!` for a literal bang (the latter
+        # appears as `''\!'text'`). Parse that data grammar directly; never hand it to a shell.
+        if pos >= n or raw[pos] != "'":
+            return "", pos, "malformed GIT_CONFIG_PARAMETERS quoted component"
         buf = []
-        pos += 1                                    # opening single quote
-        while pos < n:
+        while pos < n and raw[pos] not in " \t" and not (stop_on_equals and raw[pos] == "="):
             if raw[pos] == "'":
-                if raw[pos:pos + 4] == "'\\''":    # Git's escaped literal quote
-                    buf.append("'")
-                    pos += 4
-                    continue
-                return "".join(buf), pos + 1, None
-            buf.append(raw[pos])
-            pos += 1
-        return "", pos, "unterminated GIT_CONFIG_PARAMETERS quote"
+                pos += 1
+                while pos < n and raw[pos] != "'":
+                    buf.append(raw[pos])
+                    pos += 1
+                if pos >= n:
+                    return "", pos, "unterminated GIT_CONFIG_PARAMETERS quote"
+                pos += 1
+                continue
+            if raw[pos] == "\\" and pos + 1 < n and raw[pos + 1] in ("'", "!"):
+                buf.append(raw[pos + 1])
+                pos += 2
+                continue
+            return "", pos, "malformed GIT_CONFIG_PARAMETERS quoted continuation"
+        return "".join(buf), pos, None
 
     while i < n:
         while i < n and raw[i] in " \t":
@@ -660,15 +890,13 @@ def parse_git_config_parameters(raw):
             return {}, "GIT_CONFIG_PARAMETERS exceeds the entry bound"
         if raw[i] != "'":
             return {}, "malformed GIT_CONFIG_PARAMETERS entry"
-        key, i, issue = read_sq(i)
+        key, i, issue = read_sq_component(i, True)
         if issue:
             return {}, issue
         val = ""
         if i < n and raw[i] == "=":
             i += 1
-            if i >= n or raw[i] != "'":
-                return {}, "malformed GIT_CONFIG_PARAMETERS value"
-            val, i, issue = read_sq(i)
+            val, i, issue = read_sq_component(i, False)
             if issue:
                 return {}, issue
         elif "=" in key:                           # serialized one-token `key=value` form
@@ -778,11 +1006,11 @@ def git_invocation_danger(git_slice, inherited, depth=0, seen=None, config_env=N
     amap, issue = command_config_alias_map(git_slice, config_env, inherited)
     if issue:
         return issue
-    for val in amap.values():
-        if alias_value_dangerous(val, depth):
+    for name, val in amap.items():
+        if alias_value_dangerous(val, depth, amap, name, config_env):
             return "effective runtime-config alias resolves to a blocked op"
     # A persistent `git config alias...` mutation is a separate subcommand surface.
-    reason = alias_defs(git_slice, depth)
+    reason = alias_defs(git_slice, depth, amap, config_env)
     if reason:
         return reason
     # 2) An alias INVOKED here: expand it while retaining call-site args. Alias names are
@@ -793,9 +1021,8 @@ def git_invocation_danger(git_slice, inherited, depth=0, seen=None, config_env=N
         name = invoked
         val = amap[name].strip()
         if val.startswith("!"):
-            r = classify(val[1:], depth + 1)
-            if r:
-                return r
+            if alias_value_dangerous(val, depth, amap, name, config_env):
+                return "invoked bang alias resolves to a blocked op"
         else:
             try:
                 vtoks = shlex.split(val, posix=True)
@@ -809,12 +1036,12 @@ def git_invocation_danger(git_slice, inherited, depth=0, seen=None, config_env=N
     return argv_danger(git_slice)
 
 
-def classify_segment(tokens, depth=0):
+def classify_segment(tokens, depth=0, base_env=None):
     ci = command_word_index(tokens)
     if ci is None or not is_git_word(tokens[ci]):
         return None
     git_slice = tokens[ci:]
-    eff, issue = effective_environment(tokens, ci)
+    eff, issue = effective_environment(tokens, ci, base_env)
     if issue:
         return issue
     runtime_map, issue = inherited_runtime_alias_map(eff)
@@ -823,11 +1050,38 @@ def classify_segment(tokens, depth=0):
     return git_invocation_danger(git_slice, runtime_map, depth, config_env=eff)
 
 
-def classify(command, depth=0):
-    for seg in segments(command):
-        reason = classify_segment(seg, depth)
-        if reason:
-            return reason
+def classify(command, depth=0, initial_env=None):
+    initial = dict(os.environ if initial_env is None else initial_env)
+    initial_state = {
+        "vars": initial,
+        "exported": set(initial),
+        "allexport": False,
+    }
+    segs, complex_flow = segments(command)
+    states = [initial_state]
+    for seg in segs:
+        # A destructive invocation feasible under ANY carried shell state is enough to block.
+        for state in states:
+            reason = classify_segment(seg, depth, exported_shell_environment(state))
+            if reason:
+                return reason
+
+        evolved = []
+        for state in states:
+            updated = clone_shell_state(state)
+            update_persistent_shell_state(seg, updated)
+            if complex_flow and shell_state_fingerprint(updated) != shell_state_fingerprint(state):
+                # A conditional/pipeline/subshell mutation may or may not affect the later command.
+                # Keep both possibilities; this is deliberately conservative in the safe direction.
+                evolved.append(state)
+            evolved.append(updated)
+
+        unique = {}
+        for state in evolved:
+            unique[shell_state_fingerprint(state)] = state
+            if len(unique) > MAX_SHELL_STATE_VARIANTS:
+                return "ambiguous shell runtime-config state exceeds the bounded resolver"
+        states = list(unique.values())
     return None
 
 

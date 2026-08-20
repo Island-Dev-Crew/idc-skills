@@ -375,6 +375,131 @@ check 0 'git restore README.md' 'single-file restore intentionally allowed'
 check 0 'git restore --worktree README.md' 'single-file worktree restore intentionally allowed'
 check 0 'git checkout HEAD -- README.md' 'single-file checkout-from-HEAD intentionally allowed'
 
+echo "== must BLOCK/ALLOW — 2.0.3-r8 exact-head red-team regressions =="
+# Shell append assignments are real environment prefixes in Bash 3.2. The environment utility is
+# different: after `env`, NAME+=value names NAME+ and must not be mistaken for a shell append.
+check 2 "GIT_CONFIG_PARAMETERS+=\"'alias.p'='push'\" git p" \
+  'shell += assignment injects PARAMETERS alias -> push'
+check 2 'GIT_CONFIG_COUNT+=1 GIT_CONFIG_KEY_0+=alias.p GIT_CONFIG_VALUE_0+=push git p' \
+  'shell += assignments inject COUNT alias -> push'
+check_inherited 2 "GIT_CONFIG_PARAMETERS+=\"'alias.p'='push'\" git p" \
+  'shell += appends a dangerous entry to inherited PARAMETERS' \
+  "GIT_CONFIG_PARAMETERS='user.name'='safe' "
+check 0 "env GIT_CONFIG_PARAMETERS+=\"'alias.p'='push'\" git status" \
+  'env NAME+=value sets NAME+, not GIT_CONFIG_PARAMETERS'
+
+# The obsolete-but-live macOS/BSD `env -` spelling is equivalent to `env -i` and still executes the
+# following command. Nested wrapper forms must reach the same classifier.
+check 2 'env - git push' 'env dash executes git push'
+check 2 '/usr/bin/env - git reset --hard' 'full-path env dash executes reset --hard'
+check 2 'command env - git clean -fd' 'nested command+env dash executes clean -fd'
+check 2 "env -S 'env - git push'" 'split-string nested env dash executes push'
+
+# Static exported shell state persists across separators. Assignment-only state is exported only when
+# it was inherited-exported or an explicit export marks it; an unexported assignment remains inert.
+check 2 "export GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\"; git p" \
+  'exported PARAMETERS persists across shell segment'
+check 2 'export GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=alias.p GIT_CONFIG_VALUE_0=push; git p' \
+  'exported COUNT family persists across shell segment'
+check 2 "GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\"; export GIT_CONFIG_PARAMETERS; git p" \
+  'assignment then bare export persists PARAMETERS'
+check 2 'P=push; export P; git --config-env=alias.p=P p' \
+  'exported config-env source persists across shell segments'
+check_inherited 2 "GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\"; git p" \
+  'assignment updates an inherited-exported PARAMETERS variable' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='status'"
+check 0 "GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\"; git p" \
+  'unexported assignment-only PARAMETERS stays out of child git'
+check 0 "export GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\"; unset GIT_CONFIG_PARAMETERS; git status" \
+  'unset removes prior exported PARAMETERS state'
+check 0 "export GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\"; export GIT_CONFIG_PARAMETERS=\"'alias.p'='status'\"; git p" \
+  'later exported safe PARAMETERS value wins'
+check 0 'P=status; export P; git --config-env=alias.p=P p' \
+  'exported safe config-env source remains usable'
+check 2 "declare -x GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\"; git p" \
+  'declare -x exports PARAMETERS across segments'
+check 2 "typeset -x GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\"; git p" \
+  'typeset -x exports PARAMETERS across segments'
+check 2 "set -a; GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\"; git p" \
+  'set -a exports later assignment-only PARAMETERS'
+check_inherited 2 "GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\" :; git p" \
+  'assignment to special builtin updates inherited-exported PARAMETERS' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='status'"
+check 0 "export GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\"; export -n GIT_CONFIG_PARAMETERS; git status" \
+  'export -n removes PARAMETERS from the child environment'
+
+# Conditional/pipeline/subshell state is not a single linear environment. Preserve every feasible
+# static variant so a skipped or subshell-only safe mutation cannot erase inherited danger, and a
+# conditionally introduced dangerous alias cannot disappear from the model. Linear `;` overrides
+# above remain exact; ambiguous control flow deliberately over-blocks in the safe direction.
+check_inherited 2 "false && unset GIT_CONFIG_PARAMETERS; git p" \
+  'skipped conditional unset cannot erase inherited PARAMETERS' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push'"
+check_inherited 2 "true || unset GIT_CONFIG_PARAMETERS; git p" \
+  'skipped OR unset cannot erase inherited PARAMETERS' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push'"
+check_inherited 2 "unset GIT_CONFIG_PARAMETERS | true; git p" \
+  'pipeline-subshell unset cannot erase inherited PARAMETERS' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push'"
+check 2 "true && export GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\"; git p" \
+  'conditionally introduced dangerous PARAMETERS remains visible'
+check 2 "false || export GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\"; git p" \
+  'OR-introduced dangerous PARAMETERS remains visible'
+check_inherited 2 "true && export GIT_CONFIG_PARAMETERS=\"'alias.p'='status'\"; git p" \
+  'ambiguous safe override is conservatively blocked' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push'"
+check 2 'true && export A=1; true && export B=1; true && export C=1; true && export D=1; true && export E=1; true && export F=1; git status' \
+  'ambiguous shell-state lattice blocks at its hard variant cap'
+
+# Git pathspec wildcards can address every tracked path without spelling `*` exactly. Conservatively
+# block wildcard restore/checkout; `:(literal)` remains the explicit single-file escape hatch.
+check 2 "git restore '?*'" 'wildcard ?* restores the whole tree'
+check 2 "git checkout HEAD -- '?*'" 'checkout wildcard ?* restores the whole tree'
+check 2 "git restore ':/?*'" 'root-relative wildcard restores the whole tree'
+check 2 "git restore ':(glob)**/*'" 'glob-magic recursive wildcard restores the tree'
+check 2 "git checkout ':(top,glob)[a-z]*'" 'glob character class is broad checkout pathspec'
+check 2 "git restore '[!.]*'" 'raw character class is broad restore pathspec'
+check 2 "git restore ':(icase,glob)?*'" 'mixed magic wildcard is broad restore pathspec'
+check 2 "git checkout HEAD -- ':/[a-z]*'" 'root-relative character class is broad checkout pathspec'
+check 2 "git restore 'sub/**'" 'recursive subtree wildcard is conservatively blocked'
+check 0 "git restore ':(literal)?*'" 'literal magic preserves a concrete wildcard-named file'
+check 0 "git checkout HEAD -- ':(top,literal)[a-z]*'" \
+  'top+literal magic preserves a concrete bracket-named file'
+check 2 'git restore --pathspec-from-file=/tmp/paths' \
+  'restore attached opaque pathspec file cannot hide whole-tree selection'
+check 2 'git restore --pathspec-from-file /tmp/paths' \
+  'restore separate opaque pathspec file cannot hide whole-tree selection'
+check 2 'git checkout HEAD --pathspec-from-file=-' \
+  'checkout stdin pathspec cannot hide whole-tree selection'
+check 2 'git restore --pathspec-from-f=/tmp/paths' \
+  'restore unambiguous long-option abbreviation remains blocked'
+
+# Git's own sq_quote_buf encoding emits escaped `!` outside adjacent single-quoted chunks. Accept that
+# official form as data, while still resolving an encoded bang alias and never evaluating bytes.
+check_inherited 0 'git status' 'Git-generated escaped-bang non-alias config is benign' \
+  "GIT_CONFIG_PARAMETERS='user.name'=''\\!'safe'"
+check_inherited 0 'git x' 'Git-generated escaped-bang alias to status is safe' \
+  "GIT_CONFIG_PARAMETERS='alias.x'=''\\!'git status'"
+check_inherited 2 'git x' 'Git-generated escaped-bang alias to push blocks' \
+  "GIT_CONFIG_PARAMETERS='alias.x'=''\\!'git push'"
+check_inherited 2 "git config alias.x '!git n --hard'" \
+  'persistent bang alias composes with inherited reset alias' \
+  "GIT_CONFIG_PARAMETERS='alias.n'='reset'"
+check_inherited 0 "git config alias.x '!git n'" \
+  'persistent bang alias composes safely with inherited status alias' \
+  "GIT_CONFIG_PARAMETERS='alias.n'='status'"
+check_inherited 0 'git status' 'Git-generated embedded quote remains parseable' \
+  "GIT_CONFIG_PARAMETERS='user.name'='a'\\''b'"
+
+# Bundled `env -iS` preserves both operations: clear inherited state, then split/execute the string.
+check_inherited 0 "env -iS 'git status'" 'bundled env -iS clears inherited PARAMETERS' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push'"
+check_inherited 0 "env -ivS 'git status'" 'bundled env -ivS retains ignore-environment semantics' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='push'"
+check_inherited 2 "env -iS 'GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\" git p'" \
+  'bundled env -iS clears then installs visible dangerous PARAMETERS' \
+  "GIT_CONFIG_PARAMETERS='alias.p'='status'"
+
 check_inherited 0 'git status' 'PARAMETERS parser never evaluates config bytes' \
   "GIT_CONFIG_PARAMETERS='user.name=\$(touch $CANARY_DIR/gcp-pwned)'"
 if [ -e "$CANARY_DIR/gcp-pwned" ]; then
