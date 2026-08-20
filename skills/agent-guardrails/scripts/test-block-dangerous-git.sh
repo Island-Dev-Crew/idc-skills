@@ -490,6 +490,49 @@ check 2 'git restore --force README.md' \
 check 2 'git checkout HEAD --pathspec-from-file=/tmp/paths' \
   'pre-boundary --pathspec-from-file remains opaque'
 
+# A literal `--` can itself be the required value of an option. Only the next unconsumed `--` is a
+# pathspec separator; force options after a consumed value remain live and destructive. Conversely,
+# an option-looking consumed value is data and must not create a false block.
+check 2 'git clean -e -- --force victim' \
+  'clean exclude consumes first double dash; later --force remains live'
+check 2 'git clean -e -- -f victim' \
+  'clean exclude consumes first double dash; later -f remains live'
+check 2 'git clean -e -- --for victim' \
+  'clean exclude consumes first double dash; later abbreviated force remains live'
+check 2 'git clean --exclude -- --force victim' \
+  'long exclude consumes first double dash; later force remains live'
+check 0 'git clean -e -f victim' \
+  'option-looking -f is the exclude value, not a force option'
+check 0 'git clean --exclude=-- -- --force' \
+  'attached exclude value leaves a real separator and concrete --force filename'
+check 2 'git clean --ex -- --for victim' \
+  'abbreviated exclude consumes its value; later abbreviated force stays live'
+check 2 'git restore -s -- --force README.md' \
+  'restore source consumes first double dash; later force stays live'
+check 0 'git restore -s --force README.md' \
+  'option-looking --force is a consumed restore source value'
+check 2 'git switch -c -- --discard-changes main' \
+  'switch create consumes first double dash; later discard stays live'
+check 0 'git switch -c -f main' \
+  'option-looking -f is a consumed branch-name value'
+check 2 'git branch -u -- --force topic' \
+  'branch upstream consumes first double dash; later force stays live'
+check 0 'git branch -u -f topic' \
+  'option-looking -f is a consumed upstream value'
+check 2 'git reset --pathspec-from-file -- --hard' \
+  'reset pathspec source consumes first double dash; later hard stays live'
+check 0 "git restore -s '*' README.md" \
+  'wildcard-shaped source value is not a whole-tree pathspec'
+
+# `:(literal)` is the explicit contract escape for a tracked filename containing wildcard bytes.
+# Test the exact wildcard spellings that the broad pathspec policy otherwise blocks.
+check 0 "git restore -- ':(literal)*'" \
+  'literal magic preserves a concrete star-named file'
+check 0 "git checkout HEAD -- ':(top,literal)**'" \
+  'top+literal magic preserves a concrete double-star-named file'
+check 0 "git restore -- ':(literal)[!.]*'" \
+  'literal magic preserves a concrete bracket-and-star filename'
+
 # Git's own sq_quote_buf encoding emits escaped `!` outside adjacent single-quoted chunks. Accept that
 # official form as data, while still resolving an encoded bang alias and never evaluating bytes.
 check_inherited 0 'git status' 'Git-generated escaped-bang non-alias config is benign' \

@@ -141,6 +141,22 @@ SHORT_ARG = {
     "clean": set("e"),                              # -e <exclude-pattern>
     "branch": set("u"),                             # -u <upstream>
 }
+# Long subcommand options that consume the following argv token when no `=value` is attached.
+# This matters when that value is literally `--`: it is then data, not the pathspec separator, and
+# a later `--force` is still a live option. Prefixes are included because Git accepts unambiguous
+# long-option abbreviations; conservatively treating an ambiguous/invalid prefix as value-taking can
+# only over-block an invalid command, never authorize a destructive one.
+LONG_ARG = {
+    "clean": {"exclude"},
+    "checkout": {"conflict", "orphan", "pathspec-from-file"},
+    "restore": {"source", "conflict", "pathspec-from-file"},
+    "switch": {"create", "force-create", "conflict", "orphan"},
+    "reset": {"pathspec-from-file"},
+    "branch": {
+        "set-upstream-to", "contains", "no-contains", "merged", "no-merged",
+        "sort", "points-at", "format",
+    },
+}
 # shell reserved words that can lead a segment before the real command word (`then git push`).
 SHELL_KEYWORDS = {
     "if", "then", "else", "elif", "fi", "do", "done", "while", "until",
@@ -198,10 +214,10 @@ def whole_tree_pathspec(tok):
                 # so any exclude spec is treated as whole-tree (positive+exclude over-blocks — safe).
                 return True
             path = m.group(2)
-            if path == "" or path in ("*", "**", ".", "./"):
-                return True
             if "literal" in magics:
                 return False                         # explicit concrete wildcard-named path
+            if path == "" or path in ("*", "**", ".", "./"):
+                return True
             # A Git pathspec wildcard can address the entire tree without spelling `*` exactly:
             # `?*`, `[!.]*`, `:(glob)**/*`, and many equivalents. Conservatively treat every
             # non-literal wildcard restore/checkout as broad; `:(literal)` is the usable escape.
@@ -270,14 +286,53 @@ def find_subcommand(tokens):
     return i if i < n else None
 
 
-def option_args_before_pathspec_separator(rest):
-    # Git's `--` ends option parsing for checkout/restore pathspecs. Keep force/config
-    # detection scoped to the option side so a concrete filename such as `--force` or
-    # `--pathspec-from-file` remains an intentionally usable single-file recovery target.
-    try:
-        return rest[:rest.index("--")]
-    except ValueError:
-        return rest
+def long_option_takes_next(sub, token):
+    if not token.startswith("--") or "=" in token:
+        return False
+    name = token[2:]
+    return bool(name) and any(option.startswith(name) for option in LONG_ARG.get(sub, set()))
+
+
+def short_option_takes_next(sub, token):
+    if len(token) < 2 or token[0] != "-" or token[1] == "-":
+        return False
+    argtaking = SHORT_ARG.get(sub, set())
+    for index, ch in enumerate(token[1:], 1):
+        if ch in argtaking:
+            # A tail in the same token is the value (`-efoo`); only a final value-taking option
+            # consumes the next argv token (`-ne --`).
+            return index == len(token) - 1
+    return False
+
+
+def split_subcommand_args(sub, rest):
+    # Return actual option tokens and unconsumed operands. Git's `--` ends option parsing only when
+    # it is not the required value of a preceding option. Keeping consumed values out of both sets
+    # prevents `-e -f` (exclude pattern named `-f`) from impersonating force, while a later live
+    # `--force` remains visible after `-e --` consumes the first double dash.
+    options, operands = [], []
+    after_separator = False
+    consume_next = False
+    for token in rest:
+        if consume_next:
+            consume_next = False
+            continue
+        if after_separator:
+            operands.append(token)
+            continue
+        if token == "--":
+            after_separator = True
+            continue
+        if token.startswith("--") and len(token) > 2:
+            options.append(token)
+            consume_next = long_option_takes_next(sub, token)
+            continue
+        if token.startswith("-") and token != "-":
+            options.append(token)
+            consume_next = short_option_takes_next(sub, token)
+            continue
+        operands.append(token)
+    return options, operands
 
 
 def argv_danger(tokens):
@@ -287,7 +342,7 @@ def argv_danger(tokens):
         return None
     sub = tokens[idx]
     rest = tokens[idx + 1:]
-    option_rest = option_args_before_pathspec_separator(rest)
+    option_rest, operands = split_subcommand_args(sub, rest)
     flags = effective_flags(sub, option_rest)       # decoded short-flag bundles, arg-values excluded
     if sub == "push":
         return "git push"
@@ -324,7 +379,7 @@ def argv_danger(tokens):
             return "git checkout -B (force branch reset)"
         if sub == "switch" and ("C" in flags or has_long_opt(option_rest, "force-create")):
             return "git switch -C (force branch reset)"
-        for t in rest:
+        for t in operands:
             if whole_tree_pathspec(t):
                 return "git " + sub + " <whole-tree pathspec>"
         if sub == "restore":
