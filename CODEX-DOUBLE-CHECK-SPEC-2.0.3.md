@@ -4,8 +4,10 @@
 > `2.0.3`, `manifestSequence: 1`; the checked-in manifest/signature remain historical
 > 2.0.2/v2 bytes pending the final 2.0.3/v3 biometric ceremony. The anti-rollback
 > implementation is exact at `a58f59e`, with Claude Opus + OpenAI Codex **APPROVE**,
-> 100 unit tests plus 20 subtests, and canonical validation 50/50. Guard/scanner R5
-> exact `c721304` returned **CHANGES_REQUIRED**; R6 is pending.
+> 100 unit tests plus 20 subtests, and canonical validation 50/50. The guard's
+> approved component lineage closes at `d0fac44` with 300/300 native macOS Bash
+> 3.2 fixtures. Scanner diff `e98cfac6`, committed as `04a5bd4`, is independently
+> approved with 589/589 native macOS Bash 3.2 fixtures.
 
 ## Reconciliation of record (historical 2.0.2 findings; not a 2.0.3 release claim)
 - CLOSED: anchor swap → FAIL; verifier tamper → FAIL; skill-body tamper → FAIL; **appended second
@@ -13,7 +15,7 @@
 - OPEN (this 2.0.3): (1) git-guard bypasses `git${IFS}push` + `git -c alias.p=push p`; (2) `scan-egress.sh`
   skipped `.sh/.py/.yaml`; (3) no anti-rollback freshness.
 
-## 1. Guard/scanner reconciliation — R5 rejected, R6 pending
+## 1. Guard/scanner reconciliation — final matrices accepted
 Round 2 (`b5aaa83`) was re-verified by Codex and came back CHANGES_REQUIRED: the guard still missed
 multiline / equivalent-spelling / glued-`-c` classes AND false-positived on non-git text, the scanner
 stayed green on binaries and crashed on binary/symlink-only input, and a test fixture poisoned the release
@@ -27,8 +29,8 @@ path. Claude round 3 **rebuilt** both (the guard as a scoped model, not a patch)
   (`echo ok`⏎`git push`), whole-tree pathspec variants (`./`, `./.`, `:(top,glob)**`), branch force-delete
   bundles (`-df`, `-d -f`), `git.exe`, and glued `-calias.p=push`. Alias-value danger is tested by the value
   actually EXPANDING to a guarded subcommand (so `alias.sb=show-branch` is NOT a false positive — the old
-  `*branch*` substring bug). R5 `c721304` is **CHANGES_REQUIRED**; the R6 fixture result is pending as
-  `FINAL_GUARD_COUNT/FINAL_GUARD_COUNT` at `FINAL_R6_SHA`. Beyond the round-2 probes,
+  `*branch*` substring bug). R5 `c721304` remains historical **CHANGES_REQUIRED** evidence; the accepted
+  guard lineage closes at component `d0fac44` and passes 300/300 native macOS Bash 3.2 fixtures. Beyond the round-2 probes,
   Claude ran an 8-agent **self-red-team** and closed everything it reproduced BEFORE handing back: `(git push)`
   subshell / `<(git push)` process-sub; long-option **abbreviation** (`reset --har`, `clean --for`,
   `checkout --forc`, `branch --dele --forc`); **bundled** checkout/restore force (`-fq`, `-SW`); the **`switch`**
@@ -45,8 +47,8 @@ path. Claude round 3 **rebuilt** both (the guard as a scoped model, not a patch)
   binaries:** a green result now means *every file scanned clean or explicitly waived* — a **symlink** fails
   closed, and a **binary** fails closed too (its strings are `grep -a`-scanned so an embedded URL is reported
   and fails; a URL-free binary fails as uncertifiable) until reviewed and waived with **`--allow-binary
-  <glob>`**. R5 `c721304` is **CHANGES_REQUIRED**; R6 fixture result is pending as
-  `FINAL_SCANNER_COUNT/FINAL_SCANNER_COUNT` at `FINAL_R6_SHA`, with each class isolated so no assertion is
+  <glob>`**. R5 `c721304` remains historical **CHANGES_REQUIRED** evidence; exact scanner diff `e98cfac6`,
+  committed as `04a5bd4`, passes 589/589 native macOS Bash 3.2 fixtures, with each class isolated so no assertion is
   satisfied by a coupled violation. The self-red-team also hardened the scanner: removed the **unbounded
   `<!DOCTYPE …>` strip** (a real laundering bypass — a `<!doctype`-wrapped `fetch()`/`url()`/`@import` was
   erased by the false-positive suppressor; external DTD/SYSTEM URLs are now correctly flagged), added
@@ -60,11 +62,10 @@ path. Claude round 3 **rebuilt** both (the guard as a scoped model, not a patch)
   fragments at runtime, so the shipped source carries **no literal `scheme://host`** for the manifest
   classifier to flag — `manifest` now builds clean (was `MANIFEST REFUSED — unclassified external reference`).
   CI (`.github/workflows/validate.yml`) now **runs `test-scan-egress.sh`** and **shellchecks both scanner
-  scripts**; the full shellcheck list exits 0. Confirm after R6: anti-rollback
-  100 unit tests + 20 subtests, `validate_skills.py` 50/50, guard
-  FINAL_GUARD_COUNT/FINAL_GUARD_COUNT, scanner FINAL_SCANNER_COUNT/FINAL_SCANNER_COUNT,
-  and exact candidate FINAL_R6_SHA. The R5 predecessor `c721304` is CHANGES_REQUIRED;
-  no final guard/scanner result is claimed until R6 passes.
+  scripts**; the full shellcheck list exits 0. The accepted component evidence is anti-rollback
+  100 unit tests + 20 subtests, `validate_skills.py` 50/50, guard 300/300 at
+  `d0fac44`, and scanner 589/589 at exact diff `e98cfac6` / commit `04a5bd4`.
+  The R5 predecessor `c721304` remains historical CHANGES_REQUIRED evidence.
 
 ## 2. IMPLEMENTATION RECORD — anti-rollback freshness (implemented at `a58f59e`; review approved)
 
@@ -137,9 +138,9 @@ not preserve a second executable-looking schema.
 The historical 2.0.2/v2 signature does not authorize this 2.0.3 tree. **The
 final biometric signature is the last controlled-byte mutation.** Any file
 change after signing invalidates it, so finalize EVERYTHING first:
-1. Finish R6. Re-run the anti-rollback matrix (100 unit tests + 20 subtests),
-   `validate_skills.py` (50/50), guard fixtures (FINAL_GUARD_COUNT pending),
-   scanner fixtures (FINAL_SCANNER_COUNT pending), integrity fixtures, full
+1. Re-run the anti-rollback matrix (100 unit tests + 20 subtests),
+   `validate_skills.py` (50/50), guard fixtures (300/300),
+   scanner fixtures (589/589), integrity fixtures, full
    shellcheck, and both deterministic renderers.
    and `manifest --out <tmp>` (must print MANIFEST OK, not REFUSED). CI now runs the scanner suite + shellchecks
    both scanner scripts, so a red-before-green regression is caught in `validate.yml`.

@@ -6,18 +6,18 @@
     "repo": "Navigata1/idc-skills-forge",
     "repoPath": "/Users/IDC2.5/Desktop/IDC-skills",
     "defaultBranch": "main",
-    "planDoc": "ops/mission/brief.md",
+    "planDoc": "CODEX-DOUBLE-CHECK-SPEC-2.0.3.md",
     "northStar": "Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.",
     "status": "in_progress",
     "started": "2026-08-11",
-    "updated": "2026-08-19T20:42:25Z",
-    "sessionCount": 2
+    "updated": "2026-08-20T09:43:00Z",
+    "sessionCount": 3
   },
   "policies": {
     "merge": "review",
     "branchPrefix": "codex/",
     "maxPrLines": 400,
-    "notes": "2.0.3 remains a candidate. No push, merge, promotion, tag, signing, or reinstall is authorized from this snapshot until R6, final biometric signing, clean-clone review, CI, and external freshness proof complete. No force-push, credential disclosure, or unrelated mutation is authorized."
+    "notes": "The owner authorized the gated 2.0.3 push, review, merge, promotion, tag, publication, and reinstall pipeline. Every signature, clean-clone, CI, freshness, public-source, and installed-byte gate remains mandatory. No force-push, credential disclosure, evidence rewriting, or unrelated mutation is authorized."
   },
   "phases": [
     {
@@ -335,16 +335,16 @@
           "status": "passed",
           "evidence": "a58f59e (anti-rollback review receipt)",
           "lastRun": "2026-08-19T21:45:00Z",
-          "notes": "Claude Opus + OpenAI Codex APPROVE is bound to exact anti-rollback implementation a58f59e; it is void-on-move and does not approve the pending R6 guard/scanner or authorize release transport."
+          "notes": "Claude Opus + OpenAI Codex APPROVE is bound to exact anti-rollback implementation a58f59e. Guard and scanner have separate exact component approvals; release authority still requires the final signed candidate, clean-clone replay, CI, and external freshness."
         },
         {
           "id": "P5-G4",
-          "title": "R6 guard and scanner fixture matrices pass",
+          "title": "Final guard and scanner fixture matrices pass",
           "command": "bash skills/agent-guardrails/scripts/test-block-dangerous-git.sh && bash skills/self-contained-ship/scripts/test-scan-egress.sh",
-          "status": "pending",
-          "evidence": null,
-          "lastRun": null,
-          "notes": "R5 exact c721304 returned CHANGES_REQUIRED. R6 repair is pending; final evidence must be FINAL_GUARD_COUNT/FINAL_GUARD_COUNT and FINAL_SCANNER_COUNT/FINAL_SCANNER_COUNT at FINAL_R6_SHA."
+          "status": "passed",
+          "evidence": "ops/mission/evidence/guard-scanner-final-2026-08-20.md",
+          "lastRun": "2026-08-20T09:45:00Z",
+          "notes": "Guard component d0fac44 passes 300/300 and scanner exact diff e98cfac6, committed as 04a5bd4, passes 589/589 on native macOS Bash 3.2. Both received exact read-only approval with syntax, workflow ShellCheck, and diff checks green."
         }
       ],
       "tasks": [
@@ -376,7 +376,7 @@
             "P5-T2"
           ],
           "pr": null,
-          "notes": "Finish R6, finalize docs/state/journal/records/reports/changelog, regenerate the 2.0.3/v3 manifest, obtain owner biometric signing, then clean-clone and review the exact signed head before transport resumes."
+          "notes": "Guard/scanner component acceptance and the complete pre-sign integrated suite are green. Generate/sign the 2.0.3/v3 manifest, then clean-clone and review the exact signed head before transport."
         }
       ]
     },
@@ -394,7 +394,7 @@
           "status": "pending",
           "evidence": null,
           "lastRun": null,
-          "notes": "Pending FINAL_R6_SHA, final 2.0.3/v3 signature, and exact clean-clone replay. No historical 1a38915 acceptance is current evidence."
+          "notes": "Pending the final 2.0.3/v3 signature and exact clean-clone replay. Component approvals do not substitute for signed-tree acceptance."
         },
         {
           "id": "P6-G2",
@@ -424,7 +424,7 @@
             "P5-T3"
           ],
           "pr": null,
-          "notes": "Pending FINAL_R6_SHA and the final signed 2.0.3/v3 exact commit."
+          "notes": "Pending the final signed 2.0.3/v3 exact commit and clean-clone acceptance."
         },
         {
           "id": "P6-T2",
@@ -434,7 +434,7 @@
             "P6-T1"
           ],
           "pr": null,
-          "notes": "No transport or merge until FINAL_R6_SHA is signed, independently reviewed, CI-green, and externally freshness-authorized."
+          "notes": "Transport and merge require the exact signed candidate, independent review, staging CI, and the documented external freshness handoff."
         },
         {
           "id": "P6-T3",
@@ -465,18 +465,20 @@
       "direction": "up"
     },
     {
-      "label": "R6 dangerous-Git guard fixtures",
-      "baseline": "R5 c721304 CHANGES_REQUIRED",
-      "current": "R6 pending — FINAL_GUARD_COUNT/FINAL_GUARD_COUNT at FINAL_R6_SHA",
-      "target": "FINAL_GUARD_COUNT/FINAL_GUARD_COUNT at FINAL_R6_SHA",
-      "direction": "up"
+      "label": "Dangerous-Git guard fixtures",
+      "baseline": 179,
+      "current": 300,
+      "target": 300,
+      "direction": "up",
+      "tone": "green"
     },
     {
-      "label": "R6 egress scanner fixtures",
-      "baseline": "R5 c721304 CHANGES_REQUIRED",
-      "current": "R6 pending — FINAL_SCANNER_COUNT/FINAL_SCANNER_COUNT at FINAL_R6_SHA",
-      "target": "FINAL_SCANNER_COUNT/FINAL_SCANNER_COUNT at FINAL_R6_SHA",
-      "direction": "up"
+      "label": "Egress scanner fixtures",
+      "baseline": 71,
+      "current": 589,
+      "target": 589,
+      "direction": "up",
+      "tone": "green"
     },
     {
       "label": "Anti-rollback implementation review and tests",
@@ -552,9 +554,9 @@
       "note": "The checked-in manifest/signature are historical 2.0.2/v2 artifacts. Final 2.0.3/v3 signing, external index/checkpoint, and readyToRun proof are separate pending gates."
     },
     {
-      "title": "Guard/scanner R5 was rejected",
-      "severity": "high",
-      "note": "Exact R5 c721304 returned CHANGES_REQUIRED. R6 is pending; use FINAL_GUARD_COUNT, FINAL_SCANNER_COUNT, and FINAL_R6_SHA rather than historical counts."
+      "title": "Guard and scanner are bounded defense-in-depth controls",
+      "severity": "medium",
+      "note": "The accepted 300-case guard and 589-case scanner matrices are red-capable for their documented surfaces, but they are not a shell sandbox or a general language-runtime proof. Signed content and sealed-load/external freshness remain separate gates."
     },
     {
       "title": "The complete current pack is intentionally blocked from claude.ai export",
@@ -586,12 +588,10 @@
   "resume": {
     "activePhase": "P5",
     "nextActions": [
-      "Finish R6 and record FINAL_GUARD_COUNT, FINAL_SCANNER_COUNT, and FINAL_R6_SHA without claiming the placeholders are results.",
-      "Finalize state, journal, docs, validation records, reports, changelog, registry, and control bytes; render and run the full targeted matrices before biometric signing.",
-      "Generate/sign the 2.0.3/v3 manifest, reaccept the exact signed tree, obtain CI/review and external readyToRun proof, then transport and promote only that exact tree."
+      "Generate and biometrically sign the finalized 2.0.3/v3 manifest without any later tracked-byte mutation.",
+      "Reaccept the exact signed tree from a clean clone, obtain CI/review and external readyToRun proof, then transport and promote only that exact tree."
     ],
     "blockers": [
-      "R5 exact c721304 returned CHANGES_REQUIRED; R6 guard/scanner repair and final counts/SHA remain pending.",
       "The checked-in manifest/signature remain historical 2.0.2/v2 bytes; final 2.0.3/v3 biometric signing and external freshness proof remain pending.",
       "Exact final clean-clone replay, independent review, required CI, transport, merge, promotion, tag, and reinstall are all downstream of those gates.",
       "Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; this product limitation is not a blocker for the native 2.0.3 candidate.",
@@ -606,7 +606,7 @@
       "A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.",
       "The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.",
       "Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.",
-      "No push, merge, promotion, tag, signing, or reinstall is authorized until the R6, signature, review, CI, and external freshness gates are proven; force-push and unrelated mutation remain unauthorized."
+      "The owner authorized the gated push, review, merge, promotion, tag, publication, and reinstall sequence. A failed signature, clean-clone, CI, freshness, public-source, or installed-byte check stops the sequence; force-push and unrelated mutation remain unauthorized."
     ]
   }
 }

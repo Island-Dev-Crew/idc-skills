@@ -183,6 +183,14 @@
     },
     {
       "allowedSkills": [
+        "self-contained-ship"
+      ],
+      "classification": "informational",
+      "rationale": "This is the fixed XLink XML namespace identifier used to classify href setters; it is not fetched as an instruction.",
+      "url": "http://www.w3.org/1999/xlink"
+    },
+    {
+      "allowedSkills": [
         "wizard"
       ],
       "classification": "informational",

@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-19",
+  "generated": "2026-08-20",
   "records": [
     {
       "caseAvg": 8.0,
@@ -169,12 +169,12 @@
         {
           "score": 9,
           "title": "R6 guard matrix blocks destructive Git and preserves recoverable commands",
-          "whatHappened": "PENDING R6 at FINAL_R6_SHA: the red-before-green guard matrix must record FINAL_GUARD_COUNT/FINAL_GUARD_COUNT. The planned matrix covers destructive push, reset, clean, force-delete, forced checkout/restore/switch, whole-tree pathspec, and equivalent global-option forms while preserving documented safe commands; no R6 pass is claimed yet."
+          "whatHappened": "The accepted guard lineage closes at component d0fac44. On native macOS Bash 3.2, the isolated red-before-green matrix passed 300/300, covering destructive push, reset, clean, force-delete, forced checkout/restore/switch, broad pathspecs, consumed option values, and documented safe controls."
         },
         {
           "score": 9,
           "title": "Grammar, execution-position, and alias bypasses are red-capable",
-          "whatHappened": "PENDING R6: the fixture plan covers separators, newline, subshell/process substitution, fd redirection, env split-string, bundled and abbreviated flags, pathspec exclusions, git.exe, nested aliases, bang aliases, and false-positive text contexts; final red results remain unrecorded until R6 completes."
+          "whatHappened": "The 300-case matrix independently replayed separators, newline, subshell/process substitution, fd redirection, env split-string, inherited Git config, bundled and abbreviated flags, consumed option arguments, pathspec exclusions, git.exe, nested/bang aliases, and false-positive text controls."
         },
         {
           "score": 8,
@@ -183,7 +183,7 @@
         }
       ],
       "confidence": 8.5,
-      "evidenceEpoch": "2.0.3-r6-pending-2026-08-19",
+      "evidenceEpoch": "2.0.3-guard-final-2026-08-20",
       "inv": "model",
       "oneLiner": "A scoped, grammar-aware destructive-Git classifier with R6 red-capable coverage and an explicit advisory boundary.",
       "residual": "The classifier is defense-in-depth, not a shell parser or sandbox; dynamic indirection and unavailable dependencies remain outside its enforced surface.",
@@ -1169,12 +1169,12 @@
         {
           "score": 9,
           "title": "R6 scanner enumerates content and fails closed",
-          "whatHappened": "PENDING R6 at FINAL_R6_SHA: scan-egress must record FINAL_SCANNER_COUNT/FINAL_SCANNER_COUNT isolated fixtures. The planned matrix covers extensionless and uppercase scripts, symlinks, binaries, FIFOs, newline filenames, and binary-embedded references with no silent skip or hang; no R6 pass is claimed yet."
+          "whatHappened": "Exact independently approved scanner diff e98cfac6, committed as 04a5bd4, passed 589/589 isolated fixtures on native macOS Bash 3.2. Coverage includes extensionless and uppercase scripts, symlinks, binaries, FIFOs, newline filenames, immutable snapshots, and binary-embedded references with no silent skip or hang."
         },
         {
           "score": 9,
           "title": "Egress-context and laundering probes fail closed",
-          "whatHappened": "PENDING R6: the fixture plan covers protocol-relative browser contexts, external DTD/SYSTEM references, WebRTC schemes, imports, workers, service-worker registration, location assignment, backslash-normalized schemes, and binary URL strings; final results remain unrecorded until R6 completes."
+          "whatHappened": "The 589-case matrix independently replayed protocol-relative browser contexts, entity and URL normalization, imports/workers/service workers, navigation and DOM sinks, recursive executable data payloads, decoded waiver boundaries, TypeScript lexical goals, tagged fetch calls, CSS escapes, and path-snapshot swaps."
         },
         {
           "score": 8,
@@ -1183,7 +1183,7 @@
         }
       ],
       "confidence": 8.5,
-      "evidenceEpoch": "2.0.3-r6-pending-2026-08-19",
+      "evidenceEpoch": "2.0.3-scanner-final-2026-08-20",
       "inv": "model",
       "oneLiner": "A content-based, fail-closed egress scanner paired with an explicit sealed-load runtime rung.",
       "residual": "Static regex coverage cannot prove absence of runtime-built or obfuscated egress; sealed-load evidence is bounded to its exercised states and observation window.",

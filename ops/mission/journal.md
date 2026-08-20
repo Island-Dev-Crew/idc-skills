@@ -117,3 +117,10 @@
 - Registry state is release `2.0.3`, `manifestSequence: 1`. The checked-in manifest/signature remain historical 2.0.2/v2 artifacts; final 2.0.3/v3 biometric signing is pending and no `readyToRun` claim is made.
 - Guard/scanner R5 exact `c721304` returned **CHANGES_REQUIRED**. R6 remains pending; final evidence is intentionally represented by `FINAL_GUARD_COUNT`, `FINAL_SCANNER_COUNT`, and `FINAL_R6_SHA` placeholders.
 - This is a pre-sign snapshot. State, docs, validation records, changelog, and generated reports must be finalized before signing; no controlled-byte mutation is permitted after the final biometric signature.
+
+## 2026-08-20T09:43Z — guard/scanner accepted and integrated pre-sign suite green
+
+- The dangerous-Git guard's approved component lineage closes at `d0fac44` and replays 300/300 on native macOS Bash 3.2. Exact scanner diff `e98cfac6`, committed as `04a5bd4`, received independent approval and replays 589/589.
+- The integrated candidate passes 101 repository unit tests, the 40-test integrity/freshness matrix, canonical validation 50/50 with zero errors and 13 named advisories, harness verification 15/50, gauntlet verification 3/3, and validation records 50/150.
+- Bash syntax, the exact workflow ShellCheck list, both deterministic report gates, and `git diff --check` are green. A scratch v3 manifest builds with 50 skills, 12 classified references, and 715 signed network-command occurrences.
+- The checked-in 2.0.2/v2 signature remains historical. The next controlled mutation is the final 2.0.3/v3 manifest/signature ceremony; after signing, tracked bytes freeze and all staging, index, public-source, tag, and reinstall receipts remain external.
