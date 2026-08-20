@@ -1,19 +1,19 @@
 # CODEX DOUBLE-CHECK + BUILD SPEC — 2.0.3 hardening (post-2.0.2 red-team reconciliation)
 
-> Context: 2.0.2 shipped (public `main` `76a7bf0`, tag `2.0.2` → `00f26a1`, `verify` READY 5/5 with a
-> real signature). Kimi K3's red-team ran against the pre-release snapshot `574346e`; Claude (4.8)
-> reconciled every finding against the **released** code with reproducible tests. 2.0.2's CRITICAL
-> (forged green light / anchor swap / appended-signer) is CLOSED. This 2.0.3 hotfix closes the three
-> proven-still-open items. Claude built two of them on branch `v2.0.3-hardening`; you double-check
-> those, build the third, regenerate + sign the manifest, and run the release loop.
+> Context: 2.0.3 is a candidate, not a shipped release. The registry is release
+> `2.0.3`, `manifestSequence: 1`; the checked-in manifest/signature remain historical
+> 2.0.2/v2 bytes pending the final 2.0.3/v3 biometric ceremony. The anti-rollback
+> implementation is exact at `a58f59e`, with Claude Opus + OpenAI Codex **APPROVE**,
+> 100 unit tests plus 20 subtests, and canonical validation 50/50. Guard/scanner R5
+> exact `c721304` returned **CHANGES_REQUIRED**; R6 is pending.
 
-## Reconciliation of record (proven against released 2.0.2, not claimed)
+## Reconciliation of record (historical 2.0.2 findings; not a 2.0.3 release claim)
 - CLOSED: anchor swap → FAIL; verifier tamper → FAIL; skill-body tamper → FAIL; **appended second
   signer line → `NOT READY 0/5, FAIL signature`**. The integrity gate holds.
 - OPEN (this 2.0.3): (1) git-guard bypasses `git${IFS}push` + `git -c alias.p=push p`; (2) `scan-egress.sh`
   skipped `.sh/.py/.yaml`; (3) no anti-rollback freshness.
 
-## 1. Double-check what Claude built on `v2.0.3-hardening` (verify, don't trust) — ROUND 3
+## 1. Guard/scanner reconciliation — R5 rejected, R6 pending
 Round 2 (`b5aaa83`) was re-verified by Codex and came back CHANGES_REQUIRED: the guard still missed
 multiline / equivalent-spelling / glued-`-c` classes AND false-positived on non-git text, the scanner
 stayed green on binaries and crashed on binary/symlink-only input, and a test fixture poisoned the release
@@ -27,7 +27,8 @@ path. Claude round 3 **rebuilt** both (the guard as a scoped model, not a patch)
   (`echo ok`⏎`git push`), whole-tree pathspec variants (`./`, `./.`, `:(top,glob)**`), branch force-delete
   bundles (`-df`, `-d -f`), `git.exe`, and glued `-calias.p=push`. Alias-value danger is tested by the value
   actually EXPANDING to a guarded subcommand (so `alias.sb=show-branch` is NOT a false positive — the old
-  `*branch*` substring bug). Fixtures **`test-block-dangerous-git.sh` now 97/97**. Beyond the round-2 probes,
+  `*branch*` substring bug). R5 `c721304` is **CHANGES_REQUIRED**; the R6 fixture result is pending as
+  `FINAL_GUARD_COUNT/FINAL_GUARD_COUNT` at `FINAL_R6_SHA`. Beyond the round-2 probes,
   Claude ran an 8-agent **self-red-team** and closed everything it reproduced BEFORE handing back: `(git push)`
   subshell / `<(git push)` process-sub; long-option **abbreviation** (`reset --har`, `clean --for`,
   `checkout --forc`, `branch --dele --forc`); **bundled** checkout/restore force (`-fq`, `-SW`); the **`switch`**
@@ -44,7 +45,8 @@ path. Claude round 3 **rebuilt** both (the guard as a scoped model, not a patch)
   binaries:** a green result now means *every file scanned clean or explicitly waived* — a **symlink** fails
   closed, and a **binary** fails closed too (its strings are `grep -a`-scanned so an embedded URL is reported
   and fails; a URL-free binary fails as uncertifiable) until reviewed and waived with **`--allow-binary
-  <glob>`**. New regression suite **`test-scan-egress.sh` 21/21**, each class isolated so no assertion is
+  <glob>`**. R5 `c721304` is **CHANGES_REQUIRED**; R6 fixture result is pending as
+  `FINAL_SCANNER_COUNT/FINAL_SCANNER_COUNT` at `FINAL_R6_SHA`, with each class isolated so no assertion is
   satisfied by a coupled violation. The self-red-team also hardened the scanner: removed the **unbounded
   `<!DOCTYPE …>` strip** (a real laundering bypass — a `<!doctype`-wrapped `fetch()`/`url()`/`@import` was
   erased by the false-positive suppressor; external DTD/SYSTEM URLs are now correctly flagged), added
@@ -58,13 +60,15 @@ path. Claude round 3 **rebuilt** both (the guard as a scoped model, not a patch)
   fragments at runtime, so the shipped source carries **no literal `scheme://host`** for the manifest
   classifier to flag — `manifest` now builds clean (was `MANIFEST REFUSED — unclassified external reference`).
   CI (`.github/workflows/validate.yml`) now **runs `test-scan-egress.sh`** and **shellchecks both scanner
-  scripts**; the full shellcheck list exits 0. Confirm: `pytest` 74, `validate_skills.py` 50/0, guard 97/0,
-  scanner 21/0, integrity matrix green, `manifest --out <tmp>` OK, `verify` RED-by-design (local_bytes +
-  external_reference_set differ until the finalized-order re-sign).
+  scripts**; the full shellcheck list exits 0. Confirm after R6: anti-rollback
+  100 unit tests + 20 subtests, `validate_skills.py` 50/50, guard
+  FINAL_GUARD_COUNT/FINAL_GUARD_COUNT, scanner FINAL_SCANNER_COUNT/FINAL_SCANNER_COUNT,
+  and exact candidate FINAL_R6_SHA. The R5 predecessor `c721304` is CHANGES_REQUIRED;
+  no final guard/scanner result is claimed until R6 passes.
 
-## 2. IMPLEMENTATION RECORD — anti-rollback freshness (Codex-built; independent review required)
+## 2. IMPLEMENTATION RECORD — anti-rollback freshness (implemented at `a58f59e`; review approved)
 
-> **The design text below is retained as the pre-build decision record, not the
+> **The design text below is retained as the implementation record, not the
 > executable contract.** Implementation review proved that freshness could not
 > safely be delegated back to `skill_integrity.py`, that arbitrary TOFU was too
 > weak, and that an OS-floor-only operator path left the verifier closure
@@ -129,13 +133,14 @@ digest, complete checkpoint history, and the same signed-index requirement in
 deployment ceremony live in `integrity/README.md`; this file intentionally does
 not preserve a second executable-looking schema.
 
-## 3. Re-sign + release loop — CORRECT ORDER (Codex finding #4: my earlier order signed before bumping)
-Claude's edits changed controlFiles, so `verify` is now RED locally (local_bytes) by design — that means the
-manifest must be regenerated + re-signed. **The signature must be the LAST mutation.** Any file change after
-signing (a version bump, a changelog line, a sequence field) invalidates the signature and yields a false
-"needs re-sign" or, worse, a shipped mismatch. So finalize EVERYTHING first:
-1. Finish (1)-verify + (2)-build. Re-run `pytest` (74), `validate_skills.py` (50/0), guard fixtures (97/0),
-   scanner fixtures (`test-scan-egress.sh`, 21/0), integrity fixtures (matrix green), full shellcheck (exit 0),
+## 3. Pre-sign + release loop — CORRECT ORDER
+The historical 2.0.2/v2 signature does not authorize this 2.0.3 tree. **The
+final biometric signature is the last controlled-byte mutation.** Any file
+change after signing invalidates it, so finalize EVERYTHING first:
+1. Finish R6. Re-run the anti-rollback matrix (100 unit tests + 20 subtests),
+   `validate_skills.py` (50/50), guard fixtures (FINAL_GUARD_COUNT pending),
+   scanner fixtures (FINAL_SCANNER_COUNT pending), integrity fixtures, full
+   shellcheck, and both deterministic renderers.
    and `manifest --out <tmp>` (must print MANIFEST OK, not REFUSED). CI now runs the scanner suite + shellchecks
    both scanner scripts, so a red-before-green regression is caught in `validate.yml`.
 2. **Finalize ALL content FIRST:** bump `registry.json` release → `2.0.3`; set the new `manifestSequence`;
@@ -145,7 +150,8 @@ signing (a version bump, a changelog line, a sequence field) invalidates the sig
    (1Password biometric); the in-tree `verify` may report only `contentReady=true` at 5/5. If anything needs
    changing after this, go back to step 2.
 4. Independent exact-head review (a different family than the builder) BEFORE any PR/release action.
-5. PR #4 on the forge; merge; promote that exact commit object to `Island-Dev-Crew` without rewriting it.
+5. Transport and merge only after the exact signed candidate, clean-clone replay,
+   independent review, required CI, and external freshness handoff are proven.
 6. Construct and biometrically sign the second, domain-separated release index artifact; publish its immutable
    pair, provision the external config/checkpoint, and obtain external `readyToRun=true`. Only then create the
    annotated `2.0.3` tag and run the verified reinstall.

@@ -110,3 +110,10 @@
 - Repository verification and direct OpenSSH verification both accepted the pinned Forge key. The gate returned `pass=true`, `readyToRun=true`, `score=5/5`, and `skillsChecked=50`.
 - Full signed-worktree reacceptance passed with 74 unit tests, 50/50 canonical validation, four 50-skill native target probes, fifty snapshot ZIPs, and unchanged canonical skill-tree SHA-256 `fd2431c0e6f49447de507d0ca6d8c08bf30b2d4f2d1068cf23895bd57feba532`.
 - This remains precommit evidence. The next exact commit must be replayed from a clean clone and independently reviewed before PR #3 can advance again.
+
+## 2026-08-19T21:45Z — 2.0.3 pre-sign reconciliation
+
+- The anti-rollback implementation is exact at `a58f59e`; the supplied review record is Claude Opus + OpenAI Codex **APPROVE**, with 100 unit tests plus 20 subtests and canonical validation 50/50.
+- Registry state is release `2.0.3`, `manifestSequence: 1`. The checked-in manifest/signature remain historical 2.0.2/v2 artifacts; final 2.0.3/v3 biometric signing is pending and no `readyToRun` claim is made.
+- Guard/scanner R5 exact `c721304` returned **CHANGES_REQUIRED**. R6 remains pending; final evidence is intentionally represented by `FINAL_GUARD_COUNT`, `FINAL_SCANNER_COUNT`, and `FINAL_R6_SHA` placeholders.
+- This is a pre-sign snapshot. State, docs, validation records, changelog, and generated reports must be finalized before signing; no controlled-byte mutation is permitted after the final biometric signature.

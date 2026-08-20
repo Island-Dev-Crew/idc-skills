@@ -1,8 +1,8 @@
 {
   "version": 1,
   "mission": {
-    "name": "IDC Forge 2.0.2 Integrity and Promotion",
-    "tagline": "Fifty fused skills, signed at the bytes and promoted only on replayable proof.",
+    "name": "IDC Forge 2.0.3 Hardening and Freshness",
+    "tagline": "Fifty fused skills, hardened at the bytes and released only on replayable freshness proof.",
     "repo": "Navigata1/idc-skills-forge",
     "repoPath": "/Users/IDC2.5/Desktop/IDC-skills",
     "defaultBranch": "main",
@@ -17,7 +17,7 @@
     "merge": "review",
     "branchPrefix": "codex/",
     "maxPrLines": 400,
-    "notes": "The user explicitly authorized the 2.0.2 build, PR #3 push/merge, public-org promotion, tag, and Claude/Codex reinstallation on 2026-08-19. No force-push, credential disclosure, or unrelated mutation is authorized. The 400-line target is advisory for generated reports, evidence, manifests, and fixtures."
+    "notes": "2.0.3 remains a candidate. No push, merge, promotion, tag, signing, or reinstall is authorized from this snapshot until R6, final biometric signing, clean-clone review, CI, and external freshness proof complete. No force-push, credential disclosure, or unrelated mutation is authorized."
   },
   "phases": [
     {
@@ -312,30 +312,39 @@
       "gates": [
         {
           "id": "P5-G1",
-          "title": "Security, installer, authority, and record fixture matrices pass",
-          "command": "python -m unittest discover -s tests -p test_*.py && skills/agent-guardrails/scripts/test-block-dangerous-git.sh",
+          "title": "Anti-rollback implementation and canonical validator matrices pass",
+          "command": "python3 -B -m unittest -v tests.test_skill_integrity tests.test_freshness && python3 scripts/validate_skills.py --json",
           "status": "passed",
           "evidence": "ops/mission/evidence/forge-50-review-2026-08-19.md",
           "lastRun": "2026-08-19T20:42:25Z",
-          "notes": "Final Windows-test-repaired signed-worktree reacceptance passes 74 unit tests, 37/37 Git authority fixtures, 50/50 canonical validation, 50 records/150 cases, the exact eight-file shellcheck command, four 50-skill native target probes, and fifty deterministic historical snapshot ZIPs."
+          "notes": "Exact implementation a58f59e has Claude Opus + OpenAI Codex APPROVE, 100 unit tests plus 20 subtests, and canonical validation 50/50. This proves implementation only, not signed release readiness."
         },
         {
           "id": "P5-G2",
           "title": "Release profile verifies 5/5 against the stable Forge key",
           "command": "python scripts/skill_integrity.py verify",
-          "status": "passed",
-          "evidence": "ops/mission/evidence/signed-gate-2.0.2.json",
+          "status": "pending",
+          "evidence": "integrity/manifest.json (historical 2.0.2/v2)",
           "lastRun": "2026-08-19T20:42:25Z",
-          "notes": "The Windows-test-repaired manifest SHA-256 is 50062fb8b07bc0a44d00f1ebc43a36f5cbf522b32c01f7a65f89e12146aea800 and detached-signature SHA-256 is f9bb022d95538e9edd7e07b53a37060be68b6d97f2031d269f678f7ab42eefd8. The pinned Forge key verifies pass=true, readyToRun=true, score=5/5, and skillsChecked=50."
+          "notes": "The checked-in manifest/signature are historical 2.0.2/v2 bytes. Final 2.0.3/v3 biometric signing is pending; do not report readyToRun or treat the historical signature as 2.0.3 authority."
         },
         {
           "id": "P5-G3",
-          "title": "Independent Claude-family review approves the exact committed candidate",
+          "title": "Independent review approves exact anti-rollback implementation",
           "command": "claude -p <exact-head-review-brief>",
+          "status": "passed",
+          "evidence": "a58f59e (anti-rollback review receipt)",
+          "lastRun": "2026-08-19T21:45:00Z",
+          "notes": "Claude Opus + OpenAI Codex APPROVE is bound to exact anti-rollback implementation a58f59e; it is void-on-move and does not approve the pending R6 guard/scanner or authorize release transport."
+        },
+        {
+          "id": "P5-G4",
+          "title": "R6 guard and scanner fixture matrices pass",
+          "command": "bash skills/agent-guardrails/scripts/test-block-dangerous-git.sh && bash skills/self-contained-ship/scripts/test-scan-egress.sh",
           "status": "pending",
           "evidence": null,
-          "lastRun": "2026-08-19T20:33:25Z",
-          "notes": "Claude Fable 5 returned PASS with no medium-or-higher finding for 1a38915 and the full PR delta, but the second PR #3 run then exposed the Windows shell-test process boundary. That PASS is void-on-move; the next exact head must receive a new full-delta review."
+          "lastRun": null,
+          "notes": "R5 exact c721304 returned CHANGES_REQUIRED. R6 repair is pending; final evidence must be FINAL_GUARD_COUNT/FINAL_GUARD_COUNT and FINAL_SCANNER_COUNT/FINAL_SCANNER_COUNT at FINAL_R6_SHA."
         }
       ],
       "tasks": [
@@ -367,15 +376,15 @@
             "P5-T2"
           ],
           "pr": null,
-          "notes": "The second PR #3 run moved signed test-control bytes after the 1a38915 signature and PASS. Regenerate, re-sign, clean-clone, and review the repaired exact head before transport resumes."
+          "notes": "Finish R6, finalize docs/state/journal/records/reports/changelog, regenerate the 2.0.3/v3 manifest, obtain owner biometric signing, then clean-clone and review the exact signed head before transport resumes."
         }
       ]
     },
     {
       "id": "P6",
-      "title": "PR #3, promotion, tag, and fleet resync",
-      "goal": "Reaccept the exact candidate from a fresh clone, merge PR #3, promote the exact merged tree to the public org, tag 2.0.2, and prove installed copies match.",
-      "status": "in_progress",
+      "title": "2.0.3 transport, promotion, tag, and fleet resync",
+      "goal": "Reaccept the exact signed 2.0.3 candidate, obtain external freshness, transport the exact tree, promote it, tag it, and prove installed copies match.",
+      "status": "blocked",
       "sessionsEstimate": "1",
       "gates": [
         {
@@ -384,58 +393,58 @@
           "command": "python scripts/reaccept.py",
           "status": "pending",
           "evidence": null,
-          "lastRun": "2026-08-19T20:11:55Z",
-          "notes": "The clean clone of 1a38915 passed and remained clean, but the Windows test-boundary repair voided that candidate. Replay is required on the next signed exact head."
+          "lastRun": null,
+          "notes": "Pending FINAL_R6_SHA, final 2.0.3/v3 signature, and exact clean-clone replay. No historical 1a38915 acceptance is current evidence."
         },
         {
           "id": "P6-G2",
-          "title": "PR #3 merges with required CI green",
-          "command": "gh pr checks 3 --watch",
+          "title": "Exact 2.0.3 transport candidate has required CI green",
+          "command": "gh pr checks <release-pr> --watch",
           "status": "pending",
-          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32299162505",
-          "lastRun": "2026-08-19T20:40:48Z",
-          "notes": "Second run: Ubuntu and macOS passed; Windows reached the unit suite and exposed three POSIX behavior tests crossing an ambiguous native Bash boundary. Merge was held; the harness now resolves Git Bash explicitly and normalizes paths, PATH, and fixture bytes."
+          "evidence": null,
+          "lastRun": null,
+          "notes": "Pending final signed exact head, required CI, and independent review. No merge or transport authorization is implied."
         },
         {
           "id": "P6-G3",
           "title": "Public main, tag, and installed trees resolve to released bytes",
-          "command": "git ls-remote idc refs/heads/main refs/tags/2.0.2 && python scripts/install.py install --verify-integrity --target claude --target agents --verify-only",
+          "command": "git ls-remote idc refs/heads/main refs/tags/2.0.3 && <external freshness launcher> reaccept",
           "status": "pending",
           "evidence": null,
           "lastRun": null,
-          "notes": "No public promotion, tag, or final installed-tree verification was attempted; staging and public main remained at the pre-release base when checked."
+          "notes": "Blocked until external signed index/checkpoint yields readyToRun=true for the exact merged tree; no public promotion, tag, or installed-tree verification has been claimed."
         }
       ],
       "tasks": [
         {
           "id": "P6-T1",
-          "title": "Commit candidate and reaccept from a fresh clone",
+          "title": "Commit final candidate and reaccept from a fresh clone",
           "status": "pending",
           "dependsOn": [
             "P5-T3"
           ],
           "pr": null,
-          "notes": "The 1a38915 clean-clone acceptance is historical after the Windows test-boundary repair; the task reopens for the next exact commit."
+          "notes": "Pending FINAL_R6_SHA and the final signed 2.0.3/v3 exact commit."
         },
         {
           "id": "P6-T2",
-          "title": "Push branch, open and merge PR #3",
-          "status": "in_progress",
+          "title": "Transport exact candidate and merge release review",
+          "status": "pending",
           "dependsOn": [
             "P6-T1"
           ],
-          "pr": 3,
-          "notes": "Branch and PR #3 are open. Merge remains prohibited until the repaired exact head is signed, independently approved, and green across all required CI jobs."
+          "pr": null,
+          "notes": "No transport or merge until FINAL_R6_SHA is signed, independently reviewed, CI-green, and externally freshness-authorized."
         },
         {
           "id": "P6-T3",
-          "title": "Promote exact merged tree, tag release, and resync Claude/Codex",
+          "title": "Promote exact merged tree, tag 2.0.3, and resync Claude/Codex",
           "status": "pending",
           "dependsOn": [
             "P6-T2"
           ],
           "pr": null,
-          "notes": null
+          "notes": "Requires external readyToRun=true for the exact merged tree."
         }
       ]
     }
@@ -444,8 +453,8 @@
     {
       "label": "Signed release integrity checks",
       "baseline": "0/5",
-      "current": "5/5 readyToRun on Windows-test-repaired signed worktree",
-      "target": "5/5 readyToRun",
+      "current": "Historical 2.0.2/v2 signature only; 2.0.3/v3 biometric signing pending",
+      "target": "2.0.3/v3 contentReady plus external readyToRun",
       "direction": "up"
     },
     {
@@ -456,10 +465,24 @@
       "direction": "up"
     },
     {
-      "label": "Git authority attack/allow fixtures",
-      "baseline": "28/28",
-      "current": "37/37",
-      "target": "37/37",
+      "label": "R6 dangerous-Git guard fixtures",
+      "baseline": "R5 c721304 CHANGES_REQUIRED",
+      "current": "R6 pending — FINAL_GUARD_COUNT/FINAL_GUARD_COUNT at FINAL_R6_SHA",
+      "target": "FINAL_GUARD_COUNT/FINAL_GUARD_COUNT at FINAL_R6_SHA",
+      "direction": "up"
+    },
+    {
+      "label": "R6 egress scanner fixtures",
+      "baseline": "R5 c721304 CHANGES_REQUIRED",
+      "current": "R6 pending — FINAL_SCANNER_COUNT/FINAL_SCANNER_COUNT at FINAL_R6_SHA",
+      "target": "FINAL_SCANNER_COUNT/FINAL_SCANNER_COUNT at FINAL_R6_SHA",
+      "direction": "up"
+    },
+    {
+      "label": "Anti-rollback implementation review and tests",
+      "baseline": "0",
+      "current": "a58f59e — Claude Opus + Codex APPROVE; 100 unit tests + 20 subtests",
+      "target": "a58f59e — Claude Opus + Codex APPROVE; 100 unit tests + 20 subtests",
       "direction": "up"
     },
     {
@@ -516,7 +539,7 @@
     {
       "title": "Historical P0-P3 review lacked a different-family seat",
       "severity": "low",
-      "note": "That historical limitation remains accurately recorded. Release 2.0.2 has a callable Claude CLI and requires a new exact-head verdict before shipping."
+      "note": "The historical P0-P3 limitation remains recorded, but the current anti-rollback implementation has Claude Opus + OpenAI Codex APPROVE at a58f59e. That approval is exact-head and not release authorization."
     },
     {
       "title": "Several requested harnesses may not expose a native Agent Skills loader",
@@ -524,9 +547,19 @@
       "note": "Buzz and Grok Bot remain unsupported/unknown, native-Windows Hermes has a failed observation, and several authenticated behavior probes remain partial or unrun. The matrix does not invent installation paths."
     },
     {
+      "title": "2.0.3 biometric signature and external freshness are pending",
+      "severity": "high",
+      "note": "The checked-in manifest/signature are historical 2.0.2/v2 artifacts. Final 2.0.3/v3 signing, external index/checkpoint, and readyToRun proof are separate pending gates."
+    },
+    {
+      "title": "Guard/scanner R5 was rejected",
+      "severity": "high",
+      "note": "Exact R5 c721304 returned CHANGES_REQUIRED. R6 is pending; use FINAL_GUARD_COUNT, FINAL_SCANNER_COUNT, and FINAL_R6_SHA rather than historical counts."
+    },
+    {
       "title": "The complete current pack is intentionally blocked from claude.ai export",
       "severity": "high",
-      "note": "Current public documentation imposes a 200-character description limit and does not establish an explicit-only equivalent for thirteen user-invoked islands. No live upload or routing probe was run."
+      "note": "Current public documentation imposes a 200-character description limit and does not establish an explicit-only equivalent for thirteen user-invoked islands. No live upload or routing probe was run; this is not a native 2.0.3 release claim."
     },
     {
       "title": "Whole-run rollback stops at the unexpected-I/O boundary",
@@ -553,14 +586,15 @@
   "resume": {
     "activePhase": "P5",
     "nextActions": [
-      "Commit the Windows-test-repaired signed candidate without moving authenticated bytes.",
-      "Reaccept the next exact candidate from a fresh clone, obtain a new full-delta Claude-family verdict, update PR #3, and merge only after all required CI jobs are green.",
-      "Promote the exact merged tree to IslandDevCrew, tag 2.0.2 on both remotes, reinstall Claude/Codex targets with integrity verification, and compare installed bytes."
+      "Finish R6 and record FINAL_GUARD_COUNT, FINAL_SCANNER_COUNT, and FINAL_R6_SHA without claiming the placeholders are results.",
+      "Finalize state, journal, docs, validation records, reports, changelog, registry, and control bytes; render and run the full targeted matrices before biometric signing.",
+      "Generate/sign the 2.0.3/v3 manifest, reaccept the exact signed tree, obtain CI/review and external readyToRun proof, then transport and promote only that exact tree."
     ],
     "blockers": [
-      "The signed worktree is 5/5; exact-commit clean-clone replay and a new independent full-delta verdict are still pending.",
-      "The latest Claude PASS binds 1a38915 only and is void after the Windows test-boundary repair; clean-clone replay and full-delta exact-head review must be repeated on the next commit.",
-      "Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; this product limitation is not a blocker for the native 2.0.2 release.",
+      "R5 exact c721304 returned CHANGES_REQUIRED; R6 guard/scanner repair and final counts/SHA remain pending.",
+      "The checked-in manifest/signature remain historical 2.0.2/v2 bytes; final 2.0.3/v3 biometric signing and external freshness proof remain pending.",
+      "Exact final clean-clone replay, independent review, required CI, transport, merge, promotion, tag, and reinstall are all downstream of those gates.",
+      "Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; this product limitation is not a blocker for the native 2.0.3 candidate.",
       "The first requested video's source frames remain unavailable after YouTube 403/reload failures; transcript evidence is complete and no visual claim is made.",
       "The historical ICM fusion commit remains unknown; the live head and license are recorded without substituting current provenance for missing historical evidence."
     ],
@@ -571,8 +605,8 @@
       "Worktree evidence is draft evidence until re-derived from a fresh clone.",
       "A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.",
       "The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.",
-      "Any signed skill, policy, verifier, installer, hook, workflow, or other controlled-byte change invalidates the release and requires manifest regeneration plus a new signature.",
-      "The user explicitly authorized push, PR #3 merge after green gates, public-org promotion, the 2.0.2 tag, and verified fleet reinstall; force-push and unrelated mutation remain unauthorized."
+      "Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.",
+      "No push, merge, promotion, tag, signing, or reinstall is authorized until the R6, signature, review, CI, and external freshness gates are proven; force-push and unrelated mutation remain unauthorized."
     ]
   }
 }

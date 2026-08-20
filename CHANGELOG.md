@@ -2,6 +2,13 @@
 
 ## 2.0.3 — 2026-08-19 (candidate until external freshness, merge, promotion, and tag)
 
+Pre-sign reconciliation: the anti-rollback implementation is exact at
+`a58f59e` with Claude Opus + OpenAI Codex **APPROVE**, 100 unit tests plus 20
+subtests, and canonical validation 50/50. Guard/scanner R5 exact `c721304`
+remains **CHANGES_REQUIRED**; R6 counts and SHA are intentionally pending.
+The checked-in 2.0.2/v2 manifest/signature remain historical until the final
+2.0.3/v3 biometric ceremony.
+
 - Split content integrity from release authority. The in-tree verifier now emits
   `contentReady` under report schema v2; only the independently installed
   freshness launcher can emit `readyToRun=true`.
