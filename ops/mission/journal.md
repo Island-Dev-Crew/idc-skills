@@ -137,3 +137,10 @@
 - The completed run confirmed macOS shared Ubuntu's unprotected setup-python runtime failure. Windows reached the freshness fixtures but rejected `ssh-keygen -lf -`; its OpenSSH build does not accept the Unix stdin pseudo-filename for public-key fingerprinting.
 - Fingerprinting now writes the already-captured public key to a private temporary file and passes that real path to the exact digest-pinned `ssh-keygen`. This preserves the same trust decision while using the portable OpenSSH interface.
 - The first copied-runtime replacement signature and clean-clone replay are void-on-move. All pre-sign gates, biometric signing, clean-clone replay, exact-head review, and replacement CI remain required.
+
+## 2026-08-20T10:28Z — replacement CI passes macOS/Ubuntu and narrows Windows environment failure
+
+- PR #4 run `32358722982` passed the complete macOS and Ubuntu jobs. Windows used the copied Python runtime and real public-key file but OpenSSH still exited nonzero with empty diagnostics under the stripped subprocess environment.
+- Every temporary OpenSSH operation now receives a fresh private `HOME`, `USERPROFILE`, and temp-root tuple while retaining the pinned executable-only `PATH`; no caller home, loader, proxy, Git, or TLS environment is restored.
+- The Windows install test also exposed parser-time `Path.home()` resolution before the freshness handoff check. `--home` is now lazily resolved only after a valid handoff marker, so a missing marker fails closed without consulting ambient user state.
+- The replacement run remains red and merge remains blocked. These controlled changes invalidate the preceding signature and review; the full sign/replay/review/CI sequence restarts.

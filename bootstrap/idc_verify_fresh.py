@@ -227,6 +227,16 @@ def _verification_environment(
     return environment
 
 
+def _temporary_verification_environment(
+    executable_directories: Sequence[Path], temporary: Path
+) -> dict[str, str]:
+    environment = _verification_environment(executable_directories)
+    protected = str(temporary)
+    for key in ("HOME", "USERPROFILE", "TMPDIR", "TMP", "TEMP"):
+        environment[key] = protected
+    return environment
+
+
 def _fingerprint_public_key(key_data: str, ssh_keygen: str | None = None) -> str:
     executable = ssh_keygen or _trusted_executable("ssh-keygen")
     try:
@@ -239,15 +249,17 @@ def _fingerprint_public_key(key_data: str, ssh_keygen: str | None = None) -> str
                 text=True,
                 capture_output=True,
                 check=False,
-                env=_verification_environment(
-                    (Path(ssh_keygen).parent,) if ssh_keygen is not None else ()
+                env=_temporary_verification_environment(
+                    (Path(ssh_keygen).parent,) if ssh_keygen is not None else (),
+                    Path(temporary),
                 ),
             )
     except FileNotFoundError as exc:
         raise FreshnessError("ssh-keygen is required") from exc
     if process.returncode != 0:
         raise FreshnessError(
-            f"ssh-keygen rejected public key: {(process.stderr or process.stdout).strip()}"
+            "ssh-keygen rejected public key "
+            f"(exit {process.returncode}): {(process.stderr or process.stdout).strip()}"
         )
     fields = process.stdout.split()
     if len(fields) < 2:
@@ -323,8 +335,9 @@ def verify_signature(
                 input=payload,
                 capture_output=True,
                 check=False,
-                env=_verification_environment(
-                    (Path(ssh_keygen).parent,) if ssh_keygen is not None else ()
+                env=_temporary_verification_environment(
+                    (Path(ssh_keygen).parent,) if ssh_keygen is not None else (),
+                    root,
                 ),
             )
     except FileNotFoundError as exc:
@@ -1116,7 +1129,9 @@ def _run_content_verifier(
             text=True,
             capture_output=True,
             check=False,
-            env=_verification_environment((Path(ssh_keygen).parent,)),
+            env=_temporary_verification_environment(
+                (Path(ssh_keygen).parent,), root
+            ),
         )
     if process.returncode != 0:
         raise FreshnessError(

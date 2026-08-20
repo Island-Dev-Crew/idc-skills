@@ -1440,7 +1440,7 @@ def build_parser() -> argparse.ArgumentParser:
     install.add_argument(
         "--home",
         type=Path,
-        default=Path.home(),
+        default=None,
         help="home directory used to resolve the four documented fleet targets",
     )
     _add_common_mode_flags(install)
@@ -1535,7 +1535,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         source_skills = args.repo_root.resolve() / "skills"
         if args.command == "install":
             custom = parse_custom_targets(args.custom_target)
-            targets = select_targets(args.home, args.target, custom)
+            home = args.home if args.home is not None else Path.home()
+            targets = select_targets(home, args.target, custom)
             report = run_install(
                 source_skills,
                 targets,

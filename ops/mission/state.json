@@ -403,7 +403,7 @@
           "status": "pending",
           "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32357025682",
           "lastRun": "2026-08-20T10:03:58Z",
-          "notes": "PR #4 run 32357025682 failed macOS/Ubuntu because setup-python toolcache executables were group/world writable and failed Windows because Windows OpenSSH rejects the Unix-only ssh-keygen stdin filename. The workflow now provisions an owner-controlled --copies virtual environment and fingerprinting uses a private key file; final signing, exact-head replay/review, and replacement three-OS CI remain pending."
+          "notes": "PR #4 run 32357025682 failed macOS/Ubuntu on unsafe setup-python runtime modes and Windows during OpenSSH fingerprinting. Replacement run 32358722982 passed macOS/Ubuntu but Windows OpenSSH still exited nonzero under the stripped environment. OpenSSH subprocesses now receive only a private temporary HOME/temp root, and the installer rejects missing launcher handoff before home resolution; final signing, replay/review, and replacement CI remain pending."
         },
         {
           "id": "P6-G3",
