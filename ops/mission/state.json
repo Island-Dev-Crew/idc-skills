@@ -10,7 +10,7 @@
     "northStar": "Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.",
     "status": "in_progress",
     "started": "2026-08-11",
-    "updated": "2026-08-21T17:17:58Z",
+    "updated": "2026-08-21T17:31:18Z",
     "sessionCount": 4
   },
   "policies": {
@@ -376,7 +376,7 @@
             "P5-T2"
           ],
           "pr": null,
-          "notes": "Signed head 13d26f1 passed exact clean-clone content replay, but different-family review returned CHANGES_REQUIRED because the real-verifier fixture canonicalized Git discovery without yet passing Git-index mode overrides into Windows manifest generation. The completed test-only repair derives both paths and modes from the exact fixture Git/index; it must be re-signed and re-reviewed before replacement CI."
+          "notes": "Signed head 250f7d7 passed exact clean-clone content replay and different-family review. Replacement CI run 32508134303 passed macOS and Ubuntu; Windows proved the mode/discovery repairs but exposed inherited core.autocrlf rewriting temporary-repository Git blobs. The byte-preserving fixture repair invalidates that signature and must be re-signed and re-reviewed before replacement CI."
         }
       ]
     },
@@ -401,9 +401,9 @@
           "title": "Exact 2.0.3 transport candidate has required CI green",
           "command": "gh pr checks <release-pr> --watch",
           "status": "pending",
-          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32505833243",
-          "lastRun": "2026-08-21T17:04:15Z",
-          "notes": "Signed candidate run 32505833243 passed macOS and Ubuntu and failed Windows with four failures, five errors, and three platform skips. Windows no longer produced the prior 19 native-OpenSSH fingerprint errors: the production PROGRAMDATA derivation cleared that boundary and the suite reached all 101 tests. The failures came from fixtures treating Windows st_mode as POSIX authority and rediscovering Git through os.defpath. The repair now canonicalizes base fixture modes, forces matching Git index modes, injects the exact fixture Git only inside the real-verifier test, and derives that generated manifest's Windows mode overrides from exact git ls-files -s output. Production freshness mode enforcement remains unchanged. Final signing, clean-clone replay, exact-head review, and replacement three-platform CI remain pending."
+          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32508134303",
+          "lastRun": "2026-08-21T17:30:19Z",
+          "notes": "Signed candidate run 32508134303 passed macOS and Ubuntu and failed Windows after all 101 tests ran. The prior OpenSSH, mode, and Git-discovery errors were cleared; Windows then rejected temporary fixture repositories because inherited Git-for-Windows core.autocrlf normalized Python-written CRLF live bytes to LF Git blobs, producing signed-byte-to-tree mismatches. Each FreshnessFixture now sets core.autocrlf=false before its first add/commit so Git preserves the exact bytes the fixture manifest signs. Production freshness code and strict blob comparison remain unchanged. Final signing, clean-clone replay, exact-head review, and replacement three-platform CI remain pending."
         },
         {
           "id": "P6-G3",

@@ -200,3 +200,10 @@
 - The base `FreshnessFixture` already signed canonical modes and forced matching Git index entries, but `_prepare_real_content_fixture` called `build_manifest` without Windows mode overrides. Under Win32 stat semantics that generated `0666` records and would move the real-verifier test from Git-discovery error to signed-mode failure.
 - The real-verifier fixture now captures its exact committed index with `git ls-files -s -z`, rejects unsupported modes, maps only `100644`/`100755` to canonical `0644`/`0755`, and passes that mapping as Windows-only manifest overrides. Production Git discovery, manifest verification, and launcher mode enforcement remain byte-unchanged.
 - Focused regressions and all 101 tests pass. These controlled test/evidence bytes invalidate `13d26f1`; manifest generation, biometric signing, clean-clone replay, exact-head review, and replacement three-platform CI restart.
+
+## 2026-08-21T17:31Z — Windows fixture repositories become byte-preserving
+
+- Signed head `250f7d7a17f7781e5679dfda5a33ad6e53b0116c` passed exact clean-clone content replay and different-family **APPROVE**. PR #4 run `32508134303` passed macOS and Ubuntu but failed Windows after executing all 101 tests; merge remained blocked.
+- The earlier native-OpenSSH, canonical-mode, and exact-Git-discovery errors were absent. The remaining four failures and five errors were strict `signed bytes differ from Git tree object` rejections in temporary fixtures.
+- `FreshnessFixture` wrote CRLF text bytes under Windows, signed those live bytes, then inherited Git-for-Windows `core.autocrlf`, which normalized committed blobs to LF. The external launcher correctly rejected the live-byte/Git-object split. Every fixture repository now sets `core.autocrlf=false` before its first add, preserving the exact bytes used by its signed manifest; production blob comparison remains byte-unchanged and strict.
+- Focused failing-class regressions and all 101 local tests pass. These controlled test/evidence bytes invalidate `250f7d7`; manifest generation, biometric signing, clean-clone replay, exact-head review, and replacement three-platform CI restart.

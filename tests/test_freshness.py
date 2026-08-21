@@ -148,6 +148,10 @@ class FreshnessFixture:
             [self.git, "-C", str(self.repo), "config", "user.name", "Fixture"],
             check=True,
         )
+        subprocess.run(
+            [self.git, "-C", str(self.repo), "config", "core.autocrlf", "false"],
+            check=True,
+        )
         subprocess.run([self.git, "-C", str(self.repo), "add", "."], check=True)
         subprocess.run(
             [
