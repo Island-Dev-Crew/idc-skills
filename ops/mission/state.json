@@ -10,7 +10,7 @@
     "northStar": "Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.",
     "status": "in_progress",
     "started": "2026-08-11",
-    "updated": "2026-08-21T17:07:14Z",
+    "updated": "2026-08-21T17:17:58Z",
     "sessionCount": 4
   },
   "policies": {
@@ -376,7 +376,7 @@
             "P5-T2"
           ],
           "pr": null,
-          "notes": "Signed head 7a5ad49 passed exact clean-clone content replay and received different-family APPROVE. Replacement CI run 32505833243 passed macOS and Ubuntu; Windows cleared the former OpenSSH fingerprint failures, then exposed Windows-only fixture mode and Git-discovery assumptions. The test-only repair invalidates that signature and must be re-signed and re-reviewed before replacement CI."
+          "notes": "Signed head 13d26f1 passed exact clean-clone content replay, but different-family review returned CHANGES_REQUIRED because the real-verifier fixture canonicalized Git discovery without yet passing Git-index mode overrides into Windows manifest generation. The completed test-only repair derives both paths and modes from the exact fixture Git/index; it must be re-signed and re-reviewed before replacement CI."
         }
       ]
     },
@@ -403,7 +403,7 @@
           "status": "pending",
           "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32505833243",
           "lastRun": "2026-08-21T17:04:15Z",
-          "notes": "Signed candidate run 32505833243 passed macOS and Ubuntu and failed Windows with four failures, five errors, and three platform skips. Windows no longer produced the prior 19 native-OpenSSH fingerprint errors: the production PROGRAMDATA derivation cleared that boundary and the suite reached all 101 tests. The remaining failures came from the test fixture signing Windows st_mode bits as POSIX authority and rediscovering Git through os.defpath despite already holding an exact Git path. The repair canonicalizes fixture modes, forces matching Git index modes, and injects the exact fixture Git only inside the real-verifier test; production freshness mode enforcement remains unchanged. Final signing, clean-clone replay, exact-head review, and replacement three-platform CI remain pending."
+          "notes": "Signed candidate run 32505833243 passed macOS and Ubuntu and failed Windows with four failures, five errors, and three platform skips. Windows no longer produced the prior 19 native-OpenSSH fingerprint errors: the production PROGRAMDATA derivation cleared that boundary and the suite reached all 101 tests. The failures came from fixtures treating Windows st_mode as POSIX authority and rediscovering Git through os.defpath. The repair now canonicalizes base fixture modes, forces matching Git index modes, injects the exact fixture Git only inside the real-verifier test, and derives that generated manifest's Windows mode overrides from exact git ls-files -s output. Production freshness mode enforcement remains unchanged. Final signing, clean-clone replay, exact-head review, and replacement three-platform CI remain pending."
         },
         {
           "id": "P6-G3",

@@ -401,11 +401,28 @@ def _prepare_real_content_fixture(fixture: FreshnessFixture) -> None:
     spec.loader.exec_module(verifier_module)
     with mock.patch.object(verifier_module.shutil, "which", return_value=fixture.git):
         tracked_paths = verifier_module._tracked_repository_paths(fixture.repo)
+    tracked_modes: dict[str, dict[str, int]] = {}
+    index = subprocess.run(
+        [fixture.git, "-C", str(fixture.repo), "ls-files", "-s", "-z"],
+        capture_output=True,
+        check=True,
+    ).stdout
+    for raw_entry in index.split(b"\0"):
+        if not raw_entry:
+            continue
+        metadata, raw_path = raw_entry.split(b"\t", 1)
+        mode = metadata.split(b" ", 1)[0]
+        if mode not in {b"100644", b"100755"}:
+            raise AssertionError(f"fixture Git index has unsupported mode: {mode!r}")
+        tracked_modes[raw_path.decode("utf-8")] = {
+            "posixMode": 0o755 if mode == b"100755" else 0o644
+        }
     manifest = verifier_module.build_manifest(
         fixture.repo,
         fixture.repo / "skills",
         fixture.repo / "integrity" / "policy.json",
         fetch_remotes=False,
+        windows_mode_overrides=tracked_modes,
         repository_file_paths=tracked_paths,
     )
     fixture.manifest.write_bytes(verifier_module.canonical_bytes(manifest))
