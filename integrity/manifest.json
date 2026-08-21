@@ -457,8 +457,8 @@
     },
     "ops/mission/journal.md": {
       "posixMode": 420,
-      "sha256": "sha256:dd5c2d6907fa8801d5ebfdb3b5c43cc73c745d14ed856398280019bab65b798a",
-      "size": 25559
+      "sha256": "sha256:520027ff102dac95010906ba46b7df300f0f231b83a0bddb4bc8a98e577d7ca8",
+      "size": 27001
     },
     "ops/mission/render-sotu.mjs": {
       "posixMode": 420,
@@ -467,13 +467,13 @@
     },
     "ops/mission/state-of-the-union.html": {
       "posixMode": 420,
-      "sha256": "sha256:12af89d8dc8da3c34a6874a5aec26596d41f345f9976c1097c5ce1fc032791d5",
-      "size": 75293
+      "sha256": "sha256:1463dfaad239318dbea88da0ea710faab5007f64c01958d4fe329da114e60bee",
+      "size": 75987
     },
     "ops/mission/state.json": {
       "posixMode": 420,
-      "sha256": "sha256:928f3246ecef0584e4a7f3154f8278e83fb7c844319d106da36574085a4f0288",
-      "size": 29250
+      "sha256": "sha256:44bd394cecf7373cb51f42cbc2c0e25133dd5d572565c4bb01c1a52de5995143",
+      "size": 29629
     },
     "ops/research/pocock-gap-analysis-2026-08-19.md": {
       "posixMode": 420,
