@@ -10,8 +10,8 @@
     "northStar": "Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.",
     "status": "in_progress",
     "started": "2026-08-11",
-    "updated": "2026-08-20T12:15:00Z",
-    "sessionCount": 3
+    "updated": "2026-08-21T16:45:00Z",
+    "sessionCount": 4
   },
   "policies": {
     "merge": "review",
@@ -376,7 +376,7 @@
             "P5-T2"
           ],
           "pr": null,
-          "notes": "The v3 manifest/signature bind the 2.0.3 sequence-1 content candidate and verify 5/5. Exact clean-clone replay is green; the final different-family exact-head verdict and three-platform CI remain external release receipts before transport."
+          "notes": "The v3 manifest/signature bind the 2.0.3 sequence-1 content candidate and verify 5/5. Exact clean-clone replay is green. The final different-family review returned CHANGES_REQUIRED only because the signed mission record overstated a paired diagnostic as single-variable isolation; the corrected candidate must be re-signed and re-reviewed before three-platform CI."
         }
       ]
     },
@@ -401,9 +401,9 @@
           "title": "Exact 2.0.3 transport candidate has required CI green",
           "command": "gh pr checks <release-pr> --watch",
           "status": "pending",
-          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32369890504",
+          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32369472573",
           "lastRun": "2026-08-20T12:38:59Z",
-          "notes": "Unsigned diagnostic run 32369890504 proved Windows selected native OpenSSH. Production, identity, home-drive, and app-data environments exited 255; adding ProgramData alone cleared fingerprinting, matching Win32 OpenSSH's fatal startup requirement. The diagnostic workflow is removed. The minimal environment now derives SystemDrive and C:\\ProgramData from retained trusted SystemRoot while continuing to exclude caller PATH, home, loader, proxy, Git, and TLS variables. Final signing, replay/review, and replacement CI remain pending."
+          "notes": "Candidate run 32369472573 passed macOS and Ubuntu and failed all 19 Windows freshness fixtures. Deliberately failed unsigned diagnostic run 32369890504 then proved native OpenSSH selection and that the paired PROGRAMDATA + ALLUSERSPROFILE environment cleared fingerprinting; it did not isolate either variable alone. Separate inspection of official Win32 OpenSSH source identifies ProgramData as a required initialization path input. The diagnostic workflow is removed. The production environment derives SystemDrive and C:\\ProgramData from retained trusted SystemRoot while continuing to exclude caller PATH, home, loader, proxy, Git, and TLS variables. Pending replacement Windows CI must prove that production derivation; final signing, replay/review, and replacement CI remain pending."
         },
         {
           "id": "P6-G3",
