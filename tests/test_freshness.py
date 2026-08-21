@@ -118,7 +118,7 @@ class FreshnessFixture:
             repository_files[relative] = {
                 "sha256": fresh.sha256_bytes(data),
                 "size": len(data),
-                "posixMode": path.stat().st_mode & 0o777,
+                "posixMode": 0o755 if path == self.installer else 0o644,
             }
         self.manifest = self.repo / "integrity" / "manifest.json"
         self.manifest.write_bytes(
@@ -149,6 +149,29 @@ class FreshnessFixture:
             check=True,
         )
         subprocess.run([self.git, "-C", str(self.repo), "add", "."], check=True)
+        subprocess.run(
+            [
+                self.git,
+                "-C",
+                str(self.repo),
+                "update-index",
+                "--chmod=+x",
+                "scripts/install.py",
+            ],
+            check=True,
+        )
+        for relative in sorted(set(repository_files) - {"scripts/install.py"}):
+            subprocess.run(
+                [
+                    self.git,
+                    "-C",
+                    str(self.repo),
+                    "update-index",
+                    "--chmod=-x",
+                    relative,
+                ],
+                check=True,
+            )
         subprocess.run(
             [self.git, "-C", str(self.repo), "commit", "-q", "-m", "fixture"],
             check=True,
@@ -376,7 +399,8 @@ def _prepare_real_content_fixture(fixture: FreshnessFixture) -> None:
         raise AssertionError("fixture verifier module could not be loaded")
     verifier_module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(verifier_module)
-    tracked_paths = verifier_module._tracked_repository_paths(fixture.repo)
+    with mock.patch.object(verifier_module.shutil, "which", return_value=fixture.git):
+        tracked_paths = verifier_module._tracked_repository_paths(fixture.repo)
     manifest = verifier_module.build_manifest(
         fixture.repo,
         fixture.repo / "skills",
@@ -862,10 +886,17 @@ class FreshnessTests(unittest.TestCase):
                 del handoff, config
                 self.assertFalse((staged / "scripts" / "json.pyc").exists())
                 self.assertFalse((staged / ".env").exists())
-                self.assertEqual(
-                    (staged / "scripts" / "install.py").stat().st_mode & 0o777,
-                    0o755,
-                )
+                signed_installer = fresh.load_canonical_json(
+                    (staged / "integrity" / "manifest.json").read_bytes(),
+                    "manifest",
+                    fresh.MAX_MANIFEST_BYTES,
+                )["repositoryFiles"]["scripts/install.py"]
+                self.assertEqual(signed_installer["posixMode"], 0o755)
+                if os.name != "nt":
+                    self.assertEqual(
+                        (staged / "scripts" / "install.py").stat().st_mode & 0o777,
+                        0o755,
+                    )
                 fixture.installer.write_text("# post-stage mutation\n", encoding="utf-8")
                 self.assertEqual(
                     (staged / "scripts" / "install.py").read_text(encoding="utf-8"),

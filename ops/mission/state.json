@@ -10,7 +10,7 @@
     "northStar": "Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.",
     "status": "in_progress",
     "started": "2026-08-11",
-    "updated": "2026-08-21T16:45:00Z",
+    "updated": "2026-08-21T17:07:14Z",
     "sessionCount": 4
   },
   "policies": {
@@ -376,7 +376,7 @@
             "P5-T2"
           ],
           "pr": null,
-          "notes": "The v3 manifest/signature bind the 2.0.3 sequence-1 content candidate and verify 5/5. Exact clean-clone replay is green. The final different-family review returned CHANGES_REQUIRED only because the signed mission record overstated a paired diagnostic as single-variable isolation; the corrected candidate must be re-signed and re-reviewed before three-platform CI."
+          "notes": "Signed head 7a5ad49 passed exact clean-clone content replay and received different-family APPROVE. Replacement CI run 32505833243 passed macOS and Ubuntu; Windows cleared the former OpenSSH fingerprint failures, then exposed Windows-only fixture mode and Git-discovery assumptions. The test-only repair invalidates that signature and must be re-signed and re-reviewed before replacement CI."
         }
       ]
     },
@@ -401,9 +401,9 @@
           "title": "Exact 2.0.3 transport candidate has required CI green",
           "command": "gh pr checks <release-pr> --watch",
           "status": "pending",
-          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32369472573",
-          "lastRun": "2026-08-20T12:38:59Z",
-          "notes": "Candidate run 32369472573 passed macOS and Ubuntu and failed all 19 Windows freshness fixtures. Deliberately failed unsigned diagnostic run 32369890504 then proved native OpenSSH selection and that the paired PROGRAMDATA + ALLUSERSPROFILE environment cleared fingerprinting; it did not isolate either variable alone. Separate inspection of official Win32 OpenSSH source identifies ProgramData as a required initialization path input. The diagnostic workflow is removed. The production environment derives SystemDrive and C:\\ProgramData from retained trusted SystemRoot while continuing to exclude caller PATH, home, loader, proxy, Git, and TLS variables. Pending replacement Windows CI must prove that production derivation; final signing, replay/review, and replacement CI remain pending."
+          "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32505833243",
+          "lastRun": "2026-08-21T17:04:15Z",
+          "notes": "Signed candidate run 32505833243 passed macOS and Ubuntu and failed Windows with four failures, five errors, and three platform skips. Windows no longer produced the prior 19 native-OpenSSH fingerprint errors: the production PROGRAMDATA derivation cleared that boundary and the suite reached all 101 tests. The remaining failures came from the test fixture signing Windows st_mode bits as POSIX authority and rediscovering Git through os.defpath despite already holding an exact Git path. The repair canonicalizes fixture modes, forces matching Git index modes, and injects the exact fixture Git only inside the real-verifier test; production freshness mode enforcement remains unchanged. Final signing, clean-clone replay, exact-head review, and replacement three-platform CI remain pending."
         },
         {
           "id": "P6-G3",
