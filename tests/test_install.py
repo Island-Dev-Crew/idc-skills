@@ -80,6 +80,26 @@ def run_unsigned_fixture_export(
 
 
 class InstallerTests(unittest.TestCase):
+    def test_cli_refuses_without_external_freshness_handoff(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            write_skill(root, "alpha", MODEL_SKILL)
+            target = root / "target"
+            with mock.patch.dict(os.environ, {}, clear=True):
+                with contextlib.redirect_stdout(io.StringIO()):
+                    exit_code = install.main(
+                        [
+                            "--repo-root",
+                            str(root),
+                            "install",
+                            "--custom-target",
+                            f"fixture={target}",
+                            "--json",
+                        ]
+                    )
+            self.assertEqual(exit_code, 2)
+            self.assertFalse(target.exists())
+
     def test_integrity_failure_refuses_install_before_target_write(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -88,10 +108,10 @@ class InstallerTests(unittest.TestCase):
             with mock.patch.object(
                 install.skill_integrity,
                 "verify_repository",
-                return_value={"readyToRun": False, "score": "4/5"},
+                return_value={"contentReady": False, "profile": "release", "score": "4/5"},
             ):
                 with self.assertRaisesRegex(
-                    install.InstallError, "integrity verification failed"
+                    install.InstallError, "content verification failed"
                 ):
                     install.run_install(
                         root / "skills",
@@ -108,19 +128,23 @@ class InstallerTests(unittest.TestCase):
             with mock.patch.object(
                 install.skill_integrity,
                 "verify_repository",
-                return_value={"readyToRun": False, "score": "4/5"},
+                return_value={"contentReady": False, "profile": "release", "score": "4/5"},
             ) as verify:
-                with contextlib.redirect_stdout(io.StringIO()):
-                    exit_code = install.main(
-                        [
-                            "--repo-root",
-                            str(root),
-                            "install",
-                            "--custom-target",
-                            f"fixture={target}",
-                            "--json",
-                        ]
-                    )
+                with mock.patch.dict(
+                    os.environ,
+                    {install.FRESHNESS_HANDOFF_ENV: "sha256:" + "a" * 64},
+                ):
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        exit_code = install.main(
+                            [
+                                "--repo-root",
+                                str(root),
+                                "install",
+                                "--custom-target",
+                                f"fixture={target}",
+                                "--json",
+                            ]
+                        )
             self.assertEqual(exit_code, 2)
             verify.assert_called_once()
             self.assertFalse(target.exists())
@@ -144,25 +168,29 @@ class InstallerTests(unittest.TestCase):
             with mock.patch.object(
                 install.skill_integrity,
                 "verify_repository",
-                return_value={"readyToRun": False, "score": "4/5"},
+                return_value={"contentReady": False, "profile": "release", "score": "4/5"},
             ) as verify:
                 with self.assertRaisesRegex(
-                    install.InstallError, "integrity verification failed"
+                    install.InstallError, "content verification failed"
                 ):
                     install.run_claude_ai_snapshot_export(
                         root / "skills", direct_output, repo_root=root
                     )
-                with contextlib.redirect_stdout(io.StringIO()):
-                    exit_code = install.main(
-                        [
-                            "--repo-root",
-                            str(root),
-                            "export-claude-ai-snapshot",
-                            "--output",
-                            str(cli_output),
-                            "--json",
-                        ]
-                    )
+                with mock.patch.dict(
+                    os.environ,
+                    {install.FRESHNESS_HANDOFF_ENV: "sha256:" + "a" * 64},
+                ):
+                    with contextlib.redirect_stdout(io.StringIO()):
+                        exit_code = install.main(
+                            [
+                                "--repo-root",
+                                str(root),
+                                "export-claude-ai-snapshot",
+                                "--output",
+                                str(cli_output),
+                                "--json",
+                            ]
+                        )
             self.assertEqual(exit_code, 2)
             self.assertEqual(verify.call_count, 2)
             self.assertFalse(direct_output.exists())
@@ -188,7 +216,8 @@ class InstallerTests(unittest.TestCase):
                 install.skill_integrity,
                 "verify_repository",
                 return_value={
-                    "readyToRun": True,
+                    "contentReady": True,
+                    "profile": "release",
                     "score": "5/5",
                     "_verifiedManifest": {
                         "skills": {"alpha": {"files": expected_files}}
@@ -564,6 +593,7 @@ class InstallerTests(unittest.TestCase):
             repository = Path(install.__file__).resolve().parents[1]
             environment = os.environ.copy()
             environment["PYTHONIOENCODING"] = "cp1252:strict"
+            environment[install.FRESHNESS_HANDOFF_ENV] = "sha256:" + "a" * 64
             child = """
 import sys
 from pathlib import Path
@@ -577,7 +607,8 @@ files = {
     for path in install.skill_integrity._walk_regular_files(source)
 }
 verified = {
-    "readyToRun": True,
+    "contentReady": True,
+    "profile": "release",
     "score": "5/5",
     "_verifiedManifest": {"skills": {"alpha": {"files": files}}},
 }

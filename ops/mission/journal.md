@@ -110,3 +110,100 @@
 - Repository verification and direct OpenSSH verification both accepted the pinned Forge key. The gate returned `pass=true`, `readyToRun=true`, `score=5/5`, and `skillsChecked=50`.
 - Full signed-worktree reacceptance passed with 74 unit tests, 50/50 canonical validation, four 50-skill native target probes, fifty snapshot ZIPs, and unchanged canonical skill-tree SHA-256 `fd2431c0e6f49447de507d0ca6d8c08bf30b2d4f2d1068cf23895bd57feba532`.
 - This remains precommit evidence. The next exact commit must be replayed from a clean clone and independently reviewed before PR #3 can advance again.
+
+## 2026-08-19T21:45Z — 2.0.3 pre-sign reconciliation
+
+- The anti-rollback implementation is exact at `a58f59e`; the supplied review record is Claude Opus + OpenAI Codex **APPROVE**, with 100 unit tests plus 20 subtests and canonical validation 50/50.
+- Registry state is release `2.0.3`, `manifestSequence: 1`. The checked-in manifest/signature remain historical 2.0.2/v2 artifacts; final 2.0.3/v3 biometric signing is pending and no `readyToRun` claim is made.
+- Guard/scanner R5 exact `c721304` returned **CHANGES_REQUIRED**. R6 remains pending; final evidence is intentionally represented by `FINAL_GUARD_COUNT`, `FINAL_SCANNER_COUNT`, and `FINAL_R6_SHA` placeholders.
+- This is a pre-sign snapshot. State, docs, validation records, changelog, and generated reports must be finalized before signing; no controlled-byte mutation is permitted after the final biometric signature.
+
+## 2026-08-20T09:43Z — guard/scanner accepted and integrated pre-sign suite green
+
+- The dangerous-Git guard's approved component lineage closes at `d0fac44` and replays 300/300 on native macOS Bash 3.2. Exact scanner diff `e98cfac6`, committed as `04a5bd4`, received independent approval and replays 589/589.
+- The integrated candidate passes 101 repository unit tests, the 40-test integrity/freshness matrix, canonical validation 50/50 with zero errors and 13 named advisories, harness verification 15/50, gauntlet verification 3/3, and validation records 50/150.
+- Bash syntax, the exact workflow ShellCheck list, both deterministic report gates, and `git diff --check` are green. A scratch v3 manifest builds with 50 skills, 12 classified references, and 715 signed network-command occurrences.
+- The checked-in 2.0.2/v2 signature remains historical. The next controlled mutation is the final 2.0.3/v3 manifest/signature ceremony; after signing, tracked bytes freeze and all staging, index, public-source, tag, and reinstall receipts remain external.
+
+## 2026-08-20T10:06Z — PR #4 CI rejects an unprotected hosted Python runtime
+
+- Exact signed head `3139972f165ee8b5288a55bee89b560c375085ce` passed clean-clone reacceptance and a different-family Claude Opus review, then opened PR #4 without force.
+- GitHub Actions run `32357025682` failed Ubuntu because the setup-python toolcache executable was group/world writable. The freshness tests correctly refused to model that runtime as externally protected; merge was not attempted.
+- The workflow now creates a private `venv --copies` runtime and places its platform-specific executable directory first for all later steps. A local owner-controlled copied runtime passes the complete 101-test suite.
+- Because the workflow and mission evidence are controlled signed bytes, the prior manifest, signature, clean-clone receipt, and exact-head verdict are stale. Manifest regeneration, biometric re-signing, clean-clone replay, independent review, and replacement three-OS CI are mandatory before merge.
+
+## 2026-08-20T10:08Z — completed CI logs expose Windows OpenSSH stdin incompatibility
+
+- The completed run confirmed macOS shared Ubuntu's unprotected setup-python runtime failure. Windows reached the freshness fixtures but rejected `ssh-keygen -lf -`; its OpenSSH build does not accept the Unix stdin pseudo-filename for public-key fingerprinting.
+- Fingerprinting now writes the already-captured public key to a private temporary file and passes that real path to the exact digest-pinned `ssh-keygen`. This preserves the same trust decision while using the portable OpenSSH interface.
+- The first copied-runtime replacement signature and clean-clone replay are void-on-move. All pre-sign gates, biometric signing, clean-clone replay, exact-head review, and replacement CI remain required.
+
+## 2026-08-20T10:28Z — replacement CI passes macOS/Ubuntu and narrows Windows environment failure
+
+- PR #4 run `32358722982` passed the complete macOS and Ubuntu jobs. Windows used the copied Python runtime and real public-key file but OpenSSH still exited nonzero with empty diagnostics under the stripped subprocess environment.
+- Every temporary OpenSSH operation now receives a fresh private `HOME`, `USERPROFILE`, and temp-root tuple while retaining the pinned executable-only `PATH`; no caller home, loader, proxy, Git, or TLS environment is restored.
+- The Windows install test also exposed parser-time `Path.home()` resolution before the freshness handoff check. `--home` is now lazily resolved only after a valid handoff marker, so a missing marker fails closed without consulting ambient user state.
+- The replacement run remains red and merge remains blocked. These controlled changes invalidate the preceding signature and review; the full sign/replay/review/CI sequence restarts.
+
+## 2026-08-20T10:43Z — Windows CI isolates Git-for-Windows runtime selection
+
+- PR #4 run `32359757190` passed macOS and Ubuntu. Windows completed the copied-runtime setup but all 19 freshness errors were the same `ssh-keygen -lf` exit 255 under the minimal Windows-native verification environment.
+- Key generation had succeeded before the hardened invocation. The fixture had selected Git-for-Windows OpenSSH from ambient `PATH`, then treated that MSYS-linked executable as if it were the native Windows runtime.
+- Windows Server 2025 already installs native OpenSSH. Freshness fixtures now prefer `%SystemRoot%\\System32\\OpenSSH\\ssh-keygen.exe` when present, bind that exact executable and digest in their signed config, and preserve the private HOME/temp and stripped-environment boundary. Other platforms retain exact `PATH` resolution.
+- The failed run does not authorize merge. Because the fixture and mission evidence are signed controlled bytes, manifest regeneration, biometric re-signing, clean-clone replay, independent review, and replacement CI remain mandatory.
+
+## 2026-08-20T12:03Z — exact-head review corrects final signed-state language
+
+- Signed commit `32b3030536e771e09428e2b22bdd088b040ec11a` passed local and clean-clone 5/5 content verification plus 101 tests, but the different-family exact-head review returned **CHANGES_REQUIRED**.
+- The blocking inconsistency was signed mission state that still described the checked-in artifact as historical 2.0.2/v2. The state now records the v3, 2.0.3, sequence-1 content candidate as 5/5 while keeping `readyToRun`, external freshness, merge, promotion, tag, and reinstall explicitly pending.
+- The review also found one test signing helper still resolving bare `ssh-keygen`. All fixture generation, signing, fingerprinting, verification, and signed config now reuse the same native-Windows-preferred exact executable selector.
+- These tracked corrections invalidate `32b3030` as the final candidate. The manifest/signature, clean-clone replay, exact-head review, and three-platform CI restart on the next immutable commit.
+
+## 2026-08-20T12:15Z — full signed-document sweep closes present-tense drift
+
+- Signed commit `12287c302f6ad2b55afebed642d803f3e5249b8d` independently passed 101 tests, direct OpenSSH verification, 189 tracked-file digest/size recomputations, deterministic rendering, and contentReady 5/5.
+- The review still returned **CHANGES_REQUIRED** because the metric headline, changelog, durable state note, and build-spec context retained present-tense 2.0.2/pre-sign wording. P5 was also marked done while task P5-T3 remained in progress.
+- Every current-state document now describes the checked-in v3, 2.0.3, sequence-1 content candidate as signed at 5/5 while keeping external `readyToRun`, final review, CI, merge, promotion, tag, and reinstall pending. Historical journal and doctrine references remain explicitly historical.
+- P5 remains in progress until the exact-head review receipt exists. These controlled corrections invalidate `12287c3`; the final manifest/signature and acceptance loop restart on the next immutable commit.
+
+## 2026-08-20T12:27Z — Windows native OpenSSH requires its OS drive bootstrap
+
+- Exact signed head `70ffc9ebb308e4c3652cc8deda65e52b8fd60c3e` received different-family **APPROVE**, then PR #4 run `32368246838` passed macOS and Ubuntu but failed Windows after four minutes. Merge remained blocked.
+- Windows selected the native OpenSSH executable and generated fixture keys successfully under the runner environment. All 19 failures occurred only when fingerprinting under the stripped environment, each with native `ssh-keygen` exit 255.
+- Win32 OpenSSH expands the current profile path read from the registry; hosted Windows profile records commonly use `%SystemDrive%`. The verification environment already retains `SystemRoot` and now derives only its drive prefix as `SYSTEMDRIVE`, preserving the stripped PATH/home/loader/proxy boundary. A regression asserts derivation and continued `PYTHONPATH` exclusion.
+- Because bootstrap, tests, and mission evidence are controlled bytes, `70ffc9e` is no longer the final candidate. Manifest regeneration, biometric signing, clean-clone replay, exact-head review, and three-platform CI restart.
+
+## 2026-08-20T12:40Z — unsigned Windows diagnostic proves the minimal ProgramData dependency
+
+- Derived-`SYSTEMDRIVE` head `15436fe4ff8f8c954bc43c905cfa4ad95c8f54b3` passed local signing, clean-clone reacceptance, and different-family review, but replacement run `32369472573` again passed macOS/Ubuntu and failed all 19 Windows freshness fixtures. Merge remained blocked.
+- An explicitly unsigned diagnostic commit was pushed only to measure the Windows process bootstrap and was never a release candidate. It selected `C:\\Windows\\System32\\OpenSSH\\ssh-keygen.exe`. Production, identity, home-drive, and app-data variants exited 255; the `PROGRAMDATA` variant and full ambient environment exited 0.
+- Win32 OpenSSH process initialization fatally requires `ProgramData`. The diagnostic workflow has been removed. The launcher derives `C:\\ProgramData` from the already retained trusted system drive, adds no caller-supplied environment value, and retains the stripped PATH/home/loader/proxy/Git/TLS boundary.
+- The assertion now proves both deterministic `SYSTEMDRIVE` and `PROGRAMDATA` derivation plus `PYTHONPATH` exclusion. Manifest generation, biometric signing, clean-clone replay, exact-head review, and three-platform CI restart on the diagnostic-free candidate.
+
+## 2026-08-21T16:45Z — exact-head review corrects diagnostic attribution before transport
+
+- Signed head `44e88d1532578032fe772d582fe8cd09d33e3883` passed 101/101 tests, direct OpenSSH file-namespace verification, independent recomputation of all 189 signed file records, deterministic reacceptance, and content verification at 5/5 with `contentReady=true` and no in-tree `readyToRun` field.
+- The different-family review returned **CHANGES_REQUIRED** because the preceding diagnostic record overstated the measurement. Run `32369890504` was a deliberately failed unsigned diagnostic whose passing environment arm supplied `PROGRAMDATA` and `ALLUSERSPROFILE` together; it did not prove that either variable alone cleared fingerprinting. The earlier “ProgramData alone” wording is superseded by this correction.
+- Separate read-only inspection of the official Win32 OpenSSH source identifies `ProgramData` as a required initialization path input, but the production conclusion remains pending until replacement Windows CI runs the diagnostic-free code that derives only `SYSTEMDRIVE` and `PROGRAMDATA` from trusted `SYSTEMROOT`.
+- Gate P6-G2 again cites failed candidate run `32369472573`; the diagnostic run remains named in its notes and explicitly labeled failed. These signed-evidence corrections invalidate `44e88d1`, so manifest generation, biometric signing, clean-clone replay, exact-head review, and three-platform CI restart.
+
+## 2026-08-21T17:07Z — Windows clears OpenSSH and exposes fixture mode assumptions
+
+- Corrected signed head `7a5ad4987a2daa8ee09d3d2c846935550f7a163c` passed exact clean-clone content replay and received different-family **APPROVE**. PR #4 run `32505833243` passed macOS and Ubuntu but failed Windows; merge remained blocked.
+- Windows no longer produced the prior 19 native-OpenSSH fingerprint failures. The production `SYSTEMDRIVE`/`PROGRAMDATA` derivation cleared that boundary, fixture keys and fingerprints completed, and the runner executed all 101 tests. The suite ended with four failures, five errors, and three platform skips.
+- The failures shared two test-authority causes: `FreshnessFixture` signed Windows `st_mode` bits as canonical POSIX modes even though Git tracks only `100644`/`100755`, and the real-verifier fixture asked copied code to rediscover Git through `os.defpath` although the fixture already held an exact Git path. Neither finding justifies weakening the production launcher's strict signed-mode-to-Git-tree comparison.
+- The fixture now signs explicit canonical modes, forces the matching Git index modes on every platform, and supplies its resolved Git executable only through a scoped test mock. The private-stage test always asserts the signed `0755` record and checks physical POSIX mode only where the host can represent it. Focused regressions and all 101 local tests pass. These controlled test/evidence bytes invalidate `7a5ad49`; signing, clean-clone replay, exact-head review, and replacement three-platform CI restart.
+
+## 2026-08-21T17:17Z — review completes Windows fixture mode canonicalization
+
+- Signed head `13d26f151f7ff8d7d3f2b888717a7b69f122c55f` passed exact clean-clone content replay, direct signature and 189-record verification, and 101 local tests. Different-family review still returned **CHANGES_REQUIRED** on one Windows fixture path; no push or CI retry occurred.
+- The base `FreshnessFixture` already signed canonical modes and forced matching Git index entries, but `_prepare_real_content_fixture` called `build_manifest` without Windows mode overrides. Under Win32 stat semantics that generated `0666` records and would move the real-verifier test from Git-discovery error to signed-mode failure.
+- The real-verifier fixture now captures its exact committed index with `git ls-files -s -z`, rejects unsupported modes, maps only `100644`/`100755` to canonical `0644`/`0755`, and passes that mapping as Windows-only manifest overrides. Production Git discovery, manifest verification, and launcher mode enforcement remain byte-unchanged.
+- Focused regressions and all 101 tests pass. These controlled test/evidence bytes invalidate `13d26f1`; manifest generation, biometric signing, clean-clone replay, exact-head review, and replacement three-platform CI restart.
+
+## 2026-08-21T17:31Z — Windows fixture repositories become byte-preserving
+
+- Signed head `250f7d7a17f7781e5679dfda5a33ad6e53b0116c` passed exact clean-clone content replay and different-family **APPROVE**. PR #4 run `32508134303` passed macOS and Ubuntu but failed Windows after executing all 101 tests; merge remained blocked.
+- The earlier native-OpenSSH, canonical-mode, and exact-Git-discovery errors were absent. The remaining four failures and five errors were strict `signed bytes differ from Git tree object` rejections in temporary fixtures.
+- `FreshnessFixture` wrote CRLF text bytes under Windows, signed those live bytes, then inherited Git-for-Windows `core.autocrlf`, which normalized committed blobs to LF. The external launcher correctly rejected the live-byte/Git-object split. Every fixture repository now sets `core.autocrlf=false` before its first add, preserving the exact bytes used by its signed manifest; production blob comparison remains byte-unchanged and strict.
+- Focused failing-class regressions and all 101 local tests pass. These controlled test/evidence bytes invalidate `250f7d7`; manifest generation, biometric signing, clean-clone replay, exact-head review, and replacement three-platform CI restart.

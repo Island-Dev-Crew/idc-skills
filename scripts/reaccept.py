@@ -1,9 +1,16 @@
 #!/usr/bin/env python3
-"""Fresh-clone acceptance gate for the Forge tooling and all fifty skills."""
+"""Fresh-clone content acceptance gate for the Forge tooling and all fifty skills.
+
+Whole-tree freshness is established by the independently installed launcher
+that invokes this script. Its handoff marker is routing defense, not the trust
+root.
+"""
 
 from __future__ import annotations
 
 import json
+import os
+import re
 import subprocess
 import sys
 import tempfile
@@ -12,6 +19,8 @@ from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = REPO_ROOT / "scripts"
+FRESHNESS_HANDOFF_ENV = "IDC_SKILLS_FRESHNESS_HANDOFF"
+SHA256_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
 
 sys.path.insert(0, str(SCRIPTS))
 from install import tree_manifest  # noqa: E402
@@ -40,12 +49,20 @@ def _python(script: str, *args: str, expected: int = 0) -> subprocess.CompletedP
 
 
 def main() -> int:
+    if SHA256_RE.fullmatch(os.environ.get(FRESHNESS_HANDOFF_ENV, "")) is None:
+        raise RuntimeError(
+            "reacceptance must be invoked through the external idc-verify-fresh launcher"
+        )
     before = tree_manifest(REPO_ROOT / "skills").sha256
 
     integrity = _python("skill_integrity.py", "verify", "--json")
     integrity_report = json.loads(integrity.stdout)
-    if not integrity_report.get("readyToRun") or integrity_report.get("score") != "5/5":
-        raise RuntimeError("signed integrity gate did not report readyToRun=true at 5/5")
+    if not (
+        integrity_report.get("contentReady") is True
+        and integrity_report.get("profile") == "release"
+        and integrity_report.get("score") == "5/5"
+    ):
+        raise RuntimeError("signed content gate did not report contentReady=true at 5/5")
     if integrity_report.get("skillsChecked") != 50:
         raise RuntimeError("signed integrity gate did not bind all 50 skills")
 
@@ -129,7 +146,7 @@ def main() -> int:
         raise RuntimeError(f"canonical tree drifted during acceptance: {before} -> {after}")
 
     print(
-        "REACCEPTED integrity=5/5 skills=50/50 tests=green nativeTargets=4x50 "
+        "CONTENT-REACCEPTED integrity=5/5 skills=50/50 tests=green nativeTargets=4x50 "
         "snapshotZips=50 currentClaudeAi=blocked(48 descriptions,13 user-only) "
         f"canonicalSha256={after}"
     )

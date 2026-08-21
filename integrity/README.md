@@ -1,107 +1,276 @@
-# Forge 50 signed integrity gate
+# Forge 50 content integrity and freshness gate
 
-Release 2.0.2 uses one dependency-free repository gate, not fifty self-checkers. The detached OpenSSH signature binds the canonical manifest to the stable 1Password-held Ed25519 key; the manifest binds all registered skill bytes, the registry, shared instructions, installer, verifier, hook adapter, policy, tests, and CI control files.
+Release 2.0.3 separates two claims that one rollbackable repository must never
+collapse into one:
 
-The trusted signing fingerprint is:
+1. `scripts/skill_integrity.py` proves that the current signed content matches
+   the canonical manifest. Its report uses `contentReady`; it never emits
+   `readyToRun`.
+2. An independently installed copy of `bootstrap/idc_verify_fresh.py` proves
+   that the manifest and verifier are the newest release authorized by a
+   separately signed, expiring release index. Only that external launcher can
+   emit `readyToRun=true`.
+
+The trusted Forge signing fingerprint is:
 
 ```text
 SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA
 ```
 
-## The five checks
+## Why the split is necessary
 
-`python3 scripts/skill_integrity.py verify` reports ready-to-run only when all five independently fail-capable checks pass:
+A whole-tree rollback restores an old manifest, verifier, installer, hook, and
+workflow together. An old in-tree verifier can therefore approve its own old
+rules. A monotonic number inside that same tree does not fix the problem.
 
-1. **Signature:** the out-of-band fingerprint, `idc-skills` principal, `file` namespace, detached signature, manifest schema, and canonical JSON all agree. The verifier captures the manifest, signature, public key, and signer list once, verifies those bytes, and parses that same authenticated manifest snapshot; installer and hook consumers do not reopen the manifest path.
-2. **Local bytes:** every file in all 50 registered skills plus every security-control file matches the signed SHA-256/size record; symlinks, inventory drift, case collisions, and Unicode-normalization collisions are denied. The complete local manifest is recomputed immediately before authorization, and installed skill directories are captured twice, so bytes that move during a check force red.
-3. **External-reference set:** every HTTP(S) reference and every detected network-command occurrence is signed; a new or reclassified reference is drift.
-4. **Remote content pins:** content classified `runtime-instruction` is fetched at verification time and must match its signed content hash and final redirect URL. Informational citations and fixed API endpoints are explicit allow-list entries, not silently treated as pinned instructions.
-5. **Fetch/execute policy:** fetch-and-execute, process-substitution execution, download-to-file, and network package execution are denied unless the exact signed line hash is a reviewed non-executed example or an explicitly approved setup operation.
+The freshness launcher must live outside every checkout and be pinned by the
+operator or platform. It authenticates an external release index, compares the
+exact raw manifest, verifier, launcher, release sequence, and Git commit, then
+executes a private captured copy of the authenticated content verifier. The
+tracked launcher is distributable source and fixture material; running that
+copy from inside the repository is refused.
 
-A fixture key may make all five test checks pass, but fixture mode never emits `readyToRun=true` and cannot authorize installation or execution.
+## Content integrity: five independently red checks
 
-## Trusted bootstrap (irreducible)
+`python3 scripts/skill_integrity.py verify` reports `contentReady=true` only
+when all five checks pass:
 
-Repository code cannot prove its own trust anchor. Before running the verifier from a newly obtained copy, compare both public artifacts to the fingerprint received through a trusted channel:
+1. **Signature:** the independently known fingerprint, `idc-skills` principal,
+   `file` namespace, detached signature, v3 schema, canonical JSON, and strict
+   positive `manifestSequence` agree.
+2. **Local bytes:** all 50 registered skill trees and the complete Git-tracked
+   release closure match signed SHA-256, size, and canonical POSIX-mode records.
+   Inventory drift, unsafe
+   file types, symlinks, case collisions, Unicode-normalization collisions,
+   and mid-check mutation force red.
+3. **External-reference set:** every HTTP(S) reference and detected network
+   command occurrence is signed and classified.
+4. **Remote content pins:** every `runtime-instruction` is re-fetched and must
+   match its signed digest and final URL. Informational references and fixed API
+   endpoints remain explicit allow-list entries, not pretend-pinned responses.
+5. **Fetch/execute policy:** reviewed download/execute classes are denied unless
+   the exact signed occurrence is an approved inert example or setup operation.
 
-```bash
-ssh-keygen -lf keys/idc-skills-signing.pub
-awk '{print $2, $3}' keys/allowed_signers | ssh-keygen -lf -
+Fixture keys can prove the five-check implementation, so a fixture may be
+`contentReady`. Fixture profile, wrong fingerprint, wrong cardinality, or stale
+sequence can never satisfy the external release launcher.
+
+## Freshness authority
+
+The launcher validates canonical `idc-skills-release-index/v1` bytes under the
+domain-separated OpenSSH namespace `idc-skills-release-index-v1`. Every release
+entry binds:
+
+```json
+{
+  "gitCommit": "40-lowercase-hex",
+  "launcherSHA256": "sha256:...",
+  "manifestSHA256": "sha256:...",
+  "manifestSequence": 1,
+  "release": "2.0.3",
+  "verifierSHA256": "sha256:..."
+}
 ```
 
-Both outputs must contain the exact fingerprint above. Then verify the manifest directly with the system OpenSSH client:
+The launcher requires its own installed bytes, the captured content verifier,
+and the captured signing-anchor files to equal their signed Git-tracked source
+records before either verifier mode can execute. It also requires that complete
+execution closure to equal the newest entry's manifest and exact Git tree.
+Ignored and untracked live extras are excluded rather than treated as
+executable release content. The index is
+strictly canonical, has unique increasing manifest sequences, carries its own
+monotonic `indexSequence`, and expires within at most 31 days. A checkpoint
+stores the accepted index sequence, exact index digest, and release history.
+Lower replay, same-sequence/different-digest equivocation, or changed/removed
+history fails closed. A first run has no history, so its external configuration
+must pin the exact bootstrap index digest.
 
-```bash
-ssh-keygen -Y verify \
-  -f keys/allowed_signers \
-  -I idc-skills \
-  -n file \
-  -s integrity/manifest.json.sig \
-  < integrity/manifest.json
-```
-
-Only after that succeeds is the verifier digest inside the signed manifest trustworthy. Compare it before execution:
-
-```bash
-expected="$(jq -r '.controlFiles["scripts/skill_integrity.py"].sha256' integrity/manifest.json)"
-actual="sha256:$(shasum -a 256 scripts/skill_integrity.py | awk '{print $1}')"
-test "$actual" = "$expected"
-python3 scripts/skill_integrity.py verify
-```
-
-If the public key, `allowed_signers`, manifest, signature, or verifier came only from the same untrusted channel and the fingerprint was not independently checked, a green result is not a trustworthy bootstrap.
-
-## Generate and sign
-
-The manifest command fails before writing when policy, inventory, external references, denied patterns, symlinks, or required control files are invalid:
-
-```bash
-python3 scripts/skill_integrity.py manifest
-python3 scripts/skill_integrity.py sign
-python3 scripts/skill_integrity.py verify
-```
-
-`sign` uses the already-established agent-served public key and exactly this protocol:
+Index and manifest signatures use the same stable key but different namespaces:
 
 ```text
-ssh-keygen -Y sign -f keys/idc-skills-signing.pub -U -n file integrity/manifest.json
+manifest: file
+index:    idc-skills-release-index-v1
 ```
 
-The private key never enters the repository or local disk. `scripts/setup-signing-wizard.sh` verifies the existing stable fingerprint; it does not create or rotate the key. Rotation requires a separately reviewed out-of-band trust ceremony.
+The launcher captures every signed input once, verifies the signature before
+parsing it, rejects in-tree authority paths and unsafe external files, uses
+bounded reads and HTTPS host/redirect policy, and builds a private execution
+snapshot from the exact signed tracked-file closure. Ignored caches, local
+secrets, and other untracked bytes never enter that snapshot. It binds the
+signed closure to Git tree blobs without `git status`, filters, hooks, or
+worktree conversions, and updates the checkpoint only after content and
+freshness both pass.
 
-## Installation and pre-execution
+## External deployment
 
-The portable installer verifies the signed release before any destination preflight or write, then checks both staged and installed bytes against the signed per-skill file map:
+Install the reviewed launcher source outside the repository into an
+owner/admin-controlled directory. Install a canonical configuration outside the
+repository as well. Its exact schema is:
+
+```json
+{
+  "bootstrapIndexSHA256": "sha256:<exact-current-index>",
+  "checkpointPath": "/absolute/protected/state/checkpoint.json",
+  "consumerHome": "/absolute/operator-home",
+  "consumerPath": [
+    "/absolute/protected/bash-bin",
+    "/absolute/protected/node-bin"
+  ],
+  "executables": {
+    "git": {
+      "path": "/absolute/protected/git",
+      "sha256": "sha256:<exact-git-bytes>"
+    },
+    "python": {
+      "path": "/absolute/protected/python3",
+      "sha256": "sha256:<exact-python-bytes>"
+    },
+    "sshKeygen": {
+      "path": "/absolute/protected/ssh-keygen",
+      "sha256": "sha256:<exact-ssh-keygen-bytes>"
+    }
+  },
+  "minimumIndexSequence": 1,
+  "minimumManifestSequence": 1,
+  "requireGitCommit": true,
+  "schema": "idc-skills-freshness-config/v1",
+  "source": {
+    "allowedHosts": ["raw.githubusercontent.com"],
+    "indexURL": "https://raw.githubusercontent.com/OWNER/REPO/trust-index/releases.json",
+    "maxRedirects": 0,
+    "signatureURL": "https://raw.githubusercontent.com/OWNER/REPO/trust-index/releases.json.sig",
+    "type": "https"
+  }
+}
+```
+
+An external protected file pair may be used instead with `source.type=file`,
+absolute `indexPath`, and absolute `signaturePath`. Repository-relative or
+repository-resolving authority paths are refused.
+
+The authoritative process must be created by an external protected wrapper or
+runner that builds its environment from scratch, sets a protected temp root and
+home, and then invokes the launcher through the exact absolute Python path named
+and hashed in this configuration. Loader variables can execute before Python
+code starts; neither a digest check performed by that Python process nor `-I`
+can undo pre-start injection. The command examples below assume that clean
+external process boundary already exists. Relying on the source file's `env`
+shebang—or on candidate-controlled `scripts/install.sh` to bootstrap trust—is
+not authoritative. `consumerPath` names only protected directories needed by
+reacceptance (for example Bash and Node).
+Digest-pinned Python, Git, and OpenSSH directories take precedence. Consumer
+children receive a private temp directory, configured home, and a minimal
+environment; caller `PATH`, Python loaders, dynamic-loader variables, shell
+startup, Node options, Git configuration variables, proxy variables, and TLS
+overrides are not inherited.
+
+Owner-controlled user files protect against repository rollback but not an
+attacker acting as the same OS user. Stronger claims require admin-owned POSIX
+paths, Windows ACL enforcement, or CI/platform state outside candidate control.
+The Python runtime and operating system remain part of the trusted computing
+base. The launcher does not claim a cross-platform tamper-proof offline floor.
+Without a live valid index, freshness is unverified and no child runs.
+
+## Supported operation paths
+
+Use the installed launcher for release verification and every mutating consumer:
 
 ```bash
-python3 scripts/install.py install --target agents
-./scripts/install.sh
+/trusted/runtime/python3 -I -B /trusted/bin/idc-verify-fresh \
+  --repo-root /absolute/idc-skills \
+  --config /trusted/etc/idc-skills-freshness.json \
+  verify
+
+/trusted/runtime/python3 -I -B /trusted/bin/idc-verify-fresh \
+  --repo-root /absolute/idc-skills \
+  --config /trusted/etc/idc-skills-freshness.json \
+  install -- --target agents
+
+/trusted/runtime/python3 -I -B /trusted/bin/idc-verify-fresh \
+  --repo-root /absolute/idc-skills \
+  --config /trusted/etc/idc-skills-freshness.json \
+  hook -- --installed-skills /absolute/harness/skills
+
+/trusted/runtime/python3 -I -B /trusted/bin/idc-verify-fresh \
+  --repo-root /absolute/idc-skills \
+  --config /trusted/etc/idc-skills-freshness.json \
+  reaccept
 ```
 
-Verification is mandatory and default-on for native installs and both Claude.ai export modes; the release CLI has no opt-out. Exports copy selected skills to scratch, verify that staged snapshot against the authenticated per-file map, and build bundles only from those bytes. The retained install-only `--verify-integrity` flag explicitly affirms the default for command compatibility. The shell wrapper is intentionally not a bypass; it selects the same enforced path.
+`--mode release` is the default. `ci` and `operator` retain the same
+fail-closed signed-index requirement in this release; there is no opportunistic
+downgrade. `--mode offline verify` performs only the signed five-check content
+proof, emits `freshness=UNVERIFIED`, never emits readiness, and exits `3`.
+Offline mode never launches a consumer.
 
-For a harness with a `PreToolUse` event on its Skill tool, configure the reviewed adapter with absolute paths:
+The installer still binds staged and installed skill bytes to the authenticated
+manifest. Current direct CLI entrypoints refuse when the launcher's syntactic
+handoff marker is absent; that caller-supplied marker is forgeable and prevents
+only accidental bypass. It neither authenticates the launcher nor upgrades a
+content-only invocation to release authority. The only supported authoritative
+route is the independently pinned launcher above. The hook returns blocking
+exit 2 on an absent marker, malformed input, content red, unknown skill,
+installed-byte drift, payload disagreement, or any unexpected exception.
 
-```text
-python3 /trusted/idc-skills/scripts/pretooluse-skill-integrity.py \
-  --repo-root /trusted/idc-skills \
-  --installed-skills /absolute/harness/skills
-```
+After external bootstrap, `scripts/install.sh` is a convenience delegate. It
+requires `IDC_SKILLS_FRESHNESS_PYTHON`,
+`IDC_SKILLS_FRESHNESS_LAUNCHER`, and `IDC_SKILLS_FRESHNESS_CONFIG` to name those
+external paths and delegates through `python -I -B`. Those variables locate
+externally protected artifacts; they do not replace signature, digest, runtime,
+path, clean-process-environment, or checkpoint verification.
 
-`--installed-skills` is mandatory: the adapter refuses to attest only the canonical source while a harness may execute a different copied tree. It returns exit 2 on a missing installed root, invalid payload, non-green release, unknown skill, installed-byte drift, an explicit-skill/payload mismatch, or any unexpected adapter exception. A hook is enforced only after the receiving harness is actually configured to call it and a blocking smoke probe has been observed; the shipped adapter alone is merely available enforcement.
+## Release ceremony
 
-## External-reference classifications
+1. Finalize every repository byte, release number, sequence, test, and document;
+   stage every new required control so the tracked closure is complete.
+2. Generate and biometrically sign the v3 manifest under namespace `file`.
+3. Commit the exact manifest and signature, replay that signed candidate from an
+   ordinary clean clone, and obtain a different-family exact-head approval. No
+   repository-controlled byte may change after this point.
+4. Push that exact candidate to staging, require the repository CI, and merge
+   through the protected review path. Capture the final staging merge commit and
+   prove its tree is byte-identical to the reviewed signed candidate.
+5. Build the canonical index entry from that final staging merge and the exact
+   manifest, verifier, and externally installed launcher bytes. Sign the index
+   under namespace `idc-skills-release-index-v1` as a second approval ceremony.
+6. Publish index and signature as one immutable pair/protected staging commit,
+   provision the external configuration's bootstrap digest and pinned runtime
+   hashes, and run the launcher against an ordinary clean staging clone through
+   a protected clean-environment wrapper and that exact Python runtime. Require
+   staging `readyToRun=true` before promotion. A failed consumer does not roll
+   the accepted freshness checkpoint backward.
+7. Promote the exact staging merge and the exact index-pair commit to the public
+   repository without rewriting either. Create an ordinary clean public clone,
+   switch only the protected source configuration to the public raw URLs, and
+   require the same `readyToRun=true` tuple and index digest from the public
+   source. Reusing the checkpoint is valid only when index sequence, digest, and
+   complete history are byte-identical.
+8. Only after the public-source proof may the exact merge be annotated and
+   SSH-signed as `2.0.3`, installed, reaccepted, or described as released.
 
-- `runtime-instruction`: content an agent may retrieve and follow as instructions. Release policy requires HTTPS for both source and final URL, forbids the fixture-only insecure transport escape, and requires a raw-content SHA-256 pin; verification re-fetches it.
-- `api-endpoint`: a fixed service endpoint used as data transport. It is allow-listed and signed, but its changing response is not presented as pinned or safe. Credential, spend, response-injection, and authorization controls remain separate.
-- `informational`: attribution, standards namespaces, examples, placeholders, and source citations that are not execution instructions. They are signed and allow-listed but are not fetched by the gate.
+Any repository mutation after manifest signing returns to step 1. Any final
+commit rewrite after index construction returns to step 4.
 
-An unclassified or stale policy entry fails manifest generation. A mutable documentation page that tells the agent what to do must never be disguised as `informational`; it belongs in `runtime-instruction` or must be removed.
+Repository-owned CI can test content integrity and launcher fixtures, but it can
+roll back with the candidate. Whole-tree CI authority requires an organization-
+required workflow, pinned action/container, or runner policy configured outside
+this repository.
 
 ## Honest scope
 
-This gate defends point-in-time local tamper, skill/control inventory drift, added external references, reviewed-policy drift, several fetch/execute forms, and mutable remote-instruction content drift. It materially raises the cost of poisoning because a repository editor cannot update the trusted signature without the agent-held private key and operator approval.
+The combined system detects point-in-time byte tamper, signed-policy drift,
+added references, reviewed remote-instruction drift, partial rollback, whole-
+tree rollback against the external index, index replay after checkpointing, and
+same-sequence index equivocation.
 
-It does **not** prove that signed content is benevolent, protect a stolen/unlocked signing key, make an API response safe, understand all obfuscation or shell semantics, prevent a same-user attacker from changing files after the check, revoke credentials, constrain the agent's OS/network authority, or attest the agent's complete behavior from instantiation through completion. “Ready 5/5” is a signed preflight result at the bytes and remote observations checked; it is not a full execution trace or a Garnet-style claim about events the gate did not observe. Use least privilege, sandboxing, scoped identities, network controls, replayable audit records, and emergency credential/network shutdown for those layers.
+It does not prove signed intent is benevolent, protect a compromised signing
+session, understand every obfuscation or shell grammar, sandbox the agent,
+revoke credentials, survive compromise of the pinned Python/OS trust base,
+prevent mutation of an external executable after its final check, make
+user-owned trust state safe from that same user, or turn repository-owned CI
+into an external root. Use admin-owned runtime/policy paths, least privilege,
+sandboxing, scoped identities, network controls, replayable audit records, and
+emergency credential/network shutdown for those layers.
 
-No authority without evidence. A signature authenticates reviewed bytes; it does not turn bytes into truth.
+No authority without evidence. A signature authenticates reviewed bytes; it
+does not turn bytes into truth.

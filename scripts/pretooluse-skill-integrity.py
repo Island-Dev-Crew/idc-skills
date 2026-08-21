@@ -1,15 +1,18 @@
 #!/usr/bin/env python3
-"""PreToolUse adapter that blocks skill invocation unless integrity is green.
+"""PreToolUse adapter that blocks skill invocation unless content is verified.
 
 Configure this only for the harness's Skill tool. The installed skill root is
 mandatory: canonical integrity without the bytes the harness will execute is
-not sufficient execution authorization.
+not sufficient execution authorization. Route this adapter through the
+independently installed freshness launcher; the handoff marker below prevents
+accidental direct routing but is not itself the security boundary.
 """
 
 from __future__ import annotations
 
 import argparse
 import json
+import os
 import re
 import sys
 from pathlib import Path
@@ -20,6 +23,8 @@ import skill_integrity
 
 SKILL_NAME_RE = re.compile(r"[a-z0-9]+(?:-[a-z0-9]+)*")
 MAX_HOOK_INPUT = 1024 * 1024
+FRESHNESS_HANDOFF_ENV = "IDC_SKILLS_FRESHNESS_HANDOFF"
+SHA256_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
 
 
 def _skill_from_payload(payload: Mapping[str, Any]) -> str | None:
@@ -49,7 +54,7 @@ def _read_payload() -> dict[str, Any]:
 
 
 def build_parser() -> argparse.ArgumentParser:
-    parser = argparse.ArgumentParser(description=__doc__)
+    parser = argparse.ArgumentParser(description=__doc__, allow_abbrev=False)
     parser.add_argument(
         "--repo-root",
         type=Path,
@@ -68,6 +73,12 @@ def build_parser() -> argparse.ArgumentParser:
 
 
 def _authorize(args: argparse.Namespace) -> int:
+    if SHA256_RE.fullmatch(os.environ.get(FRESHNESS_HANDOFF_ENV, "")) is None:
+        print(
+            "SKILL BLOCKED - invoke this hook through the external idc-verify-fresh launcher",
+            file=sys.stderr,
+        )
+        return 2
     payload = _read_payload()
     report = skill_integrity.verify_repository(
         args.repo_root, include_verified_manifest=True
@@ -75,8 +86,12 @@ def _authorize(args: argparse.Namespace) -> int:
     manifest = report.pop("_verifiedManifest", None)
     if args.json:
         print(json.dumps(report, sort_keys=True, indent=2))
-    if not report["readyToRun"]:
-        print(f"SKILL BLOCKED - integrity gate is {report['score']}", file=sys.stderr)
+    if not (
+        report.get("contentReady") is True
+        and report.get("profile") == "release"
+        and report.get("score") == "5/5"
+    ):
+        print(f"SKILL BLOCKED - content gate is {report['score']}", file=sys.stderr)
         return 2
 
     payload_skill = _skill_from_payload(payload)
@@ -112,7 +127,7 @@ def _authorize(args: argparse.Namespace) -> int:
         )
         return 2
 
-    print(f"SKILL INTEGRITY READY 5/5 - installed skill={skill_name}")
+    print(f"SKILL CONTENT VERIFIED 5/5 - installed skill={skill_name}")
     return 0
 
 

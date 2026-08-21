@@ -1,6 +1,53 @@
 # Changelog
 
-## 2.0.2 — 2026-08-19 (candidate until this exact tree is merged and tagged)
+## 2.0.3 — 2026-08-19 (candidate until external freshness, merge, promotion, and tag)
+
+Signed-content reconciliation: the anti-rollback implementation is exact at
+`a58f59e` with Claude Opus + OpenAI Codex **APPROVE**, 100 unit tests plus 20
+subtests, and canonical validation 50/50. The independently approved guard
+lineage closes at `d0fac44` and passes 300/300 native macOS Bash 3.2 fixtures.
+The independently approved scanner diff `e98cfac6` is committed at `04a5bd4`
+and passes 589/589 native macOS Bash 3.2 fixtures. The checked-in v3 manifest
+and detached signature bind the 2.0.3 sequence-1 content candidate at 5/5;
+external freshness, promotion, and tag remain pending, so this entry is not yet
+a shipped-release claim.
+
+- Split content integrity from release authority. The in-tree verifier now emits
+  `contentReady` under report schema v2; only the independently installed
+  freshness launcher can emit `readyToRun=true`.
+- Added signed manifest schema v3 with the first evidenced monotonic
+  `manifestSequence`, a Git-tracked full-release byte/mode closure, strict
+  canonical parsing, and explicit binding of the external launcher and its
+  attack fixtures as release controls.
+- Added the domain-separated, expiring signed release index and protected
+  anti-replay checkpoint. The newest entry binds release, sequence, manifest,
+  verifier, launcher, and exact Git commit; replay, equivocation, rewritten
+  history, stale first-use state, in-tree authority paths, and missing required
+  sources fail closed.
+- Added private-snapshot execution with absolute digest-pinned Python, Git, and
+  OpenSSH runtimes, candidate Git filter/hook/fsmonitor avoidance, sanitized
+  consumer environment, fixed repository-root routing, and exact staged
+  installer/hook/reacceptance paths. Offline verification remains explicitly
+  freshness-unverified and exits distinctly without running a child.
+- Bound the captured launcher, verifier, and signing-anchor bytes back to their
+  reviewed signed repository sources before any content verifier can run,
+  including offline mode; documented the external clean-process boundary needed
+  to exclude pre-start loader injection.
+- Hardened the advisory dangerous-Git classifier and static egress scanner with
+  expanded macOS Bash 3.2 fixtures, while retaining their honest scope: the Git
+  string classifier remains advisory beneath OS/repository controls, and static
+  scanner completeness still requires the separate sealed-load runtime rung.
+- Repository-owned CI now exercises the content and freshness fixture matrices,
+  scanner/guard suites, and release shell surfaces without claiming that
+  candidate-owned workflow code is an external whole-tree trust root.
+
+Security boundary: the external launcher, its canonical configuration,
+checkpoint, pinned runtime binaries, signing key, and operating system remain
+trusted components. User-owned external state does not protect against that same
+OS user; admin-owned paths or platform policy are required for the stronger
+claim.
+
+## 2.0.2 — 2026-08-19
 
 - De-slopped all 50 canonical skill bodies while preserving the de-slop commit's frontmatter, fenced code, inline code, commands, URLs, and operational meaning; independent cohort review found no semantic loss.
 - Added a dependency-free signed integrity gate over every skill byte, release-control byte, external-reference occurrence, network-command occurrence, remote instruction pin, and exact reviewed fetch/execute exception.

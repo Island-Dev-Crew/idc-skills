@@ -3,6 +3,7 @@ from __future__ import annotations
 import contextlib
 import hashlib
 import http.server
+import io
 import json
 import os
 import subprocess
@@ -76,6 +77,7 @@ class FixtureRepo:
             self.skills / "registry.json",
             {
                 "release": "fixture",
+                "manifestSequence": skill_integrity.MIN_MANIFEST_SEQUENCE,
                 "skills": [{"name": "alpha", "path": "alpha"}],
             },
         )
@@ -184,7 +186,85 @@ class SkillIntegrityTests(unittest.TestCase):
             report = fixture.verify()
             self.assertTrue(report["pass"])
             self.assertEqual(report["score"], "5/5")
-            self.assertFalse(report["readyToRun"])
+            self.assertEqual(report["schema"], skill_integrity.REPORT_SCHEMA)
+            self.assertTrue(report["contentReady"])
+            self.assertEqual(
+                report["manifestSequence"], skill_integrity.MIN_MANIFEST_SEQUENCE
+            )
+            self.assertEqual(report["release"], "fixture")
+            self.assertNotIn("readyToRun", report)
+
+    def test_manifest_sequence_is_strict_positive_integer_at_or_above_floor(self) -> None:
+        invalid_values: tuple[object, ...] = (
+            None,
+            0,
+            -1,
+            skill_integrity.MIN_MANIFEST_SEQUENCE - 1,
+            "3",
+            3.0,
+            True,
+            skill_integrity.MAX_MANIFEST_SEQUENCE + 1,
+        )
+        with mutable_server() as url:
+            for value in invalid_values:
+                with self.subTest(value=value), tempfile.TemporaryDirectory() as temporary:
+                    fixture = FixtureRepo(Path(temporary), url)
+                    registry_path = fixture.skills / "registry.json"
+                    registry = json.loads(registry_path.read_text(encoding="utf-8"))
+                    if value is None:
+                        registry.pop("manifestSequence", None)
+                    else:
+                        registry["manifestSequence"] = value
+                    canonical_write(registry_path, registry)
+                    with self.assertRaisesRegex(
+                        skill_integrity.IntegrityError,
+                        "manifestSequence",
+                    ):
+                        skill_integrity.build_manifest(
+                            fixture.root,
+                            fixture.skills,
+                            fixture.policy,
+                            fetch_remotes=False,
+                        )
+
+    def test_v2_manifest_is_rejected_by_current_verifier(self) -> None:
+        value = {"schema": "idc-skill-integrity/v2"}
+        with self.assertRaisesRegex(skill_integrity.IntegrityError, "manifest schema"):
+            skill_integrity._load_canonical_manifest_bytes(
+                skill_integrity.canonical_bytes(value)
+            )
+
+    def test_v3_manifest_rejects_unknown_top_level_key(self) -> None:
+        with mutable_server() as url, tempfile.TemporaryDirectory() as temporary:
+            fixture = FixtureRepo(Path(temporary), url)
+            manifest = skill_integrity.build_manifest(
+                fixture.root,
+                fixture.skills,
+                fixture.policy,
+                fetch_remotes=False,
+            )
+            manifest["unexpected"] = True
+            with self.assertRaisesRegex(skill_integrity.IntegrityError, "unknown"):
+                skill_integrity._load_canonical_manifest_bytes(
+                    skill_integrity.canonical_bytes(manifest)
+                )
+
+    def test_signed_manifest_sequence_is_reconstructed_from_tree(self) -> None:
+        with mutable_server() as url, tempfile.TemporaryDirectory() as temporary:
+            fixture = FixtureRepo(Path(temporary), url)
+            fixture.generate_and_sign()
+            registry_path = fixture.skills / "registry.json"
+            registry = json.loads(registry_path.read_text(encoding="utf-8"))
+            registry["manifestSequence"] += 1
+            canonical_write(registry_path, registry)
+
+            report = fixture.verify()
+
+            self.assertFalse(report["contentReady"])
+            self.assertIn(
+                "manifestSequence differs",
+                " ".join(report["checks"]["local_bytes"]["failures"]),
+            )
 
     def test_file_tamper_and_added_url_fail(self) -> None:
         with mutable_server() as url, tempfile.TemporaryDirectory() as temporary:
@@ -466,6 +546,8 @@ class SkillIntegrityTests(unittest.TestCase):
         }
         self.assertNotIn("--expected-fingerprint", options)
         self.assertNotIn("--allow-fixture", options)
+        with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
+            parser.parse_args(["--repo-roo=.", "verify"])
 
     @unittest.skipIf(os.name == "nt", "symlink creation requires extra Windows privileges")
     def test_symlink_escape_is_denied(self) -> None:

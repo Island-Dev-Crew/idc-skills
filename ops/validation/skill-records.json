@@ -1,5 +1,5 @@
 {
-  "generated": "2026-08-19",
+  "generated": "2026-08-20",
   "records": [
     {
       "caseAvg": 8.0,
@@ -164,31 +164,31 @@
       "standoutStrength": "The fog/frontier/decision-vs-build conceptual frame is crisp and self-policing: 'the pull to just do the work is the signal you've reached the edge of the map' is a repeated, testable signal that reliably stops a planner from silently sliding into building — every ambiguous case resolved to a definite call from the text alone."
     },
     {
-      "caseAvg": 9.3,
+      "caseAvg": 8.7,
       "cases": [
         {
           "score": 9,
-          "title": "Shell denylist blocks catastrophes, spares recoverable",
-          "whatHappened": "Fed 25 hook payloads through deny-dangerous.sh: all 18 catastrophes blocked (rm -rf / long-flag/quoted/~/$HOME forms, sudo rm, dd/mkfs, fork bomb, curl|sh, push --force, gh repo delete, scp/env exfil) and recoverable commands (rm -rf node_modules, git clean -fdx, git push) correctly allowed. All three agent payload shapes and loud fail-open verified. One harmless over-block: literal 'echo rm -rf /' is flagged."
-        },
-        {
-          "score": 10,
-          "title": "Git block enforces authority boundary precisely",
-          "whatHappened": "19/19 exact: blocked reset --hard, clean -fd/-f, branch -D, checkout ./restore ., push --force across .tool_input/.toolInput/.command shapes, while allowing dry runs (-fdn/-ndf/--dry-run), reset --soft, branch -d, restore --staged, checkout mybranch. Zero false positives."
+          "title": "R6 guard matrix blocks destructive Git and preserves recoverable commands",
+          "whatHappened": "The accepted guard lineage closes at component d0fac44. On native macOS Bash 3.2, the isolated red-before-green matrix passed 300/300, covering destructive push, reset, clean, force-delete, forced checkout/restore/switch, broad pathspecs, consumed option values, and documented safe controls."
         },
         {
           "score": 9,
-          "title": "Pre-commit gate blocks broken code end-to-end",
-          "whatHappened": "Built a real repo, npm-installed husky+lint-staged+prettier, wired the SKILL's exact pre-commit hook; prettier auto-formatted staged JS, a failing npm test blocked the commit (exit 1, no commit), and a passing config let the commit land. Genuinely enforced by the hook."
+          "title": "Grammar, execution-position, and alias bypasses are red-capable",
+          "whatHappened": "The 300-case matrix independently replayed separators, newline, subshell/process substitution, fd redirection, env split-string, inherited Git config, bundled and abbreviated flags, consumed option arguments, pathspec exclusions, git.exe, nested/bang aliases, and false-positive text controls."
+        },
+        {
+          "score": 8,
+          "title": "Advisory boundary and residuals remain explicit",
+          "whatHappened": "The skill and fixture output continue to label the classifier advisory rather than a sandbox. Dynamic variables, eval/sh-c, prior-command aliases, renamed binaries, and other undocumented shell indirection remain residuals; missing jq/python3 remains fail-open."
         }
       ],
       "confidence": 8.5,
-      "evidenceEpoch": "historical-v1.6.0-migrated-from-docs-report",
+      "evidenceEpoch": "2.0.3-guard-final-2026-08-20",
       "inv": "model",
-      "oneLiner": "Installs four independent mechanical guardrails — shell denylist, destructive-git block, pre-commit gate, and read-only DB role — that block agent catastrophes at the machine level beneath the prompts.",
-      "residual": "Layer 1's substring regex over-blocks the harmless literal 'echo rm -rf /' and, as the skill openly states, cannot catch var-expansion or bash -c indirection — real evasions that stay out of declared scope (seatbelt, not sandbox); Layer 4's DB role was reviewed but not executed (no psql on host).",
+      "oneLiner": "A scoped, grammar-aware destructive-Git classifier with R6 red-capable coverage and an explicit advisory boundary.",
+      "residual": "The classifier is defense-in-depth, not a shell parser or sandbox; dynamic indirection and unavailable dependencies remain outside its enforced surface.",
       "skill": "agent-guardrails",
-      "standoutStrength": "The denylist regexes are honestly calibrated to the skill's stated design rule — they catch irreversible catastrophes while leaving recoverable work alone, and the git layer's dry-run/-d-vs-D/--soft-vs--hard discrimination is exact, so the guardrails won't get disabled for blocking safe work."
+      "standoutStrength": "R6 tests both blocking precision and false-positive resistance across the command grammar instead of treating a green substring scan as authority enforcement."
     },
     {
       "caseAvg": 8.7,
@@ -1164,31 +1164,31 @@
       "standoutStrength": "Separates operator spend authority from numeric caps and preserves rejected candidates as evidence."
     },
     {
-      "caseAvg": 7.3,
+      "caseAvg": 8.7,
       "cases": [
         {
-          "score": 8,
-          "title": "Local-only artifact passes the static rung",
-          "whatHappened": "`scan-egress.sh` on a local-only HTML fixture exited 0 and reported 0 un-waived findings. This is static evidence only, not a lifecycle containment claim."
+          "score": 9,
+          "title": "R6 scanner enumerates content and fails closed",
+          "whatHappened": "Exact independently approved scanner diff e98cfac6, committed as 04a5bd4, passed 589/589 isolated fixtures on native macOS Bash 3.2. Coverage includes extensionless and uppercase scripts, symlinks, binaries, FIFOs, newline filenames, immutable snapshots, and binary-embedded references with no silent skip or hang."
         },
         {
           "score": 9,
-          "title": "Direct external script URL fails",
-          "whatHappened": "The scanner ran against a script tag pointing at an external CDN, exited 1, and reported one un-waived EGRESS finding. The direct reference could not pass silently."
+          "title": "Egress-context and laundering probes fail closed",
+          "whatHappened": "The 589-case matrix independently replayed protocol-relative browser contexts, entity and URL normalization, imports/workers/service workers, navigation and DOM sinks, recursive executable data payloads, decoded waiver boundaries, TypeScript lexical goals, tagged fetch calls, CSS escapes, and path-snapshot swaps."
         },
         {
-          "score": 5,
-          "title": "Runtime-built URL demonstrates the static limit",
-          "whatHappened": "The static scanner passed an HTML fixture that concatenated `ht` and `tps://...` at runtime. The skill now states this limitation honestly and requires sealed runtime observation; Playwright was absent, so that second rung remained unverified in this lane."
+          "score": 8,
+          "title": "Static-scan scope remains honestly bounded",
+          "whatHappened": "The scanner's exit code is red-capable for observed findings, but runtime-built or obfuscated URLs remain a static-rung residual. Full containment still requires the separately documented sealed-load observation for the states it exercises."
         }
       ],
-      "confidence": 8.0,
-      "evidenceEpoch": "2.0.2-f02-closure-2026-08-19",
+      "confidence": 8.5,
+      "evidenceEpoch": "2.0.3-scanner-final-2026-08-20",
       "inv": "model",
-      "oneLiner": "Pairs static egress discovery with a separately evidenced sealed-load runtime rung for self-contained artifacts.",
-      "residual": "Static scanning has real obfuscation false negatives, while sealed-load coverage is bounded to the interactions and observation window actually exercised.",
+      "oneLiner": "A content-based, fail-closed egress scanner paired with an explicit sealed-load runtime rung.",
+      "residual": "Static regex coverage cannot prove absence of runtime-built or obfuscated egress; sealed-load evidence is bounded to its exercised states and observation window.",
       "skill": "self-contained-ship",
-      "standoutStrength": "A direct external request is red-capable, and the skill does not pretend that its regex alone proves lifecycle containment."
+      "standoutStrength": "R6 isolates each failure class and prevents binary waivers, special files, or display-channel behavior from laundering an otherwise red result."
     },
     {
       "caseAvg": 8.7,
@@ -1353,7 +1353,7 @@
       "standoutStrength": "Makes bidirectional evidence invalidation explicit without laundering a procedural mandate into mechanical enforcement."
     }
   ],
-  "release": "2.0.2",
+  "release": "2.0.3",
   "schema": "idc-skill-validation/v1",
   "sourceNote": "Forty historical records were mechanically migrated from docs/report.html; ten missing records were independently re-derived for F-02 closure. Each card preserves its residual and case limits."
 }
