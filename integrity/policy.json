@@ -2,6 +2,7 @@
   "controlFiles": [
     "CHANGELOG.md",
     "IDC-Skills-2.0.2-Gap-Analysis-and-Integrity-Review-v1-2026-08-19.html",
+    "integrity/windows-metadata-policy.json",
     "README.md",
     "docs/report.html",
     "ops/validation/new-records-2.0.2.json",
@@ -10,6 +11,9 @@
     "scripts/verify_validation_records.py",
     "THIRD-PARTY-NOTICES.md",
     "provenance.json",
+    "runtime-requirements.json",
+    "scripts/verify_platform_evidence.py",
+    "scripts/verify_runtime_requirements.py",
     "tests/test_validation_records.py"
   ],
   "deniedPatternExceptions": [

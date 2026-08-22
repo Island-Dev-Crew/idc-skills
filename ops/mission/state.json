@@ -10,8 +10,8 @@
     "northStar": "A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.",
     "status": "active",
     "started": "2026-08-11",
-    "updated": "2026-08-22T23:01:49Z",
-    "sessionCount": 7
+    "updated": "2026-08-22T23:24:31Z",
+    "sessionCount": 8
   },
   "policies": {
     "merge": "review",
@@ -673,22 +673,22 @@
       "id": "G4",
       "title": "Hook, credential, URL, runtime, and platform boundaries",
       "goal": "Bind the exact skill identity and mode, keep secrets out of unsafe carriers, parse URLs canonically, and prove claimed platform behavior.",
-      "status": "pending",
+      "status": "in_progress",
       "sessionsEstimate": "2",
       "gates": [
         {
           "id": "G4-G1",
           "title": "Runtime-boundary unit and shell tests pass",
           "command": "python3 -B -m unittest tests.test_skill_integrity tests.test_freshness tests.test_runtime_boundaries",
-          "status": "pending",
+          "status": "passed",
           "evidence": "ops/mission/evidence/2.0.4/g4-runtime.json",
-          "lastRun": null,
-          "notes": "Covers conflicting identities, chmod drift, unsafe modes, broken pipes, runtime floor, trusted-tool substitution, credentials, plaintext persistence, and URL confusion."
+          "lastRun": "2026-08-22T23:24:31Z",
+          "notes": "Forty-eight focused tests pass. The full suite is 155/155; Bash 3.2 parsing and ShellCheck pass; canonical validation remains 50/50 with zero errors and thirteen named advisories."
         },
         {
           "id": "G4-G2",
           "title": "Real platform seats pass the same candidate",
-          "command": "python3 -B scripts/verify_platform_evidence.py ops/mission/evidence/2.0.4/platform-matrix.json",
+          "command": "python3 -B scripts/verify_platform_evidence.py ops/mission/evidence/2.0.4/platform-matrix.json --candidate-head <exact-40-hex-candidate>",
           "status": "pending",
           "evidence": "ops/mission/evidence/2.0.4/platform-matrix.json",
           "lastRun": null,
@@ -699,26 +699,26 @@
         {
           "id": "G4-T1",
           "title": "Normalize hook identity and bind signed POSIX modes",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G0-T3"],
           "pr": null,
-          "notes": "Unknown, duplicate, or conflicting representations fail; unsafe group/world-writable modes fail."
+          "notes": "Unknown, duplicate, conflicting, and duplicate-JSON-key representations fail. Signed skill records bind SHA-256, size, and safe POSIX mode; physical mode drift fails on POSIX."
         },
         {
           "id": "G4-T2",
           "title": "Harden runtime, trusted tools, secret transport, and URL parsing",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G4-T1"],
           "pr": null,
-          "notes": "Python floor, Bash claims, ssh-keygen identity, DeepAPI carrier, wizard storage, and normalized URL opening are explicit contracts."
+          "notes": "Python 3.10 and Bash 3.2 floors are signed; ssh-keygen is absolute and digest-pinned; DeepAPI bearer bytes stay out of argv; wizard URL and plaintext storage policies are fail-closed."
         },
         {
           "id": "G4-T3",
           "title": "Record the same-UID residual and obtain real platform evidence",
-          "status": "pending",
+          "status": "in_progress",
           "dependsOn": ["G4-T1", "G4-T2"],
           "pr": null,
-          "notes": "Either enforce an immutable consumption boundary or label same-UID post-check mutation advisory."
+          "notes": "Same-UID mutation is explicitly an advisory residual requiring admin/OS isolation. Preliminary real macOS Bash 3.2 passed; exact-head macOS plus real Windows NTFS/OpenSSH evidence remain required."
         }
       ]
     },
@@ -958,7 +958,7 @@
     {
       "label": "Real platform acceptance seats",
       "baseline": "Historical macOS and Windows evidence not yet bound to 2.0.4",
-      "current": "Pending exact-candidate runs",
+      "current": "Preliminary macOS/Bash 3.2 green; exact-head macOS and Windows/NTFS/OpenSSH records pending",
       "target": "macOS/Bash 3.2 and Windows/NTFS/OpenSSH pass at one candidate head",
       "direction": "up"
     },
@@ -1029,11 +1029,11 @@
     }
   ],
   "resume": {
-    "activePhase": "G0",
+    "activePhase": "G4",
     "nextActions": [
-      "Implement and falsify the G0 evidence schema and dependency-free validator against the preserved Kimi package.",
-      "Reconcile every 2.0.3 finding to an exact revision, path, line range, fixture digest, command, output digest, and unambiguous disposition.",
-      "Advance to G1 only after the complete evidence package and negative fixtures prove the validator red-capable."
+      "Complete G5 provenance, intake, console-lock, and four-root parity implementation without installing an unsigned candidate.",
+      "Freeze one candidate head, then collect real macOS and Windows platform records against that exact head.",
+      "Obtain owner threshold-root ceremony, independent cross-family review, blind Kimi rerun, protected CI, and publication proof before G6 release acceptance."
     ],
     "blockers": [
       "The production G1 root ceremony requires authorized threshold-key holders; no signing secret may enter the repository, shell history, chat, or evidence bundle.",

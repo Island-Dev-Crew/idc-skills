@@ -19,6 +19,7 @@ import argparse
 import contextlib
 import datetime as dt
 import hashlib
+import http.client
 import json
 import os
 import re
@@ -552,6 +553,61 @@ def _staged_repository(
         yield staged
 
 
+def _verify_staged_repository(
+    staged: Path,
+    manifest: Mapping[str, Any],
+    manifest_data: bytes,
+    manifest_signature: bytes,
+) -> None:
+    """Re-hash the exact private tree immediately before reporting or consumption."""
+
+    expected = set(manifest["repositoryFiles"]) | {
+        "integrity/manifest.json",
+        "integrity/manifest.json.sig",
+    }
+    actual: set[str] = set()
+    for current, directories, names in os.walk(staged, followlinks=False):
+        current_path = Path(current)
+        for name in directories:
+            candidate = current_path / name
+            mode = candidate.lstat().st_mode
+            if stat.S_ISLNK(mode) or not stat.S_ISDIR(mode):
+                raise FreshnessError(
+                    f"staged repository has an unsafe directory: {candidate.relative_to(staged)}"
+                )
+        for name in names:
+            candidate = current_path / name
+            relative = candidate.relative_to(staged).as_posix()
+            mode = candidate.lstat().st_mode
+            if stat.S_ISLNK(mode) or not stat.S_ISREG(mode):
+                raise FreshnessError(f"staged repository has an unsafe file: {relative}")
+            actual.add(relative)
+    if actual != expected:
+        raise FreshnessError(
+            "staged repository inventory changed before consumption: "
+            f"missing={sorted(expected - actual)} unexpected={sorted(actual - expected)}"
+        )
+    special = {
+        "integrity/manifest.json": manifest_data,
+        "integrity/manifest.json.sig": manifest_signature,
+    }
+    for relative in sorted(expected):
+        path = staged / relative
+        maximum = MAX_MANIFEST_BYTES if relative == "integrity/manifest.json" else MAX_REPOSITORY_FILE_BYTES
+        data = _read_regular_snapshot(path, f"staged repository file {relative}", maximum)
+        if relative in special:
+            if data != special[relative]:
+                raise FreshnessError(f"staged authority file changed before consumption: {relative}")
+            continue
+        expected_digest, expected_size, expected_mode = _manifest_file_record(
+            manifest["repositoryFiles"][relative], f"repositoryFiles[{relative!r}]"
+        )
+        if len(data) != expected_size or sha256_bytes(data) != expected_digest:
+            raise FreshnessError(f"staged repository bytes changed before consumption: {relative}")
+        if os.name != "nt" and stat.S_IMODE(path.stat().st_mode) != expected_mode:
+            raise FreshnessError(f"staged repository mode changed before consumption: {relative}")
+
+
 def _validate_executable_record(value: Any, label: str, repo_root: Path) -> str:
     if not isinstance(value, dict):
         raise FreshnessError(f"{label} must be an executable record")
@@ -627,6 +683,10 @@ def parse_config(data: bytes, *, repo_root: Path, config_path: Path) -> dict[str
     if not isinstance(executables, dict):
         raise FreshnessError("executables must be an object")
     _exact_keys(executables, {"python", "git", "sshKeygen"}, "executables")
+    executable_digests = {
+        name: record.get("sha256") if isinstance(record, dict) else None
+        for name, record in executables.items()
+    }
     value["executables"] = {
         "python": _validate_executable_record(
             executables["python"], "executables.python", repo_root
@@ -638,6 +698,7 @@ def parse_config(data: bytes, *, repo_root: Path, config_path: Path) -> dict[str
             executables["sshKeygen"], "executables.sshKeygen", repo_root
         ),
     }
+    value["_executableSHA256"] = executable_digests
     try:
         if not os.path.samefile(sys.executable, value["executables"]["python"]):
             raise FreshnessError(
@@ -771,7 +832,12 @@ def _fetch_https(url: str, allowed_hosts: set[str], redirects: int, maximum: int
             data = response.read(maximum + 1)
     except FreshnessError:
         raise
-    except (OSError, urllib.error.URLError, urllib.error.HTTPError) as exc:
+    except (
+        OSError,
+        urllib.error.URLError,
+        urllib.error.HTTPError,
+        http.client.HTTPException,
+    ) as exc:
         raise FreshnessError(f"release-index fetch failed: {exc}") from exc
     if len(data) > maximum:
         raise FreshnessError(f"release-index response exceeds {maximum} bytes")
@@ -1099,6 +1165,7 @@ def _run_content_verifier(
     repo_root: Path,
     python_executable: str,
     ssh_keygen: str,
+    ssh_keygen_sha256: str,
 ) -> dict[str, Any]:
     with tempfile.TemporaryDirectory(prefix="idc-fresh-verifier-") as temporary:
         root = Path(temporary)
@@ -1129,6 +1196,10 @@ def _run_content_verifier(
                 str(public_key),
                 "--allowed-signers",
                 str(allowed),
+                "--ssh-keygen",
+                ssh_keygen,
+                "--ssh-keygen-sha256",
+                ssh_keygen_sha256,
                 "--json",
             ],
             text=True,
@@ -1153,7 +1224,7 @@ def _run_content_verifier(
 
 
 ContentRunner = Callable[
-    [bytes, bytes, bytes, bytes, bytes, Path, str, str], dict[str, Any]
+    [bytes, bytes, bytes, bytes, bytes, Path, str, str, str], dict[str, Any]
 ]
 ConsumerRunner = Callable[[Path, str, Mapping[str, Any]], int]
 
@@ -1225,6 +1296,7 @@ def verify_release(
     python_executable = config["executables"]["python"]
     git_executable = config["executables"]["git"]
     ssh_keygen = config["executables"]["sshKeygen"]
+    ssh_keygen_sha256 = config["_executableSHA256"]["sshKeygen"]
 
     public_path = repo_root / "keys" / "idc-skills-signing.pub"
     allowed_path = repo_root / "keys" / "allowed_signers"
@@ -1269,6 +1341,7 @@ def verify_release(
                 staged_repo,
                 python_executable,
                 ssh_keygen,
+                ssh_keygen_sha256,
             )
             _require_content_ready(content_report, manifest)
             if _read_regular_snapshot(
@@ -1360,6 +1433,7 @@ def verify_release(
             staged_repo,
             python_executable,
             ssh_keygen,
+            ssh_keygen_sha256,
         )
         _require_content_ready(content_report, manifest)
 
@@ -1415,8 +1489,16 @@ def verify_release(
                 else (clock or (lambda: dt.datetime.now(dt.timezone.utc)))()
             )
             parse_index(index_data, now=current_time)
+            _verify_staged_repository(
+                staged_repo, manifest, manifest_data, manifest_signature
+            )
             consumer_exit_code = consumer_runner(
                 staged_repo, index_digest, final_config
+            )
+
+        if consumer_runner is None:
+            _verify_staged_repository(
+                staged_repo, manifest, manifest_data, manifest_signature
             )
 
         report = {
@@ -1494,6 +1576,10 @@ def _run_consumer(
     # This marker prevents accidental direct routing in current code. It is not
     # the trust boundary; the independently pinned launcher is.
     environment["IDC_SKILLS_FRESHNESS_HANDOFF"] = handoff
+    environment["IDC_SKILLS_SSH_KEYGEN"] = config["executables"]["sshKeygen"]
+    environment["IDC_SKILLS_SSH_KEYGEN_SHA256"] = config["_executableSHA256"][
+        "sshKeygen"
+    ]
     bootstrap = (
         "import runpy,sys;"
         "scripts=sys.argv[1];script=sys.argv[2];argv=sys.argv[3:];"
@@ -1572,6 +1658,19 @@ def main(argv: Sequence[str] | None = None) -> int:
             print(json.dumps(failure, sort_keys=True, indent=2))
         else:
             print(f"NOT READY — {exc}", file=sys.stderr)
+        return 2
+    except Exception as exc:
+        failure = {
+            "schema": REPORT_SCHEMA,
+            "pass": False,
+            "readyToRun": False,
+            "freshnessVerified": False,
+            "error": f"unexpected verifier failure: {type(exc).__name__}",
+        }
+        if args.json:
+            print(json.dumps(failure, sort_keys=True, indent=2))
+        else:
+            print(f"NOT READY — {failure['error']}", file=sys.stderr)
         return 2
     if args.command != "verify":
         return int(report["consumerExitCode"])

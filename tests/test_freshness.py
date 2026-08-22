@@ -4,6 +4,7 @@ import argparse
 import contextlib
 import datetime as dt
 import importlib.util
+import http.client
 import io
 import json
 import os
@@ -270,6 +271,7 @@ class FreshnessFixture:
         repo_root: Path,
         python_executable: str,
         ssh_keygen: str,
+        ssh_keygen_sha256: str,
     ) -> dict[str, object]:
         del (
             verifier,
@@ -280,6 +282,7 @@ class FreshnessFixture:
             repo_root,
             python_executable,
             ssh_keygen,
+            ssh_keygen_sha256,
         )
         return {
             "schema": "idc-skill-integrity-report/v2",
@@ -361,14 +364,20 @@ def _prepare_real_content_fixture(fixture: FreshnessFixture) -> None:
         "bootstrap/idc_verify_fresh.py",
         "CONTEXT.md",
         "integrity/README.md",
+        "integrity/windows-metadata-policy.json",
+        "ops/mission/evidence/platform-evidence.schema.json",
         "scripts/install.py",
         "scripts/install.sh",
         "scripts/pretooluse-skill-integrity.py",
         "scripts/reaccept.py",
         "scripts/setup-signing-wizard.sh",
         "scripts/test-skill-integrity.sh",
+        "scripts/verify_platform_evidence.py",
+        "scripts/verify_runtime_requirements.py",
+        "runtime-requirements.json",
         "tests/test_install.py",
         "tests/test_freshness.py",
+        "tests/test_runtime_boundaries.py",
         "tests/test_security_scripts.py",
         "tests/test_skill_integrity.py",
     )
@@ -929,6 +938,55 @@ class FreshnessTests(unittest.TestCase):
 
             self.assertEqual(report["consumerExitCode"], 0)
 
+    def test_private_stage_is_rehashed_immediately_before_consumer(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = FreshnessFixture(Path(temporary))
+            consumer = mock.Mock(return_value=0)
+
+            def mutate_staged(*args: object) -> dict[str, object]:
+                report = FreshnessFixture.content_runner(*args)  # type: ignore[arg-type]
+                staged = args[5]
+                assert isinstance(staged, Path)
+                (staged / "scripts" / "install.py").write_text(
+                    "# changed after content verification\n", encoding="utf-8"
+                )
+                return report
+
+            with self.assertRaisesRegex(
+                fresh.FreshnessError, "staged repository bytes changed before consumption"
+            ):
+                fixture.verify(content_runner=mutate_staged, consumer_runner=consumer)
+            consumer.assert_not_called()
+
+    def test_incomplete_http_body_is_normalized_fail_closed(self) -> None:
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args: object) -> None:
+                del args
+
+            def geturl(self) -> str:
+                return "https://example.invalid/releases.json"
+
+            def read(self, maximum: int) -> bytes:
+                del maximum
+                raise http.client.IncompleteRead(b"partial", 100)
+
+        class Opener:
+            def open(self, request: object, timeout: int) -> Response:
+                del request, timeout
+                return Response()
+
+        with mock.patch.object(fresh.urllib.request, "build_opener", return_value=Opener()):
+            with self.assertRaisesRegex(fresh.FreshnessError, "release-index fetch failed"):
+                fresh._fetch_https(
+                    "https://example.invalid/releases.json",
+                    {"example.invalid"},
+                    0,
+                    1024,
+                )
+
     def test_consumer_rejects_root_abbreviation_and_strips_hostile_environment(self) -> None:
         with mock.patch.object(fresh.os, "name", "nt"), mock.patch.dict(
             fresh.os.environ,
@@ -962,6 +1020,9 @@ class FreshnessTests(unittest.TestCase):
                     "python": python,
                     "git": git,
                     "sshKeygen": ssh_keygen,
+                },
+                "_executableSHA256": {
+                    "sshKeygen": fresh.sha256_bytes(Path(ssh_keygen).read_bytes())
                 },
                 "consumerPath": [str(Path(python).parent)],
                 "consumerHome": str(root),
@@ -1028,6 +1089,25 @@ class FreshnessTests(unittest.TestCase):
         self.assertNotIn("READY", stdout.getvalue())
         self.assertNotIn("READY", stderr.getvalue())
 
+    def test_unexpected_consumer_exception_is_normalized_without_secret_text(self) -> None:
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with (
+            mock.patch.object(
+                fresh,
+                "verify_release",
+                side_effect=RuntimeError("fixture-secret-must-not-leak"),
+            ),
+            contextlib.redirect_stdout(stdout),
+            contextlib.redirect_stderr(stderr),
+        ):
+            exit_code = fresh.main(
+                ["--repo-root", "/unused", "--config", "/unused", "install"]
+            )
+        self.assertEqual(exit_code, 2)
+        self.assertIn("unexpected verifier failure: RuntimeError", stderr.getvalue())
+        self.assertNotIn("fixture-secret", stderr.getvalue())
+
     def test_noncanonical_duplicate_unknown_and_invalid_index_values_fail(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             fixture = FreshnessFixture(Path(temporary))
@@ -1087,6 +1167,7 @@ class FreshnessTests(unittest.TestCase):
                         fixture.repo,
                         fixture.python,
                         fixture.ssh_keygen,
+                        fresh.sha256_bytes(Path(fixture.ssh_keygen).read_bytes()),
                     ),
                     "readyToRun": False,
                 }

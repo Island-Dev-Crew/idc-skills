@@ -32,7 +32,11 @@ copy from inside the repository is refused.
 
 ## Content integrity: five independently red checks
 
-`python3 scripts/skill_integrity.py verify` reports `contentReady=true` only
+The release CLI requires the absolute externally selected `ssh-keygen` path and
+its protected `sha256:` digest; it never discovers the verification executable
+through candidate-controlled `PATH`. `python3 scripts/skill_integrity.py verify
+--ssh-keygen /absolute/ssh-keygen --ssh-keygen-sha256 sha256:<digest>` reports
+`contentReady=true` only
 when all five checks pass:
 
 1. **Signature:** the independently known fingerprint, `idc-skills` principal,
@@ -164,9 +168,22 @@ environment; caller `PATH`, Python loaders, dynamic-loader variables, shell
 startup, Node options, Git configuration variables, proxy variables, and TLS
 overrides are not inherited.
 
+The signed runtime contract is [`runtime-requirements.json`](../runtime-requirements.json):
+Python 3.10 and Bash 3.2 are minimum floors, with Python 3.12 used by the
+cross-platform CI matrix. Falling below a floor fails closed; a listed minimum
+does not claim that every OS/runtime combination has been physically tested.
+The exact macOS and Windows candidate must still satisfy the external
+[`platform-evidence.schema.json`](../ops/mission/evidence/platform-evidence.schema.json)
+gate. Windows verification authenticates the manifest's POSIX-mode intent and
+exact bytes, while real NTFS ACL proof remains a separate required record under
+[`windows-metadata-policy.json`](windows-metadata-policy.json).
+
 Owner-controlled user files protect against repository rollback but not an
-attacker acting as the same OS user. Stronger claims require admin-owned POSIX
-paths, Windows ACL enforcement, or CI/platform state outside candidate control.
+attacker acting as the same OS user. The verifier re-hashes the private staged
+closure immediately before a child action, but repository code cannot make a
+hostile same-UID process unable to race or replace user-owned trust state.
+Stronger claims require admin-owned POSIX paths, Windows ACL enforcement,
+process isolation, or CI/platform state outside candidate control.
 The Python runtime and operating system remain part of the trusted computing
 base. The launcher does not claim a cross-platform tamper-proof offline floor.
 Without a live valid index, freshness is unverified and no child runs.

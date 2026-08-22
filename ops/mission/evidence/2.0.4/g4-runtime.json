@@ -1,0 +1,32 @@
+{
+  "bash": {
+    "command": "/bin/bash -n scripts/install.sh skills/wizard/template.sh scripts/test-skill-integrity.sh && shellcheck scripts/install.sh skills/wizard/template.sh scripts/test-skill-integrity.sh",
+    "outputSHA256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "version": "GNU bash, version 3.2.57(1)-release (arm64-apple-darwin25)",
+    "versionOutputSHA256": "sha256:18dec819e662be965748e0485d103d04d31a598e08472a92b148e42157eef6df"
+  },
+  "canonicalValidation": {
+    "errors": 0,
+    "skills": 50,
+    "valid": true,
+    "warnings": 13
+  },
+  "generatedAt": "2026-08-22T23:24:31Z",
+  "implementation": {
+    "runtimeContractSHA256": "sha256:57e6d27a42cae3d53758de98fdffeb3707dbb7484043317e41b8e03530f7d35b",
+    "sameUidBoundary": "advisory residual documented; admin or OS isolation is required for stronger enforcement",
+    "windowsMetadataPolicySHA256": "sha256:fd870f76eefb997df8bea0b94eb04001e4635b7feaf2fccb27ed597f46acac6e"
+  },
+  "platformStatus": {
+    "macosBash32Preliminary": "passed on the working candidate; exact-head record still required",
+    "windowsNtfsOpenSSH": "pending real exact-head runner",
+    "wholePlatformGate": "pending"
+  },
+  "schema": "idc-g4-runtime-evidence/v1",
+  "tests": {
+    "command": "python3 -B -m unittest tests.test_skill_integrity tests.test_freshness tests.test_runtime_boundaries",
+    "count": 48,
+    "outputSHA256": "sha256:51b61a1bc845112ce73b8b8fbb9943e8cacc04a7287ad289f1204e05b9f44c73",
+    "status": "passed"
+  }
+}

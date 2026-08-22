@@ -69,6 +69,8 @@ CLAUDE_AI_ALLOWED_KEYS = (
 )
 CLAUDE_AI_TRANSFORM_KEYS = ("disable-model-invocation", "argument-hint")
 FRESHNESS_HANDOFF_ENV = "IDC_SKILLS_FRESHNESS_HANDOFF"
+SSH_KEYGEN_ENV = "IDC_SKILLS_SSH_KEYGEN"
+SSH_KEYGEN_SHA256_ENV = "IDC_SKILLS_SSH_KEYGEN_SHA256"
 SHA256_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
 CLAUDE_AI_ASSUMPTION = (
     "historical user-supplied prior-upload audit captured 2026-08-11: the upload "
@@ -914,6 +916,8 @@ def _verify_signed_skill_sources(
     integrity_report = skill_integrity.verify_repository(
         repository,
         skills_dir=source_skills,
+        ssh_keygen=os.environ.get(SSH_KEYGEN_ENV),
+        ssh_keygen_sha256=os.environ.get(SSH_KEYGEN_SHA256_ENV),
         include_verified_manifest=True,
     )
     signed_manifest = integrity_report.pop("_verifiedManifest", None)

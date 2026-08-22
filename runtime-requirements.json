@@ -1,0 +1,21 @@
+{
+  "bash": {
+    "minimum": "3.2",
+    "tested": [
+      "3.2",
+      "5.2"
+    ]
+  },
+  "platforms": {
+    "macos": "real runner required for release evidence",
+    "windows": "real runner and authenticated metadata policy required for release evidence"
+  },
+  "python": {
+    "minimum": "3.10",
+    "tested": [
+      "3.12",
+      "3.14"
+    ]
+  },
+  "schema": "idc-runtime-requirements/v1"
+}

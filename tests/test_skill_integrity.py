@@ -356,8 +356,11 @@ class SkillIntegrityTests(unittest.TestCase):
                 manifest_data: bytes,
                 signature_data: bytes,
                 allowed_signers_data: bytes,
+                ssh_keygen: Path,
             ) -> None:
-                original_verify(manifest_data, signature_data, allowed_signers_data)
+                original_verify(
+                    manifest_data, signature_data, allowed_signers_data, ssh_keygen
+                )
                 skill = fixture.skills / "alpha" / "SKILL.md"
                 skill.write_text(
                     skill.read_text(encoding="utf-8") + "\nPOISONED AFTER SIGNATURE\n",
@@ -546,6 +549,8 @@ class SkillIntegrityTests(unittest.TestCase):
         }
         self.assertNotIn("--expected-fingerprint", options)
         self.assertNotIn("--allow-fixture", options)
+        self.assertIn("--ssh-keygen", options)
+        self.assertIn("--ssh-keygen-sha256", options)
         with contextlib.redirect_stderr(io.StringIO()), self.assertRaises(SystemExit):
             parser.parse_args(["--repo-roo=.", "verify"])
 

@@ -603,7 +603,7 @@ from scripts import install
 fixture_root = Path(sys.argv[1])
 source = fixture_root / "skills" / "alpha"
 files = {
-    path.relative_to(source).as_posix(): install.skill_integrity._file_record(path)
+    path.relative_to(source).as_posix(): install.skill_integrity._skill_file_record(path)
     for path in install.skill_integrity._walk_regular_files(source)
 }
 verified = {
