@@ -4,8 +4,12 @@ set -euo pipefail
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"
-GIT="${IDC_CONSOLE_GIT:-$(command -v git 2>/dev/null || true)}"
-case "$GIT" in /*) ;; *) printf 'refusing to assemble: absolute Git executable required\n' >&2; exit 2 ;; esac
+GIT="${IDC_CONSOLE_GIT:-}"
+SHA256="${IDC_CONSOLE_SHA256:-}"
+case "$GIT" in /*) ;; *) printf 'refusing to assemble: IDC_CONSOLE_GIT must be an absolute executable\n' >&2; exit 2 ;; esac
+case "$SHA256" in /*) ;; *) printf 'refusing to assemble: IDC_CONSOLE_SHA256 must be an absolute executable\n' >&2; exit 2 ;; esac
+[ -x "$GIT" ] || { printf 'refusing to assemble: configured Git is not executable\n' >&2; exit 2; }
+[ -x "$SHA256" ] || { printf 'refusing to assemble: configured SHA-256 tool is not executable\n' >&2; exit 2; }
 
 "$GIT" rev-parse --is-inside-work-tree >/dev/null 2>&1 || {
   printf 'refusing to assemble: not a git repository\n' >&2
@@ -80,7 +84,12 @@ for object_id in "${OBJECTS[@]}"; do
   GIT_NO_REPLACE_OBJECTS=1 GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null \
     "$GIT" cat-file blob "$object_id" >> "$TMP_ROOT/assembled"
 done
-SHA="$(shasum -a 256 "$TMP_ROOT/assembled" | awk '{print $1}')"
+SHA_OUTPUT="$("$SHA256" -a 256 "$TMP_ROOT/assembled")"
+SHA="${SHA_OUTPUT%% *}"
+case "$SHA" in
+  *[!0-9a-f]*|'') printf 'refusing to assemble: SHA-256 tool returned invalid output\n' >&2; exit 2 ;;
+esac
+[ "${#SHA}" -eq 64 ] || { printf 'refusing to assemble: SHA-256 tool returned invalid length\n' >&2; exit 2; }
 HEAD_COMMIT="$(GIT_NO_REPLACE_OBJECTS=1 GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null \
   "$GIT" rev-parse --verify 'HEAD^{commit}')"
 BLOCKS_TREE="$(GIT_NO_REPLACE_OBJECTS=1 GIT_CONFIG_NOSYSTEM=1 GIT_CONFIG_GLOBAL=/dev/null \

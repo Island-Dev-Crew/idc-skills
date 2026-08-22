@@ -12,6 +12,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[1]
 ASSEMBLER = REPO / "console/assemble.sh"
 GIT = str(Path(shutil.which("git") or "").resolve())
+SHA256 = str(Path(shutil.which("shasum") or "").resolve())
 
 
 class ConsoleLockTests(unittest.TestCase):
@@ -31,6 +32,7 @@ class ConsoleLockTests(unittest.TestCase):
     def run_assembler(self, root: Path) -> subprocess.CompletedProcess[str]:
         environment = os.environ.copy()
         environment["IDC_CONSOLE_GIT"] = GIT
+        environment["IDC_CONSOLE_SHA256"] = SHA256
         return subprocess.run(
             ["/bin/bash", str(root / "console/assemble.sh")],
             cwd=root,
