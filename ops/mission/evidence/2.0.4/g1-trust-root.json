@@ -1,0 +1,46 @@
+{
+  "schema": "idc-skills-gate-evidence/v1",
+  "gate": "G1-G1",
+  "executedAt": "2026-08-22T23:01:49Z",
+  "command": "python3 -B -m unittest tests.test_trust_root -v",
+  "result": {
+    "exitCode": 0,
+    "testsRun": 16,
+    "testsPassed": 16,
+    "testsFailed": 0,
+    "testsSkipped": 0
+  },
+  "environment": {
+    "os": "Darwin 25.6.0 arm64",
+    "python": "3.14.7",
+    "openSSH": "OpenSSH_10.3p1 LibreSSL 3.3.6",
+    "git": "2.50.1 Apple Git-155"
+  },
+  "verifiedClaims": [
+    "Initial trusted root inside the candidate repository is rejected before candidate content verification.",
+    "A self-consistent attacker root without the previous threshold is rejected before the release statement is read.",
+    "Root rollback, same-version equivocation, skipped rotation, expired final root, and partial old threshold are rejected.",
+    "A valid N to N+1 rotation requires both the old root threshold and the new root self-threshold.",
+    "An external monotonic checkpoint rejects withholding of an already accepted rotation across runs.",
+    "The threshold-signed release statement binds tag, commit, tree, archive, freshness index, manifest, registry, and install inventory.",
+    "Archive substitution and tag-tree mismatch are rejected.",
+    "Git and OpenSSH are absolute, external, owner-controlled, executable, and digest-pinned.",
+    "The public metadata builder opens public keys and detached signatures only and refuses output overwrite.",
+    "Successful external verification remains ineligible to claim readyToInstall until downstream content and freshness gates pass."
+  ],
+  "implementationSHA256": {
+    "scripts/build_trust_metadata.py": "3be5c3355d0fb55088c547ae7993d559bc60a4ce83d0de11a1140132f9148eb0",
+    "scripts/trust_root.py": "16f42322f02489e42f9ad2089f275ca823388bc1ede9bbc17e44e4a80701e642",
+    "scripts/verify_external_root.py": "85246f706405d2142e71cbfe399b0c5d71e550e2001daaf0c496d0588728ec17",
+    "tests/test_trust_root.py": "da4fbec087e09c70d5054879776bb19312ef0fc8b78482cf8b8984749c46c662",
+    "trust/README.md": "07994248c031d9c6e1ee355dfbb012f2426ccfa32dad98c22eac82fdf180131b",
+    "trust/release-statement.schema.json": "6656daf9154b14476e5de0be8058ef91ce5c8a845c9ae28c34ba42d2893895d3",
+    "trust/root.schema.json": "0bdd260f1a6076bfd69162be181f256344b233e797593e2d30a47f994a7b926c"
+  },
+  "limitations": [
+    "The suite uses ephemeral fixture keys. No production private key was created, accessed, or committed.",
+    "Production G1 acceptance remains pending a witnessed 2-of-3 offline ceremony and two independently administered root-digest publication channels.",
+    "This is a narrow TUF-style root update implementation using OpenSSH sshsig, not a claim of full TUF client conformance.",
+    "The externally pinned Python runtime, clean loader environment, operating system, and protected custody paths remain part of the trusted computing base."
+  ]
+}

@@ -10,8 +10,8 @@
     "northStar": "A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.",
     "status": "active",
     "started": "2026-08-11",
-    "updated": "2026-08-22T22:48:21Z",
-    "sessionCount": 6
+    "updated": "2026-08-22T23:01:49Z",
+    "sessionCount": 7
   },
   "policies": {
     "merge": "review",
@@ -505,44 +505,44 @@
       "id": "G1",
       "title": "Independent first-contact trust",
       "goal": "Reject a fully self-consistent counterfeit checkout before repository content can define its own authority.",
-      "status": "pending",
+      "status": "in_progress",
       "sessionsEstimate": "2",
       "gates": [
         {
           "id": "G1-G1",
           "title": "Threshold root and rotation verifier reject trust attacks",
           "command": "python3 -B -m unittest tests.test_trust_root",
-          "status": "pending",
+          "status": "passed",
           "evidence": "ops/mission/evidence/2.0.4/g1-trust-root.json",
-          "lastRun": null,
-          "notes": "Includes forged in-band root, rollback, same-version equivocation, skipped rotation, expiry, partial threshold, archive substitution, and tag/tree mismatch."
+          "lastRun": "2026-08-22T23:01:49Z",
+          "notes": "Sixteen OpenSSH-backed tests pass: forged in-band root, rollback, cross-run withholding, same-version equivocation, skipped rotation, expiry, partial threshold, archive substitution, tag/tree mismatch, tool-digest substitution, public-only assembly, and valid dual-threshold recovery."
         },
         {
           "id": "G1-G2",
           "title": "Independent bootstrap verifies candidate offline",
-          "command": "python3 -B scripts/verify_external_root.py --evidence ops/mission/evidence/2.0.4/g1-bootstrap.json",
+          "command": "/trusted/idc/run-2.0.4-external-verification",
           "status": "pending",
           "evidence": "ops/mission/evidence/2.0.4/g1-bootstrap.json",
           "lastRun": null,
-          "notes": "Production acceptance requires a locally pinned digest or threshold root acquired through two separately administered channels."
+          "notes": "Pending the owner-held production wrapper, 2-of-3 root ceremony, protected external checkpoint, exact candidate artifacts, and matching root digest observed through two separately administered channels. Candidate-repository evidence is never allowed to supply this command's initial authority."
         }
       ],
       "tasks": [
         {
           "id": "G1-T1",
           "title": "Implement versioned threshold root metadata and authorized rotation",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G0-T3"],
           "pr": null,
-          "notes": "Old and new thresholds authorize rotation; repository bytes cannot authorize the initial root."
+          "notes": "Canonical strict root metadata, 2-of-N OpenSSH threshold verification, exact N+1 rotation, old-plus-new authorization, expiry, and a protected monotonic external checkpoint are implemented and falsified."
         },
         {
           "id": "G1-T2",
           "title": "Bind release identity and attestations into one statement",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G1-T1"],
           "pr": null,
-          "notes": "Bind tag, commit, tree, manifest, index, archive, registry, and install inventory; attestations are corroboration, not bootstrap authority."
+          "notes": "The release statement threshold-binds tag, commit, tree, archive, manifest, freshness index, registry, and installation inventory. Sigstore/GitHub attestations remain a G6 corroborating publication signal rather than first trust."
         },
         {
           "id": "G1-T3",
@@ -550,7 +550,7 @@
           "status": "pending",
           "dependsOn": ["G1-T1", "G1-T2"],
           "pr": null,
-          "notes": "Human threshold-key custody and the exact company-site deployment are owner acceptance boundaries; no secret material belongs in Git, chat, logs, or mission evidence."
+          "notes": "Public formats, a private-key-blind builder, verifier, ceremony protocol, and company-site architecture are ready. Actual 2-of-3 custody, signatures, external root/checkpoint placement, and two-channel publication remain owner acceptance boundaries; no secret material belongs in Git, chat, logs, or mission evidence."
         }
       ]
     },

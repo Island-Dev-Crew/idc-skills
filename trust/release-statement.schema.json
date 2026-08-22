@@ -1,0 +1,70 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:idc-skills:schema:release-statement:v1",
+  "title": "IDC Skills threshold-signed release statement v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["signatures", "signed"],
+  "properties": {
+    "signatures": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 64,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["keyid", "sig"],
+        "properties": {
+          "keyid": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+          "sig": {"type": "string", "maxLength": 32768}
+        }
+      }
+    },
+    "signed": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["_type", "artifacts", "expires", "git", "release", "releaseSequence", "rootVersion", "schema"],
+      "properties": {
+        "_type": {"const": "release"},
+        "artifacts": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["archive", "freshnessIndex", "installInventory", "manifest", "registry"],
+          "properties": {
+            "archive": {"$ref": "#/$defs/artifact"},
+            "freshnessIndex": {"$ref": "#/$defs/artifact"},
+            "installInventory": {"$ref": "#/$defs/artifact"},
+            "manifest": {"$ref": "#/$defs/artifact"},
+            "registry": {"$ref": "#/$defs/artifact"}
+          }
+        },
+        "expires": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},
+        "git": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["commit", "tag", "tree"],
+          "properties": {
+            "commit": {"type": "string", "pattern": "^[0-9a-f]{40}$"},
+            "tag": {"type": "string"},
+            "tree": {"type": "string", "pattern": "^[0-9a-f]{40}$"}
+          }
+        },
+        "release": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$"},
+        "releaseSequence": {"type": "integer", "minimum": 1},
+        "rootVersion": {"type": "integer", "minimum": 1},
+        "schema": {"const": "idc-skills-release-statement/v1"}
+      }
+    }
+  },
+  "$defs": {
+    "artifact": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["sha256", "size"],
+      "properties": {
+        "sha256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+        "size": {"type": "integer", "minimum": 1}
+      }
+    }
+  }
+}
