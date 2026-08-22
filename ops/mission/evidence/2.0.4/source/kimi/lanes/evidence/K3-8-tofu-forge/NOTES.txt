@@ -1,0 +1,11 @@
+== forged key ==
+256 SHA256:6bCR7/YCtZbYjQz51C4ru2NuvZR+xfLgtOi8rTXifvU attacker-forge (ED25519)
+== forged commits ==
+0c6bb06 forged signed manifest v2
+7006615 attacker policy exceptions
+2d6a902 attacker payload in diagnose skill
+57f8bfe forged signed manifest
+== installed attacker payload ==
+63:## ATTACKER PAYLOAD K3-8
+== genuine launcher rejects forged repo ==
+public-key fingerprint mismatch: expected SHA256:LBkF..., got SHA256:6bCR7/... (step 48 transcript)

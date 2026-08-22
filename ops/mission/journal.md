@@ -207,3 +207,17 @@
 - The earlier native-OpenSSH, canonical-mode, and exact-Git-discovery errors were absent. The remaining four failures and five errors were strict `signed bytes differ from Git tree object` rejections in temporary fixtures.
 - `FreshnessFixture` wrote CRLF text bytes under Windows, signed those live bytes, then inherited Git-for-Windows `core.autocrlf`, which normalized committed blobs to LF. The external launcher correctly rejected the live-byte/Git-object split. Every fixture repository now sets `core.autocrlf=false` before its first add, preserving the exact bytes used by its signed manifest; production blob comparison remains byte-unchanged and strict.
 - Focused failing-class regressions and all 101 local tests pass. These controlled test/evidence bytes invalidate `250f7d7`; manifest generation, biometric signing, clean-clone replay, exact-head review, and replacement three-platform CI restart.
+
+## 2026-08-22T22:02Z — 2.0.3 history reconciled and 2.0.4 G0-G6 mission opened
+
+- Public `Island-Dev-Crew/idc-skills` main and annotated tag `2.0.3` were re-derived at commit `26b9285c1fe11a3ef875a34ff30faa0275eddf24`, tree `0ca09971998a058ca80c05fbfde4ca4d1178fdf8`, and tag object `bbdbafebde00f411dfa55584f4943c88e5a0393a`. Historical P5/P6 are closed instead of carrying obsolete pending language into the new mission.
+- The owner authorized execution of the 2.0.4 G0-G6 hardening plan. Release construction remains HOLD until every gate is green at one exact candidate head; a controlled-byte move voids signatures, attestations, evidence, and review.
+- GitHub remains canonical for source and immutable releases. The proposed company site is a separately administered trust and discovery channel, not a replacement code host and not an independent trust root merely because it links back to GitHub.
+- G0 is active. Production threshold signing, exact company-site deployment, real platform seats, exact-head independent review, blind Kimi rerun, merge, tag, publication, and reinstall remain explicit downstream evidence gates.
+
+## 2026-08-22T22:24Z — G0 evidence validator proves it can go red
+
+- Added the dependency-free `idc.security-evidence/v1` validator and an inspectable JSON Schema. A valid record binds the preserved source roster, exact Git revision and line range, fixture bytes, exact command, expected and observed exit, captured output bytes, discriminator, and disposition.
+- The validator extracts all `K3-203-NNN` identifiers from the hash-bound Kimi roster and rejects a package that silently omits one. This makes package completeness a recomputed fact rather than a self-declared count.
+- Nine focused tests pass. The gate fails on a missing revision path, out-of-range line, fixture or output digest mismatch, output bound to different fixture bytes, absent command script, confirmed status without a passing discriminator, and incomplete roster coverage.
+- G0-T1 is done and G0-T2 is active. No finding is marked reconciled until the complete preserved Kimi package validates.

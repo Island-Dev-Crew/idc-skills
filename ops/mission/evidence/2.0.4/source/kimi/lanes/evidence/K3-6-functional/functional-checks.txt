@@ -1,0 +1,8 @@
+deny-dangerous.sh: 'rm -rf /' -> exit 2 (BLOCKED); 'ls -la' -> exit 0 (pass-through)
+test-block-dangerous-git.sh: RESULT pass=300 fail=0
+test-scan-egress.sh: RESULT pass=589 fail=0
+score.js: clean prose -> 0; slop prose -> 49
+delta.sh: no-drop -> exit 1 FAIL; collapse-after -> exit 2 FAIL (50% word floor)
+duel-verdict.sh: 0.55 vs 0.50 -> SWAP; 0.50 vs 0.50 -> NO-SWAP
+repo unittest discover: Ran 101 tests OK
+validate_skills.py: exit 0 (only documented claude.ai key warnings)

@@ -1,0 +1,7 @@
+E7/E8 drift-comparison layer asymmetry:
+- chmod 644 on installed /tmp/K3-3/e7-fleet/agent-guardrails/scripts/deny-dangerous.sh (canonical 755, same bytes):
+  install --verify-only => success=false, status=drift, "changed:scripts/deny-dangerous.sh" (tree_manifest binds posixMode).
+  pretooluse hook => "SKILL CONTENT VERIFIED 5/5 - installed skill=agent-guardrails" exit 0 (verify_skill_directory compares sha256+size only; signed manifest skill file records have no posixMode).
+- xattr probe (os.setxattr user.inert on installed SKILL.md): invisible to BOTH hook and install --verify-only (verified/ok). Comparison scope = bytes+symlink targets+mode only.
+- byte tamper (append "poison") => hook BLOCKED exit 2 "byte drift: SKILL.md"; extra file => "unexpected file" (also covered by shipped test_install.py).
+CONFIRMED: mode-only and xattr drift of installed skill bytes pass the PreToolUse execution gate.

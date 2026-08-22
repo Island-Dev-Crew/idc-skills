@@ -1,0 +1,2 @@
+preflight passed: [('t', 'active')]
+TOCTOU symlink swap => BLOCKED: refusing symlinked skill destination: /tmp/K3-3-E5b-iyea2vgi/target/alpha

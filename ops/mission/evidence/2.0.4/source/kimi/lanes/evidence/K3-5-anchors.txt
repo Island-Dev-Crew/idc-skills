@@ -1,0 +1,4 @@
+26b9285c1fe11a3ef875a34ff30faa0275eddf24
+bbdbafebde00f411dfa55584f4943c88e5a0393a
+Good "git" signature for idc-skills with ED25519 key SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA
+beb78e369c93eb077136c88821776481b9c074e72d1bda63231c4296639375b1  /tmp/K3-5/repo/integrity/manifest.json

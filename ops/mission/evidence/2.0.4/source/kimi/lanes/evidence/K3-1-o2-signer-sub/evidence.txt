@@ -1,0 +1,29 @@
+== fx2 in-tree self-verify (attacker controls verifier pin) ==
+CONTENT READY 5/5 — skills=50 profile=release
+  PASS signature: trusted fingerprint, signer binding, detached signature, and canonical manifest
+rc=0
+
+== external pristine launcher vs fx2 ==
+NOT READY — public-key fingerprint mismatch: expected SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA, got SHA256:opYnR5kLR2slaZGKP4g1pvh9JENdz69PYeG8PI0ZY3c
+rc=2
+
+== flag override attempt on pristine tree (/tmp/K3-1/repo, unmodified pin) ==
+CONTENT NOT READY 0/5 — skills=50 profile=unverified
+  FAIL signature: trusted fingerprint, signer binding, detached signature, and canonical manifest
+    - public-key fingerprint mismatch: expected SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA, got SHA256:opYnR5kLR2slaZGKP4g1pvh9JENdz69PYeG8PI0ZY3c
+  FAIL local_bytes: all registered skill bytes, inventory, policy, and security-control bytes
+    - signed manifest unavailable for byte comparison
+  FAIL external_reference_set: all HTTP(S) references and network-command occurrences are signed and classified
+    - signed manifest unavailable for reference comparison
+  FAIL remote_content_pins: pinned runtime instructions checked=0; allowlisted non-instruction references=0
+    - signed manifest unavailable for remote-pin verification
+  FAIL fetch_execute_policy: fetch/execute patterns are denied unless an exact signed, reviewed example is present
+    - signed manifest unavailable for denied-pattern comparison
+rc=1
+
+== attacker manifest rebuild without patching pin ==
+MANIFEST REFUSED — release policy signing fingerprint is not the trusted Forge fingerprint
+f7fb3e382314c62abdbc4466fbec20eefd1ad5f4fc21fe6a3844ec13b4a94c8e  /tmp/K3-1/fx2/integrity/manifest.json
+a5a8418e2ac74dd6274c844404906e54042b9cf8875ab53eef6f77525b93f07c  /tmp/K3-1/fx2/integrity/manifest.json.sig
+b31ee57e3934db63be81d55c2e810f55278041ec78896cbf1348bee05a03fea4  /tmp/K3-1/fx2/keys/allowed_signers
+320dafb146f9b29d28788c647b59fa4675684daa84f1457c627063a8327fd6ae  /tmp/K3-1/fx2/scripts/skill_integrity.py

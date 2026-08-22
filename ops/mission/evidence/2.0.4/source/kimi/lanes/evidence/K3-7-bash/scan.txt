@@ -1,0 +1,9 @@
+=== bash 4+ construct sweep over all tracked .sh ===
+skills/agent-guardrails/scripts/block-dangerous-git.sh:609:    if any(t in ("&", "|", "&&", "||", "&|", "|&") for t in toks):
+skills/agent-guardrails/scripts/block-dangerous-git.sh:615:        if t in (";", "&", "|", "&&", "||", "&|", "|&", ";;"):
+skills/agent-guardrails/scripts/test-block-dangerous-git.sh:165:check 2 'echo ok |& git push'                   '|& pipe-both separator then push'
+
+=== fixture matrices on Linux bash  ===
+RESULT pass=300 fail=0
+RESULT pass=589 fail=0
+RESULT skill-integrity+freshness fixture matrix=green

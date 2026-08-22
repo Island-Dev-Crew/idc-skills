@@ -1,0 +1,3 @@
+--- scan-egress: 0 un-waived, 0 waived, 0 non-fetching URI(s), 1 text file(s), 0 symlink(s), 0 special, 0 unreadable, 0 binary fail(s), 0 binary waived ---
+scan-egress: PASS — every file scanned clean or explicitly waived
+rc=0

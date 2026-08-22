@@ -1,0 +1,26 @@
+== O4 namespace substitution matrix (real materials) ==
+--- manifest.sig under index namespace:
+Couldn't verify signature: namespace does not match
+Could not verify signature.
+rc=255
+--- index.sig under file namespace:
+Couldn't verify signature: namespace does not match
+Could not verify signature.
+rc=255
+--- index.sig over manifest bytes under file namespace:
+Couldn't verify signature: namespace does not match
+Could not verify signature.
+rc=255
+--- manifest.sig with wrong principal:
+Could not verify signature.
+rc=255
+--- manifest.sig with wrong namespace 'git':
+Couldn't verify signature: namespace does not match
+Could not verify signature.
+rc=255
+--- tag (git-ns) signature presented as manifest signature, -n file:
+Could not verify signature.
+rc=255
+--- tag signature under its own namespace over tag payload (control, should pass):
+Good "git" signature for idc-skills with ED25519 key SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA
+rc=0

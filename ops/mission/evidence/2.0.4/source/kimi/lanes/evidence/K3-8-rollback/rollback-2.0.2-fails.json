@@ -1,0 +1,7 @@
+{
+  "error": "integrity manifest schema must be 'idc-skill-integrity/v3'",
+  "freshnessVerified": false,
+  "pass": false,
+  "readyToRun": false,
+  "schema": "idc-skills-freshness-report/v1"
+}

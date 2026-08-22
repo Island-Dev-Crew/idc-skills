@@ -1,0 +1,5 @@
+== C2 clean.requireForce ==
+guard=0  git -c clean.requireForce=false clean -d
+Removing gone1.txt
+Removing gone2.txt
+real: gone1 exists=NO

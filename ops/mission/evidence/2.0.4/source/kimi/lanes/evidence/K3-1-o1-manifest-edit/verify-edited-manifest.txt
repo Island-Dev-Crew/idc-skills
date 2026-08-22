@@ -1,0 +1,12 @@
+CONTENT NOT READY 0/5 — skills=50 profile=unverified
+  FAIL signature: trusted fingerprint, signer binding, detached signature, and canonical manifest
+    - signature invalid: Signature verification failed: incorrect signature
+  FAIL local_bytes: all registered skill bytes, inventory, policy, and security-control bytes
+    - signed manifest unavailable for byte comparison
+  FAIL external_reference_set: all HTTP(S) references and network-command occurrences are signed and classified
+    - signed manifest unavailable for reference comparison
+  FAIL remote_content_pins: pinned runtime instructions checked=0; allowlisted non-instruction references=0
+    - signed manifest unavailable for remote-pin verification
+  FAIL fetch_execute_policy: fetch/execute patterns are denied unless an exact signed, reviewed example is present
+    - signed manifest unavailable for denied-pattern comparison
+rc=1

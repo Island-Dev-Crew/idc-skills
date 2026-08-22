@@ -1,0 +1,36 @@
+[HELD] obj7-paths/7a config path is a symlink: rejected as expected: refusing symlinked freshness configuration: /tmp/k32-fix-5do5wp63/f/runtime/freshness.json
+[HELD] obj7-paths/7b config is hard-linked: rejected as expected: freshness configuration must not be hard-linked: /tmp/k32-fix-f7onbwi9/f/runtime/freshness.json
+[HELD] obj7-paths/7c launcher path resolves into repo via parent symlink: rejected as expected: the authoritative freshness launcher must be installed outside the repository
+[HELD] obj7-paths/7d checkpoint parent is a symlink: rejected as expected: checkpoint parent must be a real directory: /tmp/k32-fix-y8qtmmqg/f/runtime/state
+[PASS] obj7-paths/7e repo_root via symlink resolves to real root: accepted, report={'schema': 'idc-skills-freshness-report/v1', 'pass': True, 'readyToRun': True, 'contentReady': True, 'freshnessVerified': True, 'score': '5/5+freshness', 'release': '2.0.3', 'manifestSequence': 1, 'in
+[HELD] obj7-paths/7f index source file is a symlink: rejected as expected: refusing symlinked release index: /tmp/k32-fix-wx0i66p_/f/trust/releases.json
+[UNVERIFIED] obj7-paths/7g bind-mount alias: uid 999 cannot mount --bind; code walk uses os.path.samefile per ancestor which is inode-based and covers mount aliases (idc_verify_fresh.py:144-160)
+[HELD] obj8-launcher-pin/8a installed launcher bytes != signed manifest record: rejected as expected: captured freshness launcher differs from signed repository source bootstrap/idc_verify_fresh.py
+[HELD] obj8-launcher-pin/8b index launcherSHA256 != captured launcher: rejected as expected: repository release tuple does not equal the newest signed index entry
+[INFO] obj8-launcher-pin/8c trust order: first fetch is authenticated by: compiled-in fingerprint constant (launcher) -> repo pubkey bound to it -> index ssh signature; launcher bytes bound by manifest record AND index pin; config+pinned python by operator/OS. Nothing fetched is trusted before signature verification.
+[HELD] obj9-verifier-pin/9a verifier bytes != manifest record (no content exec): rejected as expected: captured content verifier differs from signed repository source scripts/skill_integrity.py
+[HELD] obj9-verifier-pin/9b index verifierSHA256 != captured verifier: rejected as expected: repository release tuple does not equal the newest signed index entry
+[HELD] obj10-staged/10a live manifest mutated during content verify: rejected as expected: integrity manifest changed during freshness verification
+[PASS] obj10-staged/10b staged bytes swapped between verify and consumer: accepted, report={'schema': 'idc-skills-freshness-report/v1', 'pass': True, 'readyToRun': True, 'contentReady': True, 'freshnessVerified': True, 'score': '5/5+freshness', 'release': '2.0.3', 'manifestSequence': 1, 'in
+[GAP-OBSERVED] obj10-staged/10b-observation: consumer executed staged installer containing: '# post-verify swap\n'; staged snapshot is NOT re-hashed after the content verifier runs
+[PASS] obj10-staged/10c live installer drifted post-stage; consumer unaffected: accepted, report={'schema': 'idc-skills-freshness-report/v1', 'pass': True, 'readyToRun': True, 'contentReady': True, 'freshnessVerified': True, 'score': '5/5+freshness', 'release': '2.0.3', 'manifestSequence': 1, 'in
+[HELD] obj10-staged/10c-note: consumer saw staged bytes '# original installer bytes\n' (original signed bytes)
+[PASS] obj11-git/11a hostile GIT_* env cannot influence hardened git: accepted, report={'schema': 'idc-skills-freshness-report/v1', 'pass': True, 'readyToRun': True, 'contentReady': True, 'freshnessVerified': True, 'score': '5/5+freshness', 'release': '2.0.3', 'manifestSequence': 1, 'in
+[HELD] obj11-git/11a-note: hook marker exists: False; child env is built from scratch (PATH/LANG/LC_ALL/TZ only)
+[HELD] obj11-git/11b dirty worktree (tracked drift, uncommitted): rejected as expected: signed repository file drifted: scripts/install.py
+[PASS] obj11-git/11c poisoned .git/config neutralized: accepted, report={'schema': 'idc-skills-freshness-report/v1', 'pass': True, 'readyToRun': True, 'contentReady': True, 'freshnessVerified': True, 'score': '5/5+freshness', 'release': '2.0.3', 'manifestSequence': 1, 'in
+[HELD] obj11-git/11c-note: marker exists: False
+[HELD] obj11-git/11d external gitdir via .git file: rejected as expected: release authority rejects linked, symlinked, or external Git metadata
+[HELD] obj11-git/11e submodule gitlink in tree: rejected as expected: unsupported Git tree entry: submod
+[CONFIRMED-DOCUMENTED] obj12-env/12b launcher PYTHONPATH pre-start injection: sitecustomize executed without -I: True; suppressed by -I: True. integrity/README.md:151-158 explicitly requires an external clean-environment wrapper with python -I -B; pre-start injection is declared outside the launcher's boundary
+[INFO] obj12-env/12c temp dirs: all temp dirs via tempfile.TemporaryDirectory/mkstemp (random suffix, 0700) under process TMPDIR; consumer children get redirected private TMPDIR; no predictable names
+NOT READY — public-key fingerprint mismatch: expected SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA, got SHA256:tJsydM62gTiPT30jRh5O5ulWnnJdKjWvaYEMd2gtp5Q
+[BYPASS] obj13-fail-closed/13a offline verify exit code: exit=2 (3 = freshness unverified, no readiness)
+NOT READY — offline mode never authorizes a consumer
+[HELD] obj13-fail-closed/13b offline consumer attempt: exit=2 ('offline mode never authorizes a consumer')
+[HELD] obj13-fail-closed/13c expired index, consumer command: rejected as expected: release index is expired
+[HELD] obj13-fail-closed/13c-note: consumer ran: False
+[HELD] obj13-fail-closed/13d content verifier red: rejected as expected: captured content verifier did not return release contentReady at 5/5
+[PASS] obj14-consumer/14a consumer exit 7: accepted, report={'schema': 'idc-skills-freshness-report/v1', 'pass': True, 'readyToRun': True, 'contentReady': True, 'freshnessVerified': True, 'score': '5/5+freshness', 'release': '2.0.3', 'manifestSequence': 1, 'in
+[HELD] obj14-consumer/14a-note: consumerExitCode=7, checkpoint after failed consumer: seq=2 (advanced, not rolled back; matches integrity/README.md:240)
+[FAIL-CLOSED-UNCAUGHT] obj14-consumer/14b consumer raises RuntimeError: RuntimeError escapes verify_release (consumer crashed); main() would traceback exit 1; checkpoint already advanced: True

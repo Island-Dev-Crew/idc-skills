@@ -1,0 +1,20 @@
+=== _assert_path_set_portable (Linux-exercised) ===
+case collision: RAISED -> fixture has a case-colliding path: 'Skills/A.md' and 'skills/a.MD'
+NFC collision: RAISED -> fixture has a Unicode-normalization collision: 'café.md' and 'café.md'
+exact dup (allowed): no raise
+clean set: no raise
+
+=== _repository_files crafted selected sets (fixture repo with a.md, sub/b.md) ===
+posix abs: RAISED -> unsafe repository file path: '/etc/passwd'
+dotdot: RAISED -> unsafe repository file path: 'sub/../a.md'
+win drive abs: RAISED -> tracked repository file set differs: missing=['C:/windows/win.ini'] unexpected=[]
+win drive rel: RAISED -> tracked repository file set differs: missing=['C:evil.md'] unexpected=[]
+backslash traversal: RAISED -> tracked repository file set differs: missing=['..\\..\\etc\\passwd'] unexpected=[]
+double slash: RAISED -> tracked repository file set differs: missing=['sub//b.md'] unexpected=[]
+reserved name: RAISED -> tracked repository file set differs: missing=['sub/CON.md'] unexpected=[]
+trailing dot: RAISED -> tracked repository file set differs: missing=['sub/b.md.'] unexpected=[]
+trailing space: RAISED -> tracked repository file set differs: missing=['sub/b.md '] unexpected=[]
+ok set: OK -> ['a.md', 'sub/b.md']
+
+=== windows_mode_overrides gate on Linux (must be ignored) ===
+override posixMode=0 for x.sh(0o755) -> recorded mode: 0o755

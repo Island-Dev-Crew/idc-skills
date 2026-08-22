@@ -1,0 +1,8 @@
+
+----------------------------------------------------------------------
+Ran 101 tests in 10.062s
+
+FAILED (failures=1, errors=32)
+     13 TypeError: stat() got an unexpected keyword argument 'follow_symlinks'
+     20 TypeError: write_text() got an unexpected keyword argument 'newline'
+3.12: 101/101 OK

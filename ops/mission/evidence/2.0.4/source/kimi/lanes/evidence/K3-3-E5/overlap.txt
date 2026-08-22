@@ -1,0 +1,13 @@
+source==target => REJECTED: unsafe target equals canonical skills directory: /tmp/K3-3-E5-lq7udr8s/src/skills
+target child of source => REJECTED: unsafe target is inside canonical skills directory: /tmp/K3-3-E5-lq7udr8s/src/skills/nested
+target parent of source => REJECTED: unsafe target contains canonical skills directory: /tmp/K3-3-E5-lq7udr8s/src
+equal targets => ALLOWED: [('a', 'changes-planned', None), ('b', 'covered', 'a')]
+symlink alias => ALLOWED: [('a', 'changes-planned', None), ('b', 'covered', 'a')]
+parent/child targets => ALLOWED: [('parent', 'changes-planned', None), ('child', 'changes-planned', None)]
+custom-target '..=/tmp/x' => REJECTED: invalid custom target name: '..'
+custom-target 'a/b=/tmp/x' => REJECTED: invalid custom target name: 'a/b'
+custom-target '.=/tmp/x' => REJECTED: invalid custom target name: '.'
+custom-target 'UPPER=/tmp/x' => REJECTED: invalid custom target name: 'UPPER'
+custom-target 'agents=/tmp/x' => REJECTED: duplicate or reserved custom target name: agents
+custom-target 'a=/tmp/x\nb' => ACCEPTED
+name=path alias => ALLOWED as: [('one', 'changes-planned', None), ('two', 'covered', 'one')]

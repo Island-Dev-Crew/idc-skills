@@ -1,0 +1,8 @@
+== C3 bang-alias call-site args ==
+guard=0  git -c alias.p="!git" p push
+guard=0  git -c alias.p="!git" p reset --hard
+guard=0  git -c alias.p="!git" p clean -fd
+real: -c alias.p=!git p push -> remote c371637e -> dfbb9e51 EXECUTED=YES
+real: ... p reset --hard -> README=v2
+real: ... p clean -fd -> uu exists=NO
+real: GIT_CONFIG_PARAMETERS (git-native encoding) p push -> dfbb9e51 -> 3b59046e EXECUTED=YES

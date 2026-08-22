@@ -1,0 +1,9 @@
+Anchors (all MATCH):
+tag object bbdbafebde00f411dfa55584f4943c88e5a0393a == git rev-parse 2.0.3
+commit    26b9285c1fe11a3ef875a34ff30faa0275eddf24 == 2.0.3^{}
+tree      0ca09971998a058ca80c05fbfde4ca4d1178fdf8 == 2.0.3^{tree}
+manifest.json sha256 beb78e369c93eb077136c88821776481b9c074e72d1bda63231c4296639375b1 == sha256sum custody/assets/manifest.json
+trust-index releases.json sha256 3819c3ae... == custody/releases.json (byte identical); .sig byte identical
+Signatures: ssh-keygen -Y verify: index "Good idc-skills-release-index-v1 signature", manifest "Good file signature", git tag -v 2.0.3 "Good git signature" — all ED25519 SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA (fingerprint matches anchor; pubkey recovered from sig blobs, none distributed separately)
+Clone: github TLS failed (network), used custody fallback clone. git 2.39.5, python3.12, bash harness.
+fixture matrix: RESULT pass=300 fail=0

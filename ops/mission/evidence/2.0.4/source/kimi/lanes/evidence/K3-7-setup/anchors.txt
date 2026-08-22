@@ -1,0 +1,14 @@
+=== ANCHOR VERIFICATION K3-7 ===
+tag ref: bbdbafebde00f411dfa55584f4943c88e5a0393a
+commit : 26b9285c1fe11a3ef875a34ff30faa0275eddf24
+tree   : 0ca09971998a058ca80c05fbfde4ca4d1178fdf8
+trust-index: b96035df279849d1539fce051a917f7519f9effb
+manifest sha256: beb78e369c93eb077136c88821776481b9c074e72d1bda63231c4296639375b1
+index sha256: 3819c3aef522bd157c10df06f02fb9e52831d8fc3ec1657877ccd2db92b9f1d9
+launcher sha256: df26969a88b4358d31ffac6eaae2a24787e73f25b98c4b51cb8cde60f18fc73d
+verifier sha256: 0f61c8dc24b627dc46c33c3e8c1e82ffd302bd620851bdfbecf6cda13e60bc47
+
+
+IDC Skills Forge 2.0.3 — signed integrity and anti-rollback release
+Good "idc-skills-release-index-v1" signature for idc-skills with ED25519 key SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA
+Good "file" signature for idc-skills with ED25519 key SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA

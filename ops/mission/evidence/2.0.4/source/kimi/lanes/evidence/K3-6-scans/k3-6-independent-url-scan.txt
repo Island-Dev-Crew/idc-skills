@@ -1,0 +1,14 @@
+deep-modules/SKILL.md:48:https://github.com/sverweij/dependency-cruiser
+gauntlet-loop/SKILL.md:48:https://www.anthropic.com/research/building-effective-agents
+gauntlet-loop/SKILL.md:48:https://x.com/mattshumer_
+research/SKILL.md:44:https://deepapi.co/v1/research/deep
+self-contained-ship/scripts/scan-egress.sh:503:http://www.w3.org/1999/xlink
+self-contained-ship/scripts/scan-egress.sh:505:http://www.w3.org/2000/svg
+self-contained-ship/scripts/test-scan-egress.sh:942:http://www.w3.org/1999/xlink
+self-contained-ship/scripts/test-scan-egress.sh:944:http://www.w3.org/1999/xlink
+teach/SKILL.md:45:https://github.com/mattpocock/skills
+video-analysis/SKILL.md:20:https://youtu.be/ID
+video-analysis/SKILL.md:21:https://youtu.be/ID
+wizard/template.sh:172:https://dashboard.example.com/developers/api-keys
+wizard/template.sh:50:http://127.0.0.1/
+wizard/template.sh:50:http://localhost/

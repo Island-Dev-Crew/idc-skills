@@ -1,0 +1,22 @@
+== K3-8 Phase-2 replay: K3-4-C1 + K3-4-C3 ==
+git: git version 2.39.5
+
+guard=0  git push>/dev/null
+guard=0  git push</dev/null origin main
+guard=0  git</dev/null push
+guard=0  git reset --hard>/dev/null
+guard=0  git restore .>/dev/null
+guard=0  git checkout .>x
+guard=0  git clean --force>/dev/null -d
+guard=0  git branch --force>/dev/null b1
+guard=0  git -c alias.p=!git p push
+guard=0  git -c alias.p=!git p reset --hard
+guard=0  git -c alias.p=!git p clean -fd
+
+controls (bare forms):
+guard=2  git push
+guard=2  git reset --hard
+guard=2  git restore .
+guard=2  git checkout .
+guard=2  git clean -fd
+guard=2  git branch -f b1

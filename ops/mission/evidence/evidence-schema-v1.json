@@ -1,0 +1,47 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://islanddevcrew.com/schemas/idc-security-evidence-v1.json",
+  "title": "IDC Security Evidence Package",
+  "type": "object",
+  "required": [
+    "schema",
+    "releaseRevision",
+    "sourceRoster",
+    "expectedFindingIds",
+    "findings"
+  ],
+  "properties": {
+    "schema": { "const": "idc.security-evidence/v1" },
+    "releaseRevision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sourceRoster": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "type": "string" },
+        "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" }
+      },
+      "additionalProperties": false
+    },
+    "expectedFindingIds": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "type": "string", "pattern": "^K3-203-[0-9]{3}$" }
+    },
+    "findings": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "title",
+          "sourceLocations",
+          "fixture",
+          "execution",
+          "discriminator",
+          "disposition"
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

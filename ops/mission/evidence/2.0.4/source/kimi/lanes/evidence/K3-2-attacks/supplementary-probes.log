@@ -1,0 +1,32 @@
+Supplementary probes (run in /tmp/K3-2/work with harness.py; commands preserved in
+lane report ## Attempts):
+
+[HELD] obj1-replay/1f-fixed checkpoint deleted, index digest != bootstrap pin:
+  rejected: first-run index does not match the externally pinned bootstrap digest
+  (index differed only in generatedAt so the release tuple still matched the repo;
+  rejection therefore comes from the bootstrap-digest first-run gate itself)
+
+[ACCEPTED] obj6-http/6b6-fixed fragment in redirect target:
+  redirect handler omits the fragment check on the redirect TARGET (fresh handler,
+  count not exhausted). Cosmetic only: fragments are never sent to the server and the
+  post-fetch final-URL check does not compare fragments.
+
+[HELD] obj4-time/4i-fixed validUntil == generatedAt:
+  rejected: validUntil must be later than generatedAt
+  (now set 60s before generatedAt so only the ordering rule could fire)
+
+[HELD] obj13-fail-closed/13a-fixed offline report:
+  readyToRun=False freshness=UNVERIFIED pass=False; main() maps to exit 3
+  (upstream test_offline_mode_is_content_only_and_has_distinct_nonready_exit asserts
+  exit 3 and "FRESHNESS UNVERIFIED"; direct main() drive in the harness cannot reach
+  that path because the fixture key does not match the compiled-in real fingerprint —
+  main() has no expected_fingerprint override; that itself is correct behavior:
+  exit=2 'public-key fingerprint mismatch').
+
+[HELD] skill_integrity git scrub: scripts/skill_integrity.py::_tracked_repository_paths
+  run under hostile env {GIT_CONFIG_COUNT/KEY_0=core.hooksPath(evil),
+  KEY_1=core.fsmonitor(evil), GIT_DIR=/nonexistent, GIT_WORK_TREE=/nonexistent}
+  inventoried 191 tracked paths of the real 2.0.3 tree; evil hook marker NOT created.
+  Child env is built from scratch (PATH/LANG/LC_ALL/TZ + empty gitconfig/hooks).
+
+[UPSTREAM] python3 -m unittest tests.test_freshness (detached 2.0.3): Ran 21 tests — OK.

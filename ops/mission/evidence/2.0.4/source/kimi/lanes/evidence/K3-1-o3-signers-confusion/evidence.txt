@@ -1,0 +1,14 @@
+== O3 in-tree anchor validator battery ==
+All 12 confusion variants tested against skill_integrity._validate_anchor_bytes with the real Forge fingerprint:
+- second signer appended (attacker key, same principal): REJECTED "allowed_signers must contain exactly one non-comment signer"
+- second signer (attacker first, real second): REJECTED (same)
+- duplicate principal idc-skills,idc-skills + REAL key: accepted (benign: still pins real key bytes+fingerprint)
+- wildcard principal * with real key: REJECTED "must bind principal"
+- *,idc-skills with ATTACKER key: REJECTED fingerprint mismatch
+- attacker key alone: REJECTED fingerprint mismatch
+- comment-line confusion / trailing comment / CRLF with REAL key: accepted (benign: key still pinned byte-exact)
+- malformed record / alternate key type / empty: REJECTED
+Raw ssh-keygen -Y verify with a two-signer file (real+attacker): ACCEPTS attacker-key signature (rc=0) — the exactly-one-signer rule is load-bearing.
+Launcher validate_anchor rejects the two-signer file identically.
+Good "file" signature for idc-skills with ED25519 key SHA256:opYnR5kLR2slaZGKP4g1pvh9JENdz69PYeG8PI0ZY3c
+raw_two_signers_rc=0

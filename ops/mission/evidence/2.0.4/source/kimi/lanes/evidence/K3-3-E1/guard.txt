@@ -1,0 +1,6 @@
+['--', '--repo-root', '/evil'] => FreshnessError: consumer arguments may not override the verified repository root
+['--repo-root=/evil'] => FreshnessError: consumer arguments may not override the verified repository root
+['--', '--', '--repo-root', '/evil'] => FreshnessError: consumer arguments may not override the verified repository root
+['--repo-rOot', '/evil'] => FreshnessError: consumer arguments may not override the verified repository root
+['--repo', '/evil'] => other: FileNotFoundError [Errno 2] No such file or directory: PosixPath('/tmp/nonexistent-staged')
+['--repository-root', '/evil'] => other: FileNotFoundError [Errno 2] No such file or directory: PosixPath('/tmp/nonexistent-staged')

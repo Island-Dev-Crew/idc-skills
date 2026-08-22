@@ -1,0 +1,16 @@
+{
+  "authority": "external-signed-index",
+  "contentReady": true,
+  "expectedSigningFingerprint": "SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA",
+  "freshnessVerified": true,
+  "gitCommit": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+  "indexSHA256": "sha256:3819c3aef522bd157c10df06f02fb9e52831d8fc3ec1657877ccd2db92b9f1d9",
+  "indexSequence": 1,
+  "manifestSequence": 1,
+  "mode": "release",
+  "pass": true,
+  "readyToRun": true,
+  "release": "2.0.3",
+  "schema": "idc-skills-freshness-report/v1",
+  "score": "5/5+freshness"
+}

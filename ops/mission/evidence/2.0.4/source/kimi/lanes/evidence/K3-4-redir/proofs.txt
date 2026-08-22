@@ -1,0 +1,17 @@
+== guard verdicts (2=block 0=allow) ==
+guard=0  git push>/dev/null
+guard=0  git push</dev/null
+guard=0  git</dev/null push
+guard=0  git reset --hard>/dev/null
+guard=0  git restore .>/dev/null
+guard=0  git checkout .>x
+guard=0  git clean --force>/dev/null -d
+guard=0  git switch --discard-changes>/dev/null main
+guard=0  git branch --force>/dev/null b1
+guard=2  git checkout --force>/dev/null -- .
+== real-git proofs ==
+push>/dev/null: remote c474a5d7 -> c371637e (EXECUTED=YES)
+reset --hard>/dev/null: README=v2
+restore .>/dev/null: README=v2
+checkout .>x: README=v2
+clean --force>/dev/null -d: uu.txt exists=NO

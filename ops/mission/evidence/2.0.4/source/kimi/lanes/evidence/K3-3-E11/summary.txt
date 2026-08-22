@@ -1,0 +1,5 @@
+E11 export ZIP:
+- two snapshot exports of skill short => byte-identical (sha256 0068fee9... both runs); members ['short/SKILL.md','short/agents/openai.yaml'], fixed 1980 timestamps, sorted order.
+- traversal probe: created canonical-tree folder 'skills/evil\dots' with matching frontmatter name => export rejected at discovery: "error: invalid skill name(s): evil\dots"; no output created. Tree restored, git clean.
+- symlinked skill content rejected by _build_profile_export; output replace verified byte-for-byte (_replace_export + tree_manifest); export cannot target canonical tree (validate_target_path); canonical mutation checked by reaccept before/after hash (green run in evidence/K3-3-reaccept).
+- current claude.ai profile fail-closed on 48 long descriptions + 13 user-only skills (reaccept evidence).
