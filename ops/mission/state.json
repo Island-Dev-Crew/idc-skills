@@ -10,7 +10,7 @@
     "northStar": "A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.",
     "status": "active",
     "started": "2026-08-11",
-    "updated": "2026-08-22T23:24:31Z",
+    "updated": "2026-08-22T23:49:17Z",
     "sessionCount": 8
   },
   "policies": {
@@ -726,61 +726,61 @@
       "id": "G5",
       "title": "Forge-50 provenance and installed parity",
       "goal": "Fortify all fifty islands while preserving their separation, exact provenance, loader semantics, and installed bytes and modes.",
-      "status": "pending",
+      "status": "in_progress",
       "sessionsEstimate": "2",
       "gates": [
         {
           "id": "G5-G1",
           "title": "Canonical validation, records, and provenance closure pass",
-          "command": "python3 -B scripts/validate_skills.py --json",
-          "status": "pending",
+          "command": "python3 -B scripts/verify_forge_50.py --json",
+          "status": "passed",
           "evidence": "ops/mission/evidence/2.0.4/g5-forge-50.json",
-          "lastRun": null,
-          "notes": "Registry, filesystem, manifest, provenance, dependency closure, and honest harness support must agree."
+          "lastRun": "2026-08-22T23:49:17Z",
+          "notes": "Exact head bb965ccc passes 50/50 with zero errors, 50 semantic records, four source families, eleven tool families, eighteen vendored protocol files, and five explicit protocol contracts. Thirteen named Claude.ai compatibility advisories remain visible."
         },
         {
           "id": "G5-G2",
           "title": "Intake and console adversarial suites pass",
           "command": "python3 -B -m unittest tests.test_supply_chain_intake tests.test_console_lock",
-          "status": "pending",
+          "status": "passed",
           "evidence": "ops/mission/evidence/2.0.4/g5-forge-50.json",
-          "lastRun": null,
-          "notes": "Includes symlinks, special files, NUL/control filenames, ignored content, and skip-worktree or assume-unchanged flags."
+          "lastRun": "2026-08-22T23:49:17Z",
+          "notes": "Five focused adversarial tests pass. The byte-safe scanner covers symlinks, special files, NUL/control names, ignored content, bounds, and terminal-safe encoding; console assembly rejects untracked/ignored and skip-worktree/assume-unchanged sources."
         },
         {
           "id": "G5-G3",
           "title": "All four fleet roots match candidate bytes and modes",
-          "command": "python3 -B scripts/verify_fleet_parity.py --json",
+          "command": "<external freshness launcher> fleet-parity -- --json",
           "status": "pending",
           "evidence": "ops/mission/evidence/2.0.4/g5-fleet-parity.json",
           "lastRun": null,
-          "notes": "Codex, Claude, Pi, and Hermes inventories each equal 50 and match the candidate release statement."
+          "notes": "The verifier is implemented and direct invocation refuses with exit 2. Codex, Claude, Pi, and Hermes parity must run from the private staged signed candidate after external freshness; no unsigned candidate is installed."
         }
       ],
       "tasks": [
         {
           "id": "G5-T1",
           "title": "Close third-party provenance and executable dependency records",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G0-T3"],
           "pr": null,
-          "notes": "Record upstream commit, license, local modifications, and review status; vendor pinned helpers or remove unsupported runnable claims."
+          "notes": "Archipelago is vendored at full commit b9f7cee with MIT license, unchanged/modified file hashes, reviewed local hardening, and no runtime fetch. Provenance names four source families, the unrecovered historical ICM commit, eleven executable-tool families, and shipped test material."
         },
         {
           "id": "G5-T2",
           "title": "Harden intake evidence, authority hierarchy, and console locking",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G5-T1"],
           "pr": null,
-          "notes": "Untrusted names cannot counterfeit output; current user instructions outrank skill prose; console locks exact HEAD blobs."
+          "notes": "Intake rows percent-encode untrusted bytes and include hidden/ignored/symlink/special content; handoff hierarchy is corrected; console.lock is idempotently assembled from exact HEAD blobs bound to blocks-tree a8bada7."
         },
         {
           "id": "G5-T3",
           "title": "Reinstall and prove 50-of-50 byte, size, mode, provenance, and loader parity",
-          "status": "pending",
+          "status": "in_progress",
           "dependsOn": ["G5-T1", "G5-T2"],
           "pr": null,
-          "notes": "Claude.ai limitations remain explicit unless measured behavior supports a sanitized profile."
+          "notes": "The four-root verifier is implemented and freshness-routed. Actual reinstall/parity waits for a signed accepted candidate; Claude.ai limitations remain explicit unless measured behavior supports a sanitized profile."
         }
       ]
     },
@@ -937,7 +937,7 @@
     {
       "label": "2.0.4 red-team findings open",
       "baseline": "21 (1 critical, 17 medium, 3 low)",
-      "current": "21 evidence-contract dispositions being normalized",
+      "current": "31/31 source identifiers evidence-reconciled; release acceptance remains gated by external/platform/review proof",
       "target": "0 blockers; every item fixed, accepted residual, false positive, or explicitly open",
       "direction": "down"
     },
@@ -951,7 +951,7 @@
     {
       "label": "Executable evidence contract",
       "baseline": "Narrative package with confirmed citation and digest mismatches",
-      "current": "Schema and validator in construction",
+      "current": "31/31 immutable records validate; 13 contract/replay tests pass including falsification cases",
       "target": "Complete package passes; all falsification fixtures fail closed",
       "direction": "up"
     },
@@ -965,7 +965,7 @@
     {
       "label": "Installed Forge fleet parity",
       "baseline": "2.0.3 at 50/50 across four fleet roots",
-      "current": "2.0.4 not installed before release acceptance",
+      "current": "Freshness-routed four-root verifier implemented; unsigned 2.0.4 installation intentionally blocked",
       "target": "2.0.4 at 50/50 byte, size, mode, provenance, and loader parity across four roots",
       "direction": "up"
     }
@@ -1029,10 +1029,10 @@
     }
   ],
   "resume": {
-    "activePhase": "G4",
+    "activePhase": "G5",
     "nextActions": [
-      "Complete G5 provenance, intake, console-lock, and four-root parity implementation without installing an unsigned candidate.",
-      "Freeze one candidate head, then collect real macOS and Windows platform records against that exact head.",
+      "Build the 2.0.4 release candidate and exact review/publication evidence validators, while keeping unsigned fleet installation blocked.",
+      "Freeze one candidate head, then collect real macOS and Windows platform records plus signed four-root parity against that exact head.",
       "Obtain owner threshold-root ceremony, independent cross-family review, blind Kimi rerun, protected CI, and publication proof before G6 release acceptance."
     ],
     "blockers": [

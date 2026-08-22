@@ -1,0 +1,88 @@
+{
+  "schema": "idc-g5-forge-50-evidence/v1",
+  "generatedAt": "2026-08-22T23:49:17Z",
+  "candidateHead": "bb965ccc8557b0d431389fc4843ba6dde3bbd7cf",
+  "candidateTree": "2ea708a1f30708adcb076f9b97a8d4939ffbb827",
+  "gates": {
+    "G5-G1": {
+      "status": "passed",
+      "command": "python3 -B scripts/verify_forge_50.py --json",
+      "result": {
+        "skills": 50,
+        "validationErrors": 0,
+        "compatibilityAdvisories": 13,
+        "semanticRecords": 50,
+        "sourceFamilies": 4,
+        "toolFamilies": 11,
+        "vendoredProtocolFiles": 18,
+        "vendoredProtocolContracts": 5
+      }
+    },
+    "G5-G2": {
+      "status": "passed",
+      "command": "python3 -B -m unittest tests.test_supply_chain_intake tests.test_console_lock",
+      "tests": 5,
+      "result": "OK"
+    },
+    "G5-G3": {
+      "status": "pending",
+      "requiredRoute": "external freshness launcher -> private staged signed candidate -> fleet-parity consumer",
+      "directInvocationProbe": {
+        "command": "python3 -B scripts/verify_fleet_parity.py --json",
+        "expectedExit": 2,
+        "observedExit": 2,
+        "observed": {
+          "pass": false,
+          "error": "invoke fleet parity through the external freshness launcher"
+        }
+      },
+      "reason": "No unsigned 2.0.4 candidate is installed into live fleet roots. This gate runs only after release signing and external freshness acceptance."
+    }
+  },
+  "regression": {
+    "command": "python3 -B -m unittest discover -s tests -p 'test_*.py'",
+    "tests": 168,
+    "result": "OK",
+    "egressCorpus": {
+      "path": "skills/self-contained-ship/scripts/test-scan-egress.sh",
+      "lines": 2146,
+      "cases": 607,
+      "result": "607/607",
+      "sha256": "d4865cd50dae5742468a59dfb435bf281d01e8d9d8bad3b462ca58d3dcb8e275"
+    }
+  },
+  "intakeReview": {
+    "candidate": "skills/archipelago/protocol",
+    "command": "python3 -B skills/skill-supply-chain-review/scripts/scan-skill.py skills/archipelago/protocol",
+    "scanOutputSHA256": "c6af1fcdb3b83890974b580484754094a04a2a4acefe9d788e494653346f8749",
+    "findings": 41,
+    "classes": {
+      "credential-access": 2,
+      "obfuscation": 27,
+      "shell-exec": 5,
+      "write-out-of-scope": 7
+    },
+    "humanTriage": {
+      "credential-access": "Non-secret environment variable names for the absolute, digest-pinned Node renderer.",
+      "obfuscation": "Published SHA-256, commit, and example evidence values; no encoded executable payload.",
+      "shell-exec": "Validator and renderer subprocesses plus exact human-approved, lock-hash-bound gate execution; no upstream runtime fetch.",
+      "write-out-of-scope": "Interpreter shebang paths only.",
+      "absentClasses": "No network-egress, unpinned-install, prompt-injection, symlink, special-file, oversized, or binary finding."
+    },
+    "disposition": "VENDOR-PINNED at b9f7cee2823f9791503db20f33b22c9e20af7abe with reviewed local modifications and file-level upstream/result hashes in UPSTREAM.json."
+  },
+  "consoleLock": {
+    "command": "IDC_CONSOLE_GIT=/usr/bin/git IDC_CONSOLE_SHA256=/usr/bin/shasum /bin/bash console/assemble.sh",
+    "blocksTree": "a8bada7a3cbfc4b6661ecea12f573b8750768117",
+    "assembledSHA256": "992671fdd1d262d73393094efadafc232efcb8370bbedb4d4f6a625b5b826169",
+    "idempotence": "A second run at bb965ccc8557b0d431389fc4843ba6dde3bbd7cf left the Git worktree clean.",
+    "git": "git version 2.50.1 (Apple Git-155)",
+    "shasum": "6.02"
+  },
+  "shellcheck": "0.11.0",
+  "enforcedVsAdvisory": {
+    "enforced": "Registry/record/provenance/protocol closure, intake capture safety, exact console blocks-tree assembly, and external-route fleet verifier refusal.",
+    "advisory": "Regex intake classifications require the recorded human intent review; scanner silence or hits are not authorship or safety proof.",
+    "pending": "Signed-candidate four-root installation parity, real Windows platform evidence, production threshold ceremony, and independent release review."
+  }
+}
