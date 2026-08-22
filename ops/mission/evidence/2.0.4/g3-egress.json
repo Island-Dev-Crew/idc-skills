@@ -1,0 +1,76 @@
+{
+  "schema": "idc-g3-egress-evidence/v1",
+  "generatedAt": "2026-08-22T22:40:04Z",
+  "scope": "G3 static egress parser, waiver authority, and resource ceilings",
+  "redBeforeGreen": [
+    {
+      "command": "bash skills/self-contained-ship/scripts/test-scan-egress.sh",
+      "stage": "new fixtures before parser implementation",
+      "observed": "RESULT pass=589 fail=15",
+      "expectedFailureClasses": [
+        "data-first multi-candidate lists",
+        "bare meta refresh",
+        "UTF-16 and control-byte active text",
+        "JavaScript markup sinks",
+        "-webkit-image-set",
+        "xml-stylesheet",
+        "inline waiver over uncertainty",
+        "multi-URL attributionsrc"
+      ]
+    },
+    {
+      "command": "bash skills/self-contained-ship/scripts/test-scan-egress.sh",
+      "stage": "first narrowing implementation",
+      "observed": "RESULT pass=601 fail=3",
+      "remainingFailureClasses": [
+        "UTF-16 reporting classification",
+        "control-byte reporting classification",
+        "uncertainty fixture did not reach the intended lexical ambiguity"
+      ]
+    }
+  ],
+  "green": [
+    {
+      "command": "bash skills/self-contained-ship/scripts/test-scan-egress.sh",
+      "exit": 0,
+      "observed": "RESULT pass=607 fail=0",
+      "scriptSha256": "sha256:97aaab58a9c94ed352df7ad07b364ca414725a6b84d4fc3561e23f1286dd1c95",
+      "testSha256": "sha256:d4865cd50dae5742468a59dfb435bf281d01e8d9d8bad3b462ca58d3dcb8e275"
+    },
+    {
+      "command": "python3 -B -m unittest tests.test_egress_policy",
+      "exit": 0,
+      "observed": "Ran 6 tests; OK",
+      "verifierSha256": "sha256:cfade509fbd9eaef20247f7c6816fb388ddae3c9c2b7a840bc233ff7978d7760",
+      "testSha256": "sha256:59266e1616bfac45540987be4ff9af3b5571ca3f58bfd5f373b4b6867efa2d74"
+    },
+    {
+      "command": "shellcheck skills/self-contained-ship/scripts/scan-egress.sh skills/self-contained-ship/scripts/test-scan-egress.sh",
+      "exit": 0,
+      "observed": "no findings"
+    }
+  ],
+  "signedPolicyContract": {
+    "canonicalSchema": "idc-egress-waiver-policy/v1",
+    "signature": "OpenSSH detached signature, identity and namespace idc-egress-waiver",
+    "callerOwnedAnchor": true,
+    "boundFields": [
+      "release revision",
+      "relative path",
+      "file SHA-256",
+      "finding fingerprint",
+      "reviewer",
+      "reason",
+      "policy and record expiry"
+    ],
+    "artifactLocalCommentsAuthoritativeByDefault": false,
+    "uncertaintyWaivable": false,
+    "binaryWaiverRequiresSignedExactFinding": true
+  },
+  "resourceCeilings": {
+    "perFileBytes": 16777216,
+    "aggregateBytes": 67108864,
+    "oversizeDisposition": "explicit non-zero fail before whole-file parsing"
+  },
+  "boundary": "This is a bounded static language model and signed-exemption gate, not a browser sandbox or proof that runtime-built URLs are impossible. The separate sealed-browser evidence is required."
+}

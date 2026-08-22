@@ -10,7 +10,7 @@
     "northStar": "A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.",
     "status": "active",
     "started": "2026-08-11",
-    "updated": "2026-08-22T22:02:42Z",
+    "updated": "2026-08-22T22:40:04Z",
     "sessionCount": 5
   },
   "policies": {
@@ -611,42 +611,42 @@
       "id": "G3",
       "title": "Egress parser, runtime, and waiver authority",
       "goal": "Detect every modeled network candidate, deny artifact self-waivers, bound resource use, and prove enhanced artifacts make no unexpected requests.",
-      "status": "pending",
+      "status": "done",
       "sessionsEstimate": "2",
       "gates": [
         {
           "id": "G3-G1",
           "title": "Baseline and adversarial egress corpus pass",
           "command": "bash skills/self-contained-ship/scripts/test-scan-egress.sh",
-          "status": "pending",
+          "status": "passed",
           "evidence": "ops/mission/evidence/2.0.4/g3-egress.json",
-          "lastRun": null,
-          "notes": "The existing 589 cases remain green and new multi-hit, encoding, sink, waiver, and size-limit fixtures are retained red-before-green."
+          "lastRun": "2026-08-22T22:40:04Z",
+          "notes": "The original 589-case floor and 18 new parser, default-authority, and resource-limit regressions pass at 607/607. The retained pre-fix red run was 589 pass / 15 fail, followed by a three-failure narrowing run before green."
         },
         {
           "id": "G3-G2",
           "title": "Signed waiver and bounded-resource tests pass",
           "command": "python3 -B -m unittest tests.test_egress_policy",
-          "status": "pending",
+          "status": "passed",
           "evidence": "ops/mission/evidence/2.0.4/g3-egress.json",
-          "lastRun": null,
+          "lastRun": "2026-08-22T22:40:04Z",
           "notes": "Waivers bind revision, file digest, stable finding fingerprint, reviewer, reason, and expiry; UNCERT is never waivable."
         },
         {
           "id": "G3-G3",
           "title": "Sealed browser loads emit no unexpected requests",
           "command": "node scripts/verify-sealed-artifacts.mjs",
-          "status": "pending",
+          "status": "passed",
           "evidence": "ops/mission/evidence/2.0.4/g3-sealed-browser.json",
-          "lastRun": null,
-          "notes": "Required at 375, 768, and 1440 pixels plus print mode, with service workers and external assets disabled."
+          "lastRun": "2026-08-22T22:40:04Z",
+          "notes": "Dependency-free Chrome DevTools gate passed at 375x812, 768x1024, 1440x900, and emulated print with zero external attempts, zero artifact service workers, exact CSP, no console errors, and no page-level overflow."
         }
       ],
       "tasks": [
         {
           "id": "G3-T1",
           "title": "Close candidate, encoding, markup, CSS, XML, and browser-fetch parser gaps",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G0-T3"],
           "pr": null,
           "notes": "Includes meta refresh, data/blob lists, srcdoc, handlers, SVG/XLink, image-set variants, XML stylesheets, and attributionsrc."
@@ -654,7 +654,7 @@
         {
           "id": "G3-T2",
           "title": "Move waiver authority into a separately signed policy",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G3-T1"],
           "pr": null,
           "notes": "Artifact-local comments never grant their own exemption."
@@ -662,7 +662,7 @@
         {
           "id": "G3-T3",
           "title": "Enforce byte ceilings and sealed-load browser proof",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G3-T1", "G3-T2"],
           "pr": null,
           "notes": "Oversized input fails explicitly; enhanced HTML requires static and runtime proof."
@@ -873,8 +873,8 @@
     {
       "label": "Egress scanner fixtures",
       "baseline": 71,
-      "current": 589,
-      "target": 589,
+      "current": 607,
+      "target": 607,
       "direction": "up",
       "tone": "green"
     },
@@ -989,7 +989,7 @@
     {
       "title": "Guard and scanner are bounded defense-in-depth controls",
       "severity": "medium",
-      "note": "The accepted 300-case guard and 589-case scanner matrices are red-capable for their documented surfaces, but they are not a shell sandbox or a general language-runtime proof. Signed content and sealed-load/external freshness remain separate gates."
+      "note": "The accepted 325-case guard and 607-case scanner matrices are red-capable for their documented surfaces, but they are not a shell sandbox or a general language-runtime proof. Signed content, signed waiver authority, sealed-load execution, and external freshness remain separate gates."
     },
     {
       "title": "The complete current pack is intentionally blocked from claude.ai export",

@@ -5,7 +5,9 @@
 # URLs slip past a static matcher; the ENFORCED proof is the sealed-load runtime rung in SKILL.md.
 # State that boundary; never imply this scan alone certifies containment.
 #
-# SECURE-BY-DEFAULT: a green result means "every file was scanned clean OR explicitly human-waived"
+# SECURE-BY-DEFAULT: a green result means "every file was scanned clean OR exempted by a separately
+# signed waiver policy." Artifact-local `egress-ok` comments have no authority unless the caller
+# deliberately selects the backward-compatible advisory mode with `--allow-inline-waivers`.
 # — never "some files we could not look at." A symlink fails closed (bytes outside the tree); a
 # non-regular file (FIFO/socket/device) fails closed and is NEVER read (reading a FIFO would hang);
 # an UNREADABLE file fails closed (a glob waiver cannot launder bytes we never saw); a traversal
@@ -56,8 +58,16 @@ set -uo pipefail
 # variable, and same-origin/data/blob targets are not flagged. Runtime-built URLs remain the disclosed
 # residual rung 2 catches. The bash regex below is only the absolute-scheme set for BINARY scanning.
 EGRESS_BIN='(https?|wss?|ftp):[/\\]*[^/\\?#[:space:][:cntrl:]]|(^|[^a-z])(stun|turns?):[a-z0-9]'
+MAX_FILE_BYTES=16777216
+MAX_TOTAL_BYTES=67108864
 
-usage() { echo "usage: scan-egress.sh [--allow-binary <glob>]... <file-or-dir> ..." >&2; exit 2; }
+usage() {
+  echo "usage: scan-egress.sh [--allow-inline-waivers] [--allow-binary <glob>]..." >&2
+  echo "       [--waiver-policy FILE --waiver-signature FILE --waiver-allowed-signers FILE" >&2
+  echo "        --waiver-fingerprint SHA256:... --revision 40HEX --policy-root DIR]" >&2
+  echo "       <file-or-dir> ..." >&2
+  exit 2
+}
 
 # Neutralize control bytes (NUL/ESC/LF/tab/DEL, all of C0 + 0x7F) in an UNTRUSTED path or diagnostic
 # before it reaches the terminal, so a crafted filename can't forge output or inject escape sequences.
@@ -102,16 +112,79 @@ validate_counts_file() {
 # --- args: collect --allow-binary globs, then scan targets ---
 targets=()
 allow=()
+allow_inline=0
+waiver_policy=""
+waiver_signature=""
+waiver_allowed_signers=""
+waiver_fingerprint=""
+waiver_revision=""
+policy_root=""
 while [ "$#" -gt 0 ]; do
   case "$1" in
+    --allow-inline-waivers) allow_inline=1; shift ;;
     --allow-binary) shift; [ "$#" -ge 1 ] || usage; allow+=("$1"); shift ;;
     --allow-binary=*) allow+=("${1#*=}"); shift ;;
+    --waiver-policy) shift; [ "$#" -ge 1 ] || usage; waiver_policy="$1"; shift ;;
+    --waiver-policy=*) waiver_policy="${1#*=}"; shift ;;
+    --waiver-signature) shift; [ "$#" -ge 1 ] || usage; waiver_signature="$1"; shift ;;
+    --waiver-signature=*) waiver_signature="${1#*=}"; shift ;;
+    --waiver-allowed-signers) shift; [ "$#" -ge 1 ] || usage; waiver_allowed_signers="$1"; shift ;;
+    --waiver-allowed-signers=*) waiver_allowed_signers="${1#*=}"; shift ;;
+    --waiver-fingerprint) shift; [ "$#" -ge 1 ] || usage; waiver_fingerprint="$1"; shift ;;
+    --waiver-fingerprint=*) waiver_fingerprint="${1#*=}"; shift ;;
+    --revision) shift; [ "$#" -ge 1 ] || usage; waiver_revision="$1"; shift ;;
+    --revision=*) waiver_revision="${1#*=}"; shift ;;
+    --policy-root) shift; [ "$#" -ge 1 ] || usage; policy_root="$1"; shift ;;
+    --policy-root=*) policy_root="${1#*=}"; shift ;;
     --) shift; while [ "$#" -gt 0 ]; do targets+=("$1"); shift; done ;;
     -*) echo "scan-egress: unknown option: $1" >&2; usage ;;
     *) targets+=("$1"); shift ;;
   esac
 done
 [ "${#targets[@]}" -ge 1 ] || usage
+
+signed_policy_fields=0
+for policy_value in "$waiver_policy" "$waiver_signature" "$waiver_allowed_signers" \
+                    "$waiver_fingerprint" "$waiver_revision"; do
+  [ -n "$policy_value" ] && signed_policy_fields=$((signed_policy_fields + 1))
+done
+if [ "$signed_policy_fields" -ne 0 ] && [ "$signed_policy_fields" -ne 5 ]; then
+  echo "scan-egress: signed waiver mode requires all six waiver-policy arguments" >&2
+  usage
+fi
+if [ "$signed_policy_fields" -eq 5 ] && [ -z "$policy_root" ]; then
+  echo "scan-egress: signed waiver mode requires --policy-root" >&2
+  usage
+fi
+
+verified_policy=""
+if [ "$signed_policy_fields" -eq 5 ]; then
+  command -v python3 >/dev/null 2>&1 || {
+    echo "scan-egress: python3 not found; cannot verify signed waiver policy — FAIL CLOSED" >&2
+    exit 1
+  }
+  script_dir="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)" || exit 1
+  verified_policy="$(mktemp)" || exit 1
+  trap 'if [ -n "${verified_policy:-}" ]; then rm -f -- "$verified_policy"; fi' EXIT HUP INT TERM
+  if ! python3 "$script_dir/verify-egress-policy.py" \
+      --policy "$waiver_policy" \
+      --signature "$waiver_signature" \
+      --allowed-signers "$waiver_allowed_signers" \
+      --expected-fingerprint "$waiver_fingerprint" \
+      --revision "$waiver_revision" > "$verified_policy"; then
+    echo "scan-egress: signed waiver policy rejected — FAIL CLOSED" >&2
+    exit 1
+  fi
+  policy_root="$(CDPATH='' cd -- "$policy_root" && pwd -P)" || {
+    echo "scan-egress: policy root is not an accessible directory — FAIL CLOSED" >&2
+    exit 1
+  }
+elif [ -n "$policy_root" ]; then
+  policy_root="$(CDPATH='' cd -- "$policy_root" && pwd -P)" || {
+    echo "scan-egress: policy root is not an accessible directory — FAIL CLOSED" >&2
+    exit 1
+  }
+fi
 
 # Enumerate by CONTENT, not extension (closes extensionless / UPPERCASE / novel extensions), NUL-safely
 # (`find -print0` + `read -d ''`) so a filename with an embedded newline can't split or hide an entry.
@@ -122,11 +195,25 @@ symlinks=()
 binaries=()
 specials=()
 unreadable=()
+oversized=()
 traversal_err=0
+aggregate_bytes=0
+aggregate_oversized=0
+file_size_bytes() { # <regular-file>
+  local result
+  result="$(stat -f '%z' "$1" 2>/dev/null)" || result="$(stat -c '%s' -- "$1" 2>/dev/null)" || return 1
+  case "$result" in ''|*[!0-9]*) return 1 ;; esac
+  printf '%s' "$result"
+}
 classify_file() {  # <path> -> files (text/empty) | binaries | specials | unreadable
   if [ ! -f "$1" ]; then specials+=("$1"); return; fi       # FIFO/socket/device -> never grep (would hang)
   if [ ! -r "$1" ]; then unreadable+=("$1"); return; fi      # bytes we cannot see -> fail closed, no waiver
-  if [ ! -s "$1" ]; then files+=("$1"); return; fi           # empty file: no content, benign
+  local size
+  size="$(file_size_bytes "$1")" || { unreadable+=("$1"); return; }
+  if [ "$size" -gt "$MAX_FILE_BYTES" ]; then oversized+=("$1"); return; fi
+  aggregate_bytes=$((aggregate_bytes + size))
+  [ "$aggregate_bytes" -gt "$MAX_TOTAL_BYTES" ] && aggregate_oversized=1
+  if [ "$size" -eq 0 ]; then files+=("$1"); return; fi        # empty file: no content, benign
   # TEXT iff no non-whitespace control byte survives (see CONTENT CLASSIFICATION header). tr deletes
   # printable, text-whitespace, and high (UTF-8) bytes; anything left is NUL or a C0/C1 control -> binary.
   local nt
@@ -154,8 +241,19 @@ for p in "${targets[@]}"; do
     echo "scan-egress: no such path: $(san_path "$p")" >&2; exit 2
   fi
 done
-if [ $(( ${#files[@]} + ${#symlinks[@]} + ${#binaries[@]} + ${#specials[@]} + ${#unreadable[@]} )) -lt 1 ] && [ "$traversal_err" -eq 0 ]; then
+if [ $(( ${#files[@]} + ${#symlinks[@]} + ${#binaries[@]} + ${#specials[@]} + ${#unreadable[@]} + ${#oversized[@]} )) -lt 1 ] && [ "$traversal_err" -eq 0 ]; then
   echo "scan-egress: no scannable files under: $(san_path "${targets[*]}")" >&2; exit 2
+fi
+
+if [ "${#oversized[@]}" -gt 0 ] || [ "$aggregate_oversized" -ne 0 ]; then
+  for oversized_path in ${oversized[@]+"${oversized[@]}"}; do
+    echo "OVERSIZED $(san_path "$oversized_path") (exceeds $MAX_FILE_BYTES-byte per-file ceiling — fail closed)"
+  done
+  if [ "$aggregate_oversized" -ne 0 ]; then
+    echo "OVERSIZED(aggregate) $aggregate_bytes bytes (exceeds $MAX_TOTAL_BYTES-byte scan ceiling — fail closed)"
+  fi
+  echo "scan-egress: FAIL — documented resource ceiling exceeded" >&2
+  exit 1
 fi
 
 violations=0
@@ -174,10 +272,69 @@ if [ "${#files[@]}" -gt 0 ]; then
   fi
   sc_in="$(mktemp)"; sc_out="$(mktemp)"; sc_err="$(mktemp)"; sc_cnt="$(mktemp)"
   printf '%s\0' "${files[@]}" > "$sc_in"
-  SCAN_EGRESS_FILELIST="$sc_in" SCAN_EGRESS_COUNTS="$sc_cnt" python3 - >"$sc_out" 2>"$sc_err" <<'PY'
-import re, os, bisect, html, hashlib, stat
+  SCAN_EGRESS_FILELIST="$sc_in" \
+  SCAN_EGRESS_COUNTS="$sc_cnt" \
+  SCAN_EGRESS_ALLOW_INLINE="$allow_inline" \
+  SCAN_EGRESS_POLICY="$verified_policy" \
+  SCAN_EGRESS_POLICY_ROOT="$policy_root" \
+  SCAN_EGRESS_MAX_FILE_BYTES="$MAX_FILE_BYTES" \
+  SCAN_EGRESS_MAX_TOTAL_BYTES="$MAX_TOTAL_BYTES" \
+  python3 - >"$sc_out" 2>"$sc_err" <<'PY'
+import re, os, bisect, html, hashlib, json, stat, unicodedata
 
 paths = [p for p in open(os.environ["SCAN_EGRESS_FILELIST"], "rb").read().split(b"\0") if p]
+ALLOW_INLINE_WAIVERS = os.environ.get("SCAN_EGRESS_ALLOW_INLINE") == "1"
+POLICY_PATH = os.environ.get("SCAN_EGRESS_POLICY", "")
+POLICY_ROOT = os.environ.get("SCAN_EGRESS_POLICY_ROOT", "")
+SIGNED_WAIVERS = {}
+MAX_FILE_BYTES = int(os.environ["SCAN_EGRESS_MAX_FILE_BYTES"])
+MAX_TOTAL_BYTES = int(os.environ["SCAN_EGRESS_MAX_TOTAL_BYTES"])
+if POLICY_PATH:
+    with open(POLICY_PATH, "rb") as policy_stream:
+        policy = json.load(policy_stream)
+    SIGNED_WAIVERS = {
+        (entry["path"], entry["fileSha256"], entry["findingFingerprint"]): entry
+        for entry in policy["waivers"]
+    }
+    POLICY_ROOT = os.path.realpath(POLICY_ROOT)
+elif paths:
+    # A diagnostic scan still prints reproducible fingerprints. With no explicit signed policy,
+    # bind paths to the common parent of all selected files; production policy mode requires the
+    # caller to provide its root explicitly.
+    decoded_paths = [os.path.abspath(os.fsdecode(path)) for path in paths]
+    POLICY_ROOT = os.path.realpath(os.path.commonpath([os.path.dirname(path) for path in decoded_paths]))
+
+
+def policy_relative_path(path):
+    try:
+        absolute = os.path.realpath(path)
+        if os.path.commonpath([POLICY_ROOT, absolute]) != POLICY_ROOT:
+            return None
+        relative = os.path.relpath(absolute, POLICY_ROOT).replace(os.sep, "/")
+        if relative in {"", "."} or relative == ".." or relative.startswith("../"):
+            return None
+        normalized = unicodedata.normalize("NFC", relative)
+        normalized.encode("utf-8", errors="strict")
+        return normalized
+    except (OSError, UnicodeError, ValueError):
+        return None
+
+
+def finding_identity(path, file_digest, offset, classification):
+    relative = policy_relative_path(path)
+    if relative is None:
+        return None, None
+    record = {
+        "byteOffset": offset,
+        "classification": classification,
+        "fileSha256": "sha256:" + file_digest,
+        "path": relative,
+        "schema": "idc-egress-finding/v1",
+    }
+    encoded = (json.dumps(record, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode(
+        "utf-8"
+    )
+    return relative, "sha256:" + hashlib.sha256(encoded).hexdigest()
 
 # Filled by the read-only prepass after every parser helper is defined. Classic scripts in one HTML
 # document share a global lexical environment, and loose .js inputs in one scanned deliverable
@@ -292,7 +449,7 @@ def external_offsets(value, allow_multiple=False):
     # that spelling is not a second request by the call consuming the outer URL. Executable literal
     # data documents are parsed separately at the HTML sink that instantiates them.
     normalized, origins = normalize_url_input(value)
-    if re.match(r'(?ai)^\s*(?:data|blob):', normalized):
+    if not allow_multiple and re.match(r'(?ai)^\s*(?:data|blob):', normalized):
         return []
     found = {}
     absolute_slashes = []
@@ -497,7 +654,7 @@ TAGSPAN = TagPattern()
 ATTR = re.compile(r'(?is)(?<![\w:.-])([a-z_:][\w:.-]*)\s*=\s*(?:"([^"]*)"|\'([^\']*)\'|([^\s"\'>]+))')
 FETCH_ATTRS = {
     "imagesrcset", "srcset", "src", "xlink:href", "href", "formaction", "action",
-    "poster", "background", "cite", "ping", "manifest", "data"
+    "poster", "background", "cite", "ping", "attributionsrc", "manifest", "data"
 }
 SET_ATTRS = FETCH_ATTRS - {"data", "manifest"}
 XLINK_NAMESPACE = "http://www.w3.org/1999/xlink"
@@ -2524,7 +2681,7 @@ def scan_js(source, mapping, hits, depth=0):
         if name in SET_ATTRS:
             scan_fetching_member(
                 name, args[value_i][2], open_pos,
-                name in {"srcset", "imagesrcset", "ping"},
+                name in {"srcset", "imagesrcset", "ping", "attributionsrc"},
                 script_kind_override)
 
     # Direct bracket members on tracked script objects: `s["src"] = ...` and
@@ -2547,6 +2704,34 @@ def scan_js(source, mapping, hits, depth=0):
         close = code.find("]", open_pos + 1)
         if close >= 0:
             scan_bracket_script_member(open_pos, open_pos + 1, close, "classic")
+
+    # String-to-markup sinks parse their literal values as HTML. Recursively scan the static value
+    # instead of treating a network path inside it as inert JavaScript prose.
+    markup_prop = identifiers("innerHTML", "outerHTML")
+    for m in re.finditer(r'\.\s*(?P<prop>' + markup_prop + r')\s*=', code):
+        span = assigned_literal(m.end())
+        if span:
+            value, value_map = span_runtime_value(span, mapping)
+            scan_srcdoc(value, value_map, hits, depth + 1)
+
+    for m in re.finditer(r'\.\s*' + identifiers("insertAdjacentHTML") + group_close +
+                         r'\s*(?:\?\.\s*)?\(', code):
+        args, _ = call_args(code, spans, m.end() - 1)
+        if len(args) >= 2 and args[1][2]:
+            value, value_map = span_runtime_value(args[1][2], mapping)
+            scan_srcdoc(value, value_map, hits, depth + 1)
+
+    document_write = re.compile(
+        identifier_start + group_open + identifiers("document") + group_close +
+        r'\s*\.\s*' + identifiers("write", "writeln") + group_close +
+        r'\s*(?:\?\.\s*)?\('
+    )
+    for m in document_write.finditer(code):
+        args, _ = call_args(code, spans, m.end() - 1)
+        for _, _, span in args:
+            if span:
+                value, value_map = span_runtime_value(span, mapping)
+                scan_srcdoc(value, value_map, hits, depth + 1)
 
     # DOM setters: setAttribute(name, value) and setAttributeNS(ns, name, value).
     setter = identifiers("setAttributeNS", "setAttribute")
@@ -2573,7 +2758,7 @@ def scan_js(source, mapping, hits, depth=0):
         if name in SET_ATTRS:
             scan_fetching_member(
                 name, args[value_i][2], m.start(),
-                name in {"srcset", "imagesrcset", "ping"})
+                name in {"srcset", "imagesrcset", "ping", "attributionsrc"})
 
 
 def scan_css(source, mapping, hits, depth=0):
@@ -2593,7 +2778,7 @@ def scan_css(source, mapping, hits, depth=0):
     # A Python `\w` boundary would therefore let `not-url` or `\20url` counterfeit `url()`.
     calls = re.compile(
         r'(?ai)(?<![-_A-Za-z0-9\u0080-\U0010FFFF])'
-        r'(?P<fn>url|image-set|image)\s*\('
+        r'(?P<fn>url|(?:-webkit-)?image-set|image)\s*\('
     )
     for m in calls.finditer(css_scan_code):
         raw_open = css_scan_map[m.end() - 1]
@@ -2673,6 +2858,42 @@ def scan_processed_script_block(source, mapping, hits, depth, kind):
         span_value_hits(span, mapping, hits)
 
 
+def meta_refresh_target(content, content_map):
+    """Return the URL after the first refresh delay and semicolon, with optional url=."""
+    semicolon = content.find(";")
+    if semicolon < 0:
+        return None, None
+    start = semicolon + 1
+    while start < len(content) and content[start].isspace():
+        start += 1
+    marker = re.match(r'(?ai)url\s*=\s*', content[start:])
+    if marker:
+        start += marker.end()
+    while start < len(content) and content[start].isspace():
+        start += 1
+    return content[start:], content_map[start:]
+
+
+def scan_xml_stylesheet(source, mapping, hits):
+    """Scan the fetching href in XML stylesheet processing instructions."""
+    for instruction in re.finditer(r'(?ais)<\?xml-stylesheet\b(?P<body>.*?)\?>', source):
+        body = instruction.group("body")
+        body_start = instruction.start("body")
+        for attribute in ATTR.finditer(body):
+            if attribute.group(1).lower() != "href":
+                continue
+            group_index = next(
+                (group for group in (2, 3, 4) if attribute.group(group) is not None), None
+            )
+            if group_index is None:
+                continue
+            base = body_start + attribute.start(group_index)
+            raw_value = source[base:base + len(attribute.group(group_index))]
+            value_map = (range(base, base + len(raw_value)) if mapping is None else
+                         mapping[base:base + len(raw_value)])
+            add_value_hits(raw_value, value_map, hits)
+
+
 def scan_srcdoc(source, mapping, hits, depth=0):
     # `iframe[srcdoc]` is parsed as a new HTML document after the outer attribute is decoded. Walk
     # that real second parsing stage with the outer decoded-to-raw map, including another one-pass
@@ -2716,7 +2937,9 @@ def scan_srcdoc(source, mapping, hits, depth=0):
             if name in FETCH_ATTRS and not (name == "data" and tag != "object"):
                 scan_executable_data_url(
                     tag, name, value, value_map, hits, depth, link_rel, script_kind)
-                add_value_hits(value, value_map, hits, name in {"srcset", "imagesrcset", "ping"})
+                add_value_hits(
+                    value, value_map, hits,
+                    name in {"srcset", "imagesrcset", "ping", "attributionsrc"})
             elif name == "srcdoc" and tag == "iframe":
                 scan_srcdoc(value, value_map, hits, depth + 1)
             elif name == "style":
@@ -2726,13 +2949,12 @@ def scan_srcdoc(source, mapping, hits, depth=0):
         if tag == "meta" and "http-equiv" in by_name and "content" in by_name:
             if by_name["http-equiv"][0].strip().lower() == "refresh":
                 content, content_map = by_name["content"]
-                url = re.search(r'(?ai)\burl\s*=', content)
-                if url:
-                    target = content[url.end():]
-                    target_map = content_map[url.end():]
+                target, target_map = meta_refresh_target(content, content_map)
+                if target is not None:
                     scan_data_payload(target, target_map, hits, depth, "html")
                     scan_javascript_url(target, target_map, hits, depth)
                     add_value_hits(target, target_map, hits)
+    scan_xml_stylesheet(source, mapping, hits)
 
 
 HTML_SUFFIXES = {".html", ".htm", ".xhtml", ".svg", ".xml"}
@@ -2765,11 +2987,17 @@ def stat_fingerprint(info):
     )
 
 
-def read_regular_snapshot(path):
+SNAPSHOT_BYTES = 0
+
+
+def read_regular_snapshot(path, account=True):
     """Capture one regular-file snapshot without following a replacement symlink."""
+    global SNAPSHOT_BYTES
     pathname = os.lstat(path)
     if not stat.S_ISREG(pathname.st_mode):
         raise OSError("path is no longer a regular file")
+    if pathname.st_size > MAX_FILE_BYTES:
+        raise OSError("file exceeds the documented per-file byte ceiling")
     flags = os.O_RDONLY | getattr(os, "O_BINARY", 0) | getattr(os, "O_NOFOLLOW", 0)
     descriptor = os.open(path, flags)
     try:
@@ -2777,12 +3005,20 @@ def read_regular_snapshot(path):
         if (not stat.S_ISREG(opened.st_mode) or
                 (pathname.st_dev, pathname.st_ino) != (opened.st_dev, opened.st_ino)):
             raise OSError("path identity changed before open")
+        if opened.st_size > MAX_FILE_BYTES:
+            raise OSError("file exceeds the documented per-file byte ceiling")
+        if account and SNAPSHOT_BYTES + opened.st_size > MAX_TOTAL_BYTES:
+            raise OSError("scan exceeds the documented aggregate byte ceiling")
         chunks = []
+        remaining = MAX_FILE_BYTES + 1
         while True:
-            chunk = os.read(descriptor, 1024 * 1024)
+            chunk = os.read(descriptor, min(1024 * 1024, remaining))
             if not chunk:
                 break
             chunks.append(chunk)
+            remaining -= len(chunk)
+            if remaining <= 0:
+                raise OSError("file grew beyond the documented per-file byte ceiling")
         closed = os.fstat(descriptor)
         if stat_fingerprint(opened) != stat_fingerprint(closed):
             raise OSError("file changed while its snapshot was read")
@@ -2791,6 +3027,8 @@ def read_regular_snapshot(path):
     raw = b"".join(chunks)
     if len(raw) != opened.st_size:
         raise OSError("snapshot size differs from file metadata")
+    if account:
+        SNAPSHOT_BYTES += len(raw)
     return (
         raw.decode("latin-1"),
         stat_fingerprint(opened),
@@ -2850,6 +3088,7 @@ for pb in paths:
               sanp(path))
         continue
     text = TEXT_SNAPSHOTS[pb]  # latin-1 preserves byte-to-character offsets with no decode failure
+    file_digest = SNAPSHOT_RECORDS[pb][1]
 
     def next_report_line_terminator(start):
         js_terminator = next_js_line_terminator(text, start)
@@ -2940,7 +3179,9 @@ for pb in paths:
             if name in FETCH_ATTRS and not (name == "data" and tag != "object"):
                 scan_executable_data_url(
                     tag, name, value, value_map, hits, 0, link_rel, script_kind)
-                add_value_hits(value, value_map, hits, name in {"srcset", "imagesrcset", "ping"})
+                add_value_hits(
+                    value, value_map, hits,
+                    name in {"srcset", "imagesrcset", "ping", "attributionsrc"})
             elif name == "srcdoc" and tag == "iframe":
                 scan_srcdoc(value, value_map, hits)
             elif name == "style":
@@ -2953,13 +3194,14 @@ for pb in paths:
         if tag == "meta" and "http-equiv" in by_name and "content" in by_name:
             if by_name["http-equiv"][0].strip().lower() == "refresh":
                 content, content_map = by_name["content"]
-                url = re.search(r'(?ai)\burl\s*=', content)
-                if url:
-                    target = content[url.end():]
-                    target_map = content_map[url.end():]
+                target, target_map = meta_refresh_target(content, content_map)
+                if target is not None:
                     scan_data_payload(target, target_map, hits, 0, "html")
                     scan_javascript_url(target, target_map, hits, 0)
                     add_value_hits(target, target_map, hits)
+
+    if mode in {"html", "unknown"}:
+        scan_xml_stylesheet(text, None, hits)
 
     def in_ns(off):
         return any(a <= off < b for a, b in ns)
@@ -2973,17 +3215,35 @@ for pb in paths:
                 for barrier in DECODED_WAIVER_BARRIERS
             )
         )
+        relative_path, finding_fingerprint = finding_identity(
+            path, file_digest, off, "uncertain" if hits[off] == "uncertain" else "egress")
+        signed_match = bool(
+            relative_path is not None
+            and finding_fingerprint is not None
+            and (
+                relative_path,
+                "sha256:" + file_digest,
+                finding_fingerprint,
+            ) in SIGNED_WAIVERS
+        )
         verdict, cls = ("NSURI ", "benign") if in_ns(off) else \
-                       (("WAIVED", "waived") if waiver_match and not waiver_crosses_decoded_line else
-                        (("UNCERT", "violations") if hits[off] == "uncertain" else
-                         ("EGRESS", "violations")))
+                       (("UNCERT", "violations") if hits[off] == "uncertain" else
+                        (("WAIVED", "waived") if signed_match else
+                         (("WAIVED-INLINE", "waived") if
+                          ALLOW_INLINE_WAIVERS and waiver_match and not waiver_crosses_decoded_line else
+                          ("EGRESS", "violations"))))
         if cls == "benign":
             benign += 1
         elif cls == "waived":
             waived += 1
         else:
             violations += 1
-        print("%s %s:%d:%s" % (verdict, sanp(path), ln, CTRL.sub("?", body)))
+        fingerprint_note = (
+            " [fingerprint=%s]" % finding_fingerprint
+            if cls != "benign" and finding_fingerprint is not None
+            else ""
+        )
+        print("%s %s:%d:%s%s" % (verdict, sanp(path), ln, CTRL.sub("?", body), fingerprint_note))
 
 # Re-open only for a closing fail-closed comparison, never as parser input. This binds the green
 # result to the captured snapshot and detects atomic path replacement, in-place writes, truncation,
@@ -2991,7 +3251,7 @@ for pb in paths:
 for stable_pb, (expected_stat, expected_digest) in SNAPSHOT_RECORDS.items():
     stable_path = os.fsdecode(stable_pb)
     try:
-        _, observed_stat, observed_digest = read_regular_snapshot(stable_pb)
+        _, observed_stat, observed_digest = read_regular_snapshot(stable_pb, account=False)
     except OSError:
         observed_stat = observed_digest = None
     if observed_stat != expected_stat or observed_digest != expected_digest:
@@ -3069,9 +3329,112 @@ is_waived_binary() {  # <path>
   done
   return 1
 }
+
+# A text-like suffix plus BOM/control bytes is not a generic binary waiver candidate. Decode the
+# common UTF-16/32 forms (or preserve single-byte text) and conservatively look for a network target
+# in an active HTML/JS/CSS/XML context before any glob can waive it. Return 0=egress, 1=not a
+# text-like binary candidate/no modeled egress, 2=probable text that could not be decoded safely.
+binary_text_egress() { # <path>
+  command -v python3 >/dev/null 2>&1 || return 2
+  python3 - "$1" "$MAX_FILE_BYTES" <<'PY'
+import pathlib, re, sys
+
+path = pathlib.Path(sys.argv[1])
+limit = int(sys.argv[2])
+suffix = path.suffix.lower()
+if suffix not in {".html", ".htm", ".xhtml", ".svg", ".xml", ".js", ".mjs", ".cjs", ".ts", ".css"}:
+    raise SystemExit(1)
+try:
+    with path.open("rb") as stream:
+        raw = stream.read(limit + 1)
+    if len(raw) > limit:
+        raise SystemExit(2)
+except OSError:
+    raise SystemExit(2)
+try:
+    if raw.startswith((b"\xff\xfe\x00\x00", b"\x00\x00\xfe\xff")):
+        text = raw.decode("utf-32")
+    elif raw.startswith((b"\xff\xfe", b"\xfe\xff")):
+        text = raw.decode("utf-16")
+    else:
+        text = raw.decode("utf-8", errors="surrogateescape")
+except UnicodeError:
+    raise SystemExit(2)
+
+network = r'(?:(?:https?|wss?|ftp):[/\\]{2,}|[/\\]{2})[^/\\?#\s<>"\']+'
+attribute = r'\b(?:src|href|srcset|imagesrcset|ping|attributionsrc|action|formaction|poster|background|data)\s*=\s*["\']?\s*' + network
+call = r'\b(?:fetch|sendBeacon|open|importScripts|Worker|SharedWorker)\s*\([^)]{0,256}?["\']\s*' + network
+css = r'\b(?:url|(?:-webkit-)?image-set)\s*\([^)]{0,256}?' + network
+raise SystemExit(0 if re.search('(?:' + attribute + '|' + call + '|' + css + ')', text, re.I | re.S) else 1)
+PY
+}
+
+binary_policy_identity() { # <path> -> "<signed-match 0|1> <fingerprint> <file-sha256>"
+  command -v python3 >/dev/null 2>&1 || return 2
+  python3 - "$1" "$MAX_FILE_BYTES" "$policy_root" "$verified_policy" <<'PY'
+import hashlib, json, os, pathlib, sys, unicodedata
+
+path = pathlib.Path(sys.argv[1])
+limit = int(sys.argv[2])
+root = os.path.realpath(sys.argv[3]) if sys.argv[3] else os.path.realpath(path.parent)
+policy_path = sys.argv[4]
+try:
+    absolute = os.path.realpath(path)
+    if os.path.commonpath([root, absolute]) != root:
+        raise ValueError("binary is outside policy root")
+    relative = unicodedata.normalize("NFC", os.path.relpath(absolute, root).replace(os.sep, "/"))
+    relative.encode("utf-8", errors="strict")
+    if relative == ".." or relative.startswith("../"):
+        raise ValueError("binary is outside policy root")
+    digest = hashlib.sha256()
+    total = 0
+    with path.open("rb") as stream:
+        while True:
+            block = stream.read(min(128 * 1024, limit + 1 - total))
+            if not block:
+                break
+            total += len(block)
+            if total > limit:
+                raise ValueError("binary exceeds byte ceiling")
+            digest.update(block)
+except (OSError, UnicodeError, ValueError):
+    raise SystemExit(2)
+
+file_digest = "sha256:" + digest.hexdigest()
+record = {
+    "byteOffset": 0,
+    "classification": "binary",
+    "fileSha256": file_digest,
+    "path": relative,
+    "schema": "idc-egress-finding/v1",
+}
+encoded = (json.dumps(record, ensure_ascii=False, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
+fingerprint = "sha256:" + hashlib.sha256(encoded).hexdigest()
+matched = False
+if policy_path:
+    with open(policy_path, "rb") as stream:
+        policy = json.load(stream)
+    matched = any(
+        entry["path"] == relative
+        and entry["fileSha256"] == file_digest
+        and entry["findingFingerprint"] == fingerprint
+        for entry in policy["waivers"]
+    )
+print("%d %s %s" % (1 if matched else 0, fingerprint, file_digest))
+PY
+}
+
 waived_bin=0
 review_bin=0
 for b in ${binaries[@]+"${binaries[@]}"}; do
+  binary_text_egress "$b"; text_rc=$?
+  if [ "$text_rc" -eq 0 ]; then
+    violations=$((violations + 1)); echo "EGRESS binary-text $(san_path "$b") (decoded active text contains an external target)"
+    continue
+  elif [ "$text_rc" -ge 2 ]; then
+    violations=$((violations + 1)); echo "UNSCANNED(binary-text) $(san_path "$b") (probable active text could not be decoded — fail closed)"
+    continue
+  fi
   raw="$(LC_ALL=C grep -aoiE -- "$EGRESS_BIN" "$b" 2>/dev/null)"; grc=$?
   if [ "$grc" -ge 2 ]; then
     violations=$((violations + 1)); echo "UNREADABLE(binary) $(san_path "$b") (grep error rc=$grc — cannot certify, fail closed)"
@@ -3080,12 +3443,23 @@ for b in ${binaries[@]+"${binaries[@]}"}; do
     hits="$(printf '%s' "$raw" | head -5 | tr '\n' ' ')"
     hits="$(san_path "$hits")"
     violations=$((violations + 1)); echo "EGRESS(binary) $(san_path "$b") :: $hits"
-  elif is_waived_binary "$b"; then
-    waived_bin=$((waived_bin + 1)); echo "WAIVED-BINARY $(san_path "$b")"
   else
-    review_bin=$((review_bin + 1))
-    violations=$((violations + 1))
-    echo "UNSCANNED(binary) $(san_path "$b") (static scan cannot certify; --allow-binary <glob> to waive a reviewed asset)"
+    binary_identity="$(binary_policy_identity "$b")"; identity_rc=$?
+    if [ "$identity_rc" -ne 0 ]; then
+      review_bin=$((review_bin + 1)); violations=$((violations + 1))
+      echo "UNSCANNED(binary) $(san_path "$b") (could not bind a bounded digest/fingerprint — fail closed)"
+      continue
+    fi
+    IFS=' ' read -r signed_binary binary_fingerprint _binary_digest <<< "$binary_identity"
+    if [ "$signed_binary" -eq 1 ]; then
+      waived_bin=$((waived_bin + 1)); echo "WAIVED-BINARY $(san_path "$b") [fingerprint=$binary_fingerprint]"
+    elif [ "$allow_inline" -eq 1 ] && is_waived_binary "$b"; then
+      waived_bin=$((waived_bin + 1)); echo "WAIVED-BINARY-LEGACY $(san_path "$b") [fingerprint=$binary_fingerprint]"
+    else
+      review_bin=$((review_bin + 1))
+      violations=$((violations + 1))
+      echo "UNSCANNED(binary) $(san_path "$b") (requires a signed exact-finding waiver; advisory compatibility is --allow-inline-waivers with --allow-binary) [fingerprint=$binary_fingerprint]"
+    fi
   fi
 done
 
