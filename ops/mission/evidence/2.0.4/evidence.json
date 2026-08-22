@@ -1,0 +1,1047 @@
+{
+  "schema": "idc.security-evidence/v1",
+  "releaseRevision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+  "sourceRoster": {
+    "path": "source/kimi/round3-calibration.md",
+    "sha256": "93c5d36e266698dda592c834082cba6113570e3e8898eee7bc35c9dfffb8df25"
+  },
+  "expectedFindingIds": [
+    "K3-203-001",
+    "K3-203-002",
+    "K3-203-003",
+    "K3-203-004",
+    "K3-203-005",
+    "K3-203-006",
+    "K3-203-007",
+    "K3-203-008",
+    "K3-203-009",
+    "K3-203-010",
+    "K3-203-011",
+    "K3-203-012",
+    "K3-203-013",
+    "K3-203-014",
+    "K3-203-015",
+    "K3-203-016",
+    "K3-203-017",
+    "K3-203-018",
+    "K3-203-019",
+    "K3-203-020",
+    "K3-203-021",
+    "K3-203-022",
+    "K3-203-023",
+    "K3-203-024",
+    "K3-203-025",
+    "K3-203-026",
+    "K3-203-027",
+    "K3-203-028",
+    "K3-203-029",
+    "K3-203-030",
+    "K3-203-031"
+  ],
+  "findings": [
+    {
+      "id": "K3-203-001",
+      "title": "In-band first-contact trust anchors permit a fully self-consistent forged release",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "integrity/README.md",
+          "startLine": 14,
+          "endLine": 18
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-0-challenge-c1/forged-install.json",
+        "sha256": "cd200c5a11e2ff000c02e06bb763cc7e747273c23af3967580a087a5355d6127"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-001 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-0-challenge-c1/genuine-vs-forged.json",
+        "outputSha256": "71f3e48539756d589de9e901cd85dfac4ba8ecf66c1a1afc7c783114faa70477",
+        "fixtureSha256": "cd200c5a11e2ff000c02e06bb763cc7e747273c23af3967580a087a5355d6127"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "Two independent Kimi forgeries reached attacker-controlled authority when the first trust value was learned in-band; a genuinely pinned launcher rejected them."
+      }
+    },
+    {
+      "id": "K3-203-002",
+      "title": "Attached or mid-command redirection bypasses guarded Git subcommands",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/agent-guardrails/scripts/block-dangerous-git.sh",
+          "startLine": 165,
+          "endLine": 170
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-8-p2-gitguard/verdicts.txt",
+        "sha256": "907bb202ec72a85f4b53aec1a7b00a53e52352ea5bea7989225d52e7bf4e95ae"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-002 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-4-redir/proofs.txt",
+        "outputSha256": "8bd4eddbf3e5446e99fb285470b91202f81c2e545609c32c0831ff79a341514b",
+        "fixtureSha256": "907bb202ec72a85f4b53aec1a7b00a53e52352ea5bea7989225d52e7bf4e95ae"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The preserved guard verdicts and real-Git proofs show dangerous operations executed while the 2.0.3 classifier allowed them."
+      }
+    },
+    {
+      "id": "K3-203-003",
+      "title": "Invoked bang alias composes with call-site arguments",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/agent-guardrails/scripts/block-dangerous-git.sh",
+          "startLine": 1058,
+          "endLine": 1092
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-8-p2-gitguard/verdicts.txt",
+        "sha256": "907bb202ec72a85f4b53aec1a7b00a53e52352ea5bea7989225d52e7bf4e95ae"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-003 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-4-bangargs/proofs.txt",
+        "outputSha256": "f2b9d1cf82a32af8489b783d3fb3f60bd3040fdb4ad6b69c2b6a9be898916913",
+        "fixtureSha256": "907bb202ec72a85f4b53aec1a7b00a53e52352ea5bea7989225d52e7bf4e95ae"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The 2.0.3 alias model discarded decisive call-site arguments; the preserved proof demonstrates the composed Git execution."
+      }
+    },
+    {
+      "id": "K3-203-004",
+      "title": "A leading data or blob candidate suppresses later external candidates",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/self-contained-ship/scripts/scan-egress.sh",
+          "startLine": 2518,
+          "endLine": 2528
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-5-c1-srcset/fixture.html",
+        "sha256": "f04479757f2fafe534974b206c66b496ba9850a3449ecf9f7940687d3cc8661d"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-004 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-5-c1-srcset/scan.out",
+        "outputSha256": "f9b42245cdb18665ebd7466c720743a0df886c85440e0ba973f56abec892f15d",
+        "fixtureSha256": "f04479757f2fafe534974b206c66b496ba9850a3449ecf9f7940687d3cc8661d"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The exact scanner-green fixture and Chromium request log demonstrate later srcset/imagesrcset/ping candidates were live."
+      }
+    },
+    {
+      "id": "K3-203-005",
+      "title": "Bare semicolon meta refresh network paths are missed",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/self-contained-ship/scripts/scan-egress.sh",
+          "startLine": 2951,
+          "endLine": 2960
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-5-c2-meta/m.html",
+        "sha256": "add539e1a31b4480f7e3c7a909a2df6181ddef04e060969b2a9c13aeac2d7a7d"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-005 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-5-c2-meta/scan.out",
+        "outputSha256": "f9b42245cdb18665ebd7466c720743a0df886c85440e0ba973f56abec892f15d",
+        "fixtureSha256": "add539e1a31b4480f7e3c7a909a2df6181ddef04e060969b2a9c13aeac2d7a7d"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The preserved meta fixture passed the 2.0.3 scanner while the runtime navigation was observed."
+      }
+    },
+    {
+      "id": "K3-203-006",
+      "title": "Binary waivers launder browser-active wide or control-byte markup",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/self-contained-ship/scripts/scan-egress.sh",
+          "startLine": 3062,
+          "endLine": 3088
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-5-c3-utf16/u16.html",
+        "sha256": "265fbae52662473c4e180fec978cf33e8377f70a92f599d3d0637e39750aa9b8"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-006 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-5-c3-utf16/hits.log",
+        "outputSha256": "861d11196d4d73ad0c4de1b482993ef9a319951e4604eeb4f073560fecffc17e",
+        "fixtureSha256": "265fbae52662473c4e180fec978cf33e8377f70a92f599d3d0637e39750aa9b8"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The UTF-16 fixture was waivable as binary even though Chromium attempted its script request."
+      }
+    },
+    {
+      "id": "K3-203-007",
+      "title": "Literal JavaScript markup-injection sinks are unmodeled",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/self-contained-ship/scripts/scan-egress.sh",
+          "startLine": 2328,
+          "endLine": 2337
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-5-c4-domwrite/d.js",
+        "sha256": "00b3b6f3d248ae10de4491f418799b6b1c0d44d0ac9891971cf8239eeb05c050"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-007 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-5-c4-domwrite/hits.log",
+        "outputSha256": "29076d62bcd157db9287f49eb62f2118b4d9f1ff9103fe5d4c6d667f7a679735",
+        "fixtureSha256": "00b3b6f3d248ae10de4491f418799b6b1c0d44d0ac9891971cf8239eeb05c050"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "Preserved document.write and innerHTML fixtures passed statically and produced runtime requests."
+      }
+    },
+    {
+      "id": "K3-203-008",
+      "title": "Artifact-local waiver suppresses the scanner uncertainty tripwire",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/self-contained-ship/scripts/scan-egress.sh",
+          "startLine": 191,
+          "endLine": 191
+        },
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/self-contained-ship/scripts/scan-egress.sh",
+          "startLine": 2969,
+          "endLine": 2980
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-5-c7-waiver/u2.ts",
+        "sha256": "0a2109127c53e310bb3d8b10c05713fb48b5a5f6384982ba548dbd91a6b3c210"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-008 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-5-c7-waiver/scan.out",
+        "outputSha256": "1cd4d68bd7adbb55defb90b69a97647fb86d3e09e2c2a9b890e96828bc3f6485",
+        "fixtureSha256": "0a2109127c53e310bb3d8b10c05713fb48b5a5f6384982ba548dbd91a6b3c210"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The corrected binding uses u2.ts, whose exact bytes appear in the preserved scan output and show UNCERT converted to WAIVED with rc=0."
+      }
+    },
+    {
+      "id": "K3-203-009",
+      "title": "Hook payload extraction accepts the first skill field without cross-checking all fields",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "scripts/pretooluse-skill-integrity.py",
+          "startLine": 30,
+          "endLine": 41
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-8-hook/NOTES.txt",
+        "sha256": "78a5d1153f7a33d6d2d4c524dcee6c73460ac23a58174f0f0517d0d1ba4bbd92"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-009 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-3-E9/summary.txt",
+        "outputSha256": "1757cb9ae4152dbdc1a7c8e1c4745b0661b174fb0b646e9ff81abc721a94dade",
+        "fixtureSha256": "78a5d1153f7a33d6d2d4c524dcee6c73460ac23a58174f0f0517d0d1ba4bbd92"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": false
+      },
+      "disposition": {
+        "status": "theoretical",
+        "rationale": "Mechanics reproduce with conflicting fields, but no supported harness payload with attacker-controlled duplicates was observed."
+      }
+    },
+    {
+      "id": "K3-203-010",
+      "title": "PreToolUse installed-skill verification omits POSIX mode and xattrs",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "scripts/skill_integrity.py",
+          "startLine": 1286,
+          "endLine": 1310
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/K3-3.md",
+        "sha256": "f0b9caaa1f8f64b27d70d2e5484af667c40ce0e7c389e21347694c8e344dc87b"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-010 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-3-E7/summary.txt",
+        "outputSha256": "d6d4d4d6b5c401ad81d51a9d352d1d1f93fbd32a78accb9e8607924492438e06",
+        "fixtureSha256": "f0b9caaa1f8f64b27d70d2e5484af667c40ce0e7c389e21347694c8e344dc87b"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The released hook compared the signed skill file map at byte-record scope and approved a mode-flipped installed executable."
+      }
+    },
+    {
+      "id": "K3-203-011",
+      "title": "Broken stderr changes intended hook BLOCK exit 2 into exit 120",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "scripts/pretooluse-skill-integrity.py",
+          "startLine": 133,
+          "endLine": 145
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-3-E10/failopen.txt",
+        "sha256": "88154fe9659d2b859ef6eb53fd07a3975decbe8d5d807c85761ebfcab045f7f4"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-011 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-3-E10/summary.txt",
+        "outputSha256": "0d27e626295f91e61ff6e3b51d8b55f3a32650549a1fc122157542c7a4aabc20",
+        "fixtureSha256": "88154fe9659d2b859ef6eb53fd07a3975decbe8d5d807c85761ebfcab045f7f4"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The preserved broken-pipe experiment records the noncanonical but still fail-closed interpreter exit."
+      }
+    },
+    {
+      "id": "K3-203-012",
+      "title": "Direct non-launcher hook routing honors Python path shadowing",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "scripts/pretooluse-skill-integrity.py",
+          "startLine": 1,
+          "endLine": 24
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/K3-3.md",
+        "sha256": "f0b9caaa1f8f64b27d70d2e5484af667c40ce0e7c389e21347694c8e344dc87b"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-012 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-3-E11/summary.txt",
+        "outputSha256": "cc75ce493d50262b2c8aab0af03dce2048541ca0ddb85f34fe5156ee90b62baf",
+        "fixtureSha256": "f0b9caaa1f8f64b27d70d2e5484af667c40ce0e7c389e21347694c8e344dc87b"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": false
+      },
+      "disposition": {
+        "status": "theoretical",
+        "rationale": "Direct invocation inherits Python startup semantics; the externally pinned isolated launcher remains the authoritative path."
+      }
+    },
+    {
+      "id": "K3-203-013",
+      "title": "Incomplete HTTP body exception escapes freshness fetch normalization",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "bootstrap/idc_verify_fresh.py",
+          "startLine": 756,
+          "endLine": 775
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-2-attacks/scen_g456.py",
+        "sha256": "365d4e8ebe3a4af59d84d2592fae8c1ef9fc3c5098a9196e6cfabd6946bd5886"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-013 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-2-attacks/scen_g456.log",
+        "outputSha256": "ba74f333ccb4ebce6a55abeeb7e8d96b9cb93c65de6469c786a76d3de489978f",
+        "fixtureSha256": "365d4e8ebe3a4af59d84d2592fae8c1ef9fc3c5098a9196e6cfabd6946bd5886"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The preserved mock response raises IncompleteRead outside the released catch tuple; execution still fails closed with a traceback."
+      }
+    },
+    {
+      "id": "K3-203-014",
+      "title": "Unexpected consumer exception escapes freshness main normalization",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "bootstrap/idc_verify_fresh.py",
+          "startLine": 1557,
+          "endLine": 1575
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-2-attacks/scen_g7plus.py",
+        "sha256": "a786b4da4e310fe325e8f946bea89ca53b4f611cb44a9545a58a2516b44515d5"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-014 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-2-attacks/scen_g7plus.log",
+        "outputSha256": "adafd6c00b82123a7e43a2c519ac832385091446cbd6627d6a9d9383a6df727a",
+        "fixtureSha256": "a786b4da4e310fe325e8f946bea89ca53b4f611cb44a9545a58a2516b44515d5"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The preserved consumer runner raises RuntimeError outside the released catch list; no ready state is emitted."
+      }
+    },
+    {
+      "id": "K3-203-015",
+      "title": "clean.requireForce false enables deletion without a force flag",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/agent-guardrails/scripts/block-dangerous-git.sh",
+          "startLine": 110,
+          "endLine": 140
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-4-cleanreqforce/proofs.txt",
+        "sha256": "44396f1e560f9bdddc882c423246ac207d6545a210457987b65771a0c926aba7"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-015 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-4-cleanreqforce/proofs.txt",
+        "outputSha256": "44396f1e560f9bdddc882c423246ac207d6545a210457987b65771a0c926aba7",
+        "fixtureSha256": "44396f1e560f9bdddc882c423246ac207d6545a210457987b65771a0c926aba7"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "A disposable repository proves untracked files were deleted while the advisory classifier allowed the command."
+      }
+    },
+    {
+      "id": "K3-203-016",
+      "title": "Plumbing ref rewrites and forced tags are outside the released guard surface",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/agent-guardrails/scripts/block-dangerous-git.sh",
+          "startLine": 110,
+          "endLine": 140
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-4-updateref/proofs.txt",
+        "sha256": "d0d765a103c6568dab12189649bd1b3ab1fb1d5cd121d940cc4f17ebce122651"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-016 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-4-updateref/proofs.txt",
+        "outputSha256": "d0d765a103c6568dab12189649bd1b3ab1fb1d5cd121d940cc4f17ebce122651",
+        "fixtureSha256": "d0d765a103c6568dab12189649bd1b3ab1fb1d5cd121d940cc4f17ebce122651"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The preserved update-ref and tag-force proofs mutate disposable refs under an allow verdict."
+      }
+    },
+    {
+      "id": "K3-203-017",
+      "title": "Bash brace expansion executes outside the lexical Git claim",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/agent-guardrails/scripts/block-dangerous-git.sh",
+          "startLine": 628,
+          "endLine": 650
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-4-brace/proofs.txt",
+        "sha256": "ce3b635a77c27189a36f97547dbf3ae2de876b3e88967e4c4c6ad5465ad58e15"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-017 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-4-brace/proofs.txt",
+        "outputSha256": "ce3b635a77c27189a36f97547dbf3ae2de876b3e88967e4c4c6ad5465ad58e15",
+        "fixtureSha256": "ce3b635a77c27189a36f97547dbf3ae2de876b3e88967e4c4c6ad5465ad58e15"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The shell expands git {push,} into an executable Git command the released classifier did not model."
+      }
+    },
+    {
+      "id": "K3-203-018",
+      "title": "Prefixed webkit image-set candidates are not scanned",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/self-contained-ship/scripts/scan-egress.sh",
+          "startLine": 2590,
+          "endLine": 2640
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-5-c5-webkit/w.css",
+        "sha256": "36b6881d1c60f5473035aeee65bf25393fce00ecfaab611dbb02a9bf25c336a9"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-018 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-5-c5-webkit/hits.log",
+        "outputSha256": "0d2177f919bcf963aee0ffdba4b9e616fec8d2c0031a915df1ac1254c6f8feeb",
+        "fixtureSha256": "36b6881d1c60f5473035aeee65bf25393fce00ecfaab611dbb02a9bf25c336a9"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The CSS fixture passed statically and supporting Chromium fetched the preserved external candidate."
+      }
+    },
+    {
+      "id": "K3-203-019",
+      "title": "XML stylesheet processing instructions are invisible",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/self-contained-ship/scripts/scan-egress.sh",
+          "startLine": 2670,
+          "endLine": 2730
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-5-c6-xmlstylesheet/x.xml",
+        "sha256": "306d2d78274a99534bb1f15246dc2973b6e9c506f3e0feae9a466b2d1ff372d2"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-019 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-5-c6-xmlstylesheet/scan.out",
+        "outputSha256": "f9b42245cdb18665ebd7466c720743a0df886c85440e0ba973f56abec892f15d",
+        "fixtureSha256": "306d2d78274a99534bb1f15246dc2973b6e9c506f3e0feae9a466b2d1ff372d2"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The released scanner returned green for the exact XML stylesheet fixture."
+      }
+    },
+    {
+      "id": "K3-203-020",
+      "title": "Archipelago references runnable protocol scripts that are not vendored",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/archipelago/SKILL.md",
+          "startLine": 45,
+          "endLine": 55
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/K3-6.md",
+        "sha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-020 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-6-functional/functional-checks.txt",
+        "outputSha256": "67377c352fe7319f29189fdafe0d19353cdb05d53bc7c5e153e979308e8dbb53",
+        "fixtureSha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The released skill names executable protocol paths absent from its signed island and discloses the upstream prose pin."
+      }
+    },
+    {
+      "id": "K3-203-021",
+      "title": "Self-contained-ship executable fixture matrix is undisclosed in its skill body",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/self-contained-ship/SKILL.md",
+          "startLine": 14,
+          "endLine": 24
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/K3-6.md",
+        "sha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-021 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-6-functional/functional-checks.txt",
+        "outputSha256": "67377c352fe7319f29189fdafe0d19353cdb05d53bc7c5e153e979308e8dbb53",
+        "fixtureSha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The 2.0.3 skill links the scanner but not its executable 2,067-line regression matrix; the file is nevertheless signed."
+      }
+    },
+    {
+      "id": "K3-203-022",
+      "title": "Dangerous-Git guard documents compatibility fail-open on missing runtime inputs",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/agent-guardrails/scripts/block-dangerous-git.sh",
+          "startLine": 63,
+          "endLine": 94
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/K3-7.md",
+        "sha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-022 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-7-bash/guard-failopen.txt",
+        "outputSha256": "acb66598bd878754ec122712ad7c6ab8b5e56dc933d70be0fc26040d74c9480c",
+        "fixtureSha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "Missing payload/interpreters produce an announced allow in the released advisory mode; it was explicitly documented as non-authoritative."
+      }
+    },
+    {
+      "id": "K3-203-023",
+      "title": "In-tree verifier resolves ssh-keygen through inherited PATH",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "scripts/skill_integrity.py",
+          "startLine": 790,
+          "endLine": 920
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/K3-7.md",
+        "sha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-023 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-7-setup/anchors.txt",
+        "outputSha256": "95d5446a913e414077fa544800e88b7a327009040cb59db9f4f750b868e36d70",
+        "fixtureSha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "Bare ssh-keygen subprocess arguments are present in the released in-tree verifier; the external launcher pins the authoritative executable separately."
+      }
+    },
+    {
+      "id": "K3-203-024",
+      "title": "Minimum Python runtime is undocumented and 3.9 fails incidentally",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "scripts/install.py",
+          "startLine": 280,
+          "endLine": 290
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/K3-7.md",
+        "sha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-024 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-7-python39/summary.txt",
+        "outputSha256": "9fa7f70758c9114a49395fe9fddca85f519d64ce371ec9d81a341d3d9336e660",
+        "fixtureSha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The preserved Python 3.9 run fails on APIs introduced in 3.10 while the 3.12 control passes."
+      }
+    },
+    {
+      "id": "K3-203-025",
+      "title": "Extended per-island lineage is not fully represented in top-level provenance notices",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "provenance.json",
+          "startLine": 1,
+          "endLine": 63
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/K3-6.md",
+        "sha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-025 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-6-scans/extref-parity-notes.txt",
+        "outputSha256": "734e8a37cb11585b0cf378857949cbfa21eb03731da8558d2f6f4e46774b98dd",
+        "fixtureSha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The preserved comparison distinguishes locked repositories from additional registry-level idea and vocabulary lineage; it does not assert a license violation."
+      }
+    },
+    {
+      "id": "K3-203-026",
+      "title": "Staged consumer tree is not rehashed immediately before consumer execution",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "bootstrap/idc_verify_fresh.py",
+          "startLine": 1347,
+          "endLine": 1387
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-2-attacks/scen_g7plus.py",
+        "sha256": "a786b4da4e310fe325e8f946bea89ca53b4f611cb44a9545a58a2516b44515d5"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-026 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-2-attacks/scen_g7plus.log",
+        "outputSha256": "adafd6c00b82123a7e43a2c519ac832385091446cbd6627d6a9d9383a6df727a",
+        "fixtureSha256": "a786b4da4e310fe325e8f946bea89ca53b4f611cb44a9545a58a2516b44515d5"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": false
+      },
+      "disposition": {
+        "status": "theoretical",
+        "rationale": "A same-UID consumer-runner mutation can alter staged bytes after content verification; this is a documented same-authority residual, not a demonstrated external attacker path."
+      }
+    },
+    {
+      "id": "K3-203-027",
+      "title": "Forgeable handoff marker and inert NaN fields do not grant authority",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "scripts/install.py",
+          "startLine": 65,
+          "endLine": 80
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/evidence/K3-3-E2/marker.txt",
+        "sha256": "8c52f9e7fc947a5a2ee22d8526234cce3c82ebde7a5ff760fd9104014b6e90ac"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-027 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-3-E2/install-forged.json",
+        "outputSha256": "91bd26ea785c3c91b0b785fa1d60706255440e8b8b1195eb9ded91de2bd489f5",
+        "fixtureSha256": "8c52f9e7fc947a5a2ee22d8526234cce3c82ebde7a5ff760fd9104014b6e90ac"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "false-positive",
+        "rationale": "The marker only unlocks routing and all five signed content checks still run; launcher parsing rejects the NaN-bearing form."
+      }
+    },
+    {
+      "id": "K3-203-028",
+      "title": "Research skill paid API and password-manager access are explicitly gated behavior",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/research/SKILL.md",
+          "startLine": 33,
+          "endLine": 52
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/K3-6.md",
+        "sha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-028 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-6-scans/k3-6-independent-url-scan.txt",
+        "outputSha256": "bf3c01c830272c6bb84bc386c6d2c8d47217db565754a6cd03afe9c5efbaf403",
+        "fixtureSha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "false-positive",
+        "rationale": "The fixed endpoint, separate spend approval, and process-memory credential custody are disclosed controls for an operator-invoked capability, not evidence of malice."
+      }
+    },
+    {
+      "id": "K3-203-029",
+      "title": "Video analysis downloads the user-supplied media URL by design",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "skills/video-analysis/scripts/grab.sh",
+          "startLine": 14,
+          "endLine": 58
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/K3-6.md",
+        "sha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-029 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-6-functional/functional-checks.txt",
+        "outputSha256": "67377c352fe7319f29189fdafe0d19353cdb05d53bc7c5e153e979308e8dbb53",
+        "fixtureSha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "The reviewed script intentionally invokes yt-dlp on the requested URL with no-playlist, bounded media quality, scratch-output, and fail-closed checks."
+      }
+    },
+    {
+      "id": "K3-203-030",
+      "title": "Public release prose contains stale lineage and candidate-state references",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "CHANGELOG.md",
+          "startLine": 3,
+          "endLine": 13
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/K3-7.md",
+        "sha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-030 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-7-publication/release.json",
+        "outputSha256": "e012ef97e733297955030bb1f7a1dbc0b99ffa7c608e744bcfa7a139c71b303a",
+        "fixtureSha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": true
+      },
+      "disposition": {
+        "status": "confirmed",
+        "rationale": "Three cited staging commits and some PR/CI identifiers are not resolvable from the public repository, and the shipped tag retains pre-promotion candidate wording."
+      }
+    },
+    {
+      "id": "K3-203-031",
+      "title": "Windows mode ownership and ssh-keygen fallback claims lacked a real Windows seat",
+      "sourceLocations": [
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "scripts/skill_integrity.py",
+          "startLine": 540,
+          "endLine": 615
+        },
+        {
+          "revision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+          "path": "bootstrap/idc_verify_fresh.py",
+          "startLine": 207,
+          "endLine": 215
+        }
+      ],
+      "fixture": {
+        "path": "source/kimi/lanes/K3-7.md",
+        "sha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
+      },
+      "execution": {
+        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-031 --evidence ops/mission/evidence/2.0.4/evidence.json",
+        "expectedExit": 0,
+        "observedExit": 0,
+        "outputPath": "source/kimi/lanes/evidence/K3-7-filemode/nofm2.json",
+        "outputSha256": "5fec3f40f900f66e0bddc4a924edcf8a10e851f33eaceaa6edf0aad7f90aa3d4",
+        "fixtureSha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
+      },
+      "discriminator": {
+        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "passed": false
+      },
+      "disposition": {
+        "status": "unverified",
+        "rationale": "Linux simulation established fail-closed mode behavior, but the named Windows NTFS/OpenSSH dependencies were not executed in the Kimi engagement."
+      }
+    }
+  ]
+}

@@ -10,8 +10,8 @@
     "northStar": "A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.",
     "status": "active",
     "started": "2026-08-11",
-    "updated": "2026-08-22T22:40:04Z",
-    "sessionCount": 5
+    "updated": "2026-08-22T22:48:21Z",
+    "sessionCount": 6
   },
   "policies": {
     "merge": "review",
@@ -452,17 +452,17 @@
       "id": "G0",
       "title": "Executable evidence contract",
       "goal": "Make every security finding, source citation, fixture, command, result, and status independently recomputable.",
-      "status": "in_progress",
+      "status": "done",
       "sessionsEstimate": "1",
       "gates": [
         {
           "id": "G0-G1",
           "title": "Complete 2.0.4 evidence package validates",
           "command": "python3 -B scripts/validate_evidence.py ops/mission/evidence/2.0.4/evidence.json",
-          "status": "pending",
+          "status": "passed",
           "evidence": "ops/mission/evidence/2.0.4/evidence.json",
-          "lastRun": null,
-          "notes": "Must resolve named revisions, paths, line ranges, fixture hashes, commands, captured outputs, digests, and unambiguous dispositions."
+          "lastRun": "2026-08-22T22:48:21Z",
+          "notes": "All 31 roster IDs resolve to exact 2.0.3 blobs and line ranges, hash-bound preserved fixtures and outputs, replay commands, and explicit confirmed, theoretical, false-positive, or unverified dispositions."
         },
         {
           "id": "G0-G2",
@@ -471,7 +471,7 @@
           "status": "passed",
           "evidence": "tests/test_evidence_contract.py",
           "lastRun": "2026-08-22T22:24:00Z",
-          "notes": "Nine focused tests pass. Required negative classes are missing path, out-of-range line, fixture digest mismatch, output digest mismatch, output-to-fixture binding mismatch, absent command script, ambiguous confirmed status, and a roster ID silently omitted from records."
+          "notes": "Thirteen focused tests pass. The validator rejects missing paths, invalid line ranges, digest or fixture bindings, absent command scripts, ambiguous confirmed status, and omitted roster IDs; the replay gate also rejects changed fixtures, changed outputs, and path escape."
         }
       ],
       "tasks": [
@@ -486,18 +486,18 @@
         {
           "id": "G0-T2",
           "title": "Reconcile every Kimi 2.0.3 finding to exact released and fixture revisions",
-          "status": "in_progress",
+          "status": "done",
           "dependsOn": ["G0-T1"],
           "pr": null,
-          "notes": "Correct the scanner path, forged-payload line scope, and K3-203-008 fixture/output mismatch without rewriting original source artifacts."
+          "notes": "All source paths and ranges now resolve against the immutable 2.0.3 commit. K3-203-004 through 008 cite the released self-contained-ship scanner, K3-203-001 has released scope, and K3-203-008 is bound to the exact u2.ts/scan.out pair."
         },
         {
           "id": "G0-T3",
           "title": "Prove evidence tampering is rejected",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G0-T1", "G0-T2"],
           "pr": null,
-          "notes": "Negative fixtures are immutable test inputs and never replace the preserved red-team originals."
+          "notes": "The immutable originals remain under source/kimi. Thirteen negative-capable contract/replay tests prove source, roster, fixture, output, and path tampering is rejected."
         }
       ]
     },
