@@ -9,6 +9,8 @@ The containment covenant: **a deliverable is not shippable until it reaches noth
 
 The trap this island exists to close: an artifact that *looks* offline-safe because the eye skims past a `//cdn` in an attribute or a `fetch` three functions down. The eye is not evidence. Two rungs are.
 
+The unusually large 607-case executable fixture corpus is deliberate shipped review material. Its size, maintenance rules, signed scope, and limits are disclosed in [`TEST-MATERIAL.md`](TEST-MATERIAL.md); fixture volume never substitutes for the sealed runtime rung.
+
 ## Rung 1: the static scan (necessary, not sufficient)
 
 [`scripts/scan-egress.sh`](scripts/scan-egress.sh) statically scans the deliverable for every egress vector and **fails closed (exit 1)** on any un-waived external reference, **symlink**, non-regular file, **unreadable** file, directory **traversal error**, or **binary**:

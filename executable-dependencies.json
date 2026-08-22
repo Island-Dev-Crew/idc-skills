@@ -1,0 +1,66 @@
+{
+  "dependencies": [
+    {
+      "name": "bash",
+      "pinMechanism": "signed runtime-requirements.json minimum; real Bash 3.2 release evidence",
+      "status": "required-version-floor",
+      "surfaces": ["POSIX wrappers", "shell fixtures"]
+    },
+    {
+      "name": "python",
+      "pinMechanism": "absolute path and SHA-256 in external freshness configuration; signed minimum 3.10",
+      "status": "required-external-pinned",
+      "surfaces": ["freshness launcher", "installer", "validators", "skill helpers"]
+    },
+    {
+      "name": "git",
+      "pinMechanism": "absolute path and SHA-256 in external freshness configuration for release authority; explicit absolute path for console assembly",
+      "status": "required-external-pinned",
+      "surfaces": ["release tree binding", "console lock", "repository workflows"]
+    },
+    {
+      "name": "ssh-keygen",
+      "pinMechanism": "absolute path and SHA-256 in external freshness configuration, forwarded to every verifier consumer",
+      "status": "required-external-pinned",
+      "surfaces": ["manifest/index/root signature verification", "release signing"]
+    },
+    {
+      "name": "node",
+      "pinMechanism": "GitHub Actions setup-node action pinned by commit with Node 22; runtime version recorded by evidence",
+      "status": "required-evidence-pinned",
+      "surfaces": ["report renderers", "sealed browser gate", "selected skill helpers"]
+    },
+    {
+      "name": "chrome",
+      "pinMechanism": "browser binary/version and sealed-load output recorded per evidence run",
+      "status": "conditional-evidence-pinned",
+      "surfaces": ["sealed artifact and visual QA"]
+    },
+    {
+      "name": "playwright",
+      "pinMechanism": "target repository lockfile only; absent lockfile makes the optional probe unavailable rather than triggering network installation",
+      "status": "conditional-lockfile-pinned",
+      "surfaces": ["generic self-contained runtime probe", "Archipelago runtime journeys"]
+    },
+    {
+      "name": "ffmpeg/ffprobe/yt-dlp",
+      "pinMechanism": "absolute resolved tool paths and versions captured in each video evidence packet; no automatic installer",
+      "status": "conditional-evidence-pinned",
+      "surfaces": ["video-analysis"]
+    },
+    {
+      "name": "gh/op/curl",
+      "pinMechanism": "optional operator-provided tools; versions and target scope reviewed at use; credentials never stored by the Forge",
+      "status": "conditional-operator-tool",
+      "surfaces": ["wizard", "transport", "research", "signing ceremony"]
+    },
+    {
+      "name": "shellcheck",
+      "pinMechanism": "development/CI verifier only; version captured in gate evidence",
+      "status": "test-only-evidence-pinned",
+      "surfaces": ["shell release gates"]
+    }
+  ],
+  "networkInstallPolicy": "No skill helper may install or fetch an executable at invocation. Conditional tools must already exist under an operator-reviewed or lockfile-pinned environment.",
+  "schema": "idc-executable-dependencies/v1"
+}

@@ -1560,6 +1560,9 @@ def _run_consumer(
     elif args.command == "hook":
         script = staged_repo / "scripts" / "pretooluse-skill-integrity.py"
         child_args = ["--repo-root", str(staged_repo), *command_args]
+    elif args.command == "fleet-parity":
+        script = staged_repo / "scripts" / "verify_fleet_parity.py"
+        child_args = ["--repo-root", str(staged_repo), *command_args]
     else:
         if command_args:
             raise FreshnessError("reaccept does not accept forwarded arguments")
@@ -1623,6 +1626,7 @@ def build_parser() -> argparse.ArgumentParser:
         "export-claude-ai",
         "export-claude-ai-snapshot",
         "hook",
+        "fleet-parity",
         "reaccept",
     ):
         child = subparsers.add_parser(name, allow_abbrev=False)

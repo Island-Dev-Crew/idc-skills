@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://islanddevcrew.com/schemas/archipelago/plan.lock.schema.json",
+  "title": "ARCHIPELAGO G1 — plan.lock",
+  "$comment": "Plan Gate artifact. Source: flagship-report (Plan-of-Attack mode) output, machine face. The HTML deliverable is for humans; this file is what mission-control consumes at kickoff. Requires NBCLI preview verdict != blocked and HITL sign-off.",
+  "type": "object",
+  "required": ["schemaVersion", "ideaLock", "frozenAt", "verdict", "phases", "budget", "hitl"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "ideaLock": { "type": "string", "pattern": "^idea-[a-z0-9][a-z0-9-]{2,48}$", "description": "id of the governing idea.lock.json" },
+    "frozenAt": { "type": "string", "format": "date-time" },
+    "planDoc": { "type": "string", "description": "Path/URL of the flagship-report HTML (human face of this same plan)." },
+    "verdict": {
+      "type": "object",
+      "required": ["nbcli", "adversarialFindingsResolved"],
+      "additionalProperties": false,
+      "properties": {
+        "nbcli": { "enum": ["ready", "warning"], "$comment": "'blocked' cannot be frozen — the gate refuses." },
+        "nbcliReport": { "type": "string", "description": "Path to nsb preview output evidence." },
+        "adversarialFindingsResolved": { "type": "boolean", "description": "flagship-report's adversarial verification pass has no open serious findings." }
+      }
+    },
+    "phases": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "title", "goal", "gates", "evidenceRequired"],
+        "additionalProperties": false,
+        "$comment": "Shape mirrors mission-control state.json phases[] so kickoff is a copy, not a translation.",
+        "properties": {
+          "id": { "type": "string", "pattern": "^P[0-9]+$" },
+          "title": { "type": "string" },
+          "goal": { "type": "string" },
+          "sessionsEstimate": { "type": "string" },
+          "lane": { "enum": ["bugfix", "refactor", "feature", "greenfield", "design", "infra", "research"], "$comment": "build-orchestration-skill lane; 'design' routes the phase into Iron Canvas." },
+          "gates": {
+            "type": "array", "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["id", "title", "command"],
+              "additionalProperties": false,
+              "properties": {
+                "id": { "type": "string" },
+                "title": { "type": "string" },
+                "command": { "type": "string", "$comment": "Shell-agnostic, runnable from repo root by a stranger. No '&&' (PowerShell 5.1 parse error)." }
+              }
+            }
+          },
+          "evidenceRequired": {
+            "type": "array", "minItems": 1,
+            "items": { "enum": ["static", "runtime-journey", "visual", "recording", "resilience"] },
+            "description": "dogfood-readiness v2 lanes this phase must produce. UI-facing phases MUST include runtime-journey."
+          }
+        }
+      }
+    },
+    "budget": {
+      "type": "object",
+      "required": ["costCapUsd"],
+      "additionalProperties": false,
+      "properties": {
+        "costCapUsd": { "type": "number", "exclusiveMinimum": 0 },
+        "wallClockCapHours": { "type": "number" },
+        "notes": { "type": "string" }
+      }
+    },
+    "hitl": {
+      "type": "object",
+      "required": ["approvedBy", "approvedAt"],
+      "additionalProperties": false,
+      "$comment": "G1 is the cheapest place to say no. Human sign-off is mandatory here even in goal mode.",
+      "properties": {
+        "approvedBy": { "type": "string" },
+        "approvedAt": { "type": "string", "format": "date-time" },
+        "conditions": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

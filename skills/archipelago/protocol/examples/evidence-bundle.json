@@ -1,0 +1,36 @@
+{
+  "schemaVersion": "2.0",
+  "target": "PR 12",
+  "phaseId": "P1",
+  "claimSurface": "cli",
+  "claims": [
+    { "claim": "validate_contracts.py exits 0 on all five schemas", "status": "verified", "evidenceRefs": ["ev-001"] },
+    { "claim": "windows path handling correct", "status": "unverified", "evidenceRefs": [] }
+  ],
+  "lanes": {
+    "static": {
+      "artifacts": [
+        { "id": "ev-001", "path": "ops/mission/evidence/P1-G1-validate.txt", "sha256": "9f2c8a1d4e6b3f7a0c5d8e2b4a6f1c3d5e7b9a0c2d4f6e8b1a3c5d7e9f0b2a4c", "kind": "test-output" }
+      ],
+      "findings": []
+    }
+  },
+  "fusion": {
+    "internalBand": 4,
+    "externalReview": { "source": "greptile", "score": 4 },
+    "mode": "min",
+    "mergeConfidence": 4,
+    "source": "internal-min-greptile"
+  },
+  "grepLoop": {
+    "iterations": 2,
+    "finalBand": 4,
+    "honestBlockers": ["Windows path claim has no probe yet — needs a PowerShell 5.1 CI runner before band 5"]
+  },
+  "merge": {
+    "worktreeValidation": "passed",
+    "ci": "green",
+    "pr": { "number": 12, "url": "https://github.com/Navigata1/archipelago/pull/12", "mergedAt": "2026-07-08" },
+    "branchSweep": "ops/mission/sweeps/2026-07-08-p1.json"
+  }
+}

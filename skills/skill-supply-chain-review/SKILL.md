@@ -29,7 +29,7 @@ Establish where it came from and whether you can freeze exactly what you audited
 
 ### 2. Scan: the deterministic evidence
 
-Run the bundled scanner over the candidate directory. It greps every file for the risk classes below and emits a `file:line — class — snippet` table. This is **advisory**: a regex flags candidates, it does not prove intent (like the guardrails seatbelt, it catches patterns, not malice), but the table is the recomputable evidence the verdict cites.
+Run the bundled scanner over the candidate directory. It enumerates regular files, symlinks, and special files without following candidate links; includes hidden and ignored content; captures stable bounded regular-file bytes; and emits a tabular `encoded-file:line / class / encoded-snippet` record. Control, whitespace, escape, percent, and non-ASCII bytes in untrusted names/snippets are percent-encoded, so candidate text cannot counterfeit another evidence row or terminal control. This is **advisory**: a regex flags candidates, it does not prove intent (like the guardrails seatbelt, it catches patterns, not malice), but the table is recomputable evidence the verdict cites. Operational traversal or capture failure exits `2`; findings themselves exit `0` for human review.
 
 ```bash
 ./scripts/scan-skill.sh <path-to-candidate-skill>   # prints the findings table; exit 0 always (evidence, not a gate)

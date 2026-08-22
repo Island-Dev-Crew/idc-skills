@@ -1,0 +1,115 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://islanddevcrew.com/schemas/archipelago/evidence-bundle.schema.json",
+  "title": "ARCHIPELAGO G4/G5 — dogfood-readiness v2 evidence bundle",
+  "$comment": "Evidence + Merge Gate artifact. Extends dogfood-readiness pulse with the v2 lane taxonomy, SHA-256 provenance, and the folded no-mistakes merge record. One tool owns the claim-to-merge arc; this is its ledger entry per slice.",
+  "type": "object",
+  "required": ["schemaVersion", "target", "claimSurface", "claims", "lanes", "fusion", "grepLoop"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": "2.0" },
+    "target": { "type": "string", "examples": ["PR 123", "phase P2 slice 3"] },
+    "phaseId": { "type": "string" },
+    "claimSurface": { "enum": ["ui", "api", "cli", "lib"], "$comment": "Sets lane requirements: ui requires runtime-journey for band 5." },
+    "claims": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["claim", "status", "evidenceRefs"],
+        "additionalProperties": false,
+        "properties": {
+          "claim": { "type": "string" },
+          "status": { "enum": ["verified", "falsified", "unverified"] },
+          "evidenceRefs": { "type": "array", "items": { "type": "string" }, "description": "artifact ids from lanes[].artifacts. 'unverified' claims must be explicitly marked, never implied verified." }
+        }
+      }
+    },
+    "lanes": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "static": { "$ref": "#/$defs/lane" },
+        "runtime-journey": {
+          "allOf": [{ "$ref": "#/$defs/lane" }],
+          "$comment": "Playwright journeys: navigate -> act -> assert visible state. Any console error = automatic finding."
+        },
+        "visual": {
+          "allOf": [{ "$ref": "#/$defs/lane" }],
+          "$comment": "Screenshots + pixel-diff vs committed baselines. Baseline updates require explicit --accept-visual."
+        },
+        "recording": {
+          "allOf": [{ "$ref": "#/$defs/lane" }],
+          "$comment": "trace.zip / video. Proves the app worked in THAT run on THAT machine — say so, no more."
+        },
+        "resilience": {
+          "allOf": [{ "$ref": "#/$defs/lane" }],
+          "$comment": "Flake detection (x3, quarantine on disagreement), axe-core findings, optional mutation log."
+        }
+      }
+    },
+    "fusion": {
+      "type": "object",
+      "required": ["internalBand", "mode", "mergeConfidence"],
+      "additionalProperties": false,
+      "properties": {
+        "internalBand": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "externalReview": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "source": { "type": "string", "examples": ["greptile"] },
+            "score": { "type": "integer", "minimum": 1, "maximum": 5 }
+          }
+        },
+        "mode": { "enum": ["min", "weighted"], "$comment": "Gate uses min — the weakest signal governs. weighted is report-only, never for the gate." },
+        "mergeConfidence": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "source": { "type": "string", "examples": ["internal-min-greptile"] }
+      }
+    },
+    "grepLoop": {
+      "type": "object",
+      "required": ["iterations", "finalBand"],
+      "additionalProperties": false,
+      "properties": {
+        "iterations": { "type": "integer", "minimum": 0 },
+        "finalBand": { "type": "integer", "minimum": 1, "maximum": 5 },
+        "honestBlockers": { "type": "array", "items": { "type": "string" }, "description": "If finalBand < 5, why — ledgered, not hidden." }
+      }
+    },
+    "merge": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "The folded no-mistakes record: disposable-worktree validation, forward on full pass, clean PR.",
+      "properties": {
+        "worktreeValidation": { "enum": ["passed", "failed", "skipped"] },
+        "ci": { "enum": ["green", "red", "pending"] },
+        "pr": { "type": "object", "properties": { "number": { "type": "integer" }, "url": { "type": "string" }, "mergedAt": { "type": "string" } }, "additionalProperties": false },
+        "branchSweep": { "type": "string", "description": "Path to clawsweeper decision file emitted at the S5->S6 seam." }
+      }
+    }
+  },
+  "$defs": {
+    "lane": {
+      "type": "object",
+      "required": ["artifacts"],
+      "additionalProperties": false,
+      "properties": {
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["id", "path", "sha256"],
+            "additionalProperties": false,
+            "properties": {
+              "id": { "type": "string" },
+              "path": { "type": "string" },
+              "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$", "$comment": "Provenance hash — same discipline as Agent Edge Vault; NBCLI ledger stores these." },
+              "kind": { "type": "string", "examples": ["test-output", "journey-json", "screenshot", "trace-zip", "axe-report"] }
+            }
+          }
+        },
+        "findings": { "type": "array", "items": { "type": "string" } }
+      }
+    }
+  }
+}

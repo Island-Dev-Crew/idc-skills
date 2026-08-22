@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://islanddevcrew.com/schemas/archipelago/idea.lock.schema.json",
+  "title": "ARCHIPELAGO G0 — idea.lock",
+  "$comment": "Selection Gate artifact. Sources: RLA Forge taxonomy (constants/domains.ts) + confidence footer (constants/instructions.ts RESPONSE_FOOTER). No plan may start against an unfrozen idea.",
+  "type": "object",
+  "required": ["schemaVersion", "id", "frozenAt", "problem", "domain", "definitionOfDone", "confidence"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "id": {
+      "type": "string",
+      "pattern": "^idea-[a-z0-9][a-z0-9-]{2,48}$",
+      "description": "Stable slug; referenced by plan.lock and mission state."
+    },
+    "frozenAt": { "type": "string", "format": "date-time" },
+    "frozenBy": { "type": "string", "description": "Human or agent identity that approved G0." },
+    "problem": {
+      "type": "object",
+      "required": ["statement", "successCriteria"],
+      "additionalProperties": false,
+      "properties": {
+        "statement": { "type": "string", "minLength": 20, "description": "One concrete problem, user-side language." },
+        "successCriteria": {
+          "type": "array", "minItems": 1,
+          "items": { "type": "string", "minLength": 10 },
+          "description": "Observable outcomes, each falsifiable."
+        }
+      }
+    },
+    "domain": {
+      "type": "object",
+      "required": ["id", "name"],
+      "additionalProperties": false,
+      "$comment": "RLA Forge taxonomy — the designated required import.",
+      "properties": {
+        "id": { "type": "integer", "minimum": 1, "maximum": 100 },
+        "letter": { "type": "string", "pattern": "^[A-Z]$" },
+        "name": { "type": "string" }
+      }
+    },
+    "definitionOfDone": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["claim", "falsifiedBy"],
+        "additionalProperties": false,
+        "properties": {
+          "claim": { "type": "string" },
+          "falsifiedBy": { "type": "string", "description": "The probe/command/observation that would prove this claim FALSE. Dogfood-readiness inherits these at S4." }
+        }
+      }
+    },
+    "confidence": {
+      "type": "object",
+      "required": ["score", "biggestRisk", "nextAction"],
+      "additionalProperties": false,
+      "$comment": "RLA confidence footer, kept by designation: three fields, not the verification engine.",
+      "properties": {
+        "score": { "type": "integer", "minimum": 1, "maximum": 10 },
+        "biggestRisk": { "type": "string", "minLength": 10, "description": "One sentence: biggest risk of being wrong." },
+        "nextAction": { "type": "string", "minLength": 5 }
+      }
+    },
+    "psznDedupe": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "Optional — run when the candidate pool is large.",
+      "properties": {
+        "checked": { "type": "boolean" },
+        "nearestNeighbor": { "type": ["string", "null"], "description": "idea id of the most similar prior candidate" },
+        "similarity": { "type": ["number", "null"], "minimum": 0, "maximum": 1 }
+      }
+    },
+    "rejectedAlternatives": {
+      "type": "array",
+      "items": { "type": "object", "required": ["idea", "reason"], "properties": { "idea": { "type": "string" }, "reason": { "type": "string" } }, "additionalProperties": false }
+    }
+  }
+}
