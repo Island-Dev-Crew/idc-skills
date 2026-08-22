@@ -221,3 +221,10 @@
 - The validator extracts all `K3-203-NNN` identifiers from the hash-bound Kimi roster and rejects a package that silently omits one. This makes package completeness a recomputed fact rather than a self-declared count.
 - Nine focused tests pass. The gate fails on a missing revision path, out-of-range line, fixture or output digest mismatch, output bound to different fixture bytes, absent command script, confirmed status without a passing discriminator, and incomplete roster coverage.
 - G0-T1 is done and G0-T2 is active. No finding is marked reconciled until the complete preserved Kimi package validates.
+
+## 2026-08-22T22:52Z — G2 closes the declared Git grammar at 325/325
+
+- Added the Kimi red corpus before implementation. The 2.0.3 classifier returned `pass=301 fail=18`: every attached-redirection, invoked-bang-alias, non-alias clean policy, plumbing ref, forced tag, and brace-expansion exploit failed its expected block.
+- The classifier now removes unquoted redirection operator/target pairs anywhere in a simple command before Git argv analysis, composes invoked bang-alias bodies with call-site arguments, resolves `clean.requireForce` through the visible runtime-config layers, and blocks `update-ref` plus forced tags.
+- `IDC_GUARD_STRICT=1` makes missing payload/interpreter and unsupported dynamic shell grammar exit `2`; ordinary mode retains an announced compatibility fail-open. The strict/release distinction is explicit in the skill rather than implied by a green fixture count.
+- Native macOS Bash 3.2 passes 325/325, seven parser differential tests pass, ShellCheck is clean, canonical skill validation remains 50/50 with the same thirteen named Claude.ai advisories, and G2 is closed.

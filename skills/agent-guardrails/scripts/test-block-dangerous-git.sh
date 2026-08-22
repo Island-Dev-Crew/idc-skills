@@ -56,6 +56,16 @@ check_inherited_parameters_bound() { # <expected-exit> <entry-count> <label>
   else fail=$((fail+1)); printf '  FAIL  want=%s got=%s :: %s\n' "$want" "$got" "$label"; fi
 }
 
+check_strict() { # <expected-exit> <command-string> <label>
+  local want="$1" cmd="$2" label="$3" got
+  printf '{"tool_input":{"command":%s}}' "$(printf '%s' "$cmd" | jq -R -s .)" \
+    | env -i PATH="$PATH" HOME="${HOME:-/tmp}" TMPDIR="${TMPDIR:-/tmp}" \
+      IDC_GUARD_STRICT=1 bash "$GUARD" >/dev/null 2>&1
+  got=$?
+  if [ "$got" = "$want" ]; then pass=$((pass+1)); printf '  ok    [%s] %s\n' "$got" "$label"
+  else fail=$((fail+1)); printf '  FAIL  want=%s got=%s :: %s\n' "$want" "$got" "$label"; fi
+}
+
 CANARY_DIR="$(mktemp -d)"
 trap 'rm -rf "$CANARY_DIR"' EXIT
 
@@ -558,6 +568,46 @@ check_inherited 0 "env -ivS 'git status'" 'bundled env -ivS retains ignore-envir
 check_inherited 2 "env -iS 'GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\" git p'" \
   'bundled env -iS clears then installs visible dangerous PARAMETERS' \
   "GIT_CONFIG_PARAMETERS='alias.p'='status'"
+
+echo "== must BLOCK (exit 2) — 2.0.4 G2 red-team grammar regressions =="
+# K3-203-002: redirections are valid throughout a simple command, including when glued to the
+# decisive subcommand/option/pathspec. Every equivalent destructive form must classify alike.
+check 2 'git push>/dev/null'                         'attached output redirect after push'
+check 2 'git push</dev/null origin main'             'attached input redirect after push'
+check 2 'git</dev/null push origin main'             'attached redirect after git word'
+check 2 'git reset --hard>/dev/null'                  'attached redirect after reset option'
+check 2 'git restore .>/dev/null'                     'attached redirect after whole-tree pathspec'
+check 2 'git checkout .>discard.log'                  'attached redirect after checkout pathspec'
+check 2 'git clean --force>/dev/null -d'              'attached redirect after clean force option'
+check 2 'git switch --discard-changes>/dev/null main' 'attached redirect after switch option'
+check 2 'git branch --force>/dev/null topic'          'attached redirect after branch option'
+check 2 'git push>>/dev/null'                         'attached append redirect after push'
+
+# K3-203-003: Git appends call-site arguments to a bang-alias shell body. Classify the body and
+# those arguments together instead of blessing the body in isolation.
+check 2 "git -c alias.p='!git' p push"               'bang alias bare git plus push argument'
+check 2 "git -c alias.p='!git' p reset --hard"       'bang alias bare git plus reset arguments'
+check 2 "git -c alias.p='!git' p clean -fd"          'bang alias bare git plus clean arguments'
+check 0 "git -c alias.p='!git' p status"             'bang alias bare git plus safe status argument'
+
+# K3-203-015/016/017: non-alias config can remove clean's force floor; plumbing can rewrite refs;
+# static Bash brace expansion is outside the declared POSIX grammar and therefore blocks.
+check 2 'git -c clean.requireForce=false clean -d'    'clean requireForce=false deletes untracked files'
+check 2 'git update-ref refs/heads/topic HEAD~1'       'update-ref force moves a branch ref'
+check 2 'git update-ref -d refs/heads/topic'           'update-ref deletes a branch ref'
+check 2 'git tag -f release HEAD~1'                    'tag -f clobbers a tag ref'
+check 2 'git {push,}'                                  'Bash brace expansion is fail-closed'
+
+# Strict release mode turns every explicitly unsupported dynamic grammar into a block while the
+# ordinary advisory mode retains its documented compatibility behavior.
+# shellcheck disable=SC2016 # literal attack strings; the test must not execute them
+check_strict 2 'C=git; $C push'                        'strict mode blocks variable dispatch'
+# shellcheck disable=SC2016 # literal attack strings; the test must not execute them
+check_strict 2 'git $(printf pu)sh'                    'strict mode blocks command assembly'
+check_strict 2 'eval "git push"'                      'strict mode blocks eval'
+check_strict 2 'sh -c "git push"'                     'strict mode blocks nested shell command'
+check_strict 2 'f(){ git push; }; f'                   'strict mode blocks function definitions'
+check_strict 0 'git status'                            'strict mode retains proved safe Git command'
 
 check_inherited 0 'git status' 'PARAMETERS parser never evaluates config bytes' \
   "GIT_CONFIG_PARAMETERS='user.name=\$(touch $CANARY_DIR/gcp-pwned)'"

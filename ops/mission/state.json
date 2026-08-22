@@ -558,33 +558,33 @@
       "id": "G2",
       "title": "Fail-closed Git command grammar",
       "goal": "Classify supported Git command forms by declared grammar and block ambiguous mutations at enforced release boundaries.",
-      "status": "pending",
+      "status": "done",
       "sessionsEstimate": "1",
       "gates": [
         {
           "id": "G2-G1",
           "title": "Baseline and adversarial Git corpus pass",
           "command": "bash skills/agent-guardrails/scripts/test-block-dangerous-git.sh",
-          "status": "pending",
-          "evidence": "ops/mission/evidence/2.0.4/g2-git-grammar.json",
-          "lastRun": null,
-          "notes": "The existing 300 cases remain green and every new exploit is retained red-before-green."
+          "status": "passed",
+          "evidence": "ops/mission/evidence/2.0.4/g2-git-grammar.md",
+          "lastRun": "2026-08-22T22:52:00Z",
+          "notes": "Native macOS Bash 3.2: preserved 300-case baseline plus 25 new exploit, strict-mode, and safe-control cases pass at 325/325; the initial new corpus was red at 301 pass and 18 fail."
         },
         {
           "id": "G2-G2",
           "title": "Parser differentials and enforced-exit tests pass",
           "command": "python3 -B -m unittest tests.test_git_guard_grammar",
-          "status": "pending",
-          "evidence": "ops/mission/evidence/2.0.4/g2-git-grammar.json",
-          "lastRun": null,
-          "notes": "Equivalent dangerous commands must receive the same decision; unknown grammar blocks in strict mode."
+          "status": "passed",
+          "evidence": "ops/mission/evidence/2.0.4/g2-git-grammar.md",
+          "lastRun": "2026-08-22T22:52:00Z",
+          "notes": "Seven Python differential tests pass; strict mode blocks unsupported dynamic grammar and missing payloads, while safe Git commands remain usable. ShellCheck is clean."
         }
       ],
       "tasks": [
         {
           "id": "G2-T1",
           "title": "Tokenize attached redirections and normalize supported Git forms",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G0-T3"],
           "pr": null,
           "notes": "Includes attached operators, global options, brace/parameter forms, plumbing mutations, functions, aliases, and wrapper paths."
@@ -592,7 +592,7 @@
         {
           "id": "G2-T2",
           "title": "Evaluate bang-alias bodies together with invocation arguments",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G2-T1"],
           "pr": null,
           "notes": "Call-site verbs cannot be discarded after resolving an alias body."
@@ -600,7 +600,7 @@
         {
           "id": "G2-T3",
           "title": "Enforce guard failure at the release caller",
-          "status": "pending",
+          "status": "done",
           "dependsOn": ["G2-T1", "G2-T2"],
           "pr": null,
           "notes": "Tests operate only on disposable local repositories and never contact a remote."
@@ -865,8 +865,8 @@
     {
       "label": "Dangerous-Git guard fixtures",
       "baseline": 179,
-      "current": 300,
-      "target": 300,
+      "current": 325,
+      "target": 325,
       "direction": "up",
       "tone": "green"
     },

@@ -79,13 +79,26 @@
 # contains backticks/parens inside command substitution breaks bash's parser (3.2).
 set -uo pipefail
 
+strict=0
+case "${IDC_GUARD_STRICT:-0}" in
+  1|true|TRUE|yes|YES|on|ON) strict=1 ;;
+esac
+
 cmd="$(cat | jq -r '.tool_input.command // .toolInput.command // .command // empty' 2>/dev/null || true)"
 if [ -z "${cmd:-}" ]; then
-  echo "block-dangerous-git: no command found in hook payload (guard OPEN)" >&2
+  if [ "$strict" -eq 1 ]; then
+    echo "block-dangerous-git: no command found in hook payload (strict guard BLOCK)" >&2
+    exit 2
+  fi
+  echo "block-dangerous-git: no command found in hook payload (advisory guard OPEN)" >&2
   exit 0
 fi
 if ! command -v python3 >/dev/null 2>&1; then
-  echo "block-dangerous-git: python3 not found; classifier unavailable (guard OPEN)" >&2
+  if [ "$strict" -eq 1 ]; then
+    echo "block-dangerous-git: python3 not found; classifier unavailable (strict guard BLOCK)" >&2
+    exit 2
+  fi
+  echo "block-dangerous-git: python3 not found; classifier unavailable (advisory guard OPEN)" >&2
   exit 0
 fi
 
@@ -165,6 +178,7 @@ SHELL_KEYWORDS = {
 # a redirection token: optional fd number then a >/>>/<{1,3} operator (incl. herestring <<<),
 # target possibly glued.
 REDIR_RE = re.compile(r"^[0-9]*(>>?|<<?<?)(.*)$")
+REDIR_SENTINEL = "__IDC_SHELL_REDIRECTION__"
 # bounded recursive alias resolution: a chain deeper than this blocks as evasion (safe over-block).
 MAX_ALIAS_DEPTH = 8
 # Runtime Git config is attacker-controlled inherited state. Bound both entry count and individual
@@ -186,6 +200,7 @@ SHELL_ASSIGN_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_]*)(\+?=)(.*)$", re.DOTALL)
 ENV_ASSIGN_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_+]*?)=(.*)$", re.DOTALL)
 
 BACKTICK = chr(96)
+STRICT = os.environ.get("IDC_GUARD_STRICT", "").lower() in {"1", "true", "yes", "on"}
 
 
 def is_git_word(tok):
@@ -352,6 +367,13 @@ def argv_danger(tokens):
         force = "f" in flags or has_long_opt(option_rest, "force")
         dry = "n" in flags or has_long_opt(option_rest, "dry-run")
         return "git clean -f" if (force and not dry) else None
+    if sub == "update-ref":
+        # update-ref is Git's scripted forced-ref mutation surface. Its ordinary forms move or
+        # delete a ref without the recoverability assumptions behind the allowed porcelain set.
+        return "git update-ref (forced ref mutation)"
+    if sub == "tag":
+        force = "f" in flags or has_long_opt(option_rest, "force")
+        return "git tag --force (clobbers a tag ref)" if force else None
     if sub == "branch":
         force = "f" in flags or has_long_opt(option_rest, "force")
         delete = "d" in flags or has_long_opt(option_rest, "delete")
@@ -436,6 +458,17 @@ def alias_value_dangerous(value, depth=0, alias_context=None, current_name=None,
     # the value may itself DEFINE or INVOKE further aliases (`-c alias.p=push p`): resolve the
     # whole expansion recursively (bounded) instead of only checking the literal argv.
     return git_invocation_danger(argv, {}, depth + 1) is not None
+
+
+def invoked_bang_alias_dangerous(
+    value, call_args, depth=0, alias_context=None, current_name=None, config_env=None
+):
+    """Classify a bang-alias body together with the argv Git appends at invocation time."""
+    body = value.strip()[1:]
+    if call_args:
+        body = body + " " + " ".join(shlex.quote(arg) for arg in call_args)
+    env = alias_body_environment(config_env, alias_context, current_name)
+    return classify(body, depth + 1, initial_env=env) is not None
 
 
 def is_alias_key(s):
@@ -559,7 +592,7 @@ def normalize_separators(s):
                 i = j
             else:
                 out.append(" ")
-                out.append(c)
+                out.append(REDIR_SENTINEL)
                 out.append(" ")
                 i += 2
             prev = " "
@@ -576,9 +609,29 @@ def normalize_separators(s):
             if k and (before == "" or before in " \t\n;&|()" or before == BACKTICK):
                 del out[len(out) - k:]
             out.append(" ")
-            out.append(">")
+            out.append(REDIR_SENTINEL)
             out.append(" ")
             i += 2
+            prev = " "
+            continue
+        if c in "<>":
+            # Every unquoted shell redirection is grammar, regardless of where it appears or
+            # whether it touches the decisive Git token (`push>/dev/null`, `git</dev/null push`).
+            # Replace the complete operator with one sentinel; the post-tokenization pass removes
+            # that sentinel and exactly one target before Git argv classification.
+            k = 0
+            while k < len(out) and len(out[-1 - k]) == 1 and out[-1 - k].isdigit():
+                k += 1
+            before = out[-1 - k][-1] if len(out) > k else ""
+            if k and (before == "" or before in " \t\n;&|()" or before == BACKTICK):
+                del out[len(out) - k:]
+            j = i + 1
+            while j < n and s[j] in "<>":
+                j += 1
+            out.append(" ")
+            out.append(REDIR_SENTINEL)
+            out.append(" ")
+            i = j
             prev = " "
             continue
         if c == "\n" or c == BACKTICK or c == "(" or c == ")":
@@ -621,6 +674,67 @@ def segments(command):
     if cur:
         segs.append(cur)
     return segs, complex_flow
+
+
+def strip_shell_redirections(tokens):
+    """Remove parsed redirection operator+target pairs everywhere in a simple command."""
+    out = []
+    i = 0
+    while i < len(tokens):
+        if tokens[i] == REDIR_SENTINEL:
+            if i + 1 >= len(tokens):
+                return None
+            i += 2
+            continue
+        out.append(tokens[i])
+        i += 1
+    return out
+
+
+def has_unquoted_brace_expansion(command):
+    """Recognize static Bash brace expansion and fail closed outside the declared POSIX grammar."""
+    quote = None
+    escaped = False
+    depth = 0
+    comma_at_depth = set()
+    for char in command:
+        if escaped:
+            escaped = False
+            continue
+        if char == "\\" and quote != "'":
+            escaped = True
+            continue
+        if quote:
+            if char == quote:
+                quote = None
+            continue
+        if char in ("'", '"'):
+            quote = char
+            continue
+        if char == "{":
+            depth += 1
+        elif char == "," and depth:
+            comma_at_depth.add(depth)
+        elif char == "}" and depth:
+            if depth in comma_at_depth:
+                return True
+            depth -= 1
+    return False
+
+
+def strict_grammar_issue(command):
+    """Name dynamic shell forms that the release grammar cannot prove safe."""
+    if not STRICT:
+        return None
+    if "$(" in command or BACKTICK in command:
+        return "dynamic command substitution is unsupported in strict mode"
+    if re.search(r"(^|[;&|()\n][ \t]*)(?:eval|source|\.|bash|sh|zsh|fish)[ \t]+", command):
+        return "dynamic shell evaluation or sourced code is unsupported in strict mode"
+    if re.search(r"(^|[;&|()\n][ \t]*)(?:[A-Za-z_][A-Za-z0-9_]*=\S+[ \t;]*)*\$[A-Za-z_]", command):
+        return "variable command dispatch is unsupported in strict mode"
+    if re.search(r"\bfunction[ \t]+[A-Za-z_]|[A-Za-z_][A-Za-z0-9_]*[ \t]*\(\)[ \t]*\{", command):
+        return "shell function definition is unsupported in strict mode"
+    return None
 
 
 def command_word_index(tokens):
@@ -913,7 +1027,7 @@ def shell_state_fingerprint(state):
     )
 
 
-def parse_git_config_parameters(raw):
+def parse_git_config_parameters(raw, aliases_only=True):
     # Strictly parse Git's own serialized `-c` environment: quoted entries only, each
     # `'section.key'='value'`, `'section.key=value'`, or `'section.key'`. A malformed or oversized
     # channel returns an explicit BLOCK reason; it never throws into the wrapper's fail-open.
@@ -971,8 +1085,79 @@ def parse_git_config_parameters(raw):
             return {}, "GIT_CONFIG_PARAMETERS key/value exceeds the bound"
         if i < n and raw[i] not in " \t":
             return {}, "malformed GIT_CONFIG_PARAMETERS separator"
-        if is_alias_key(key):
-            out[alias_name(key)] = val              # last duplicate in this layer wins
+        if aliases_only:
+            if is_alias_key(key):
+                out[alias_name(key)] = val          # last duplicate in this layer wins
+        else:
+            out[key.lower()] = val                  # full config view for security-sensitive keys
+    return out, None
+
+
+def effective_git_config_map(git_slice, eff):
+    """Resolve COUNT, PARAMETERS, and argv config layers for non-alias security semantics."""
+    out = {}
+    if "GIT_CONFIG_COUNT" in eff and eff.get("GIT_CONFIG_COUNT", "") != "":
+        raw_count = eff.get("GIT_CONFIG_COUNT", "")
+        if len(raw_count) > 32 or not re.fullmatch(r"[ \t]*\+?[0-9]+[ \t]*", raw_count):
+            return {}, "malformed GIT_CONFIG_COUNT"
+        count = int(raw_count, 10)
+        if count > MAX_RUNTIME_CONFIG_ENTRIES:
+            return {}, "GIT_CONFIG_COUNT exceeds the entry bound"
+        for idx in range(count):
+            kname, vname = "GIT_CONFIG_KEY_%d" % idx, "GIT_CONFIG_VALUE_%d" % idx
+            if kname not in eff or vname not in eff:
+                return {}, "GIT_CONFIG_COUNT entry is missing key/value"
+            key, val = eff[kname], eff[vname]
+            if len(key) > MAX_RUNTIME_CONFIG_BYTES or len(val) > MAX_RUNTIME_CONFIG_BYTES:
+                return {}, "GIT_CONFIG_COUNT key/value exceeds the bound"
+            out[key.lower()] = val
+    if "GIT_CONFIG_PARAMETERS" in eff:
+        params, issue = parse_git_config_parameters(
+            eff.get("GIT_CONFIG_PARAMETERS", ""), aliases_only=False
+        )
+        if issue:
+            return {}, issue
+        out.update(params)
+
+    sub_idx = find_subcommand(git_slice)
+    end = sub_idx if sub_idx is not None else len(git_slice)
+    i, entries = 1, 0
+    while i < end:
+        token, pair, spec = git_slice[i], None, None
+        if token == "-c":
+            if i + 1 >= end:
+                return {}, "malformed git -c runtime config"
+            pair = git_slice[i + 1]
+            i += 2
+        elif token.startswith("-c") and token != "-c":
+            pair = token[2:]
+            i += 1
+        elif token == "--config-env":
+            if i + 1 >= end:
+                return {}, "malformed git --config-env runtime config"
+            spec = git_slice[i + 1]
+            i += 2
+        elif token.startswith("--config-env="):
+            spec = token.split("=", 1)[1]
+            i += 1
+        else:
+            i += 1
+            continue
+        entries += 1
+        if entries > MAX_RUNTIME_CONFIG_ENTRIES:
+            return {}, "git command config exceeds the entry bound"
+        if pair is not None:
+            if len(pair) > MAX_RUNTIME_CONFIG_BYTES:
+                return {}, "git -c value exceeds the bound"
+            key, val = pair.split("=", 1) if "=" in pair else (pair, "")
+        else:
+            if not spec or "=" not in spec:
+                return {}, "malformed git --config-env specification"
+            key, env_name = spec.split("=", 1)
+            if env_name not in eff:
+                return {}, "git --config-env names a missing variable"
+            val = eff[env_name]
+        out[key.lower()] = val
     return out, None
 
 
@@ -1072,6 +1257,16 @@ def git_invocation_danger(git_slice, inherited, depth=0, seen=None, config_env=N
     amap, issue = command_config_alias_map(git_slice, config_env, inherited)
     if issue:
         return issue
+    config_map, issue = effective_git_config_map(git_slice, config_env)
+    if issue:
+        return issue
+    direct_idx = find_subcommand(git_slice)
+    if direct_idx is not None and git_slice[direct_idx] == "clean":
+        require_force = config_map.get("clean.requireforce")
+        if isinstance(require_force, str) and require_force.strip().lower() in {
+            "0", "false", "no", "off"
+        }:
+            return "git clean with clean.requireForce disabled"
     for name, val in amap.items():
         if alias_value_dangerous(val, depth, amap, name, config_env):
             return "effective runtime-config alias resolves to a blocked op"
@@ -1087,7 +1282,9 @@ def git_invocation_danger(git_slice, inherited, depth=0, seen=None, config_env=N
         name = invoked
         val = amap[name].strip()
         if val.startswith("!"):
-            if alias_value_dangerous(val, depth, amap, name, config_env):
+            if invoked_bang_alias_dangerous(
+                val, git_slice[idx + 1:], depth, amap, name, config_env
+            ):
                 return "invoked bang alias resolves to a blocked op"
         else:
             try:
@@ -1103,6 +1300,9 @@ def git_invocation_danger(git_slice, inherited, depth=0, seen=None, config_env=N
 
 
 def classify_segment(tokens, depth=0, base_env=None):
+    tokens = strip_shell_redirections(tokens)
+    if tokens is None:
+        return "ambiguous or missing shell redirection target"
     ci = command_word_index(tokens)
     if ci is None or not is_git_word(tokens[ci]):
         return None
@@ -1117,6 +1317,11 @@ def classify_segment(tokens, depth=0, base_env=None):
 
 
 def classify(command, depth=0, initial_env=None):
+    issue = strict_grammar_issue(command)
+    if issue:
+        return issue
+    if has_unquoted_brace_expansion(command):
+        return "Bash brace expansion is outside the declared grammar"
     initial = dict(os.environ if initial_env is None else initial_env)
     initial_state = {
         "vars": initial,
