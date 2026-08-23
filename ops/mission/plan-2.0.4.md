@@ -1,6 +1,6 @@
 # IDC Skills Forge 2.0.4 — Plan of Attack
 
-**Decision:** HOLD 2.0.4 release construction until Gates G0–G6 are green at one exact candidate commit. Version bump, signed tag, publication, installation, and release promotion are deliberately outside this assessment task.
+**Decision:** 2.0.4 release-candidate construction is authorized. Version bump, production threshold signing, installed-fleet mutation, merge, tag, and publication remain on HOLD until Gates G0–G6 are green at one exact candidate commit. Construction may prepare falsifiable controls and handoffs; it may not convert missing external evidence into acceptance.
 
 **Assessment baseline:** immutable public release `2.0.3`, signed tag object `bbdbafebde00f411dfa55584f4943c88e5a0393a`, commit `26b9285c1fe11a3ef875a34ff30faa0275eddf24`, tree `0ca09971998a058ca80c05fbfde4ca4d1178fdf8`.
 

@@ -31,6 +31,36 @@
           "media": "print"
         }
       ]
+    },
+    {
+      "path": "IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html",
+      "label": "2.0.4 flagship release-control report",
+      "states": [
+        {
+          "name": "mobile",
+          "width": 375,
+          "height": 812,
+          "media": "screen"
+        },
+        {
+          "name": "tablet",
+          "width": 768,
+          "height": 1024,
+          "media": "screen"
+        },
+        {
+          "name": "desktop",
+          "width": 1440,
+          "height": 900,
+          "media": "screen"
+        },
+        {
+          "name": "print",
+          "width": 1440,
+          "height": 900,
+          "media": "print"
+        }
+      ]
     }
   ]
 }

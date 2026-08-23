@@ -59,6 +59,7 @@ REQUIRED_RELEASE_CONTROL_FILES = (
     "console/assemble.sh",
     "CONTEXT.md",
     "executable-dependencies.json",
+    "IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html",
     "integrity/README.md",
     "integrity/policy.json",
     "keys/allowed_signers",
@@ -74,6 +75,8 @@ REQUIRED_RELEASE_CONTROL_FILES = (
     "scripts/verify_fleet_parity.py",
     "scripts/verify_forge_50.py",
     "scripts/verify_provenance.py",
+    "scripts/verify_public_release.py",
+    "scripts/verify_release_reviews.py",
     "scripts/test-skill-integrity.sh",
     "skills/registry.json",
     "tests/test_install.py",
@@ -85,10 +88,14 @@ REQUIRED_RELEASE_CONTROL_FILES = (
     "tests/test_console_lock.py",
     "tests/test_fleet_parity.py",
     "tests/test_provenance.py",
+    "tests/test_public_release.py",
+    "tests/test_release_reviews.py",
     "tests/test_supply_chain_intake.py",
     "runtime-requirements.json",
     "integrity/windows-metadata-policy.json",
     "ops/mission/evidence/platform-evidence.schema.json",
+    "ops/mission/sealed-artifacts.json",
+    "scripts/verify-sealed-artifacts.mjs",
 )
 
 URL_RE = re.compile(r"https?://[^\s<>\"'`]+", re.IGNORECASE)

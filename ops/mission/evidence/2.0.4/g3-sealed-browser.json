@@ -1,6 +1,6 @@
 {
   "schema": "idc-sealed-browser-evidence/v1",
-  "generatedAt": "2026-08-22T23:02:54.620Z",
+  "generatedAt": "2026-08-23T00:07:18.962Z",
   "enforced": {
     "network": "all non-local request attempts intercepted and failed",
     "serviceWorkers": "disabled by ephemeral browser launch and asserted empty",
@@ -17,7 +17,7 @@
     {
       "path": "ops/mission/state-of-the-union.html",
       "label": "2.0.4 mission security heartbeat",
-      "sha256": "sha256:929ae128064df75d63df88334cf85a29f4af020414e93b0a5f13d26f9b1073c8",
+      "sha256": "sha256:ff05f2a64d1ed58d44992ae5949d7ab8acf717076c37d81efbf3b45552ebebee",
       "passed": true,
       "states": [
         {
@@ -61,7 +61,7 @@
                 "left": 12,
                 "right": 348,
                 "clientWidth": 336,
-                "scrollWidth": 569,
+                "scrollWidth": 649,
                 "overflowX": "auto"
               },
               {
@@ -114,7 +114,7 @@
                 "overflowX": "auto"
               }
             ],
-            "bodyTextBytes": 104753
+            "bodyTextBytes": 107221
           },
           "printModeEmulated": false
         },
@@ -205,7 +205,7 @@
                 "overflowX": "auto"
               }
             ],
-            "bodyTextBytes": 104753
+            "bodyTextBytes": 107221
           },
           "printModeEmulated": false
         },
@@ -296,7 +296,7 @@
                 "overflowX": "auto"
               }
             ],
-            "bodyTextBytes": 104753
+            "bodyTextBytes": 107221
           },
           "printModeEmulated": false
         },
@@ -387,7 +387,151 @@
                 "overflowX": "auto"
               }
             ],
-            "bodyTextBytes": 104753
+            "bodyTextBytes": 107221
+          },
+          "printModeEmulated": true
+        }
+      ]
+    },
+    {
+      "path": "IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html",
+      "label": "2.0.4 flagship release-control report",
+      "sha256": "sha256:e137b72c9c48d46996fcb4088642a31f7a881a7941d983709fafc480a76a87e4",
+      "passed": true,
+      "states": [
+        {
+          "state": {
+            "name": "mobile",
+            "width": 375,
+            "height": 812,
+            "media": "screen"
+          },
+          "passed": true,
+          "attempts": [],
+          "consoleErrors": [],
+          "serviceWorkerEvents": [
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ]
+          ],
+          "artifactServiceWorkers": [],
+          "page": {
+            "readyState": "complete",
+            "title": "IDC Skills Forge 2.0.4 · Flagship Release-Control Report",
+            "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+            "registrationCount": 0,
+            "viewportWidth": 375,
+            "scrollWidth": 360,
+            "horizontalOverflow": false,
+            "overflowingElements": [],
+            "tableWraps": [],
+            "bodyTextBytes": 9887
+          },
+          "printModeEmulated": false
+        },
+        {
+          "state": {
+            "name": "tablet",
+            "width": 768,
+            "height": 1024,
+            "media": "screen"
+          },
+          "passed": true,
+          "attempts": [],
+          "consoleErrors": [],
+          "serviceWorkerEvents": [
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ]
+          ],
+          "artifactServiceWorkers": [],
+          "page": {
+            "readyState": "complete",
+            "title": "IDC Skills Forge 2.0.4 · Flagship Release-Control Report",
+            "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+            "registrationCount": 0,
+            "viewportWidth": 768,
+            "scrollWidth": 753,
+            "horizontalOverflow": false,
+            "overflowingElements": [],
+            "tableWraps": [],
+            "bodyTextBytes": 9900
+          },
+          "printModeEmulated": false
+        },
+        {
+          "state": {
+            "name": "desktop",
+            "width": 1440,
+            "height": 900,
+            "media": "screen"
+          },
+          "passed": true,
+          "attempts": [],
+          "consoleErrors": [],
+          "serviceWorkerEvents": [
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ]
+          ],
+          "artifactServiceWorkers": [],
+          "page": {
+            "readyState": "complete",
+            "title": "IDC Skills Forge 2.0.4 · Flagship Release-Control Report",
+            "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+            "registrationCount": 0,
+            "viewportWidth": 1440,
+            "scrollWidth": 1425,
+            "horizontalOverflow": false,
+            "overflowingElements": [],
+            "tableWraps": [],
+            "bodyTextBytes": 9937
+          },
+          "printModeEmulated": false
+        },
+        {
+          "state": {
+            "name": "print",
+            "width": 1440,
+            "height": 900,
+            "media": "print"
+          },
+          "passed": true,
+          "attempts": [],
+          "consoleErrors": [],
+          "serviceWorkerEvents": [
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ]
+          ],
+          "artifactServiceWorkers": [],
+          "page": {
+            "readyState": "complete",
+            "title": "IDC Skills Forge 2.0.4 · Flagship Release-Control Report",
+            "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+            "registrationCount": 0,
+            "viewportWidth": 1440,
+            "scrollWidth": 1425,
+            "horizontalOverflow": false,
+            "overflowingElements": [],
+            "tableWraps": [],
+            "bodyTextBytes": 9412
           },
           "printModeEmulated": true
         }

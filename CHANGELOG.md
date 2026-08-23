@@ -1,5 +1,39 @@
 # Changelog
 
+## 2.0.4 — candidate construction (release acceptance on hold)
+
+This branch implements the G0–G6 hardening plan without claiming the 2.0.4
+release. The registry, production signatures, fleet installs, merge, tag, and
+publication remain unchanged until all external acceptance gates bind to one
+exact candidate commit and tree.
+
+- Repaired the Kimi evidence contract with 31 immutable finding records,
+  revision-scoped citations, exact fixture/output digests, and negative replay
+  tests that reject missing paths, invalid ranges, and mismatched bytes.
+- Added external threshold-root metadata, rollback-safe root rotation, release
+  statements, protected checkpoints, and tests for self-signed forged trees,
+  equivocation, expiry, skipped rotation, partial threshold, and substitution.
+- Closed the declared Git grammar at 325 cases and the static egress grammar at
+  607 cases; moved waivers outside candidate content and added sealed-browser
+  evidence across mobile, tablet, desktop, and print.
+- Bound hook identity, POSIX mode intent, trusted runtimes, secret transport,
+  URL parsing, broken-pipe semantics, and the same-UID residual to executable
+  tests and explicit platform-evidence requirements.
+- Completed Forge-50 provenance and executable dependency records; vendored the
+  Archipelago protocol at an exact upstream commit; hardened intake evidence,
+  authority hierarchy, and exact-blob console assembly.
+- Added external-record verifiers for exact-head cross-family/Kimi approvals and
+  GitHub + company-site + independent-witness publication consistency.
+- Added the self-contained flagship release-control report. It passes the
+  enhanced-report structural rubric, static zero-egress scan, and sealed Chrome
+  matrix; its Tier B motion source is a complete finite 900-frame sequence.
+
+Open acceptance conditions are deliberate: production 2-of-3 root ceremony,
+two independent root-digest channels, exact-head macOS and Windows seats,
+four-root installed parity, clean-clone reacceptance, cross-family and Kimi K3
+approval, protected CI, two-party review, tag/signature generation, public
+release capture, and fresh-consumer verification.
+
 ## 2.0.3 — 2026-08-19 (candidate until external freshness, merge, promotion, and tag)
 
 Signed-content reconciliation: the anti-rollback implementation is exact at

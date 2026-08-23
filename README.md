@@ -4,7 +4,7 @@
 
 > *"In the multitude of counsellors there is safety."* — Proverbs 11:14
 
-This is the **staging forge** (`Navigata1/idc-skills-forge`) with registry candidate and integrity protocol `2.0.3`; that version string is not a shipped, public-ready, or tagged claim. Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
+This is the **staging forge** (`Navigata1/idc-skills-forge`). The registry remains at the shipped `2.0.3` identity while the `2.0.4` candidate is under evidence-gated construction; no candidate language is a public-ready, tagged, or promoted claim. Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
 
 **Cross-harness by contract, not assumption:** the canonical source is preserved once, while each harness gets a documented loader path, metadata profile, and evidence tier. The current matrix covers fifteen surfaces, including Codex, Claude Code, claude.ai, Cursor, VS Code, Amp, Kimi, Antigravity, OpenClaw, Grok, Buzz, Pi, and Hermes. A shared folder proves byte distribution; it does not by itself prove invocation semantics. See the [human-readable matrix](docs/harness-support.md) and its [machine-readable contract](docs/harness-support.json).
 
@@ -101,6 +101,24 @@ claude.ai is a compatibility export, not a native install. The current profile f
 ```
 
 The five-check content gate binds every byte of all 50 skill trees, the registry and security controls, every discovered external reference and network-command occurrence, and reviewed fetch/execute exceptions to a detached OpenSSH signature from the stable 1Password-held Forge key. The separate index signature uses a domain-separated namespace and binds release sequence, raw manifest digest, verifier digest, launcher digest, and final Git commit. Neither result is a sandbox or a full execution trace.
+
+## Release trust and public source
+
+GitHub is the canonical source-code and immutable-release channel. The company
+site is the human-facing discovery and trust witness: it should publish the
+exact release tag, commit, tree, root-metadata digest, threshold fingerprint,
+archive and manifest digests, verification recipe, report, and security contact,
+then point to the canonical GitHub release. A second independently administered
+DNSSEC or transparency channel must publish the same initial-root digest. The
+website must not become a mutable second copy of the skill tree.
+
+The [2.0.4 flagship release-control report](IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html)
+shows the trust topology, exact G0–G6 status, remaining external gates, and the
+recommended GitHub + company site + independent witness architecture. The
+[external threshold trust protocol](trust/README.md) defines the root ceremony
+and bootstrap boundary; [release evidence formats](docs/release-acceptance-evidence.md)
+define the receipts that may close G6. A verifier can prove captured facts are
+internally consistent; it cannot create independent custody or review.
 
 Run the external launcher's `reaccept` command for the full fifty-island validator, signed content check, installer, deterministic export, 50-record registry/report gate, and no-source-drift gate. Current direct installer, hook, and reacceptance routes reject an absent syntactic handoff marker, but that marker is forgeable defense-in-depth, not launcher authentication; only the independently pinned launcher is an authoritative entrypoint. `scripts/install.sh` delegates only when `IDC_SKILLS_FRESHNESS_PYTHON`, `IDC_SKILLS_FRESHNESS_LAUNCHER`, and `IDC_SKILLS_FRESHNESS_CONFIG` name the externally pinned runtime, launcher, and policy. Repository-owned CI tests content and the launcher attack fixtures; whole-tree CI readiness still requires an organization-controlled required check outside candidate code. See [`skills/idc-skill-authoring`](skills/idc-skill-authoring/SKILL.md) §5 for authoring guidance.
 
