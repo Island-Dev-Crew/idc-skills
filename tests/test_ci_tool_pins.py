@@ -53,6 +53,14 @@ class CiToolPinTests(unittest.TestCase):
         provision = workflow.index("python -B scripts/ci_tool_pins.py")
         reaccept = workflow.index("python -B scripts/reaccept.py")
         self.assertLess(provision, reaccept)
+        self.assertIn(
+            "ref: ${{ github.event.pull_request.head.sha || github.sha }}", workflow
+        )
+        self.assertIn("fetch-depth: 0", workflow)
+        self.assertIn("persist-credentials: false", workflow)
+        self.assertIn(
+            'test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"', workflow
+        )
 
 
 if __name__ == "__main__":

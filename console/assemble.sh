@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # Assemble console.lock from exact HEAD blobs, never from mutable worktree globs.
 set -euo pipefail
+export LANG=C
+export LC_ALL=C
 
 ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$ROOT"

@@ -112,8 +112,8 @@
       "size": 277
     },
     ".github/workflows/validate.yml": {
-      "sha256": "sha256:9bd354ec0a7626d8ae7beeffe28798c81b5ee22b28e7f570c2bbe49f26ae3518",
-      "size": 4059
+      "sha256": "sha256:3c1d0dc9f7ba33695f628c8068ac06c540bafaa120e703eb254efe348c22bea3",
+      "size": 4889
     },
     "AGENTS.md": {
       "sha256": "sha256:911c88fa2439a3b9f12d204f74075309b40e86914f283f3ee8c111d9093b56ce",
@@ -136,8 +136,8 @@
       "size": 41914
     },
     "README.md": {
-      "sha256": "sha256:d7ae6dcfb14c905ed69570328cfad0ba5bf420b787f4f50ac7c8ec0beb5f0fc6",
-      "size": 22592
+      "sha256": "sha256:fa7ad8a74762e01f4975ce9633189b9d6a9086ffd17d467d9ccaa04c92259096",
+      "size": 22621
     },
     "THIRD-PARTY-NOTICES.md": {
       "sha256": "sha256:be54368cbd2a9b7d4bfc812f3fb2544d43172609600914c04578268c44ae0324",
@@ -148,8 +148,8 @@
       "size": 91200
     },
     "console/assemble.sh": {
-      "sha256": "sha256:531c0e1f5d53b08b5f5e84c423104f98ed883fef943c0aa4f05a91b326740b32",
-      "size": 4841
+      "sha256": "sha256:f6398fa2fa7cebc678162d15cf7cbda132fad90f90f6e8f27e42474afabef905",
+      "size": 4871
     },
     "docs/report.html": {
       "sha256": "sha256:32732d652b2d98b4831eb0881bde58f9a47ec7ad5799e96392310a574356fbf2",
@@ -280,8 +280,8 @@
       "size": 28596
     },
     "tests/test_console_lock.py": {
-      "sha256": "sha256:7a81568525e14051ae98c1d0cc76a35219fb27511d4babff35e558f75a04d6a4",
-      "size": 6045
+      "sha256": "sha256:e514433fd817ca3c68a539ecb4050a455c91c49e867fd455bd5373bce0b10e77",
+      "size": 6326
     },
     "tests/test_fleet_parity.py": {
       "sha256": "sha256:2e12a11181af14ca111162bce219145e20dfacfedbb87ae1040ce9a09ca347d0",
@@ -308,8 +308,8 @@
       "size": 20322
     },
     "tests/test_runtime_boundaries.py": {
-      "sha256": "sha256:d171914803181ac8bdd47d6b2bb4983c0af0c7173c3db7776add08f993bd5e59",
-      "size": 4806
+      "sha256": "sha256:db6ac44e5c4249aff415d5415acd6126c83d82e0046ca982390d466472d69ccf",
+      "size": 4937
     },
     "tests/test_security_scripts.py": {
       "sha256": "sha256:1d0d737f487defdbcedf8e51dced25dfb8a61efc43d028af1c9cd3856d6518cc",
@@ -344,8 +344,8 @@
     },
     ".github/workflows/validate.yml": {
       "posixMode": 420,
-      "sha256": "sha256:9bd354ec0a7626d8ae7beeffe28798c81b5ee22b28e7f570c2bbe49f26ae3518",
-      "size": 4059
+      "sha256": "sha256:3c1d0dc9f7ba33695f628c8068ac06c540bafaa120e703eb254efe348c22bea3",
+      "size": 4889
     },
     ".gitignore": {
       "posixMode": 420,
@@ -399,8 +399,8 @@
     },
     "README.md": {
       "posixMode": 420,
-      "sha256": "sha256:d7ae6dcfb14c905ed69570328cfad0ba5bf420b787f4f50ac7c8ec0beb5f0fc6",
-      "size": 22592
+      "sha256": "sha256:fa7ad8a74762e01f4975ce9633189b9d6a9086ffd17d467d9ccaa04c92259096",
+      "size": 22621
     },
     "THIRD-PARTY-NOTICES.md": {
       "posixMode": 420,
@@ -414,8 +414,8 @@
     },
     "console/assemble.sh": {
       "posixMode": 493,
-      "sha256": "sha256:531c0e1f5d53b08b5f5e84c423104f98ed883fef943c0aa4f05a91b326740b32",
-      "size": 4841
+      "sha256": "sha256:f6398fa2fa7cebc678162d15cf7cbda132fad90f90f6e8f27e42474afabef905",
+      "size": 4871
     },
     "console/blocks/00-boot.md": {
       "posixMode": 420,
@@ -2274,13 +2274,13 @@
     },
     "tests/test_ci_tool_pins.py": {
       "posixMode": 420,
-      "sha256": "sha256:86ab54109aabeb9aaf7b671fb545d18c8d4093453dfc1015324d5282c49877ce",
-      "size": 2065
+      "sha256": "sha256:82832039c289ecd7497a8679bde6e44886c16ac3b1607a76f09f9d9bfda53b1a",
+      "size": 2400
     },
     "tests/test_console_lock.py": {
       "posixMode": 420,
-      "sha256": "sha256:7a81568525e14051ae98c1d0cc76a35219fb27511d4babff35e558f75a04d6a4",
-      "size": 6045
+      "sha256": "sha256:e514433fd817ca3c68a539ecb4050a455c91c49e867fd455bd5373bce0b10e77",
+      "size": 6326
     },
     "tests/test_egress_policy.py": {
       "posixMode": 420,
@@ -2344,8 +2344,8 @@
     },
     "tests/test_runtime_boundaries.py": {
       "posixMode": 420,
-      "sha256": "sha256:d171914803181ac8bdd47d6b2bb4983c0af0c7173c3db7776add08f993bd5e59",
-      "size": 4806
+      "sha256": "sha256:db6ac44e5c4249aff415d5415acd6126c83d82e0046ca982390d466472d69ccf",
+      "size": 4937
     },
     "tests/test_security_scripts.py": {
       "posixMode": 420,

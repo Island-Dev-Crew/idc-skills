@@ -106,6 +106,12 @@ class ConsoleLockTests(unittest.TestCase):
         self.assertIn("IDC_CONSOLE_SHA256_KIND", skill)
         self.assertNotIn("blocks=(console/blocks/*.md)", skill)
 
+    def test_index_flag_classification_uses_the_ascii_locale(self) -> None:
+        assembler = ASSEMBLER.read_text(encoding="utf-8")
+        self.assertIn("export LANG=C", assembler)
+        self.assertIn("export LC_ALL=C", assembler)
+        self.assertIn("S|[a-z]", assembler)
+
     def test_ignored_untracked_block_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)

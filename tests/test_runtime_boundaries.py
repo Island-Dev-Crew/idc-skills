@@ -88,6 +88,8 @@ class RuntimeBoundaryTests(unittest.TestCase):
             "sys.path.insert(0,str(Path(sys.argv[0]).parent));"
             "runpy.run_path(sys.argv[0],run_name='__main__')"
         )
+        environment = os.environ.copy()
+        environment.pop("IDC_SKILLS_FRESHNESS_HANDOFF", None)
         process = subprocess.Popen(
             [
                 sys.executable,
@@ -107,6 +109,7 @@ class RuntimeBoundaryTests(unittest.TestCase):
             stdout=subprocess.PIPE,
             stderr=write_fd,
             text=True,
+            env=environment,
         )
         try:
             self.assertEqual(process.stdout.readline(), "READY\n")

@@ -81,7 +81,7 @@ The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust
 
 ## Install
 
-The dependency-free Python installer works from PowerShell, Command Prompt, and POSIX shells. Version 2.0.4 requires Python 3.10 or newer; CI exercises Python 3.12 on macOS, Windows, and Linux runners, while POSIX entrypoints retain a Bash 3.2 floor. CI runner coverage is not independent Windows/NTFS acceptance, which remains deferred. The full-authority protocol routes installation through an independently installed freshness launcher; the repository's own verifier can prove signed content, but it cannot prove that its whole tree was not rolled back. Targets remain explicit so the external write set is visible before execution:
+The dependency-free Python installer provides entrypoints for PowerShell, Command Prompt, and POSIX shells. Version 2.0.4 requires Python 3.10 or newer; CI exercises Python 3.12 on macOS and Linux runners, while POSIX entrypoints retain a Bash 3.2 floor. Windows entrypoints are experimental in this release, and independent Windows/NTFS acceptance remains deferred. The full-authority protocol routes installation through an independently installed freshness launcher; the repository's own verifier can prove signed content, but it cannot prove that its whole tree was not rolled back. Targets remain explicit so the external write set is visible before execution:
 
 ```text
 python scripts/validate_skills.py
