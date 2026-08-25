@@ -96,16 +96,6 @@
       "skill": "skill-supply-chain-review"
     },
     {
-      "classification": "executable-deny-rule",
-      "kind": "network-package-execution",
-      "line": 22,
-      "path": "scripts/scan-skill.sh",
-      "preview": "\"unpinned-install|(pip install|npm install|cargo install|npx |uvx |\\| *sh\\b)\"",
-      "rationale": "This regex is an input to the supply-chain scanner and flags unpinned package or pipe-shell execution.",
-      "sha256": "sha256:e22600c29cd0bb0c6ea6f55f6132c01e6d9856dcd13cf17349f27ab5a33fdea3",
-      "skill": "skill-supply-chain-review"
-    },
-    {
       "classification": "reviewed-lockfile-install",
       "kind": "network-package-execution",
       "line": 46,
@@ -118,20 +108,20 @@
   ],
   "controlFiles": {
     ".gitattributes": {
-      "sha256": "sha256:d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c",
-      "size": 19
+      "sha256": "sha256:909e04e20c084561c2d6d60c6632890cf20b99420b10ab93183c0f03418e144f",
+      "size": 277
     },
     ".github/workflows/validate.yml": {
-      "sha256": "sha256:07378bfb4cd55bcaa5975ecb1561a8e08b686cfc446a73195e0d8ff19d2b8a87",
-      "size": 3771
+      "sha256": "sha256:3c1d0dc9f7ba33695f628c8068ac06c540bafaa120e703eb254efe348c22bea3",
+      "size": 4889
     },
     "AGENTS.md": {
       "sha256": "sha256:911c88fa2439a3b9f12d204f74075309b40e86914f283f3ee8c111d9093b56ce",
       "size": 1238
     },
     "CHANGELOG.md": {
-      "sha256": "sha256:99d0183a638729eb9b313ed018cb5245674d8be2752547a1a339004c8ae3438b",
-      "size": 6398
+      "sha256": "sha256:664415a052b1b71fb5c21e7b14181a82797f2bc3928ba09aa4b36a61b0197b8b",
+      "size": 10972
     },
     "CONTEXT.md": {
       "sha256": "sha256:d76252202de4147ffc7c4d061a3feec9b5ac76b418e89d698ff3e0bed3a23f7a",
@@ -141,29 +131,45 @@
       "sha256": "sha256:c70d73d7ac1a84b79883cd88e1a64ce3f84bfc425842fd6eaaed4481b820bb90",
       "size": 43938
     },
+    "IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html": {
+      "sha256": "sha256:6ab17126d5cbb13b309a7d752ca721f4f8ac78b70c3722818a4dc96d97783f55",
+      "size": 41914
+    },
     "README.md": {
-      "sha256": "sha256:9746746083c09006fc9c3041fa034d23bc5f5bc691f5bbd4f42b6d5feca1bc47",
-      "size": 20039
+      "sha256": "sha256:fa7ad8a74762e01f4975ce9633189b9d6a9086ffd17d467d9ccaa04c92259096",
+      "size": 22621
     },
     "THIRD-PARTY-NOTICES.md": {
-      "sha256": "sha256:bd38aa36041867a6f45a2d16071af312bdf9852e50a9e68a92e3c321159fdeb3",
-      "size": 3551
+      "sha256": "sha256:be54368cbd2a9b7d4bfc812f3fb2544d43172609600914c04578268c44ae0324",
+      "size": 3827
     },
     "bootstrap/idc_verify_fresh.py": {
-      "sha256": "sha256:df26969a88b4358d31ffac6eaae2a24787e73f25b98c4b51cb8cde60f18fc73d",
-      "size": 63753
+      "sha256": "sha256:94ea1b3238d58462dc7663d7fe59a60d955067ae38f6996061a2b38fded5592f",
+      "size": 91200
+    },
+    "console/assemble.sh": {
+      "sha256": "sha256:f6398fa2fa7cebc678162d15cf7cbda132fad90f90f6e8f27e42474afabef905",
+      "size": 4871
     },
     "docs/report.html": {
-      "sha256": "sha256:f5173d9004de12ce5b84ab09b6166e1d058e8e748e1086f3e0806a0db85387f8",
+      "sha256": "sha256:32732d652b2d98b4831eb0881bde58f9a47ec7ad5799e96392310a574356fbf2",
       "size": 256345
     },
+    "executable-dependencies.json": {
+      "sha256": "sha256:46189531f0b7c3dd678b88df6f1090b191887978c7edd330fa07b011a975a4e8",
+      "size": 5620
+    },
     "integrity/README.md": {
-      "sha256": "sha256:797d12f46e5b66df3bc0b40baa8d9f7227473e1347ea8c484b71e079259b280b",
-      "size": 13315
+      "sha256": "sha256:2a23412aec1f18c36ad1e0a1e2a36e6d8c9cd3bddc1b159b5d4c943a2e7a5774",
+      "size": 24789
     },
     "integrity/policy.json": {
-      "sha256": "sha256:de98f7779a11ff894791bed19ac42b5ce244b3ad0f970e5956638911c19c3f33",
-      "size": 9644
+      "sha256": "sha256:f0635ac1343fd7f4d472b6976f4c41eaf26180c479b3f492db327fa4aba7457f",
+      "size": 11963
+    },
+    "integrity/windows-metadata-policy.json": {
+      "sha256": "sha256:e8eceee8452e11ae5d33a9452ace76b9a53c8bb6c2f9c2a6e5daafef50ab7c29",
+      "size": 816
     },
     "keys/allowed_signers": {
       "sha256": "sha256:4f75bb9ff9f8a594ea24d5a183ab3e8a923d64ec75e4489bc2d79eb10236ccce",
@@ -173,97 +179,173 @@
       "sha256": "sha256:0f50daa78a67c6a8b517cf3f51c34532419d31cda529bd428119256a11c786c7",
       "size": 82
     },
+    "ops/mission/evidence/platform-evidence.schema.json": {
+      "sha256": "sha256:535ef95acc4b89610267ed8d60878c5744ada5e4c322e50ee9e9caa2fbba4de8",
+      "size": 1269
+    },
+    "ops/mission/sealed-artifacts.json": {
+      "sha256": "sha256:1ea13034c2c345ea28bdc6d58e4d3af13862cbd4eee8b20ac8b856abd7da1db1",
+      "size": 1413
+    },
     "ops/validation/new-records-2.0.2.json": {
       "sha256": "sha256:4ce5f5eb0d53d824a5c0987bd970185030f79cc6d7be8448fc4b31d573f17ce2",
       "size": 15330
     },
     "ops/validation/skill-records.json": {
-      "sha256": "sha256:e73834d737fab6251d51f4b78abe7876d5a05a93fcad2cf2e4e93a2e13096b91",
+      "sha256": "sha256:2d34620350e37e051cdf4d1b9ccacdb03fbc4555f4f47f30f6d6ba5b7d6b61cd",
       "size": 116583
     },
     "provenance.json": {
-      "sha256": "sha256:a21c1481a351ab29533730df85f010391407bdb5ea4ec2458c1ce52d50770533",
-      "size": 4359
+      "sha256": "sha256:ba35a40d5b35e7cd9bd3172d38bb9425e91de226e16b6583f7e0382f99ec3419",
+      "size": 5840
+    },
+    "runtime-requirements.json": {
+      "sha256": "sha256:57e6d27a42cae3d53758de98fdffeb3707dbb7484043317e41b8e03530f7d35b",
+      "size": 396
     },
     "scripts/install.py": {
-      "sha256": "sha256:eac45571e03d730b747a3fea7913edd155f06cdb1b2a5cf0978103209606b831",
-      "size": 62338
+      "sha256": "sha256:6ad268b024c13f6f48cdb0c216db1ed3bd0489b0c5d916d4e075fadd134684db",
+      "size": 64832
     },
     "scripts/install.sh": {
-      "sha256": "sha256:e22e9582257653d7e8b822515abd242a7bbac2c4bea7ab4dbd3c039e1389feb8",
-      "size": 719
+      "sha256": "sha256:13317e86be1ea76de12f1c82394a4d01e40618b6f46b80e33c9fb61e2a4e080d",
+      "size": 1001
     },
     "scripts/pretooluse-skill-integrity.py": {
-      "sha256": "sha256:4f8aac4c0e9b1d2fde85bb3dab9fc8113c9ef6786298c9be59c808bbd19ad841",
-      "size": 5228
+      "sha256": "sha256:bbf8cd8b230d5e1e2dd8a75961780f38597bfe42beb80fbfc09dc229265dbec9",
+      "size": 7795
     },
     "scripts/reaccept.py": {
-      "sha256": "sha256:10e5b7a17ba1f3e2729c87b6a578522b996bf5ad23065bfe2c5a5e0b5d656259",
-      "size": 5668
+      "sha256": "sha256:f49a60ae5953fb06a5b34e7e2605d978317ba5bef4f4173dae3096b7b5ecf181",
+      "size": 5945
     },
     "scripts/render_validation_report.py": {
-      "sha256": "sha256:46078355dbdaf8aab37ee46107b4974201ec863be36a664e3a4bc0e3d8cd8770",
-      "size": 7210
+      "sha256": "sha256:eeee39cd09066cb6335fdfd44074c3fa2b73d8bf8d7c244976c4a51fa7a41fab",
+      "size": 8133
     },
     "scripts/setup-signing-wizard.sh": {
       "sha256": "sha256:061ee87a44bf3d4858f021a7bedfa1032f1f3536fa198d3f4e4c8e7000527442",
       "size": 8449
     },
     "scripts/skill_integrity.py": {
-      "sha256": "sha256:0f61c8dc24b627dc46c33c3e8c1e82ffd302bd620851bdfbecf6cda13e60bc47",
-      "size": 62751
+      "sha256": "sha256:7c414f57a3735d027178cb101e464584166143efa59925ff4f89b72a37ea8f12",
+      "size": 70707
     },
     "scripts/test-skill-integrity.sh": {
       "sha256": "sha256:be5fc4eb6d8633bb051c42cfbb17a7e5fdf9e7c9998bed84c6ba0ec952f910c0",
       "size": 328
+    },
+    "scripts/verify-sealed-artifacts.mjs": {
+      "sha256": "sha256:4ee49996699912963c71e298e47b34e20c24944c37293756a0dc76355922e655",
+      "size": 17070
+    },
+    "scripts/verify_fleet_parity.py": {
+      "sha256": "sha256:f520d2551aed912101441def57f945f4d687a0fbcbc1097373e33a01697d04c0",
+      "size": 11890
+    },
+    "scripts/verify_forge_50.py": {
+      "sha256": "sha256:d63a1595ccbffaeb42d025b348fb59e8a03089e8043f6374c6fbf6405d153529",
+      "size": 2715
+    },
+    "scripts/verify_platform_evidence.py": {
+      "sha256": "sha256:82514e5d64426d5de9db22cf85fd11e8eb8a00f6ccd80e52ccbd41f63918444c",
+      "size": 3463
+    },
+    "scripts/verify_provenance.py": {
+      "sha256": "sha256:74083bbbfd14f8d88febfba1479bb67861ab45dbee363894b2a320172aeec698",
+      "size": 6720
+    },
+    "scripts/verify_public_release.py": {
+      "sha256": "sha256:139c6ee28c570971ad6fe783a10126e193ecd81f62019d0055568641368e3b3a",
+      "size": 31141
+    },
+    "scripts/verify_release_reviews.py": {
+      "sha256": "sha256:774a7ade1b9b2570ebc5bd87d66953d366a47b39a7cd665c5f79eaaba3007894",
+      "size": 27611
+    },
+    "scripts/verify_runtime_requirements.py": {
+      "sha256": "sha256:c662037657c411c27c146b7b8cbbc19d8baece01c307822aeb072e3463f430f5",
+      "size": 3222
     },
     "scripts/verify_validation_records.py": {
       "sha256": "sha256:3e454b0562bfed7cf53392e8a87ede8bcc8b6c837ac0c7e3d2961212183f59ff",
       "size": 8421
     },
     "skills/registry.json": {
-      "sha256": "sha256:e21e4c93911ca275a26fa18a64462b2278dad462f9ff7e855fc83f7fe5b66caa",
+      "sha256": "sha256:a9c696a4c72e2c7364ee41fe628d895677d84835216e3cb4fc0c1f9d35e6d405",
       "size": 33552
     },
+    "tests/test_archipelago_protocol.py": {
+      "sha256": "sha256:7e943abec98f5adb9a5c930148f620a97c79276a99ac4ae9283ead2b339fadd3",
+      "size": 28596
+    },
+    "tests/test_console_lock.py": {
+      "sha256": "sha256:e514433fd817ca3c68a539ecb4050a455c91c49e867fd455bd5373bce0b10e77",
+      "size": 6326
+    },
+    "tests/test_fleet_parity.py": {
+      "sha256": "sha256:2e12a11181af14ca111162bce219145e20dfacfedbb87ae1040ce9a09ca347d0",
+      "size": 8745
+    },
     "tests/test_freshness.py": {
-      "sha256": "sha256:e17a0b6c4b3f131b6cc92754fbcd71252d5497cdbf3d5a014756a14eb2e3c581",
-      "size": 46222
+      "sha256": "sha256:7601061123cb3b372b66e5c8fc44b6de0254cc62d6eff1d17be4ae41c1e8d716",
+      "size": 67220
     },
     "tests/test_install.py": {
-      "sha256": "sha256:8e51fa0cf03453001407e5d330a327cfb265289d9803f8d9f838fa2201f133eb",
-      "size": 30098
+      "sha256": "sha256:f8d32ba3994defe5c0eaea7e53aa92aab5057d5427ccf17e7b2ec483deaed132",
+      "size": 36856
+    },
+    "tests/test_provenance.py": {
+      "sha256": "sha256:56c80ab0478bc77dcd1802d70d5a85c15b7036b2ea89264020c4e742d6eee7cc",
+      "size": 2818
+    },
+    "tests/test_public_release.py": {
+      "sha256": "sha256:6c0f309c413c27ce4c8d44e136749e23fd4fdf21bf34d8320b2b737b4aa9e3bd",
+      "size": 26640
+    },
+    "tests/test_release_reviews.py": {
+      "sha256": "sha256:93545758d3887d593bfe8f96236c053455387f9e51f56c6ac6eee6f91284faca",
+      "size": 20322
+    },
+    "tests/test_runtime_boundaries.py": {
+      "sha256": "sha256:db6ac44e5c4249aff415d5415acd6126c83d82e0046ca982390d466472d69ccf",
+      "size": 4937
     },
     "tests/test_security_scripts.py": {
-      "sha256": "sha256:e91b7980732c00e8ddb42dbf24b763a08e6f50d77ef21c7a0073f16e379983bd",
-      "size": 13906
+      "sha256": "sha256:1d0d737f487defdbcedf8e51dced25dfb8a61efc43d028af1c9cd3856d6518cc",
+      "size": 19491
     },
     "tests/test_skill_integrity.py": {
-      "sha256": "sha256:2cd2b4be5aecf9820bb009d5432e844c10a8e3d39acc22d6fe2a2533c497e438",
-      "size": 24070
+      "sha256": "sha256:5a52ea5e1c8733894aef0a18adb3e7e144a6c3d65e6472541e8e34fda48fd741",
+      "size": 24255
+    },
+    "tests/test_supply_chain_intake.py": {
+      "sha256": "sha256:829eabbfb9f26f6580cc1a6b26ce7b0acac3c9e090e89edcca08c178848d0b26",
+      "size": 2755
     },
     "tests/test_validation_records.py": {
-      "sha256": "sha256:93e84a5a0039e7126ac8961ca13d1fc891a230b55f9628df2af8a0d924d749d8",
-      "size": 5227
+      "sha256": "sha256:128184d62851c03697f97394552ee0df71bd0dcfdcf6f3addcb168ba79f2eee0",
+      "size": 6388
     }
   },
-  "manifestSequence": 1,
+  "manifestSequence": 2,
   "policy": {
     "path": "integrity/policy.json",
-    "sha256": "sha256:de98f7779a11ff894791bed19ac42b5ce244b3ad0f970e5956638911c19c3f33"
+    "sha256": "sha256:f0635ac1343fd7f4d472b6976f4c41eaf26180c479b3f492db327fa4aba7457f"
   },
   "profile": "release",
-  "release": "2.0.3",
+  "release": "2.0.4",
   "remoteObservations": [],
   "repositoryFiles": {
     ".gitattributes": {
       "posixMode": 420,
-      "sha256": "sha256:d60f352d0db1404c70afb4bb8b2ca3fd1c610572aa40720e8a0b7baa7885418c",
-      "size": 19
+      "sha256": "sha256:909e04e20c084561c2d6d60c6632890cf20b99420b10ab93183c0f03418e144f",
+      "size": 277
     },
     ".github/workflows/validate.yml": {
       "posixMode": 420,
-      "sha256": "sha256:07378bfb4cd55bcaa5975ecb1561a8e08b686cfc446a73195e0d8ff19d2b8a87",
-      "size": 3771
+      "sha256": "sha256:3c1d0dc9f7ba33695f628c8068ac06c540bafaa120e703eb254efe348c22bea3",
+      "size": 4889
     },
     ".gitignore": {
       "posixMode": 420,
@@ -277,8 +359,8 @@
     },
     "CHANGELOG.md": {
       "posixMode": 420,
-      "sha256": "sha256:99d0183a638729eb9b313ed018cb5245674d8be2752547a1a339004c8ae3438b",
-      "size": 6398
+      "sha256": "sha256:664415a052b1b71fb5c21e7b14181a82797f2bc3928ba09aa4b36a61b0197b8b",
+      "size": 10972
     },
     "CLAUDE.md": {
       "posixMode": 420,
@@ -300,6 +382,11 @@
       "sha256": "sha256:c70d73d7ac1a84b79883cd88e1a64ce3f84bfc425842fd6eaaed4481b820bb90",
       "size": 43938
     },
+    "IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html": {
+      "posixMode": 420,
+      "sha256": "sha256:6ab17126d5cbb13b309a7d752ca721f4f8ac78b70c3722818a4dc96d97783f55",
+      "size": 41914
+    },
     "IDC-Skills-Independent-Review-2026-08-19.html": {
       "posixMode": 420,
       "sha256": "sha256:6f8eaaaa4c0abaa1ff8f742ea27c91a584c0cfda8411554ea1db081b468f3ce9",
@@ -312,23 +399,23 @@
     },
     "README.md": {
       "posixMode": 420,
-      "sha256": "sha256:9746746083c09006fc9c3041fa034d23bc5f5bc691f5bbd4f42b6d5feca1bc47",
-      "size": 20039
+      "sha256": "sha256:fa7ad8a74762e01f4975ce9633189b9d6a9086ffd17d467d9ccaa04c92259096",
+      "size": 22621
     },
     "THIRD-PARTY-NOTICES.md": {
       "posixMode": 420,
-      "sha256": "sha256:bd38aa36041867a6f45a2d16071af312bdf9852e50a9e68a92e3c321159fdeb3",
-      "size": 3551
+      "sha256": "sha256:be54368cbd2a9b7d4bfc812f3fb2544d43172609600914c04578268c44ae0324",
+      "size": 3827
     },
     "bootstrap/idc_verify_fresh.py": {
       "posixMode": 420,
-      "sha256": "sha256:df26969a88b4358d31ffac6eaae2a24787e73f25b98c4b51cb8cde60f18fc73d",
-      "size": 63753
+      "sha256": "sha256:94ea1b3238d58462dc7663d7fe59a60d955067ae38f6996061a2b38fded5592f",
+      "size": 91200
     },
     "console/assemble.sh": {
       "posixMode": 493,
-      "sha256": "sha256:2cbaf69d9eafc2820035c90af94341ed739751839c0eca4d133d1fef670dbf7e",
-      "size": 2135
+      "sha256": "sha256:f6398fa2fa7cebc678162d15cf7cbda132fad90f90f6e8f27e42474afabef905",
+      "size": 4871
     },
     "console/blocks/00-boot.md": {
       "posixMode": 420,
@@ -352,8 +439,13 @@
     },
     "console/console.lock": {
       "posixMode": 420,
-      "sha256": "sha256:998d48aa1f0eb7acec6620cb60e90106df145cd6906a8dc36d775567152b4e36",
-      "size": 4566
+      "sha256": "sha256:18e168806dfd00a59fa72cb6fc2c694cbc8c915bd029523445eecf11bee56923",
+      "size": 4607
+    },
+    "docs/2.0.4-release-scope.md": {
+      "posixMode": 420,
+      "sha256": "sha256:a7cd211b8a5f8678ae9e627b0818477c28209f168b2ff159f867752a117cdd30",
+      "size": 3793
     },
     "docs/HANDOFF-2.0.0.md": {
       "posixMode": 420,
@@ -362,8 +454,8 @@
     },
     "docs/STATE-2.0.3-hardening.md": {
       "posixMode": 420,
-      "sha256": "sha256:4fd1516a199091717776157f7ca1ce05fc129c761d7b61c30b7e994642ec00ce",
-      "size": 3174
+      "sha256": "sha256:76e21afe41406f9b955b53a87b1964b4bd203a52a533644a6b88b4788cd35316",
+      "size": 3538
     },
     "docs/harness-support.json": {
       "posixMode": 420,
@@ -380,9 +472,14 @@
       "sha256": "sha256:31a6072f34b4daf75dee5d96172a9124571cd156ff816e6ce8cb9ec7c98b8790",
       "size": 16143
     },
+    "docs/release-acceptance-evidence.md": {
+      "posixMode": 420,
+      "sha256": "sha256:a77c69eab1ca7a30b705e996473d0c38e8fba50918d7b4439a455b17b471841b",
+      "size": 10220
+    },
     "docs/report.html": {
       "posixMode": 420,
-      "sha256": "sha256:f5173d9004de12ce5b84ab09b6166e1d058e8e748e1086f3e0806a0db85387f8",
+      "sha256": "sha256:32732d652b2d98b4831eb0881bde58f9a47ec7ad5799e96392310a574356fbf2",
       "size": 256345
     },
     "docs/state-of-the-forge.html": {
@@ -395,15 +492,25 @@
       "sha256": "sha256:90fc3429cd7900c9f21469d1655df9c7de7335b7097d25c752e2b5cf5bde974b",
       "size": 30118
     },
+    "executable-dependencies.json": {
+      "posixMode": 420,
+      "sha256": "sha256:46189531f0b7c3dd678b88df6f1090b191887978c7edd330fa07b011a975a4e8",
+      "size": 5620
+    },
     "integrity/README.md": {
       "posixMode": 420,
-      "sha256": "sha256:797d12f46e5b66df3bc0b40baa8d9f7227473e1347ea8c484b71e079259b280b",
-      "size": 13315
+      "sha256": "sha256:2a23412aec1f18c36ad1e0a1e2a36e6d8c9cd3bddc1b159b5d4c943a2e7a5774",
+      "size": 24789
     },
     "integrity/policy.json": {
       "posixMode": 420,
-      "sha256": "sha256:de98f7779a11ff894791bed19ac42b5ce244b3ad0f970e5956638911c19c3f33",
-      "size": 9644
+      "sha256": "sha256:f0635ac1343fd7f4d472b6976f4c41eaf26180c479b3f492db327fa4aba7457f",
+      "size": 11963
+    },
+    "integrity/windows-metadata-policy.json": {
+      "posixMode": 420,
+      "sha256": "sha256:e8eceee8452e11ae5d33a9452ace76b9a53c8bb6c2f9c2a6e5daafef50ab7c29",
+      "size": 816
     },
     "keys/allowed_signers": {
       "posixMode": 420,
@@ -435,6 +542,771 @@
       "sha256": "sha256:c7066163d8c20381e83030a0b21cc8f57ecc345cdd4fb3e4f6ce644ff0db91db",
       "size": 4625
     },
+    "ops/mission/evidence/2.0.4/evidence.json": {
+      "posixMode": 420,
+      "sha256": "sha256:5a2aa47a894646ce504dff6a3951fe8cae88e4908ad2b4366bd96a7583886690",
+      "size": 57123
+    },
+    "ops/mission/evidence/2.0.4/g1-trust-root.json": {
+      "posixMode": 420,
+      "sha256": "sha256:eed6a10755e1cadfff80ee4787f2fb5c90b2b19062be290b924a3a9b03f025c7",
+      "size": 4294
+    },
+    "ops/mission/evidence/2.0.4/g2-git-grammar.md": {
+      "posixMode": 420,
+      "sha256": "sha256:fe0881ed7d5814342447380bb626a57d1d4c26cc9e112ff32bd32473c69a1ff4",
+      "size": 3961
+    },
+    "ops/mission/evidence/2.0.4/g3-egress.json": {
+      "posixMode": 420,
+      "sha256": "sha256:d6266d5a458276b5f6b3021ac4442fa318d227257400010b52ca5280ec66985b",
+      "size": 3105
+    },
+    "ops/mission/evidence/2.0.4/g3-sealed-browser.json": {
+      "posixMode": 420,
+      "sha256": "sha256:98a8c2ab6b058a82af5ec69e63c453f107b89ebc99a280f32d43a2e7abb7b4c1",
+      "size": 19625
+    },
+    "ops/mission/evidence/2.0.4/g4-runtime.json": {
+      "posixMode": 420,
+      "sha256": "sha256:e937e3c73f0fccd795cc2403c506106a486f1825ab0a4a71a80c22727cdf7372",
+      "size": 1884
+    },
+    "ops/mission/evidence/2.0.4/g5-forge-50.json": {
+      "posixMode": 420,
+      "sha256": "sha256:fe361e4a3faafaaa528b74d1081f33e97ae7ddafd9bcca72ece0beaaf71d64bb",
+      "size": 4626
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/KIMI-K3-IDC-SKILLS-2.0.3-PENTEST.tar.gz": {
+      "posixMode": 420,
+      "sha256": "sha256:6b471d41a3d7adec021690ceb007e949140ec05061a165674709d6511628e81d",
+      "size": 127803
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/K3-1.md": {
+      "posixMode": 420,
+      "sha256": "sha256:6225fcf421364992a379145f10140561a7b9823c14ceb871deabffa4eca359d8",
+      "size": 28881
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/K3-2.md": {
+      "posixMode": 420,
+      "sha256": "sha256:b8a384f48af5400500668e725103ce3b79207ec899ab7d83f53439004a6c02d2",
+      "size": 18817
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/K3-3.md": {
+      "posixMode": 420,
+      "sha256": "sha256:f0b9caaa1f8f64b27d70d2e5484af667c40ce0e7c389e21347694c8e344dc87b",
+      "size": 21026
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/K3-4.md": {
+      "posixMode": 420,
+      "sha256": "sha256:e283d93c5ba880d5f045c8074ff0eacd793ea4eaad3c771362fa2cea5cc31e46",
+      "size": 15829
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/K3-5.md": {
+      "posixMode": 420,
+      "sha256": "sha256:b4f01a16560cc65ccac1088c35f013ca3e3dde02b7c14bbe52f6cecab7476959",
+      "size": 24373
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/K3-6.md": {
+      "posixMode": 420,
+      "sha256": "sha256:3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496",
+      "size": 23615
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/K3-7.md": {
+      "posixMode": 420,
+      "sha256": "sha256:390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9",
+      "size": 23248
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/K3-8.md": {
+      "posixMode": 420,
+      "sha256": "sha256:3a3bedc764d4f0e596aeabdd3edc48fffbb04be42463e41d5ec52e5c85e700cb",
+      "size": 23659
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-0-challenge-c1/REPRO.md": {
+      "posixMode": 420,
+      "sha256": "sha256:f28aa52fdc85d1a082dfc38c8d5448f9cc60e2b0cf79d29ec31568ba0d5aa28d",
+      "size": 3269
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-0-challenge-c1/attacker-fp.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:5949879d80e3d3061e9bebb474bdded71139f803bf66c1fce8d988841c3fedb0",
+      "size": 73
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-0-challenge-c1/forged-artifact-sha256.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:70d4d21b93b761ae582bd402f7e3d89addf895c745b9b6d3a94796cd26e0b044",
+      "size": 450
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-0-challenge-c1/forged-commit.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:96cf3f92ce72f83a6fcf68fc65c77d800dc58625fed6a1c6e40212367358d8d6",
+      "size": 55
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-0-challenge-c1/forged-install.json": {
+      "posixMode": 420,
+      "sha256": "sha256:cd200c5a11e2ff000c02e06bb763cc7e747273c23af3967580a087a5355d6127",
+      "size": 554
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-0-challenge-c1/forged-intree-verify.json": {
+      "posixMode": 420,
+      "sha256": "sha256:f6b6fe37d4fa366f58f1f5aca2a96e27210edaa1e8b7ca27ab93a20afe4009c7",
+      "size": 1270
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-0-challenge-c1/forged-launcher.json": {
+      "posixMode": 420,
+      "sha256": "sha256:0a4810d4e1b18a0bf76e5fb2f0bfd54e7cae4009f13f3d3ef2d38aca33835eb7",
+      "size": 535
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-0-challenge-c1/genuine-vs-forged.json": {
+      "posixMode": 420,
+      "sha256": "sha256:71f3e48539756d589de9e901cd85dfac4ba8ecf66c1a1afc7c783114faa70477",
+      "size": 282
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-0-challenge-c1/index-sha.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:34ef3a5c4c4ddd898b4ed9634bca5fa704799f70c265d1631237c1fb5bbf8600",
+      "size": 82
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-0-challenge-c1/payload-landing.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:3647fd742687ceeef1c5f272b4a01f48abf289f8f252704c72eb36760718bb6b",
+      "size": 43
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-baseline/verify-pristine.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:29e06c20a5a4a3a39d35c12438dc9cb2456c192deef2fb70453a6d1dd7422754",
+      "size": 581
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o1-manifest-edit/fixture.sha256": {
+      "posixMode": 420,
+      "sha256": "sha256:6ab1338ca191b820a22945e0e2fada254fbae8024bbee8ce4c2a2412c41818c3",
+      "size": 104
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o1-manifest-edit/verify-edited-manifest.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:a3f3a83def36956c83f883a7177d924d027bb72478fbcd2f6399b376660d143a",
+      "size": 902
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o2-signer-sub/evidence.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:24ded4a33fcb474b26b7ab6bab5af11ef9951f01717d4edde5e0283253c7befd",
+      "size": 2050
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o3-signers-confusion/evidence.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:e3eab90cf59696d7f00ed03e9eb60c9c236003cef2024e3cec2e3731f4019537",
+      "size": 1159
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o4-namespace/evidence.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:ee7fc7cc8db5a3cf308dc70a69248626258524852489e019520467ad58d7ff25",
+      "size": 955
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o5-replay/evidence.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:220ea3301ccd7bbbfc18763268933a49dffdbe55c2ac9852260c00c189606adb",
+      "size": 1308
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o6-canonical/evidence.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:721b9c048548f6257fbb1ca1f40ee01537488e78a1298317fad3f861639acc68",
+      "size": 1304
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o7-closure/out-case-alias.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:17a0ce93b5cdc1e6b60b9cb3bc4f5bf701aef375671f7fc62b59f8df551fdade",
+      "size": 1633
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o7-closure/out-extra-file-in-skill.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:b0daf43f45ccca83f8ceccb22daa80e0016d57b86a675c9c220cc33043aa5471",
+      "size": 1582
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o7-closure/out-extra-untracked-root.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:23a53d790f4b5d62ba2d5176a2bbdadf1e994d81f13d8ecc290076b9c8868023",
+      "size": 1207
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o7-closure/out-fifo-in-skill.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:4497bdcfc73f329a46a8752760c19f441ff1d5d4667fbab7b2ccbe37620c9b12",
+      "size": 1576
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o7-closure/out-hardlink.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:c9252f79e1461013770b8f14838520b00f36df580922274a2e49f5eb4dc6f417",
+      "size": 1309
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o7-closure/out-ignored-file.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:521218896be905533ee36405d7ede41a3313032dccd46ea4503b96dc71cdfb23",
+      "size": 1579
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o7-closure/out-mal.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:0978d2286d179dea02f2bb96609bedd7973fdb582500cf754a11413c1c11f8ab",
+      "size": 1558
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o7-closure/out-missing.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:cf09aa2f609acefe7e5d802f86ee82219c3cdad0760e1131e3c0a62ae6ef7f1d",
+      "size": 1442
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o7-closure/out-mode-drift.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:8c2fc26d1f0bc088bb831559e7d459a0e4bd2490df0ed8fec7caf91afc8e5c38",
+      "size": 1259
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o7-closure/out-nfd-alias.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:389a80cd9271b294ce4395697342bfd3ae63569dc01ced39297fd9480b03e0e2",
+      "size": 1310
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o7-closure/out-symlink-in-skill.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:acd203803cbdd8ff22b8cccad2f332e76e6382b3239ceb61ea2a8629e195a3a0",
+      "size": 1595
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o7-closure/out-unreadable.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:c00f46fae2ad0edd22a09b01d8e71f2599961ec68937850f2e5506c355922812",
+      "size": 1585
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o8-toctou/evidence.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:b1210fb2a4067ed300eb957dd7b808ded46ed1b5a6145099793a7cc2b5281e0c",
+      "size": 1341
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-o9-readytorun/evidence.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:b1b45d456bc3642e6e6415b46f04aa2dc3dda2b0824ad66ac6201c4d59767b89",
+      "size": 1513
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-1-setup/setup.log": {
+      "posixMode": 420,
+      "sha256": "sha256:fd4ee3d605014ad7d3ecbca7d7223b5828f27fc051ed08d2f97a3a8c00cdfba1",
+      "size": 809
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-2-attacks/harness.py": {
+      "posixMode": 420,
+      "sha256": "sha256:a84ed60a35b2d4329e3d8fb24ed868aa0c221713cbc67cafd74941374faa6758",
+      "size": 4561
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-2-attacks/scen_g123.log": {
+      "posixMode": 420,
+      "sha256": "sha256:b1668c847f7fb424d5676c96f5b14daff2ad07799e5ec7cd49a541ae9608e087",
+      "size": 4365
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-2-attacks/scen_g123.py": {
+      "posixMode": 420,
+      "sha256": "sha256:85c42429e2c8d8855728b0b8909e234afa6c133500a0c2094bc36f43cc868e67",
+      "size": 10043
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-2-attacks/scen_g456.log": {
+      "posixMode": 420,
+      "sha256": "sha256:ba74f333ccb4ebce6a55abeeb7e8d96b9cb93c65de6469c786a76d3de489978f",
+      "size": 6086
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-2-attacks/scen_g456.py": {
+      "posixMode": 420,
+      "sha256": "sha256:365d4e8ebe3a4af59d84d2592fae8c1ef9fc3c5098a9196e6cfabd6946bd5886",
+      "size": 14793
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-2-attacks/scen_g7plus.log": {
+      "posixMode": 420,
+      "sha256": "sha256:adafd6c00b82123a7e43a2c519ac832385091446cbd6627d6a9d9383a6df727a",
+      "size": 6317
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-2-attacks/scen_g7plus.py": {
+      "posixMode": 420,
+      "sha256": "sha256:a786b4da4e310fe325e8f946bea89ca53b4f611cb44a9545a58a2516b44515d5",
+      "size": 14927
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-2-attacks/supplementary-probes.log": {
+      "posixMode": 420,
+      "sha256": "sha256:e2612d9984ed4ea778dfd9e4234178a7c7c5139cd030956128cef38999083b50",
+      "size": 1905
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-2-attacks/upstream-tests.log": {
+      "posixMode": 420,
+      "sha256": "sha256:0c167736325b94477e370ccf57b4391a13953ff237614370b63a777ccb136e4d",
+      "size": 27
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-2-blind/blind-pass-log.md": {
+      "posixMode": 420,
+      "sha256": "sha256:d63b8ca91ba42b725cae2281107d2f962761472d3830c07f4422a4d99bf3fd0a",
+      "size": 10007
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-2-setup/anchor-verification.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:89dd2bb801b867f0305ca83aafb3bc0deecb697bc44d3a524eb38f75c1294601",
+      "size": 1034
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E1/guard.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:043e1c463d58c38b3c8d4ee7731bd0c84bb8e7ddc923aa368d870e11e6e5cc23",
+      "size": 706
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E1/install-argparse.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:03b866db02022b2adf3e02cf0694d7957cf1cc019358d9f62915300d1fdfb5de",
+      "size": 1078
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E10/failopen.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:88154fe9659d2b859ef6eb53fd07a3975decbe8d5d807c85761ebfcab045f7f4",
+      "size": 479
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E10/summary.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:0d27e626295f91e61ff6e3b51d8b55f3a32650549a1fc122157542c7a4aabc20",
+      "size": 1002
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E11/summary.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:cc75ce493d50262b2c8aab0af03dce2048541ca0ddb85f34fe5156ee90b62baf",
+      "size": 813
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E2/install-forged.err": {
+      "posixMode": 420,
+      "sha256": "sha256:e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "size": 0
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E2/install-forged.json": {
+      "posixMode": 420,
+      "sha256": "sha256:91bd26ea785c3c91b0b785fa1d60706255440e8b8b1195eb9ded91de2bd489f5",
+      "size": 2141
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E2/marker.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:8c52f9e7fc947a5a2ee22d8526234cce3c82ebde7a5ff760fd9104014b6e90ac",
+      "size": 79
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E3/summary.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:4c3d7d98910a7a4a9110c133611f7e8252932cb119dc09486b94cf037e329e81",
+      "size": 987
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E5/overlap.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:d764e29f9731884162a9846cc1369e44e8b3820138c7609c86fc2fbc8a9dfe18",
+      "size": 1142
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E5b/toctou.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:6680297a5c641d09bbd3acf780b53d32956f0d85fff48a9f1fc9d281636dba0c",
+      "size": 142
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E6/partial.json": {
+      "posixMode": 420,
+      "sha256": "sha256:33200a53f26c1bb405ec74cc6ed4aae82fb7d40fdfa2439980dd79f6491079e4",
+      "size": 2745
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E7/summary.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:d6d4d4d6b5c401ad81d51a9d352d1d1f93fbd32a78accb9e8607924492438e06",
+      "size": 909
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-E9/summary.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:1757cb9ae4152dbdc1a7c8e1c4745b0661b174fb0b646e9ff81abc721a94dade",
+      "size": 1151
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-3-reaccept/reaccept.out": {
+      "posixMode": 420,
+      "sha256": "sha256:9338362fa9b43cffd5c206e206d4ec72aec23e2f31a6a78307ea5fda03d7b14d",
+      "size": 228
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-4-bangargs/proofs.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:f2b9d1cf82a32af8489b783d3fb3f60bd3040fdb4ad6b69c2b6a9be898916913",
+      "size": 405
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-4-brace/proofs.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:ce3b635a77c27189a36f97547dbf3ae2de876b3e88967e4c4c6ad5465ad58e15",
+      "size": 83
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-4-cleanreqforce/proofs.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:44396f1e560f9bdddc882c423246ac207d6545a210457987b65771a0c926aba7",
+      "size": 138
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-4-redir/proofs.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:8bd4eddbf3e5446e99fb285470b91202f81c2e545609c32c0831ff79a341514b",
+      "size": 612
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-4-setup.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:607b208ad7bb9f32a8cb1d49126bc951d57904553e46124a6493473133412ca1",
+      "size": 918
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-4-updateref/proofs.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:d0d765a103c6568dab12189649bd1b3ab1fb1d5cd121d940cc4f17ebce122651",
+      "size": 293
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-anchors.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:3b97b9b4d8f03d617f81dab6a720bd26f49d45c332de99d32a105ef6d3ddf4ba",
+      "size": 291
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c1-srcset/fixture.html": {
+      "posixMode": 420,
+      "sha256": "sha256:f04479757f2fafe534974b206c66b496ba9850a3449ecf9f7940687d3cc8661d",
+      "size": 308
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c1-srcset/hits.log": {
+      "posixMode": 420,
+      "sha256": "sha256:ed5153b51835ee9fce8d1bd84990a5482640adb35477869d6ed3e85a3fe29ecf",
+      "size": 39
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c1-srcset/i.html": {
+      "posixMode": 420,
+      "sha256": "sha256:f04479757f2fafe534974b206c66b496ba9850a3449ecf9f7940687d3cc8661d",
+      "size": 308
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c1-srcset/rt-srcset.html": {
+      "posixMode": 420,
+      "sha256": "sha256:2718abdd99a32f76a19aaf73ce33a991f4f46945baf22406f807db8f0c040fb5",
+      "size": 174
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c1-srcset/scan.out": {
+      "posixMode": 420,
+      "sha256": "sha256:f9b42245cdb18665ebd7466c720743a0df886c85440e0ba973f56abec892f15d",
+      "size": 229
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c2-meta/hits.log": {
+      "posixMode": 420,
+      "sha256": "sha256:dfa09fb0a966e933628538a91b2532c9b30b2874e87c766a9dbed5be3ec7b3ea",
+      "size": 34
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c2-meta/m.html": {
+      "posixMode": 420,
+      "sha256": "sha256:add539e1a31b4480f7e3c7a909a2df6181ddef04e060969b2a9c13aeac2d7a7d",
+      "size": 70
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c2-meta/rt-meta-b2.html": {
+      "posixMode": 420,
+      "sha256": "sha256:32316868ab0cabf7bac15b0943356cb7afa445c1796c96a20db141f646b46366",
+      "size": 130
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c2-meta/scan.out": {
+      "posixMode": 420,
+      "sha256": "sha256:f9b42245cdb18665ebd7466c720743a0df886c85440e0ba973f56abec892f15d",
+      "size": 229
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c3-utf16/hits.log": {
+      "posixMode": 420,
+      "sha256": "sha256:861d11196d4d73ad0c4de1b482993ef9a319951e4604eeb4f073560fecffc17e",
+      "size": 15
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c3-utf16/u16.html": {
+      "posixMode": 420,
+      "sha256": "sha256:265fbae52662473c4e180fec978cf33e8377f70a92f599d3d0637e39750aa9b8",
+      "size": 274
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c3b-binbyte/hits.log": {
+      "posixMode": 420,
+      "sha256": "sha256:ae7c100c56eec00e28844e71079704da9a2ace83c029f38abee5666ba62fdf37",
+      "size": 19
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c3b-binbyte/p.html": {
+      "posixMode": 420,
+      "sha256": "sha256:2a3a270124f460a23218d88b51b5345acbbd78b753e9284506c12ce698700b90",
+      "size": 86
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c4-domwrite/d.js": {
+      "posixMode": 420,
+      "sha256": "sha256:00b3b6f3d248ae10de4491f418799b6b1c0d44d0ac9891971cf8239eeb05c050",
+      "size": 66
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c4-domwrite/hits.log": {
+      "posixMode": 420,
+      "sha256": "sha256:29076d62bcd157db9287f49eb62f2118b4d9f1ff9103fe5d4c6d667f7a679735",
+      "size": 58
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c4-domwrite/i.html": {
+      "posixMode": 420,
+      "sha256": "sha256:7b0183c104d57676f6e0a2ba0cc8a7b2dadfaf15002b88743b8cb956281a5690",
+      "size": 129
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c4-domwrite/w.html": {
+      "posixMode": 420,
+      "sha256": "sha256:871ba75b481fa913d2fbf5c1649e90ed27b0774bfcecdb9f594677d0dc635226",
+      "size": 47
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c4-extra/i.html": {
+      "posixMode": 420,
+      "sha256": "sha256:9fdd787a3cd3e89c9591f1e508b31d6ff4f57be6b0ff9ccd4dcb218e87627408",
+      "size": 210
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c4-extra/s.js": {
+      "posixMode": 420,
+      "sha256": "sha256:fa73f9728729cb0b79f629e0b750d5689f6f62ea0ebbe644fcb2356a81a60c64",
+      "size": 160
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c5-webkit/hits.log": {
+      "posixMode": 420,
+      "sha256": "sha256:0d2177f919bcf963aee0ffdba4b9e616fec8d2c0031a915df1ac1254c6f8feeb",
+      "size": 21
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c5-webkit/rt-webkit.html": {
+      "posixMode": 420,
+      "sha256": "sha256:3ce8be257af22bc17dd9bbac9011931dc4feb9f19e516e7b1e5a0df59a49c777",
+      "size": 158
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c5-webkit/w.css": {
+      "posixMode": 420,
+      "sha256": "sha256:36b6881d1c60f5473035aeee65bf25393fce00ecfaab611dbb02a9bf25c336a9",
+      "size": 161
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c6-xmlstylesheet/hits.log": {
+      "posixMode": 420,
+      "sha256": "sha256:360c94e8b300520129b4e2a56c56cbe543643b59636a0d2c2e907dc4c6c2fd6c",
+      "size": 10
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c6-xmlstylesheet/scan.out": {
+      "posixMode": 420,
+      "sha256": "sha256:f9b42245cdb18665ebd7466c720743a0df886c85440e0ba973f56abec892f15d",
+      "size": 229
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c6-xmlstylesheet/x.xml": {
+      "posixMode": 420,
+      "sha256": "sha256:306d2d78274a99534bb1f15246dc2973b6e9c506f3e0feae9a466b2d1ff372d2",
+      "size": 97
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c7-waiver/scan.out": {
+      "posixMode": 420,
+      "sha256": "sha256:1cd4d68bd7adbb55defb90b69a97647fb86d3e09e2c2a9b890e96828bc3f6485",
+      "size": 1249
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c7-waiver/u2.ts": {
+      "posixMode": 420,
+      "sha256": "sha256:0a2109127c53e310bb3d8b10c05713fb48b5a5f6384982ba548dbd91a6b3c210",
+      "size": 53
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c7-waiver/w.html": {
+      "posixMode": 420,
+      "sha256": "sha256:19a39f99bb4ecf62ab56c4f77ecdd6b497ff02711685a11c706aa39e3cc027b7",
+      "size": 341
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c7-waiver/w.js": {
+      "posixMode": 420,
+      "sha256": "sha256:45ce2ee8dcd1209d5fc971877f9ce3d8e526580c0b8338cdcfe57d60c387516f",
+      "size": 56
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c8-fp/eof.html": {
+      "posixMode": 420,
+      "sha256": "sha256:f134df5a7ee7b525603bd2afc56f2953b879b777dbc3d777c377605955d3de8f",
+      "size": 41
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c8-fp/fp.html": {
+      "posixMode": 420,
+      "sha256": "sha256:bc36cd20fc65e91f8e5e1be91460a35b79c0393b6a02cfeb69ec94192c62a95c",
+      "size": 276
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-c8-fp/scan.out": {
+      "posixMode": 420,
+      "sha256": "sha256:4665bf338bb4354c4ca3c1c459779c921e35118a59c015948040e4befba617f6",
+      "size": 949
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-fixtures/result.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:829ac56bc12e7abe7634529b74860b19a688cfa9e9657a5b34b216b9bb228e41",
+      "size": 23
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-inventory/edge-cases.out": {
+      "posixMode": 420,
+      "sha256": "sha256:997eca84eff530e8ccab456a7a40bab1020eb87364f40985f00f203cd9903a09",
+      "size": 9919
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-5-inventory/extensions.out": {
+      "posixMode": 420,
+      "sha256": "sha256:c5043054a4390fe7670f47946880e3a9d0c2db007b62f4dd09321d411233d8a9",
+      "size": 695
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-6-functional/functional-checks.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:67377c352fe7319f29189fdafe0d19353cdb05d53bc7c5e153e979308e8dbb53",
+      "size": 479
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-6-parity/parity.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:f18b2295f012a3ff8813affe293b4a586d940ecd584e16672d602d23cd7d2aba",
+      "size": 621
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-6-parity/regen-manifest.json": {
+      "posixMode": 420,
+      "sha256": "sha256:beb78e369c93eb077136c88821776481b9c074e72d1bda63231c4296639375b1",
+      "size": 363031
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-6-scans/extref-parity-notes.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:734e8a37cb11585b0cf378857949cbfa21eb03731da8558d2f6f4e46774b98dd",
+      "size": 937
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-6-scans/k3-6-independent-url-scan.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:bf3c01c830272c6bb84bc386c6d2c8d47217db565754a6cd03afe9c5efbaf403",
+      "size": 882
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-6-setup/anchor-verify.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:590787e658aa98316e928ef216b7b1cd3f2e243d5b9c80a7662e76969f182b10",
+      "size": 843
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-bash/guard-failopen.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:acb66598bd878754ec122712ad7c6ab8b5e56dc933d70be0fc26040d74c9480c",
+      "size": 497
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-bash/scan.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:35bab951554ae4bb850a9f54c794d9fffa3beaa6cce04edde9f92b83e876515c",
+      "size": 589
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-crlf/crlf-tamper.json": {
+      "posixMode": 420,
+      "sha256": "sha256:9938014b15a8ab5ca3720789840d8b4ae56ce5edccd867f118ac4b95133df6c8",
+      "size": 1389
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-crlf/crlf-verify.json": {
+      "posixMode": 420,
+      "sha256": "sha256:6091c82bd8e36eb892c8b8716238d2419563e698dbcb7c9112e26a6ca17772ac",
+      "size": 1264
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-filemode/nofm.json": {
+      "posixMode": 420,
+      "sha256": "sha256:e49ad5e0a87ba08aacca1edba2c3717aaceb38b48f37016496e5d9783615cfe0",
+      "size": 1264
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-filemode/nofm2.json": {
+      "posixMode": 420,
+      "sha256": "sha256:5fec3f40f900f66e0bddc4a924edcf8a10e851f33eaceaa6edf0aad7f90aa3d4",
+      "size": 1333
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-launcher/launch-verify-https.json": {
+      "posixMode": 420,
+      "sha256": "sha256:30103382e3f2aa4d9813d134a4f8132be6ea6396f3b974ff2d2ded004a5e598a",
+      "size": 535
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-launcher/launch-verify.json": {
+      "posixMode": 420,
+      "sha256": "sha256:30103382e3f2aa4d9813d134a4f8132be6ea6396f3b974ff2d2ded004a5e598a",
+      "size": 535
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-paths/results.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:85e263a819e92643aca423ad43bb229d7568c3318fcfaeed32df9658db3084eb",
+      "size": 1374
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-publication/asset-hashes.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:5dd613d20ec8c1cdf5be64ae55362361fac1c0d9c3479e57178150e9486de473",
+      "size": 528
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-publication/release.json": {
+      "posixMode": 420,
+      "sha256": "sha256:e012ef97e733297955030bb1f7a1dbc0b99ffa7c608e744bcfa7a139c71b303a",
+      "size": 11645
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-python39/summary.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:9fa7f70758c9114a49395fe9fddca85f519d64ce371ec9d81a341d3d9336e660",
+      "size": 302
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-7-setup/anchors.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:95d5446a913e414077fa544800e88b7a327009040cb59db9f4f750b868e36d70",
+      "size": 867
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-experiments/extra-files-invisible.json": {
+      "posixMode": 420,
+      "sha256": "sha256:8537106ef43ed134d04e0c0bec5e5e1ca9a2f38e0ff89e8f139f1f5914b04391",
+      "size": 1259
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-experiments/one-byte-tamper-fails.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:82af8a9019c2e851c1cf4ad7caba6184e8437bc6a55a1e1ca1980f05c713c94b",
+      "size": 686
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-hook/NOTES.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:78a5d1153f7a33d6d2d4c524dcee6c73460ac23a58174f0f0517d0d1ba4bbd92",
+      "size": 329
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-p2-egress/control.html": {
+      "posixMode": 420,
+      "sha256": "sha256:a5b1db80cc1adf340a291a5ce9256a218d5c148756969eb0841b64b0d1217976",
+      "size": 114
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-p2-egress/fixture.html": {
+      "posixMode": 420,
+      "sha256": "sha256:ad7214f49a852ccd7f1afe3f7fcd4e096e4c94542969b26e13195836de4d3ae9",
+      "size": 145
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-p2-egress/fixture2.html": {
+      "posixMode": 420,
+      "sha256": "sha256:3d7ddaa75d7628465f9cd6119f32c387eb7a3f1a70facdb73c5175e7263c1dc4",
+      "size": 211
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-p2-egress/proofs.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:2b71eda717b85b74826d7ea2de86fb0f1db58843cfc30e01088977736dc0bc0b",
+      "size": 499
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-p2-gitguard/realgit-proofs.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:2c323a57f15430067b0bdda3849b8f226dcd57c53b1edb0e481efa4bbcdecdde",
+      "size": 500
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-p2-gitguard/verdicts.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:907bb202ec72a85f4b53aec1a7b00a53e52352ea5bea7989225d52e7bf4e95ae",
+      "size": 627
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-rollback/rollback-2.0.2-fails.json": {
+      "posixMode": 420,
+      "sha256": "sha256:0ab59ae90e1efe97e81fa5a4354e7fe1968fdef11f6759d231e952eb9f0be358",
+      "size": 192
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-setup/anchor-verification.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:3cd00a99f08b1039aaf12aae772f2a1101902279bc187fc02008bbd01036d020",
+      "size": 931
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-setup/genuine-launcher-readyToRun.json": {
+      "posixMode": 420,
+      "sha256": "sha256:30103382e3f2aa4d9813d134a4f8132be6ea6396f3b974ff2d2ded004a5e598a",
+      "size": 535
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-setup/intree-verify-clean.json": {
+      "posixMode": 420,
+      "sha256": "sha256:20ee9d39929355f00af9661b924b1550eb0b65f252ce19eb28e67a2075565fd8",
+      "size": 1259
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-tofu-forge/NOTES.txt": {
+      "posixMode": 420,
+      "sha256": "sha256:336615ec7874c03cd0a4f1430c14632bb2541ca785e89e0288f6da6e6fb262c5",
+      "size": 465
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/lanes/evidence/K3-8-tofu-forge/forged-verify-readyToRun.json": {
+      "posixMode": 420,
+      "sha256": "sha256:ab6a706b15e0cf23d6202f8bf0340ca2fd1e45a1fe8a2493102bbcf19eeae1d9",
+      "size": 535
+    },
+    "ops/mission/evidence/2.0.4/source/kimi/round3-calibration.md": {
+      "posixMode": 420,
+      "sha256": "sha256:93c5d36e266698dda592c834082cba6113570e3e8898eee7bc35c9dfffb8df25",
+      "size": 10799
+    },
+    "ops/mission/evidence/evidence-schema-v2.json": {
+      "posixMode": 420,
+      "sha256": "sha256:1f8ed06824ae5c17989d4c28dd5d4894feee0790749f63e473561aaa8bfc9fdc",
+      "size": 6225
+    },
     "ops/mission/evidence/forge-50-review-2026-08-19.md": {
       "posixMode": 420,
       "sha256": "sha256:20de29a61a461b9a404d3c9d36e2b6cd037a2184853f631de70971548d9cbaae",
@@ -450,6 +1322,16 @@
       "sha256": "sha256:ee036416dae6ed89e761dc6b24d1a921d54fb4fa5f82f5245ae71e4b1eab47a9",
       "size": 1614
     },
+    "ops/mission/evidence/platform-evidence.schema.json": {
+      "posixMode": 420,
+      "sha256": "sha256:535ef95acc4b89610267ed8d60878c5744ada5e4c322e50ee9e9caa2fbba4de8",
+      "size": 1269
+    },
+    "ops/mission/evidence/release-2.0.3-final.json": {
+      "posixMode": 420,
+      "sha256": "sha256:eb66e6fabfee6ebf7c325f858b62bf252567ed64316f2be60160dbe9836fea12",
+      "size": 1403
+    },
     "ops/mission/evidence/signed-gate-2.0.2.json": {
       "posixMode": 420,
       "sha256": "sha256:8b27c52724561d81b917e63f3cd10630c46f17ab84852723091e5015b376a526",
@@ -457,23 +1339,33 @@
     },
     "ops/mission/journal.md": {
       "posixMode": 420,
-      "sha256": "sha256:b87035877c7db814005d3bea69c00fa95c533c2d319d26a9b10e7bf4173deb2d",
-      "size": 31077
+      "sha256": "sha256:f6a3eee87713b6bd191a982bdd6ac3f23341b6e21c24709f734efd4fc461656a",
+      "size": 49984
+    },
+    "ops/mission/plan-2.0.4.md": {
+      "posixMode": 420,
+      "sha256": "sha256:4f286205c717100d97bbc55ef2e915917fb22d0baaef76d77a79ab75e3649f78",
+      "size": 18697
     },
     "ops/mission/render-sotu.mjs": {
       "posixMode": 420,
-      "sha256": "sha256:71f03be8e3cd097caa79e96fad9da166c0fb0a78f9f87031b83f21e28f91c208",
-      "size": 20761
+      "sha256": "sha256:40dd5386ed2a853332f3f3ba7b798b5619cb9ecf86153a78c78228605cd513a6",
+      "size": 21452
+    },
+    "ops/mission/sealed-artifacts.json": {
+      "posixMode": 420,
+      "sha256": "sha256:1ea13034c2c345ea28bdc6d58e4d3af13862cbd4eee8b20ac8b856abd7da1db1",
+      "size": 1413
     },
     "ops/mission/state-of-the-union.html": {
       "posixMode": 420,
-      "sha256": "sha256:e71f5a7eafc5ad618fdd7b67e6eb39711e97e3701258115751e0a050f7d3760d",
-      "size": 77165
+      "sha256": "sha256:72ce26b33a1cfaa439801d60368594ceeaa6c96bed0e3afd62595ddcd182793e",
+      "size": 155704
     },
     "ops/mission/state.json": {
       "posixMode": 420,
-      "sha256": "sha256:8b4f3167fad0f373831e55b64647d150894e9db4dd83b2852dee3c985e93fb55",
-      "size": 29543
+      "sha256": "sha256:d9d4327f2bb2c3ff22fe777cfd37b57a1e37e6b3d4d2ee4404de7db3d5e98cca",
+      "size": 63068
     },
     "ops/research/pocock-gap-analysis-2026-08-19.md": {
       "posixMode": 420,
@@ -497,38 +1389,68 @@
     },
     "ops/validation/skill-records.json": {
       "posixMode": 420,
-      "sha256": "sha256:e73834d737fab6251d51f4b78abe7876d5a05a93fcad2cf2e4e93a2e13096b91",
+      "sha256": "sha256:2d34620350e37e051cdf4d1b9ccacdb03fbc4555f4f47f30f6d6ba5b7d6b61cd",
       "size": 116583
     },
     "provenance.json": {
       "posixMode": 420,
-      "sha256": "sha256:a21c1481a351ab29533730df85f010391407bdb5ea4ec2458c1ce52d50770533",
-      "size": 4359
+      "sha256": "sha256:ba35a40d5b35e7cd9bd3172d38bb9425e91de226e16b6583f7e0382f99ec3419",
+      "size": 5840
+    },
+    "runtime-requirements.json": {
+      "posixMode": 420,
+      "sha256": "sha256:57e6d27a42cae3d53758de98fdffeb3707dbb7484043317e41b8e03530f7d35b",
+      "size": 396
+    },
+    "scripts/build_kimi_evidence.py": {
+      "posixMode": 493,
+      "sha256": "sha256:601ba5327b1eb8eb85c53dcd52786626950f1862a358c004a541805282d6db65",
+      "size": 20638
+    },
+    "scripts/build_trust_metadata.py": {
+      "posixMode": 493,
+      "sha256": "sha256:90e8b80876dfbf977505399d4a7e823438b419985dccdaf023610ab4f79e374d",
+      "size": 44077
+    },
+    "scripts/ci_tool_pins.py": {
+      "posixMode": 420,
+      "sha256": "sha256:9259c7ca7ecec06f073631a9b0fe9bf25b1ee57ff0f0c645ff4f2268204d21f8",
+      "size": 2937
+    },
+    "scripts/emit_kimi_capture.py": {
+      "posixMode": 493,
+      "sha256": "sha256:c99d46a53a4e4bbceabfd09961ffbde65955d0631f3d752ee67fe96551596da8",
+      "size": 3868
     },
     "scripts/install.py": {
       "posixMode": 493,
-      "sha256": "sha256:eac45571e03d730b747a3fea7913edd155f06cdb1b2a5cf0978103209606b831",
-      "size": 62338
+      "sha256": "sha256:6ad268b024c13f6f48cdb0c216db1ed3bd0489b0c5d916d4e075fadd134684db",
+      "size": 64832
     },
     "scripts/install.sh": {
       "posixMode": 493,
-      "sha256": "sha256:e22e9582257653d7e8b822515abd242a7bbac2c4bea7ab4dbd3c039e1389feb8",
-      "size": 719
+      "sha256": "sha256:13317e86be1ea76de12f1c82394a4d01e40618b6f46b80e33c9fb61e2a4e080d",
+      "size": 1001
     },
     "scripts/pretooluse-skill-integrity.py": {
       "posixMode": 493,
-      "sha256": "sha256:4f8aac4c0e9b1d2fde85bb3dab9fc8113c9ef6786298c9be59c808bbd19ad841",
-      "size": 5228
+      "sha256": "sha256:bbf8cd8b230d5e1e2dd8a75961780f38597bfe42beb80fbfc09dc229265dbec9",
+      "size": 7795
     },
     "scripts/reaccept.py": {
       "posixMode": 420,
-      "sha256": "sha256:10e5b7a17ba1f3e2729c87b6a578522b996bf5ad23065bfe2c5a5e0b5d656259",
-      "size": 5668
+      "sha256": "sha256:f49a60ae5953fb06a5b34e7e2605d978317ba5bef4f4173dae3096b7b5ecf181",
+      "size": 5945
     },
     "scripts/render_validation_report.py": {
       "posixMode": 420,
-      "sha256": "sha256:46078355dbdaf8aab37ee46107b4974201ec863be36a664e3a4bc0e3d8cd8770",
-      "size": 7210
+      "sha256": "sha256:eeee39cd09066cb6335fdfd44074c3fa2b73d8bf8d7c244976c4a51fa7a41fab",
+      "size": 8133
+    },
+    "scripts/replay_kimi_evidence.py": {
+      "posixMode": 493,
+      "sha256": "sha256:73accc429e7edd92692d9ea9fd23eae4c2da069d42786afa0690902044068e3d",
+      "size": 398
     },
     "scripts/setup-signing-wizard.sh": {
       "posixMode": 493,
@@ -537,18 +1459,48 @@
     },
     "scripts/skill_integrity.py": {
       "posixMode": 493,
-      "sha256": "sha256:0f61c8dc24b627dc46c33c3e8c1e82ffd302bd620851bdfbecf6cda13e60bc47",
-      "size": 62751
+      "sha256": "sha256:7c414f57a3735d027178cb101e464584166143efa59925ff4f89b72a37ea8f12",
+      "size": 70707
     },
     "scripts/test-skill-integrity.sh": {
       "posixMode": 493,
       "sha256": "sha256:be5fc4eb6d8633bb051c42cfbb17a7e5fdf9e7c9998bed84c6ba0ec952f910c0",
       "size": 328
     },
+    "scripts/trust_root.py": {
+      "posixMode": 493,
+      "sha256": "sha256:3ea9fcedcdca6ac643f44bd66aeb0556178537eb4d8c0f7e7ae63b58b99b9c47",
+      "size": 58038
+    },
+    "scripts/validate_evidence.py": {
+      "posixMode": 420,
+      "sha256": "sha256:c89b21dc89980cac8d1a280511d4f271c2cea029e3676f7fcc90ed25c0002b80",
+      "size": 25220
+    },
     "scripts/validate_skills.py": {
       "posixMode": 420,
       "sha256": "sha256:bfa9c6f431b167dadd12b9a80c441fd38912f8a94f1a0794a4443ed96a575a73",
       "size": 41683
+    },
+    "scripts/verify-sealed-artifacts.mjs": {
+      "posixMode": 493,
+      "sha256": "sha256:4ee49996699912963c71e298e47b34e20c24944c37293756a0dc76355922e655",
+      "size": 17070
+    },
+    "scripts/verify_external_root.py": {
+      "posixMode": 493,
+      "sha256": "sha256:8bc90f03f059753e45d07d12df38358cfc6c9244809e95e8b0d10138608af728",
+      "size": 7617
+    },
+    "scripts/verify_fleet_parity.py": {
+      "posixMode": 493,
+      "sha256": "sha256:f520d2551aed912101441def57f945f4d687a0fbcbc1097373e33a01697d04c0",
+      "size": 11890
+    },
+    "scripts/verify_forge_50.py": {
+      "posixMode": 493,
+      "sha256": "sha256:d63a1595ccbffaeb42d025b348fb59e8a03089e8043f6374c6fbf6405d153529",
+      "size": 2715
     },
     "scripts/verify_gauntlet_records.py": {
       "posixMode": 420,
@@ -560,6 +1512,31 @@
       "sha256": "sha256:7bba04dcf45693858c8dee7421c14d1ad4dbcfe24c4a8495378604b0552f5cb9",
       "size": 10741
     },
+    "scripts/verify_platform_evidence.py": {
+      "posixMode": 493,
+      "sha256": "sha256:82514e5d64426d5de9db22cf85fd11e8eb8a00f6ccd80e52ccbd41f63918444c",
+      "size": 3463
+    },
+    "scripts/verify_provenance.py": {
+      "posixMode": 493,
+      "sha256": "sha256:74083bbbfd14f8d88febfba1479bb67861ab45dbee363894b2a320172aeec698",
+      "size": 6720
+    },
+    "scripts/verify_public_release.py": {
+      "posixMode": 493,
+      "sha256": "sha256:139c6ee28c570971ad6fe783a10126e193ecd81f62019d0055568641368e3b3a",
+      "size": 31141
+    },
+    "scripts/verify_release_reviews.py": {
+      "posixMode": 493,
+      "sha256": "sha256:774a7ade1b9b2570ebc5bd87d66953d366a47b39a7cd665c5f79eaaba3007894",
+      "size": 27611
+    },
+    "scripts/verify_runtime_requirements.py": {
+      "posixMode": 493,
+      "sha256": "sha256:c662037657c411c27c146b7b8cbbc19d8baece01c307822aeb072e3463f430f5",
+      "size": 3222
+    },
     "scripts/verify_validation_records.py": {
       "posixMode": 420,
       "sha256": "sha256:3e454b0562bfed7cf53392e8a87ede8bcc8b6c837ac0c7e3d2961212183f59ff",
@@ -567,18 +1544,23 @@
     },
     "skills/agent-guardrails/SKILL.md": {
       "posixMode": 420,
-      "sha256": "sha256:713f89b3d9eda27944d6637ba285c11303b8e4a79a3f69c50f036ea82e51702f",
-      "size": 10533
+      "sha256": "sha256:7d19e9bda2950030d388d53810db20bee31b8a7443d55eae0844ad6b341ad2dd",
+      "size": 13121
     },
     "skills/agent-guardrails/agents/openai.yaml": {
       "posixMode": 420,
       "sha256": "sha256:b4bba1e4b7e5edf7569abf36dd5602487b0f86e67a7427c0a7444b4e3f6498a1",
       "size": 118
     },
+    "skills/agent-guardrails/scripts/block-dangerous-git-strict.sh": {
+      "posixMode": 493,
+      "sha256": "sha256:35b74e346aa1264820cb58c515c50d263043066ed99deca558c79f150b551c71",
+      "size": 651
+    },
     "skills/agent-guardrails/scripts/block-dangerous-git.sh": {
       "posixMode": 493,
-      "sha256": "sha256:028c35e84224c62aca6d5555b62df1a7e95593745c9f3649548f8aea30fe6ea8",
-      "size": 56994
+      "sha256": "sha256:09d84588195ddcab375a4c87e6fcd43ad81fc0b15b67e6fcbdf343dab3f0b621",
+      "size": 78092
     },
     "skills/agent-guardrails/scripts/dangerous-patterns.txt": {
       "posixMode": 420,
@@ -592,8 +1574,8 @@
     },
     "skills/agent-guardrails/scripts/test-block-dangerous-git.sh": {
       "posixMode": 493,
-      "sha256": "sha256:99bb170275da97e5c72b01b6f969cde1602de41c8c98a5dff5b95e0ac8229d65",
-      "size": 39031
+      "sha256": "sha256:f94fa58ae1394cd0f2ba490f5b6f3a6f1c41622a426bece96b4c10fc3116837c",
+      "size": 52063
     },
     "skills/agent-schedule/SKILL.md": {
       "posixMode": 420,
@@ -637,13 +1619,108 @@
     },
     "skills/archipelago/SKILL.md": {
       "posixMode": 420,
-      "sha256": "sha256:7d9b8cca00d849cd7f8f6e918bf62e6919a57f763f804dcfe04dcee97114fe9d",
-      "size": 9509
+      "sha256": "sha256:b420be3383f46b4d7dd2c4dec8789f7d1320ae045ddbe0196a18f591b26286c3",
+      "size": 8560
     },
     "skills/archipelago/agents/openai.yaml": {
       "posixMode": 420,
       "sha256": "sha256:49fa6b00648ee564cc58ef3f0f2d689d7eb19e65170fca8852214730348a3e67",
       "size": 129
+    },
+    "skills/archipelago/protocol/LICENSE": {
+      "posixMode": 420,
+      "sha256": "sha256:f0c3180227394a440ce6aa176bfedd0a6ee36190ad3958cc1fdb398ce51195aa",
+      "size": 1080
+    },
+    "skills/archipelago/protocol/UPSTREAM.json": {
+      "posixMode": 420,
+      "sha256": "sha256:10966145c02466458dae3b2351c638a8f002e943a591e4d798154a72708eff11",
+      "size": 4657
+    },
+    "skills/archipelago/protocol/examples/build-instantiation-brief.json": {
+      "posixMode": 420,
+      "sha256": "sha256:8c48640bb4f79f701b3fb1fb4a0e4fd4c5d46b8fd0754e04bbcf5af5478ad672",
+      "size": 1100
+    },
+    "skills/archipelago/protocol/examples/evidence-bundle.json": {
+      "posixMode": 420,
+      "sha256": "sha256:12dbc4ce8aef1787087b4db18035c658083819a2ee30594894f876b229c9c1d0",
+      "size": 1201
+    },
+    "skills/archipelago/protocol/examples/idea.lock.json": {
+      "posixMode": 420,
+      "sha256": "sha256:72a446f35ac724c2cf8d1862548bb7f5e1c584eb8ad56166a4c91776a40bbbb5",
+      "size": 1596
+    },
+    "skills/archipelago/protocol/examples/plan.lock.json": {
+      "posixMode": 420,
+      "sha256": "sha256:821ceaa6b85751a58fe1dc3c8626d003d618fe08b84d94cb3f8e19eb244cb4a6",
+      "size": 1721
+    },
+    "skills/archipelago/protocol/examples/state.extension.json": {
+      "posixMode": 420,
+      "sha256": "sha256:509e650d36df3d89d7efe753ca837928105572c700e21e06227b7ffa4fd99be7",
+      "size": 1161
+    },
+    "skills/archipelago/protocol/schemas/build-instantiation-brief.schema.json": {
+      "posixMode": 420,
+      "sha256": "sha256:7f2fb52bc5112bfb75edeb02442b648ac9279b5c1d14eb43349cb9d1c167f8f2",
+      "size": 3698
+    },
+    "skills/archipelago/protocol/schemas/evidence-bundle.schema.json": {
+      "posixMode": 420,
+      "sha256": "sha256:24f61c4b6d6d958a92cf0912fa313ab675b810d019981aa528dadb1f0923e529",
+      "size": 5303
+    },
+    "skills/archipelago/protocol/schemas/idea.lock.schema.json": {
+      "posixMode": 420,
+      "sha256": "sha256:20f2057e0f16ea17da292ed26996ea69bdf99649d070f414168dd8202d864310",
+      "size": 3484
+    },
+    "skills/archipelago/protocol/schemas/plan.lock.schema.json": {
+      "posixMode": 420,
+      "sha256": "sha256:d5930b6f268ec4b8a09140525715ceed15f59b3d1f84ba185890670c98cbe287",
+      "size": 3945
+    },
+    "skills/archipelago/protocol/schemas/state.extension.schema.json": {
+      "posixMode": 420,
+      "sha256": "sha256:39a862ea594061febdf8bee4d945727f5749fdc0098691c589011ebeeac15126",
+      "size": 5354
+    },
+    "skills/archipelago/protocol/scripts/dogfood_lanes.py": {
+      "posixMode": 493,
+      "sha256": "sha256:1e0d12c7c1ba9634c3946933c8aafb0f9f679fd3d861089d174b1b1cbb5f36d3",
+      "size": 3520
+    },
+    "skills/archipelago/protocol/scripts/kickoff.py": {
+      "posixMode": 493,
+      "sha256": "sha256:981121b9316e54ef3786aed1dade236d3453160ac394c2661518c5a632f6086b",
+      "size": 6148
+    },
+    "skills/archipelago/protocol/scripts/loop.py": {
+      "posixMode": 493,
+      "sha256": "sha256:83e99912e9025729993839e186764f91efaad362d8d7f09c57f0641f82447d6e",
+      "size": 27307
+    },
+    "skills/archipelago/protocol/scripts/run_runtime_probes.py": {
+      "posixMode": 493,
+      "sha256": "sha256:987a8904f56d82f1792def0dbf892ee08f517326f7af4cf66ac52b3729a56fea",
+      "size": 7561
+    },
+    "skills/archipelago/protocol/scripts/test_lane_caps.py": {
+      "posixMode": 493,
+      "sha256": "sha256:18a54dd1d0cc2ddf38cefb6312d0a5836b1df35d9e8207d8fa4a294b58d595c5",
+      "size": 1809
+    },
+    "skills/archipelago/protocol/scripts/test_shell_agnostic.py": {
+      "posixMode": 493,
+      "sha256": "sha256:a2e429c48db6916f61600e38480cb578e002936177a3bb49b1cd0bfcfbe48cd9",
+      "size": 757
+    },
+    "skills/archipelago/protocol/scripts/validate_contracts.py": {
+      "posixMode": 493,
+      "sha256": "sha256:fff7c312d0f63653b19c3f493855b8893a0ce2f8178b4abd7808ee9e715cc4fb",
+      "size": 5615
     },
     "skills/batch-sample-curate/SKILL.md": {
       "posixMode": 420,
@@ -682,8 +1759,8 @@
     },
     "skills/console-as-code/SKILL.md": {
       "posixMode": 420,
-      "sha256": "sha256:b5d6e00e8048607e47462c976cfd140e8c7244b967a647308dd336258a087670",
-      "size": 7344
+      "sha256": "sha256:10f702d9e5086d4274f9952c3ba221304781b4c140b184fb75fec8ea1be8b781",
+      "size": 5674
     },
     "skills/console-as-code/agents/openai.yaml": {
       "posixMode": 420,
@@ -842,8 +1919,8 @@
     },
     "skills/handoff/SKILL.md": {
       "posixMode": 420,
-      "sha256": "sha256:73b44c744499a31d60418b0fad85bf18b04607671e20e00bc28b3a5e9fde71bb",
-      "size": 6553
+      "sha256": "sha256:f2864430479fa18e4708d06273293f1346d195a74e85117cab3d369c2b2f7474",
+      "size": 6653
     },
     "skills/handoff/agents/openai.yaml": {
       "posixMode": 420,
@@ -942,13 +2019,13 @@
     },
     "skills/registry.json": {
       "posixMode": 420,
-      "sha256": "sha256:e21e4c93911ca275a26fa18a64462b2278dad462f9ff7e855fc83f7fe5b66caa",
+      "sha256": "sha256:a9c696a4c72e2c7364ee41fe628d895677d84835216e3cb4fc0c1f9d35e6d405",
       "size": 33552
     },
     "skills/research/SKILL.md": {
       "posixMode": 420,
-      "sha256": "sha256:d21377e18e74815a366c2727d2795d406837d34949f67060301b95a663165c21",
-      "size": 5806
+      "sha256": "sha256:92de0fa5cb99371e60e5b99d7d9033df9180154a0cf1a48226242f0612c18f08",
+      "size": 6555
     },
     "skills/research/agents/openai.yaml": {
       "posixMode": 420,
@@ -957,8 +2034,13 @@
     },
     "skills/self-contained-ship/SKILL.md": {
       "posixMode": 420,
-      "sha256": "sha256:19706f0a42c0ae7539111eb18616fe8e661e741ca85b2fc0dce320b447cde549",
-      "size": 21715
+      "sha256": "sha256:2fcacf0c47ad5d42d683f703ee02d4a354337626ba6a33a9dff7552a26c849db",
+      "size": 26095
+    },
+    "skills/self-contained-ship/TEST-MATERIAL.md": {
+      "posixMode": 420,
+      "sha256": "sha256:dad4e7eb93fd3f7ce10757887632abe8b93f8a2d11946208c9bca53eed3926cf",
+      "size": 1315
     },
     "skills/self-contained-ship/agents/openai.yaml": {
       "posixMode": 420,
@@ -967,13 +2049,23 @@
     },
     "skills/self-contained-ship/scripts/scan-egress.sh": {
       "posixMode": 493,
-      "sha256": "sha256:693c633a32def7e8ff168df27bb0d5136462b9eb1b8d51ec2161484a1828bc24",
-      "size": 141262
+      "sha256": "sha256:0b233e122cfe858a45e0d38185feb90bf93e27d547afe7ea47eb629c7b7adda9",
+      "size": 166293
     },
     "skills/self-contained-ship/scripts/test-scan-egress.sh": {
       "posixMode": 493,
-      "sha256": "sha256:61e9ca6f3aa1b3ce6713bbc93c9ddcf6490fedc8dad3140da5d8a8b81fd429fb",
-      "size": 164322
+      "sha256": "sha256:ce569d0633b50a7054da5ed9c8beb5153ebf9e1ae07b12c8922242b8614dd3c3",
+      "size": 172961
+    },
+    "skills/self-contained-ship/scripts/test-sealed-artifacts.mjs": {
+      "posixMode": 493,
+      "sha256": "sha256:255da143fdd143e80934632647b187654c884b184c40c5cc3ccd8339d76a0052",
+      "size": 5218
+    },
+    "skills/self-contained-ship/scripts/verify-egress-policy.py": {
+      "posixMode": 493,
+      "sha256": "sha256:6e3a67c07a5178a1e862f94a3cbe981261b022033dfad871e1497e38487288a5",
+      "size": 14006
     },
     "skills/short/SKILL.md": {
       "posixMode": 420,
@@ -1002,18 +2094,23 @@
     },
     "skills/skill-supply-chain-review/SKILL.md": {
       "posixMode": 420,
-      "sha256": "sha256:a54cec499291fef59ff251522e6ac0448eb087c83d0d3c69c433ce6071c88cd2",
-      "size": 6108
+      "sha256": "sha256:46446aca886d9cbf72658ed20e258f1c1dce126990826b4794b9e2b74d64a896",
+      "size": 6562
     },
     "skills/skill-supply-chain-review/agents/openai.yaml": {
       "posixMode": 420,
       "sha256": "sha256:933483d7f1f9d92f4f9beb3f5d0c1615ce54d6da250b6dea08474958a74aa164",
       "size": 147
     },
+    "skills/skill-supply-chain-review/scripts/scan-skill.py": {
+      "posixMode": 493,
+      "sha256": "sha256:5e7e7ec379b098fcbf40b88401c258f9c4847168150375064cbdb5163f5542ca",
+      "size": 5996
+    },
     "skills/skill-supply-chain-review/scripts/scan-skill.sh": {
       "posixMode": 493,
-      "sha256": "sha256:104c4421ad49d2be3f9359880379348d4fd660ed864676d73d6ab8d469f7e547",
-      "size": 2712
+      "sha256": "sha256:291dd4072d5701b2264863ee9c72dec9a77d94ef0bd19373e4034d469160ee72",
+      "size": 489
     },
     "skills/skill-tune/SKILL.md": {
       "posixMode": 420,
@@ -1102,18 +2199,23 @@
     },
     "skills/wizard/SKILL.md": {
       "posixMode": 420,
-      "sha256": "sha256:f387a513dc87312f7e228948f175c589fdb06cbe6ae52c7366f0d65a0ea783d3",
-      "size": 6444
+      "sha256": "sha256:72beb66215000a8f828b135c76e1d5c1cdf292c49b92d05b82984aacc33ec6e6",
+      "size": 6841
     },
     "skills/wizard/agents/openai.yaml": {
       "posixMode": 420,
       "sha256": "sha256:e87dbbb1879574d689a92756655e627c6591d4de12f912ad1149c8b817dbd864",
       "size": 116
     },
+    "skills/wizard/safety.py": {
+      "posixMode": 493,
+      "sha256": "sha256:7ffd8a8b18ea6fde25ec40f7123370a70a9d7995d1a9325e91460d4ad664ca07",
+      "size": 7338
+    },
     "skills/wizard/template.sh": {
       "posixMode": 420,
-      "sha256": "sha256:2cd5b2b38dcc8182ca7d790424b6d1f2b0d47a0d677b38f42b1d54f0b4cd95b6",
-      "size": 7534
+      "sha256": "sha256:3f59703bf0853256d083480e289dcd745ac9923ff2eaf450d2340a005ca7ee3f",
+      "size": 8547
     },
     "skills/workspace-audit/SKILL.md": {
       "posixMode": 420,
@@ -1165,30 +2267,105 @@
       "sha256": "sha256:c58339bc6646977d2b3b6f816fd1a28c2a54fde06a40bf3766acac1098654c52",
       "size": 124
     },
+    "tests/test_archipelago_protocol.py": {
+      "posixMode": 420,
+      "sha256": "sha256:7e943abec98f5adb9a5c930148f620a97c79276a99ac4ae9283ead2b339fadd3",
+      "size": 28596
+    },
+    "tests/test_ci_tool_pins.py": {
+      "posixMode": 420,
+      "sha256": "sha256:82832039c289ecd7497a8679bde6e44886c16ac3b1607a76f09f9d9bfda53b1a",
+      "size": 2400
+    },
+    "tests/test_console_lock.py": {
+      "posixMode": 420,
+      "sha256": "sha256:e514433fd817ca3c68a539ecb4050a455c91c49e867fd455bd5373bce0b10e77",
+      "size": 6326
+    },
+    "tests/test_egress_policy.py": {
+      "posixMode": 420,
+      "sha256": "sha256:6aca27178729c4d84c11c9ff0a0bae610890f2e6e84855bffa4c9c8394fb0234",
+      "size": 11373
+    },
+    "tests/test_evidence_contract.py": {
+      "posixMode": 420,
+      "sha256": "sha256:3346218f9d5cb6fbbedbae491a4621b5ebfc9a5885b1e11da6cb1390c525d223",
+      "size": 14091
+    },
+    "tests/test_fleet_parity.py": {
+      "posixMode": 420,
+      "sha256": "sha256:2e12a11181af14ca111162bce219145e20dfacfedbb87ae1040ce9a09ca347d0",
+      "size": 8745
+    },
     "tests/test_freshness.py": {
       "posixMode": 420,
-      "sha256": "sha256:e17a0b6c4b3f131b6cc92754fbcd71252d5497cdbf3d5a014756a14eb2e3c581",
-      "size": 46222
+      "sha256": "sha256:7601061123cb3b372b66e5c8fc44b6de0254cc62d6eff1d17be4ae41c1e8d716",
+      "size": 67220
+    },
+    "tests/test_git_guard_grammar.py": {
+      "posixMode": 420,
+      "sha256": "sha256:e514822cbeeb0480c78161e8d07bd0cb8d4c748486ae1cdb894c5a1223b1a995",
+      "size": 4617
     },
     "tests/test_install.py": {
       "posixMode": 420,
-      "sha256": "sha256:8e51fa0cf03453001407e5d330a327cfb265289d9803f8d9f838fa2201f133eb",
-      "size": 30098
+      "sha256": "sha256:f8d32ba3994defe5c0eaea7e53aa92aab5057d5427ccf17e7b2ec483deaed132",
+      "size": 36856
+    },
+    "tests/test_kimi_evidence_replay.py": {
+      "posixMode": 420,
+      "sha256": "sha256:69b297a63d468e09fd9e14acefbc3eecd413c90fc49ebca683b8ef9e1a236471",
+      "size": 4071
+    },
+    "tests/test_provenance.py": {
+      "posixMode": 420,
+      "sha256": "sha256:56c80ab0478bc77dcd1802d70d5a85c15b7036b2ea89264020c4e742d6eee7cc",
+      "size": 2818
+    },
+    "tests/test_public_release.py": {
+      "posixMode": 420,
+      "sha256": "sha256:6c0f309c413c27ce4c8d44e136749e23fd4fdf21bf34d8320b2b737b4aa9e3bd",
+      "size": 26640
+    },
+    "tests/test_release_artifacts.py": {
+      "posixMode": 420,
+      "sha256": "sha256:b7835f24c2c941e5a46af82a3199bb7567ad8466bf66a5e4f905ae838eb11279",
+      "size": 33244
+    },
+    "tests/test_release_reviews.py": {
+      "posixMode": 420,
+      "sha256": "sha256:93545758d3887d593bfe8f96236c053455387f9e51f56c6ac6eee6f91284faca",
+      "size": 20322
     },
     "tests/test_render_sotu.py": {
       "posixMode": 420,
-      "sha256": "sha256:3ccd6b4de352eab99ebcc33c170ee4331ad2e51eb68a37262618db5323ebd94d",
-      "size": 3053
+      "sha256": "sha256:bef0f882c0c670048a64b4f56bfaf6a4f0cf9f78661f47043119e8035bd2d538",
+      "size": 5421
+    },
+    "tests/test_runtime_boundaries.py": {
+      "posixMode": 420,
+      "sha256": "sha256:db6ac44e5c4249aff415d5415acd6126c83d82e0046ca982390d466472d69ccf",
+      "size": 4937
     },
     "tests/test_security_scripts.py": {
       "posixMode": 420,
-      "sha256": "sha256:e91b7980732c00e8ddb42dbf24b763a08e6f50d77ef21c7a0073f16e379983bd",
-      "size": 13906
+      "sha256": "sha256:1d0d737f487defdbcedf8e51dced25dfb8a61efc43d028af1c9cd3856d6518cc",
+      "size": 19491
     },
     "tests/test_skill_integrity.py": {
       "posixMode": 420,
-      "sha256": "sha256:2cd2b4be5aecf9820bb009d5432e844c10a8e3d39acc22d6fe2a2533c497e438",
-      "size": 24070
+      "sha256": "sha256:5a52ea5e1c8733894aef0a18adb3e7e144a6c3d65e6472541e8e34fda48fd741",
+      "size": 24255
+    },
+    "tests/test_supply_chain_intake.py": {
+      "posixMode": 420,
+      "sha256": "sha256:829eabbfb9f26f6580cc1a6b26ce7b0acac3c9e090e89edcca08c178848d0b26",
+      "size": 2755
+    },
+    "tests/test_trust_root.py": {
+      "posixMode": 420,
+      "sha256": "sha256:034c92f9e1f6b76970b54bda0b4f129d69298dc08a32b6c14155ff32ed617d7b",
+      "size": 40174
     },
     "tests/test_validate_skills.py": {
       "posixMode": 420,
@@ -1197,8 +2374,33 @@
     },
     "tests/test_validation_records.py": {
       "posixMode": 420,
-      "sha256": "sha256:93e84a5a0039e7126ac8961ca13d1fc891a230b55f9628df2af8a0d924d749d8",
-      "size": 5227
+      "sha256": "sha256:128184d62851c03697f97394552ee0df71bd0dcfdcf6f3addcb168ba79f2eee0",
+      "size": 6388
+    },
+    "trust/README.md": {
+      "posixMode": 420,
+      "sha256": "sha256:fbf314829581b2ab4c05db4dc383eb5463d6eee05610712ff3ef235dfe606547",
+      "size": 15498
+    },
+    "trust/install-inventory.schema.json": {
+      "posixMode": 420,
+      "sha256": "sha256:beb786fe6cef5deeefeff3ab1de8c20c24c738ebd613f0b99d19f118211115c7",
+      "size": 3027
+    },
+    "trust/release-index.schema.json": {
+      "posixMode": 420,
+      "sha256": "sha256:8369290b226d5138bf218231b22fd64068796b42e6701d19619cd23ffe29f034",
+      "size": 1956
+    },
+    "trust/release-statement.schema.json": {
+      "posixMode": 420,
+      "sha256": "sha256:5426f62eb0c1d1856762880d9d6426f0e214052c5e24e76debce67745c24f6e5",
+      "size": 3029
+    },
+    "trust/root.schema.json": {
+      "posixMode": 420,
+      "sha256": "sha256:0bdd260f1a6076bfd69162be181f256344b233e797593e2d30a47f994a7b926c",
+      "size": 2601
     }
   },
   "schema": "idc-skill-integrity/v3",
@@ -1283,28 +2485,39 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
-          "sha256": "sha256:713f89b3d9eda27944d6637ba285c11303b8e4a79a3f69c50f036ea82e51702f",
-          "size": 10533
+          "posixMode": 420,
+          "sha256": "sha256:7d19e9bda2950030d388d53810db20bee31b8a7443d55eae0844ad6b341ad2dd",
+          "size": 13121
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:b4bba1e4b7e5edf7569abf36dd5602487b0f86e67a7427c0a7444b4e3f6498a1",
           "size": 118
         },
+        "scripts/block-dangerous-git-strict.sh": {
+          "posixMode": 493,
+          "sha256": "sha256:35b74e346aa1264820cb58c515c50d263043066ed99deca558c79f150b551c71",
+          "size": 651
+        },
         "scripts/block-dangerous-git.sh": {
-          "sha256": "sha256:028c35e84224c62aca6d5555b62df1a7e95593745c9f3649548f8aea30fe6ea8",
-          "size": 56994
+          "posixMode": 493,
+          "sha256": "sha256:09d84588195ddcab375a4c87e6fcd43ad81fc0b15b67e6fcbdf343dab3f0b621",
+          "size": 78092
         },
         "scripts/dangerous-patterns.txt": {
+          "posixMode": 420,
           "sha256": "sha256:396e26a1e73c2b4cad84109f1a04d549c40225c3c65c1568a1cc5778b7c2bf59",
           "size": 1291
         },
         "scripts/deny-dangerous.sh": {
+          "posixMode": 493,
           "sha256": "sha256:55247d10b82da3154b1971faecb1dd44288250cf33aad29907b3b34a4548c769",
           "size": 1617
         },
         "scripts/test-block-dangerous-git.sh": {
-          "sha256": "sha256:99bb170275da97e5c72b01b6f969cde1602de41c8c98a5dff5b95e0ac8229d65",
-          "size": 39031
+          "posixMode": 493,
+          "sha256": "sha256:f94fa58ae1394cd0f2ba490f5b6f3a6f1c41622a426bece96b4c10fc3116837c",
+          "size": 52063
         }
       },
       "networkCommands": [
@@ -1314,6 +2527,13 @@
           "path": "SKILL.md",
           "preview": "One patterns file is the single source of truth; every agent reads it via a shared hook or a tiny adapter. Blocks only irreversible catastrophes: `rm -rf` on `/` or `~`, `dd`/`mkfs`, `sudo rm`, fork bombs, `curl | sh`, `git push --force`, …",
           "sha256": "sha256:016d0652ed4f6372a800709f7dfa02a42da14427e450c1c89db4ade4a5e0db9c"
+        },
+        {
+          "kind": "fetch",
+          "line": 1495,
+          "path": "scripts/block-dangerous-git.sh",
+          "preview": "network_subs = {\"clone\", \"fetch\", \"pull\", \"push\", \"ls-remote\", \"submodule\"}",
+          "sha256": "sha256:e86f53ed80c4638a2f86f0a4285e6b1c3a64b5028cc9fd4e2b9bc2d85ab9904a"
         },
         {
           "kind": "fetch",
@@ -1338,17 +2558,45 @@
         },
         {
           "kind": "fetch",
-          "line": 277,
+          "line": 285,
           "path": "scripts/test-block-dangerous-git.sh",
           "preview": "check 0 'git fetch --all' 'fetch'",
           "sha256": "sha256:3567b71fffcf1d8cf160bb86d374efd81c9acff1720470d21400dda64e155dbb"
         },
         {
           "kind": "git-network",
-          "line": 277,
+          "line": 285,
           "path": "scripts/test-block-dangerous-git.sh",
           "preview": "check 0 'git fetch --all' 'fetch'",
           "sha256": "sha256:3567b71fffcf1d8cf160bb86d374efd81c9acff1720470d21400dda64e155dbb"
+        },
+        {
+          "kind": "fetch",
+          "line": 511,
+          "path": "scripts/test-block-dangerous-git.sh",
+          "preview": "check 2 \"git -c credential.helper='!git push' fetch\" 'credential helper runtime command blocks'",
+          "sha256": "sha256:733421db305481fb3cbd2c2eb43be1f022371ba565ba72231a0c7db7aab37b88"
+        },
+        {
+          "kind": "fetch",
+          "line": 520,
+          "path": "scripts/test-block-dangerous-git.sh",
+          "preview": "check 2 \"git -c remote.origin.uploadpack='git push' fetch origin\" 'remote upload-pack command blocks'",
+          "sha256": "sha256:07c98a41aff7c94932e843cebe661a8289bd5613f158607f9253682876359e64"
+        },
+        {
+          "kind": "fetch",
+          "line": 525,
+          "path": "scripts/test-block-dangerous-git.sh",
+          "preview": "check 2 \"GIT_SSH_COMMAND='git push' git fetch\" 'visible Git SSH command blocks on a network operation'",
+          "sha256": "sha256:8faa2fe699550ce72b69dbfb0b629b5f66da43f0bfc3725bf82a46082047808d"
+        },
+        {
+          "kind": "git-network",
+          "line": 525,
+          "path": "scripts/test-block-dangerous-git.sh",
+          "preview": "check 2 \"GIT_SSH_COMMAND='git push' git fetch\" 'visible Git SSH command blocks on a network operation'",
+          "sha256": "sha256:8faa2fe699550ce72b69dbfb0b629b5f66da43f0bfc3725bf82a46082047808d"
         }
       ],
       "nonHttpRemoteReferences": []
@@ -1358,10 +2606,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:4db090672cc9a9a77f950a68bc75a3cc4fc7646e4e3a37f96536f2606198540c",
           "size": 5367
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:10cdd4259978915d76c926c582a6443993ba9c4ec8a1332ad26390610b820ead",
           "size": 130
         }
@@ -1374,18 +2624,22 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:941ba16e4b23d18e498442bc27727913fec2ca74bd758a716926a7a8dd0e1f4c",
           "size": 5189
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:69f9c0c4b6e67e9624e5bfc692fa7ad3826bc20cae28f14fa4e5d7c2383e9539",
           "size": 135
         },
         "scripts/delta.sh": {
+          "posixMode": 493,
           "sha256": "sha256:009a307a08f2a7b9925ab9a6497edca89053112043435b1b505e0bf00a179870",
           "size": 1979
         },
         "scripts/score.js": {
+          "posixMode": 493,
           "sha256": "sha256:9ec2ed209ded0b9c937b41812d62e3ef3fd4cb2bce4506bc3e2e280661bcc5f9",
           "size": 31449
         }
@@ -1398,10 +2652,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:bd3b45f9c3391e08de2c6b3cd600a2d64b0f76501860b8334064664f9668aff8",
           "size": 5579
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:749a245bbfeb512e1ce1ba43a49d942cba38ae18a5af9c851f9eef177408a648",
           "size": 115
         }
@@ -1411,15 +2667,228 @@
     },
     "archipelago": {
       "deniedPatterns": [],
-      "externalReferences": [],
+      "externalReferences": [
+        {
+          "classification": "informational",
+          "occurrences": [
+            {
+              "line": 12,
+              "path": "protocol/scripts/run_runtime_probes.py"
+            }
+          ],
+          "rationale": "This literal scheme prefix is inspected by the vendored runtime probe and is not a retrievable address.",
+          "url": "https://"
+        },
+        {
+          "classification": "informational",
+          "occurrences": [
+            {
+              "line": 58,
+              "path": "protocol/UPSTREAM.json"
+            }
+          ],
+          "rationale": "This is the pinned upstream provenance repository; helpers are vendored and never fetched at invocation.",
+          "url": "https://github.com/Navigata1/archipelago"
+        },
+        {
+          "classification": "informational",
+          "occurrences": [
+            {
+              "line": 33,
+              "path": "protocol/examples/evidence-bundle.json"
+            }
+          ],
+          "rationale": "This reserved example PR URL is fixture data in a signed vendored contract example.",
+          "url": "https://github.com/Navigata1/archipelago/pull/12"
+        },
+        {
+          "classification": "informational",
+          "occurrences": [
+            {
+              "line": 3,
+              "path": "protocol/schemas/build-instantiation-brief.schema.json"
+            }
+          ],
+          "rationale": "This is a JSON Schema identifier in a signed vendored schema, not runtime instruction egress.",
+          "url": "https://islanddevcrew.com/schemas/archipelago/build-instantiation-brief.schema.json"
+        },
+        {
+          "classification": "informational",
+          "occurrences": [
+            {
+              "line": 3,
+              "path": "protocol/schemas/evidence-bundle.schema.json"
+            }
+          ],
+          "rationale": "This is a JSON Schema identifier in a signed vendored schema, not runtime instruction egress.",
+          "url": "https://islanddevcrew.com/schemas/archipelago/evidence-bundle.schema.json"
+        },
+        {
+          "classification": "informational",
+          "occurrences": [
+            {
+              "line": 3,
+              "path": "protocol/schemas/idea.lock.schema.json"
+            }
+          ],
+          "rationale": "This is a JSON Schema identifier in a signed vendored schema, not runtime instruction egress.",
+          "url": "https://islanddevcrew.com/schemas/archipelago/idea.lock.schema.json"
+        },
+        {
+          "classification": "informational",
+          "occurrences": [
+            {
+              "line": 3,
+              "path": "protocol/schemas/plan.lock.schema.json"
+            }
+          ],
+          "rationale": "This is a JSON Schema identifier in a signed vendored schema, not runtime instruction egress.",
+          "url": "https://islanddevcrew.com/schemas/archipelago/plan.lock.schema.json"
+        },
+        {
+          "classification": "informational",
+          "occurrences": [
+            {
+              "line": 3,
+              "path": "protocol/schemas/state.extension.schema.json"
+            }
+          ],
+          "rationale": "This is a JSON Schema identifier in a signed vendored schema, not runtime instruction egress.",
+          "url": "https://islanddevcrew.com/schemas/archipelago/state.extension.schema.json"
+        },
+        {
+          "classification": "informational",
+          "occurrences": [
+            {
+              "line": 2,
+              "path": "protocol/schemas/build-instantiation-brief.schema.json"
+            },
+            {
+              "line": 2,
+              "path": "protocol/schemas/evidence-bundle.schema.json"
+            },
+            {
+              "line": 2,
+              "path": "protocol/schemas/idea.lock.schema.json"
+            },
+            {
+              "line": 2,
+              "path": "protocol/schemas/plan.lock.schema.json"
+            },
+            {
+              "line": 2,
+              "path": "protocol/schemas/state.extension.schema.json"
+            }
+          ],
+          "rationale": "This is the JSON Schema dialect identifier in signed local schema files; no runtime fetch occurs.",
+          "url": "https://json-schema.org/draft/2020-12/schema"
+        }
+      ],
       "files": {
         "SKILL.md": {
-          "sha256": "sha256:7d9b8cca00d849cd7f8f6e918bf62e6919a57f763f804dcfe04dcee97114fe9d",
-          "size": 9509
+          "posixMode": 420,
+          "sha256": "sha256:b420be3383f46b4d7dd2c4dec8789f7d1320ae045ddbe0196a18f591b26286c3",
+          "size": 8560
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:49fa6b00648ee564cc58ef3f0f2d689d7eb19e65170fca8852214730348a3e67",
           "size": 129
+        },
+        "protocol/LICENSE": {
+          "posixMode": 420,
+          "sha256": "sha256:f0c3180227394a440ce6aa176bfedd0a6ee36190ad3958cc1fdb398ce51195aa",
+          "size": 1080
+        },
+        "protocol/UPSTREAM.json": {
+          "posixMode": 420,
+          "sha256": "sha256:10966145c02466458dae3b2351c638a8f002e943a591e4d798154a72708eff11",
+          "size": 4657
+        },
+        "protocol/examples/build-instantiation-brief.json": {
+          "posixMode": 420,
+          "sha256": "sha256:8c48640bb4f79f701b3fb1fb4a0e4fd4c5d46b8fd0754e04bbcf5af5478ad672",
+          "size": 1100
+        },
+        "protocol/examples/evidence-bundle.json": {
+          "posixMode": 420,
+          "sha256": "sha256:12dbc4ce8aef1787087b4db18035c658083819a2ee30594894f876b229c9c1d0",
+          "size": 1201
+        },
+        "protocol/examples/idea.lock.json": {
+          "posixMode": 420,
+          "sha256": "sha256:72a446f35ac724c2cf8d1862548bb7f5e1c584eb8ad56166a4c91776a40bbbb5",
+          "size": 1596
+        },
+        "protocol/examples/plan.lock.json": {
+          "posixMode": 420,
+          "sha256": "sha256:821ceaa6b85751a58fe1dc3c8626d003d618fe08b84d94cb3f8e19eb244cb4a6",
+          "size": 1721
+        },
+        "protocol/examples/state.extension.json": {
+          "posixMode": 420,
+          "sha256": "sha256:509e650d36df3d89d7efe753ca837928105572c700e21e06227b7ffa4fd99be7",
+          "size": 1161
+        },
+        "protocol/schemas/build-instantiation-brief.schema.json": {
+          "posixMode": 420,
+          "sha256": "sha256:7f2fb52bc5112bfb75edeb02442b648ac9279b5c1d14eb43349cb9d1c167f8f2",
+          "size": 3698
+        },
+        "protocol/schemas/evidence-bundle.schema.json": {
+          "posixMode": 420,
+          "sha256": "sha256:24f61c4b6d6d958a92cf0912fa313ab675b810d019981aa528dadb1f0923e529",
+          "size": 5303
+        },
+        "protocol/schemas/idea.lock.schema.json": {
+          "posixMode": 420,
+          "sha256": "sha256:20f2057e0f16ea17da292ed26996ea69bdf99649d070f414168dd8202d864310",
+          "size": 3484
+        },
+        "protocol/schemas/plan.lock.schema.json": {
+          "posixMode": 420,
+          "sha256": "sha256:d5930b6f268ec4b8a09140525715ceed15f59b3d1f84ba185890670c98cbe287",
+          "size": 3945
+        },
+        "protocol/schemas/state.extension.schema.json": {
+          "posixMode": 420,
+          "sha256": "sha256:39a862ea594061febdf8bee4d945727f5749fdc0098691c589011ebeeac15126",
+          "size": 5354
+        },
+        "protocol/scripts/dogfood_lanes.py": {
+          "posixMode": 493,
+          "sha256": "sha256:1e0d12c7c1ba9634c3946933c8aafb0f9f679fd3d861089d174b1b1cbb5f36d3",
+          "size": 3520
+        },
+        "protocol/scripts/kickoff.py": {
+          "posixMode": 493,
+          "sha256": "sha256:981121b9316e54ef3786aed1dade236d3453160ac394c2661518c5a632f6086b",
+          "size": 6148
+        },
+        "protocol/scripts/loop.py": {
+          "posixMode": 493,
+          "sha256": "sha256:83e99912e9025729993839e186764f91efaad362d8d7f09c57f0641f82447d6e",
+          "size": 27307
+        },
+        "protocol/scripts/run_runtime_probes.py": {
+          "posixMode": 493,
+          "sha256": "sha256:987a8904f56d82f1792def0dbf892ee08f517326f7af4cf66ac52b3729a56fea",
+          "size": 7561
+        },
+        "protocol/scripts/test_lane_caps.py": {
+          "posixMode": 493,
+          "sha256": "sha256:18a54dd1d0cc2ddf38cefb6312d0a5836b1df35d9e8207d8fa4a294b58d595c5",
+          "size": 1809
+        },
+        "protocol/scripts/test_shell_agnostic.py": {
+          "posixMode": 493,
+          "sha256": "sha256:a2e429c48db6916f61600e38480cb578e002936177a3bb49b1cd0bfcfbe48cd9",
+          "size": 757
+        },
+        "protocol/scripts/validate_contracts.py": {
+          "posixMode": 493,
+          "sha256": "sha256:fff7c312d0f63653b19c3f493855b8893a0ce2f8178b4abd7808ee9e715cc4fb",
+          "size": 5615
         }
       },
       "networkCommands": [
@@ -1427,8 +2896,8 @@
           "kind": "fetch",
           "line": 8,
           "path": "SKILL.md",
-          "preview": "The signed local island is the operating covenant. Upstream provenance is **`Navigata1/archipelago`**, reviewed at `b9f7cee2823f9791503db20f33b22c9e20af7abe` on 2026-08-19. Runnable scripts and JSON schemas must be vendored under a reviewe…",
-          "sha256": "sha256:01b44b3837817be301416429c91c72892e2293c76fd6fd613dcec1f15ff63899"
+          "preview": "The signed local island is the operating covenant. Upstream provenance is **`Navigata1/archipelago`** at `b9f7cee2823f9791503db20f33b22c9e20af7abe`. The runnable scripts, schemas, examples, license, source hashes, and reviewed local harden…",
+          "sha256": "sha256:6d1f902e12e6505ec49bf4de94a4417855047ad41525c372a80fc4a3a9762a93"
         }
       ],
       "nonHttpRemoteReferences": []
@@ -1438,10 +2907,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:dd32f632eb6e8ae23ce4e4963fd0576b4e313ac71ab82250180a094318ea3351",
           "size": 6342
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:0468bc6db30a1bd8956b0a341ff0158cf69e039992f942cc6308138484a03aae",
           "size": 203
         }
@@ -1466,14 +2937,17 @@
       ],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:d4fa923488e24568378d663519193d079e83254b161cc7ca876b368e401e2042",
           "size": 5854
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:f2cd5eef5007a48b79c5503328d8636d5b87d082229918afd98156589f05b173",
           "size": 145
         },
         "scripts/smoke.sh": {
+          "posixMode": 493,
           "sha256": "sha256:ae9355d9e4411cdd88706224430a38ac98dd0c326fd1936ab562098932692195",
           "size": 3025
         }
@@ -1494,10 +2968,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:3691fe1bb2e201c4d4902560bebaf928eb6d89938ad180c5f81ba18179901a38",
           "size": 6879
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:ca9afdbc4767302a5babb319a37381febd572531410cda299d03e80085e3ffe8",
           "size": 183
         }
@@ -1510,10 +2986,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
-          "sha256": "sha256:b5d6e00e8048607e47462c976cfd140e8c7244b967a647308dd336258a087670",
-          "size": 7344
+          "posixMode": 420,
+          "sha256": "sha256:10f702d9e5086d4274f9952c3ba221304781b4c140b184fb75fec8ea1be8b781",
+          "size": 5674
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:284236beea1ca677685979a65eb0db60b6d7d7acebf458417f4bea10613b4ce1",
           "size": 133
         }
@@ -1526,14 +3004,17 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:f46c605ecb5d7fc4d3f0b041299f57f6877a9a9081c963a588977850a0be914d",
           "size": 8489
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:1caadcddaf8fe66504631654f82c63376de622be30bf82078718f999ff6cb21f",
           "size": 139
         },
         "references/verdict-format.md": {
+          "posixMode": 420,
           "sha256": "sha256:664a0de6b38299bfc74050d37a88f1550e0617267166489e20ea78964bd5a07e",
           "size": 3520
         }
@@ -1546,10 +3027,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:25a775e04bec37ba6da2bbf70e2d0c9807def4a6414959903cdd075569ab1d2f",
           "size": 6153
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:3b8d8a4586ddfe9eee1c2a185ebb65de36e614e0f19809040df9dcdb653ea1c0",
           "size": 146
         }
@@ -1596,14 +3079,17 @@
       ],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:8e2e3fed44338e6042e7c813c5677f86c130837cd9737ee6dbd3606542ccb55e",
           "size": 7647
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:ce9dfe4a22369320fe5c75695034546dca92316b385307abec9527bfb1436c5e",
           "size": 120
         },
         "references/dependency-cruiser.template.cjs": {
+          "posixMode": 420,
           "sha256": "sha256:f59ec54d47ee0253401208442161cc4f71d296a6b0594b74f628f0f4b6267b81",
           "size": 3567
         }
@@ -1638,10 +3124,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:d8bd46b1a880bce2fc24bcb5968614e32d459fb8bf67e9447b9015084680959c",
           "size": 6250
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:5f59c51bdf036b79f4e65eb0833eb52a2e0c9164a8453d77c880e592fdfb5fca",
           "size": 187
         }
@@ -1654,10 +3142,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:33cdb42d6cb490e1867aa2ab6c2a4633cffd59cfbb809d7ff1e818aec0147c9d",
           "size": 8196
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:9ab668f9193c14209fd26bbfe08bfc789671ef9b547440bc3426f7df09c7845b",
           "size": 122
         }
@@ -1678,10 +3168,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:d252dfcc45bd3e1255b958cfab1403295d1f2af013da1c7594776f89f675ee00",
           "size": 5460
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:ce070a716c141aacadc168e0ada65337882c5f5e04e6452dffb082f0fa6d359f",
           "size": 132
         }
@@ -1694,10 +3186,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:f83ad070db169574285d04a50f74785978637fdfe55b539c552a8bcc0ad5536e",
           "size": 6507
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:429acfef9a33897292d4a93a9231bb94fc93f056e9e54d01e4ea943e6e4c0286",
           "size": 117
         }
@@ -1710,10 +3204,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:b1a7f3320ee2ea3b3988626de1cff08eda65fabdc059c160fdd0e0b6bf9db7c6",
           "size": 7448
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:4d3e7a361aba3b6318439212bf7f75ab32fd9d2f7655134aaed5b314e0c9c07b",
           "size": 115
         }
@@ -1762,10 +3258,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:8e014314944b0f4bd6e4b021a4e31709e40c8ae006bc79e45ba0f5f57bf30844",
           "size": 6323
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:13462e55351cabfff6052059bcdf50e47bdc9d0bcbe14ddd617c409142d4ce87",
           "size": 150
         }
@@ -1778,10 +3276,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:9bb66f7b5c7a02490ea7b64410443189a0873f88c0583f3bedb1433fdbdc1aef",
           "size": 6378
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:558e9ff24fb7fcae56898b3a0250f42343d2b6a9b9d7114e85ef5058786fb933",
           "size": 126
         }
@@ -1816,14 +3316,17 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:5af5a38c24f1257bed1b5d3f6f538ee4ea5e14e55487fc60ab0514b98efe4daf",
           "size": 9317
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:1adb635730f5b7896cd4f54c2d9d772cb051afdecb485eb9c997d3f907507d68",
           "size": 134
         },
         "references/map-template.md": {
+          "posixMode": 420,
           "sha256": "sha256:85634dab8e5e6d9b8399b7dd0d159ed691c4a9c110e3ddd6bfeb9d32506e9ace",
           "size": 3970
         }
@@ -1859,14 +3362,17 @@
       ],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:8bb18d131b9a03624e18cb8cdc6cadc2c4ec366970b3b82f18930e21649911bf",
           "size": 5902
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:a3b207cd588c7b413e06249d98fc3232cdd639406791152bdebdc973dd7e459c",
           "size": 168
         },
         "scripts/build-prompt.sh": {
+          "posixMode": 493,
           "sha256": "sha256:34a3692cd77b044dd4eb131a1b488cf953e30f3a99de4d986e950e95eb461bda",
           "size": 1983
         }
@@ -1879,10 +3385,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:2d99aa606132bd4560bb506652da003e9732f8af2ee6e61a56aea517396ea455",
           "size": 7645
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:7f2ec9283064976d9181855f42dae044b43bea0ea1cb24a58c6252a4b9aafc36",
           "size": 109
         }
@@ -1895,10 +3403,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
-          "sha256": "sha256:73b44c744499a31d60418b0fad85bf18b04607671e20e00bc28b3a5e9fde71bb",
-          "size": 6553
+          "posixMode": 420,
+          "sha256": "sha256:f2864430479fa18e4708d06273293f1346d195a74e85117cab3d369c2b2f7474",
+          "size": 6653
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:e1290602402075d597ca5e47c7d1b32c899a83d516d21f9894cbc411ad8c0c85",
           "size": 146
         }
@@ -1926,10 +3436,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:2ca87960a1ffcd0cdc2284bc2a1c6b33d374dcd663c2d1d99eea1ad687c4da56",
           "size": 11205
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:34acfa7c7c4721228b2c0cd831c2b1e40937ac5f901f33081c3c696c146ee5d3",
           "size": 132
         }
@@ -1942,10 +3454,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:195bc09d88d551d3d00444d3e4ce9859423b7ac4a5a04c5996170d4d8d6a1b65",
           "size": 6687
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:d17c5cd696ffa28b1eb3a14225b37a132afb263a0a59e9451fdcd557191d5caa",
           "size": 146
         }
@@ -1966,10 +3480,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:c9534ae3e6a1233880000be723558d0bd66fab7d9b07aca353c0b71d3b6ad1a4",
           "size": 5432
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:16d32475abf3bee98ec3500b0ad795016abfb91217cbadd903279fdda5d8c1c3",
           "size": 126
         }
@@ -1982,10 +3498,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:752afba65c7db753f2a6b093a31262d05913e713fbf5619a9f52fe8a0940c64e",
           "size": 6640
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:28916f9821181036783d37fe66868d0c2e6895f712bfb4d9ab113a717e024653",
           "size": 109
         }
@@ -2062,10 +3580,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:1a43e836d8b759d6ba91511b53879619e0aa5ac7563b56486b0e6dbb93a5acb2",
           "size": 5267
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:234ae894273834a2a269c8fc40d0acaf70b7b40ea6d1a55f23826f6d2c48f27a",
           "size": 127
         }
@@ -2078,10 +3598,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:76791bbfee298c9ce63a079eb02d9fe1498c36417abf043af19f727a1b7cda2d",
           "size": 6349
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:5e6268b14d558b1a704bd82eee8cc9bb3198dbe7ba25034d5a9d75644a731604",
           "size": 127
         }
@@ -2094,10 +3616,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:4ff5580377edb8270c2451ec23eaac1093c5d03e6600a030744d0095fdc5b205",
           "size": 6945
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:17e3cd9055c79c639f761ff2a2438f99a5c1a3ab4ed734aeddd5ed8983a95faf",
           "size": 144
         }
@@ -2110,10 +3634,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:e8578ffaf619e2695efdb2cefb1385ed685d40d2b9055bb648f85c59bea18b56",
           "size": 6067
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:3e031a63a82d3f57aa6eaa51dbd9a5e36956b9203f65a00c34dbfcca968df887",
           "size": 158
         }
@@ -2126,10 +3652,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:8e16079bb00000d311b10a7fbda2329f903a070acf7482d55d3edecd96155768",
           "size": 5266
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:b2f6e70d38377795cbb48d2e00d8c2d2ee57f813e37a8485199a0457a661f25f",
           "size": 145
         }
@@ -2144,7 +3672,7 @@
           "classification": "api-endpoint",
           "occurrences": [
             {
-              "line": 44,
+              "line": 54,
               "path": "SKILL.md"
             }
           ],
@@ -2154,10 +3682,12 @@
       ],
       "files": {
         "SKILL.md": {
-          "sha256": "sha256:d21377e18e74815a366c2727d2795d406837d34949f67060301b95a663165c21",
-          "size": 5806
+          "posixMode": 420,
+          "sha256": "sha256:92de0fa5cb99371e60e5b99d7d9033df9180154a0cf1a48226242f0612c18f08",
+          "size": 6555
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:9fae143c16c3bd09d37fe123534cfe040f407ec7bf786396a3e1c00d7a79c425",
           "size": 110
         }
@@ -2174,8 +3704,36 @@
           "kind": "fetch",
           "line": 44,
           "path": "SKILL.md",
-          "preview": "curl --fail-with-body --silent --show-error --max-time 120 \"https://deepapi.co/v1/research/deep\" -H \"Authorization: Bearer $KEY\" -H \"Content-Type: application/json\" -H \"Idempotency-Key: $IDK\" -d @\"$TMP/body.json\" > \"$TMP/result.json\"",
-          "sha256": "sha256:82bbdb55ec37e4c688fc59cb9243f13b1b05d65885001a949bd99e7f208c3709"
+          "preview": "trap 'unset KEY; rm -f \"$TMP/curl.conf\"; rm -rf \"$TMP\"' EXIT HUP INT TERM",
+          "sha256": "sha256:9bbe00e213ae582a186fa7c762fc9e7d0acf97d6b393ba3ebc8ecaa2ec162e51"
+        },
+        {
+          "kind": "fetch",
+          "line": 47,
+          "path": "SKILL.md",
+          "preview": "CURL_CONFIG=\"$TMP/curl.conf\"",
+          "sha256": "sha256:3f3872b948b49af8f49dcd111e6a9c9480b52ae6e8ba1f8fc39afca20a9596b2"
+        },
+        {
+          "kind": "fetch",
+          "line": 54,
+          "path": "SKILL.md",
+          "preview": "if ! curl --config \"$CURL_CONFIG\" --fail-with-body --silent --show-error --max-time 120 \"https://deepapi.co/v1/research/deep\" -d @\"$TMP/body.json\" > \"$TMP/result.json\"; then",
+          "sha256": "sha256:950394263d8142fa3cc97be846db04d3000c7a77ab4343ea2d5b4f4e8008aa8a"
+        },
+        {
+          "kind": "fetch",
+          "line": 63,
+          "path": "SKILL.md",
+          "preview": "The bearer value lives only in process memory and a mode-`0600` curl config",
+          "sha256": "sha256:97563dad5d82068448c6a8402994d7a4acee817ea5f117d6b96f6dc920666c33"
+        },
+        {
+          "kind": "fetch",
+          "line": 64,
+          "path": "SKILL.md",
+          "preview": "inside a mode-`0700` scratch directory; it never appears in curl's argv. The",
+          "sha256": "sha256:833d1dee339814e38a11fb740f9d9d948c0449bd941c3dce27cb236d2ab01a21"
         }
       ],
       "nonHttpRemoteReferences": []
@@ -2187,7 +3745,7 @@
           "classification": "informational",
           "occurrences": [
             {
-              "line": 503,
+              "line": 712,
               "path": "scripts/scan-egress.sh"
             },
             {
@@ -2206,7 +3764,7 @@
           "classification": "informational",
           "occurrences": [
             {
-              "line": 505,
+              "line": 714,
               "path": "scripts/scan-egress.sh"
             }
           ],
@@ -2216,20 +3774,39 @@
       ],
       "files": {
         "SKILL.md": {
-          "sha256": "sha256:19706f0a42c0ae7539111eb18616fe8e661e741ca85b2fc0dce320b447cde549",
-          "size": 21715
+          "posixMode": 420,
+          "sha256": "sha256:2fcacf0c47ad5d42d683f703ee02d4a354337626ba6a33a9dff7552a26c849db",
+          "size": 26095
+        },
+        "TEST-MATERIAL.md": {
+          "posixMode": 420,
+          "sha256": "sha256:dad4e7eb93fd3f7ce10757887632abe8b93f8a2d11946208c9bca53eed3926cf",
+          "size": 1315
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:5fcca4cb790c3bbd895c3fb19eb836339b7e92fa0bf3569f2982c6860573501f",
           "size": 124
         },
         "scripts/scan-egress.sh": {
-          "sha256": "sha256:693c633a32def7e8ff168df27bb0d5136462b9eb1b8d51ec2161484a1828bc24",
-          "size": 141262
+          "posixMode": 493,
+          "sha256": "sha256:0b233e122cfe858a45e0d38185feb90bf93e27d547afe7ea47eb629c7b7adda9",
+          "size": 166293
         },
         "scripts/test-scan-egress.sh": {
-          "sha256": "sha256:61e9ca6f3aa1b3ce6713bbc93c9ddcf6490fedc8dad3140da5d8a8b81fd429fb",
-          "size": 164322
+          "posixMode": 493,
+          "sha256": "sha256:ce569d0633b50a7054da5ed9c8beb5153ebf9e1ae07b12c8922242b8614dd3c3",
+          "size": 172961
+        },
+        "scripts/test-sealed-artifacts.mjs": {
+          "posixMode": 493,
+          "sha256": "sha256:255da143fdd143e80934632647b187654c884b184c40c5cc3ccd8339d76a0052",
+          "size": 5218
+        },
+        "scripts/verify-egress-policy.py": {
+          "posixMode": 493,
+          "sha256": "sha256:6e3a67c07a5178a1e862f94a3cbe981261b022033dfad871e1497e38487288a5",
+          "size": 14006
         }
       },
       "networkCommands": [
@@ -2249,122 +3826,129 @@
         },
         {
           "kind": "fetch",
-          "line": 24,
+          "line": 33,
           "path": "SKILL.md",
           "preview": "The text scan is a **whole-file, multiline-aware** static parse (run by `python3`, which is **required** — if it is absent the text rung fails **closed**, never open), so a fetching context split across lines (`src` and its `=\"//h\"` on sep…",
-          "sha256": "sha256:0bb944cc8414acfe2c6c9834f6e01651541ce21b0095202ea22769a11cc92a55"
+          "sha256": "sha256:f14ae85c0e974202510d9d0e2f319f0c609c7b8f485a871c3becc707e47f7fb1"
         },
         {
           "kind": "language-network",
-          "line": 24,
+          "line": 33,
           "path": "SKILL.md",
           "preview": "The text scan is a **whole-file, multiline-aware** static parse (run by `python3`, which is **required** — if it is absent the text rung fails **closed**, never open), so a fetching context split across lines (`src` and its `=\"//h\"` on sep…",
-          "sha256": "sha256:0bb944cc8414acfe2c6c9834f6e01651541ce21b0095202ea22769a11cc92a55"
+          "sha256": "sha256:f14ae85c0e974202510d9d0e2f319f0c609c7b8f485a871c3becc707e47f7fb1"
         },
         {
           "kind": "fetch",
-          "line": 28,
+          "line": 37,
           "path": "SKILL.md",
           "preview": "It catches, case-insensitively so `HTTPS://` can't bypass: absolute schemes `http(s)://` **and** `wss://` / `ws://` / `ftp://` — including backslash spellings URL parsers normalize — and WebRTC `stun:` / `turn(s):`; WHATWG network-path aut…",
-          "sha256": "sha256:2a29c0bd4ce86554c1abeeb74278d10eb377667df41f0fa7c1136325bfd1e0ce"
+          "sha256": "sha256:6d7b3066c737f0b0c0bea04d6b345789977a7fb51d2d31c64d8a000d08e63fb2"
         },
         {
           "kind": "fetch",
-          "line": 32,
+          "line": 41,
           "path": "SKILL.md",
           "preview": "CSS `@import` (direct string and `url(...)`, including recursively decoded literal CSS `data:` imports), ordinary fetching `url()`, `image-set()`, and HTML/SVG fetching attributes are likewise covered. CSS authorization uses CSS tokenizati…",
-          "sha256": "sha256:397ffd9a86392888a1d198341f0319035d70bc1630b4963ec21f01281996b19f"
+          "sha256": "sha256:86b828807b60453f96cd3f946d23f3ea0115a1776b0f0ce10ac76308e8db90e0"
         },
         {
           "kind": "language-network",
-          "line": 32,
+          "line": 41,
           "path": "SKILL.md",
           "preview": "CSS `@import` (direct string and `url(...)`, including recursively decoded literal CSS `data:` imports), ordinary fetching `url()`, `image-set()`, and HTML/SVG fetching attributes are likewise covered. CSS authorization uses CSS tokenizati…",
-          "sha256": "sha256:397ffd9a86392888a1d198341f0319035d70bc1630b4963ec21f01281996b19f"
+          "sha256": "sha256:86b828807b60453f96cd3f946d23f3ea0115a1776b0f0ce10ac76308e8db90e0"
         },
         {
           "kind": "fetch",
-          "line": 25,
+          "line": 27,
           "path": "scripts/scan-egress.sh",
           "preview": "# context split across lines (`src\\n=\"//h\"`, `fetch(\\n\"//h\")`) and every srcset candidate are caught.",
           "sha256": "sha256:2366f8c3c803d742c7bf120d428ea2565957515ede61ef48e6d7e126dbac2521"
         },
         {
           "kind": "language-network",
-          "line": 25,
+          "line": 27,
           "path": "scripts/scan-egress.sh",
           "preview": "# context split across lines (`src\\n=\"//h\"`, `fetch(\\n\"//h\")`) and every srcset candidate are caught.",
           "sha256": "sha256:2366f8c3c803d742c7bf120d428ea2565957515ede61ef48e6d7e126dbac2521"
         },
         {
           "kind": "fetch",
-          "line": 506,
+          "line": 715,
           "path": "scripts/scan-egress.sh",
           "preview": "# fetch. Only a parsed `xmlns`/`xmlns:*` attribute receives that suppression in the loop below.",
           "sha256": "sha256:a3c429026ce8468b6027509a137fcea8c66666b15dbebb65493363f6d777f4e6"
         },
         {
           "kind": "fetch",
-          "line": 833,
+          "line": 1042,
           "path": "scripts/scan-egress.sh",
           "preview": "# attribute only when `type` is absent. Unsupported values are data blocks and do not fetch a",
           "sha256": "sha256:c6424fc26abe6aead5e1003eababea3c5b5ff9d27b1efdd5c3818c64b6681500"
         },
         {
           "kind": "fetch",
-          "line": 949,
+          "line": 1158,
           "path": "scripts/scan-egress.sh",
           "preview": "# impersonating executable fetch grammar without losing the URL inside a real argument.",
           "sha256": "sha256:7236e852825356a1e1dfa3883fd8aecf4e8eb6d4ca702c72025f52403c0c6b9f"
         },
         {
           "kind": "fetch",
-          "line": 2243,
+          "line": 2495,
           "path": "scripts/scan-egress.sh",
           "preview": "\"fetch\", \"import\", \"importScripts\", \"WebSocket\", \"EventSource\", \"sendBeacon\",",
           "sha256": "sha256:f0dc09524c8309c8025cf2c69830c941bd432bfb555235ce81e88ed4cb29995b"
         },
         {
           "kind": "fetch",
-          "line": 2273,
+          "line": 2525,
           "path": "scripts/scan-egress.sh",
           "preview": "# `fetch`//host`` invokes fetch with a one-element TemplateStringsArray whose string coercion",
           "sha256": "sha256:d958904f81c964be0d5500e4e6cb86be88801633f03255d698dc78425a26acb6"
         },
         {
           "kind": "fetch",
-          "line": 2277,
+          "line": 2529,
           "path": "scripts/scan-egress.sh",
           "preview": "identifier_start + group_open + identifiers(\"fetch\") + group_close + r'\\s*$'",
           "sha256": "sha256:6f5c24959f5dab0d29dcb8c40401057519a0b0ca31d1038ac46bbb494d7a8a3f"
         },
         {
           "kind": "fetch",
-          "line": 2381,
+          "line": 2674,
           "path": "scripts/scan-egress.sh",
           "preview": "# Bracketed global APIs/properties: globalThis[\"fetch\"](URL), navigator[\"sendBeacon\"](URL),",
           "sha256": "sha256:6ba3d5e1a8cfd6ff0e35124d4636636439ab52d658d01325c9559fbbb1ad8eef"
         },
         {
           "kind": "fetch",
-          "line": 2455,
+          "line": 2748,
           "path": "scripts/scan-egress.sh",
           "preview": "if prop_name == \"fetch\":",
           "sha256": "sha256:2d0042c8604b0ea7fe88fd44df9a59730c19ba6b9134f127413fafc74263cae5"
         },
         {
           "kind": "fetch",
-          "line": 2466,
+          "line": 2759,
           "path": "scripts/scan-egress.sh",
           "preview": "if prop_name in {\"fetch\", \"open\", \"WebSocket\", \"EventSource\", \"sendBeacon\",",
           "sha256": "sha256:90e66ec9230eb5a79a5ae52cb6a857154efc23ddbf2cf7f1de0ad6d983d772cf"
         },
         {
           "kind": "fetch",
-          "line": 2671,
+          "line": 3008,
           "path": "scripts/scan-egress.sh",
           "preview": "continue # JSON object keys name mappings/rules; only their values can fetch.",
           "sha256": "sha256:aea98605b98be541f6a9d85e2866055f2fbbff791595f2af659b3ffd99c44133"
+        },
+        {
+          "kind": "fetch",
+          "line": 3538,
+          "path": "scripts/scan-egress.sh",
+          "preview": "call = r'\\b(?:fetch|sendBeacon|open|importScripts|Worker|SharedWorker)\\s*\\([^)]{0,256}?[\"\\']\\s*' + network",
+          "sha256": "sha256:8869f67c46be1eac88fc4732d4d3678c60e7f7100ffc7bc1304f774b1df78025"
         },
         {
           "kind": "fetch",
@@ -6435,469 +8019,511 @@
         },
         {
           "kind": "fetch",
-          "line": 808,
+          "line": 781,
+          "path": "scripts/test-scan-egress.sh",
+          "preview": "printf 'fetch(\"%sevil.invalid/content-waiver\") // egress-ok\\n' \"$_pr\" > \"$T/g3inlinewaiver/a.js\"",
+          "sha256": "sha256:4d8d55b948e9024ec1e4a8e4cf094d20cb6bdac676693d3ca310099d0ed670fa"
+        },
+        {
+          "kind": "language-network",
+          "line": 781,
+          "path": "scripts/test-scan-egress.sh",
+          "preview": "printf 'fetch(\"%sevil.invalid/content-waiver\") // egress-ok\\n' \"$_pr\" > \"$T/g3inlinewaiver/a.js\"",
+          "sha256": "sha256:4d8d55b948e9024ec1e4a8e4cf094d20cb6bdac676693d3ca310099d0ed670fa"
+        },
+        {
+          "kind": "fetch",
+          "line": 796,
+          "path": "scripts/test-scan-egress.sh",
+          "preview": "pathlib.Path(sys.argv[1]).write_text(\"fetch(\\n\" * 2000, encoding=\"utf-8\")",
+          "sha256": "sha256:ed0b8c7bd9d5ff3d36a5454d36a0d7107acfa374c04cf8c67b4dad54d0659cea"
+        },
+        {
+          "kind": "language-network",
+          "line": 796,
+          "path": "scripts/test-scan-egress.sh",
+          "preview": "pathlib.Path(sys.argv[1]).write_text(\"fetch(\\n\" * 2000, encoding=\"utf-8\")",
+          "sha256": "sha256:ed0b8c7bd9d5ff3d36a5454d36a0d7107acfa374c04cf8c67b4dad54d0659cea"
+        },
+        {
+          "kind": "fetch",
+          "line": 798,
+          "path": "scripts/test-scan-egress.sh",
+          "preview": "printf 'fetch(\"%sone.invalid/a\"); fetch(\"%stwo.invalid/b\") // egress-ok\\n' \"$_pr\" \"$_pr\" > \"$T/g4inlineperfinding/a.js\"",
+          "sha256": "sha256:620e481ba489cc9b6b345a242c17148cfd438f62b948459629e46033a7f99397"
+        },
+        {
+          "kind": "language-network",
+          "line": 798,
+          "path": "scripts/test-scan-egress.sh",
+          "preview": "printf 'fetch(\"%sone.invalid/a\"); fetch(\"%stwo.invalid/b\") // egress-ok\\n' \"$_pr\" \"$_pr\" > \"$T/g4inlineperfinding/a.js\"",
+          "sha256": "sha256:620e481ba489cc9b6b345a242c17148cfd438f62b948459629e46033a7f99397"
+        },
+        {
+          "kind": "fetch",
+          "line": 859,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check \"same-origin/data fetch + README pass\" 0 \"\" \"$T/localok\"",
           "sha256": "sha256:8a13d3c485f1427db0085404e73e9c2882894856826314b930b39e3d9ac7294d"
         },
         {
           "kind": "fetch",
-          "line": 814,
+          "line": 912,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check \"xmlns cannot launder a real fetch()\" 1 \"EGRESS\" \"$T/nsfetch\"",
           "sha256": "sha256:ce6a64327958240564c2c55a8bbfd72f775cc0127740199b4345b5295fcc02ba"
         },
         {
           "kind": "language-network",
-          "line": 814,
+          "line": 912,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check \"xmlns cannot launder a real fetch()\" 1 \"EGRESS\" \"$T/nsfetch\"",
           "sha256": "sha256:ce6a64327958240564c2c55a8bbfd72f775cc0127740199b4345b5295fcc02ba"
         },
         {
           "kind": "fetch",
-          "line": 826,
+          "line": 924,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check \"multiline fetch literal fails\" 1 \"EGRESS\" \"$T/mlfetch\"",
           "sha256": "sha256:d1b6f12c85079bfe11d8930b2526141fab4927c7b384e9872fc1637cdbfc8003"
         },
         {
           "kind": "fetch",
-          "line": 832,
+          "line": 930,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check \"backtick-template fetch fails\" 1 \"EGRESS\" \"$T/btfetch\"",
           "sha256": "sha256:1410dddb286a667f22cbc9e608b945aa067c87e6b0f647f01a4faa0d31fb4842"
         },
         {
           "kind": "fetch",
-          "line": 833,
+          "line": 931,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"static tagged-template fetch fails\" 1 1 \"$T/taggedfetch\"",
           "sha256": "sha256:1263507767794e87a3777b3ace4f918f40146d21350c9edcc80065b05ae9b2ee"
         },
         {
           "kind": "fetch",
-          "line": 834,
+          "line": 932,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"bracket-global tagged fetch fails\" 1 1 \"$T/brackettaggedfetch\"",
           "sha256": "sha256:d3b638c0af1eaa328db74b4a8f677db89d3d1b089fd373252803f90fe910b6e6"
         },
         {
           "kind": "fetch",
-          "line": 902,
+          "line": 1000,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check \"comment between fetch and call cannot hide it\" 1 \"EGRESS\" \"$T/r7fetchcomment\"",
           "sha256": "sha256:089cec7814e350a077b3357cf3241f62ef46235e58ee595986b9371d0363a18a"
         },
         {
           "kind": "fetch",
-          "line": 927,
+          "line": 1025,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"optional fetch call count==1\" 1 1 \"$T/r7optional\"",
           "sha256": "sha256:09861b7098795379cc593437b2b9718844483b236596945520276993e721dff3"
         },
         {
           "kind": "fetch",
-          "line": 928,
+          "line": 1026,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"window bracket fetch count==1\" 1 1 \"$T/r7bracketfetch\"",
           "sha256": "sha256:ca31fc15d1a14ccbe786a6809364f2c6c26d4ec086192aff732f5a3b0f83807c"
         },
         {
           "kind": "fetch",
-          "line": 935,
+          "line": 1033,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"decoded srcdoc nested fetch count==1\" 1 1 \"$T/r7srcdoc\"",
           "sha256": "sha256:cf7eb16aee9223187b5b9728e283560d93268e40547f5d11da26dc2c1e15dc74"
         },
         {
           "kind": "fetch",
-          "line": 960,
+          "line": 1058,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"template substitution executes nested fetch\" 1 1 \"$T/r8templateexpr\"",
           "sha256": "sha256:82ffb15d878217fd9036c543b49ee2882e1327e1c43d2d3d5a895de11089021b"
         },
         {
           "kind": "fetch",
-          "line": 961,
+          "line": 1059,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex double slash cannot mask later fetch\" 1 1 \"$T/r8regexline\"",
           "sha256": "sha256:cb56d47169563ae969478473c2ddcaabe9cc0195acf86ba4502bb8537f19a208"
         },
         {
           "kind": "fetch",
-          "line": 962,
+          "line": 1060,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex slash-star cannot mask later fetch\" 1 1 \"$T/r8regexblock\"",
           "sha256": "sha256:2de5a4338615c1196a8aed0b811f819287afbbfa2af33bca27b5bac26147ca8b"
         },
         {
           "kind": "fetch",
-          "line": 963,
+          "line": 1061,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after control close cannot mask fetch\" 1 1 \"$T/r8regexafterif\"",
           "sha256": "sha256:a8de8df007d00548ddb6f2e35ef7a59214308fbf6bd6138bc4948db6a0ccdb69"
         },
         {
           "kind": "fetch",
-          "line": 964,
+          "line": 1062,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after block close cannot mask fetch\" 1 1 \"$T/r8regexafterblock\"",
           "sha256": "sha256:f209411486749be3ccb5a33d93842ed144312ebf941d0e7b1b59f29e696851a7"
         },
         {
           "kind": "fetch",
-          "line": 965,
+          "line": 1063,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after await cannot mask fetch\" 1 1 \"$T/r8regexawait\"",
           "sha256": "sha256:39aa9ff453ca732db7feaf1d40fa2500eaa9e4f0dc63f76d59db7136b276a795"
         },
         {
           "kind": "fetch",
-          "line": 966,
+          "line": 1064,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after spread cannot mask fetch\" 1 1 \"$T/r8regexspread\"",
           "sha256": "sha256:8ec760ed57f6c01dfc3ddd7da4ff5ece2380db7554bc44eb00a56774727e627a"
         },
         {
           "kind": "fetch",
-          "line": 967,
+          "line": 1065,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after export default cannot mask fetch\" 1 1 \"$T/r8regexdefault\"",
           "sha256": "sha256:e61144c10d2f3861e90e21afdefb41e278cc77022de76951e0cdf39ec1ef2148"
         },
         {
           "kind": "fetch",
-          "line": 968,
+          "line": 1066,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after extends cannot mask fetch\" 1 1 \"$T/r8regexextends\"",
           "sha256": "sha256:4c568cb2cdb2c82f6656030659b3f51605cbbba6a634e54f6f9a8925219c694b"
         },
         {
           "kind": "fetch",
-          "line": 969,
+          "line": 1067,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"default property division keeps later fetch live\" 1 1 \"$T/r8propdefaultdiv\"",
           "sha256": "sha256:b3af3ae717302195d0f6438fc1d16ef04d3f0e78fe98db7a06ad5e8417e5bc26"
         },
         {
           "kind": "fetch",
-          "line": 970,
+          "line": 1068,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"await property division keeps later fetch live\" 1 1 \"$T/r8propawaitdiv\"",
           "sha256": "sha256:3fe976bc8293bc6648747dd5cf633b686714a91dd2e28b40eb5dd2d6bcbc2295"
         },
         {
           "kind": "fetch",
-          "line": 971,
+          "line": 1069,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"function-expression division keeps fetch live\" 1 1 \"$T/r8functiondiv\"",
           "sha256": "sha256:ce773fd34c6823b49c07ed1e0de2c5a5ef170b86636a6fb90535cb200fbb318f"
         },
         {
           "kind": "fetch",
-          "line": 972,
+          "line": 1070,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"post-increment division keeps later fetch live\" 1 1 \"$T/r8postincdiv\"",
           "sha256": "sha256:845a74a82d93cdd7e9899e37b48f28f2de93f54f0335300c3a1bc772db3b3cec"
         },
         {
           "kind": "fetch",
-          "line": 973,
+          "line": 1071,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"post-decrement division keeps later fetch live\" 1 1 \"$T/r8postdecdiv\"",
           "sha256": "sha256:aba9dfb6c60cc5cc1c056e01b9e3df3f960346ff1012e1d1c1f939bbe6bceac9"
         },
         {
           "kind": "fetch",
-          "line": 974,
+          "line": 1072,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex used as division RHS cannot mask fetch\" 1 1 \"$T/r8regexdivisor\"",
           "sha256": "sha256:85775ea59a49d67e14d50250f87e13c4d5dd3f9ee6c3b283d227e68b30e5607d"
         },
         {
           "kind": "fetch",
-          "line": 1026,
+          "line": 1124,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"JavaScript hex escape is decoded before fetch\" 1 1 \"$T/r8jshexescape\"",
           "sha256": "sha256:045c0abc702e950ee16cba76d0758cfd9431722aff0c9d71d6361b6c901e92a7"
         },
         {
           "kind": "fetch",
-          "line": 1027,
+          "line": 1125,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"JavaScript Unicode escape is decoded before fetch\" 1 1 \"$T/r8jsunicodeescape\"",
           "sha256": "sha256:6c098c525522b06f76d6d3522fbbb78c20b32389f2da397145944c04477bb674"
         },
         {
           "kind": "fetch",
-          "line": 1029,
+          "line": 1127,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"globalThis bracket fetch is caught\" 1 1 \"$T/r8bracketglobalfetch\"",
           "sha256": "sha256:71f162f4b15c83ec5ed79bb157f6ac90db6844fd030827573e0c55eb11015ecd"
         },
         {
           "kind": "fetch",
-          "line": 1039,
+          "line": 1137,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"self bracket fetch is caught\" 1 1 \"$T/r8selfbracketfetch\"",
           "sha256": "sha256:fdedd2f8996a2db21f9fc4d7f3cb3b3a731caf3b99a375d4f2a40a8a632f51d3"
         },
         {
           "kind": "fetch",
-          "line": 1041,
+          "line": 1139,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"escaped fetch identifier is normalized\" 1 1 \"$T/r8escapedfetchident\"",
           "sha256": "sha256:1ae27ab93a91750374dd957b03aefb3905a29c486bdf5e6a9cf6a628920aa619"
         },
         {
           "kind": "fetch",
-          "line": 1043,
+          "line": 1141,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"first-char escaped fetch identifier is normalized\" 1 1 \"$T/r8escapedfirstfetch\"",
           "sha256": "sha256:e12437e14a0cd1c56896d6124e901cb8617ec1496579d7e4ec152383df71cf33"
         },
         {
           "kind": "fetch",
-          "line": 1044,
+          "line": 1142,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"escaped global fetch identifier is normalized\" 1 1 \"$T/r8escapedglobalfetch\"",
           "sha256": "sha256:a78769ab9549b20f1501dd5db19526c57d127db4353a0e78a57b5a3e05605319"
         },
         {
           "kind": "fetch",
-          "line": 1171,
+          "line": 1269,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"parenthesized fetch callee is caught\" 1 1 \"$T/r9parentfetch\"",
           "sha256": "sha256:7fdf83f63f75bce7b19db812d5dfe5da6623f135481490c4f98ce344adead7e9"
         },
         {
           "kind": "fetch",
-          "line": 1186,
+          "line": 1284,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"nested parenthesized fetch is caught\" 1 1 \"$T/r9nestedparenfetch\"",
           "sha256": "sha256:28b2e5726d214413448b6ef6fde899ee4f763a0d265b9b7c70e74b39acb8f069"
         },
         {
           "kind": "fetch",
-          "line": 1197,
+          "line": 1295,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"grouped fetch argument is caught\" 1 1 \"$T/r9groupedfetcharg\"",
           "sha256": "sha256:7cc37c76417bc9a4ff5df7eb83a0517909e5cffb2ceda504e45be0cdfdfbfba7"
         },
         {
           "kind": "fetch",
-          "line": 1217,
+          "line": 1315,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check \"arbitrary namespaced href is not a known fetch sink\" 0 \"\" \"$T/r9xlinkothernscontrol\"",
           "sha256": "sha256:3f4fe1055a04645e94e0b2d6e4c2873be388a17123f0279942aa6e3557f71655"
         },
         {
           "kind": "fetch",
-          "line": 1228,
+          "line": 1326,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check \"import-map URL-like key does not fetch\" 0 \"\" \"$T/r9importmapkeycontrol\"",
           "sha256": "sha256:1bc26597ab7324918dfbfa40d3c0b463c9450a55ba2fcaf082de51b99c283949"
         },
         {
           "kind": "fetch",
-          "line": 1229,
+          "line": 1327,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check \"import-map scope key does not fetch\" 0 \"\" \"$T/r9importmapscopekeycontrol\"",
           "sha256": "sha256:9ed7be64ee3c0cc7b0b1173795fc1fc42ff265fd4dfc3ba88dd8e2b38eaa9f75"
         },
         {
           "kind": "fetch",
-          "line": 1291,
+          "line": 1389,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after abstract class keeps later fetch visible\" 1 1 \"$T/r9regexabstractclass\"",
           "sha256": "sha256:3436b86f6b7ce8613daf7afcb16c964a6ccb4131273da4ff311799014ff1995b"
         },
         {
           "kind": "fetch",
-          "line": 1292,
+          "line": 1390,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after declare class keeps later fetch visible\" 1 1 \"$T/r9regexdeclareclass\"",
           "sha256": "sha256:e5c7c63cd5106809471ac7fb0ffa821d03a50584b9c0079c43aa0d654a06e729"
         },
         {
           "kind": "fetch",
-          "line": 1293,
+          "line": 1391,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after const enum keeps later fetch visible\" 1 1 \"$T/r9regexconstenum\"",
           "sha256": "sha256:bf06c63bee975167f4046a30f0bc3985c41d3b33b450d4118ea8b5f27cc3c6d0"
         },
         {
           "kind": "fetch",
-          "line": 1294,
+          "line": 1392,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after type alias keeps later fetch visible\" 1 1 \"$T/r9regextypealias\"",
           "sha256": "sha256:72d4448b62d2516c58226c4f55e661e89a96f472c120fe56077370bc643dea5c"
         },
         {
           "kind": "fetch",
-          "line": 1295,
+          "line": 1393,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after decorated class keeps later fetch visible\" 1 1 \"$T/r9regexdecoratedclass\"",
           "sha256": "sha256:793959a703452a48ed1381028bbe2f166471805976d19cadb99d6a14167c72d1"
         },
         {
           "kind": "fetch",
-          "line": 1301,
+          "line": 1399,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after generic interface keeps fetch visible\" 1 1 \"$T/r9regexinterfacegeneric\"",
           "sha256": "sha256:bb09ad724dba3bb50bfe20711e31db592e9dfd4b2b8e378718b47a88e0d19a65"
         },
         {
           "kind": "fetch",
-          "line": 1302,
+          "line": 1400,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after extended interface keeps fetch visible\" 1 1 \"$T/r9regexinterfaceextends\"",
           "sha256": "sha256:b899038c62af0823c36ed356883586744e1855a2553ddd3af6b86df2c298e994"
         },
         {
           "kind": "fetch",
-          "line": 1303,
+          "line": 1401,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after intersection type keeps fetch visible\" 1 1 \"$T/r9regextypeintersection\"",
           "sha256": "sha256:f59db706430e132868c39b1e76c15da80e05e2e505298386a4398520e40f915f"
         },
         {
           "kind": "fetch",
-          "line": 1304,
+          "line": 1402,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after generic-default type keeps fetch visible\" 1 1 \"$T/r9regextypegenericdefault\"",
           "sha256": "sha256:086a55ee99f23caf05ef87eb104af0df255190df1a2cc1e871cf17395fa14705"
         },
         {
           "kind": "fetch",
-          "line": 1305,
+          "line": 1403,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after ambient module keeps fetch visible\" 1 1 \"$T/r9regexdeclaremodule\"",
           "sha256": "sha256:642e684bbd7aef1e124020905df438190f9501bdff3f292bc764d8f8df131612"
         },
         {
           "kind": "fetch",
-          "line": 1306,
+          "line": 1404,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after object decorator keeps fetch visible\" 1 1 \"$T/r9regexdecoratorobject\"",
           "sha256": "sha256:65ee90c830c289ad12fd58dd8510f314a7de93843e7233bbd1da9107cb198336"
         },
         {
           "kind": "fetch",
-          "line": 1325,
+          "line": 1423,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after generic class keeps fetch visible\" 1 1 \"$T/r9regexclassgeneric\"",
           "sha256": "sha256:70a3258beeecc95e08a7759de8ad56e74f3e97d196fd573bab54f0b1bc2dfd7c"
         },
         {
           "kind": "fetch",
-          "line": 1326,
+          "line": 1424,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after implemented class keeps fetch visible\" 1 1 \"$T/r9regexclassimplements\"",
           "sha256": "sha256:d37555648f2bf3cb5bf6dbd3b89dd5f9e957ade32760029f5dfe1e1c93aaf01c"
         },
         {
           "kind": "fetch",
-          "line": 1327,
+          "line": 1425,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after default interface keeps fetch visible\" 1 1 \"$T/r9regexdefaultinterface\"",
           "sha256": "sha256:857d40deb6846e95e3ff85e8a90ce7a85271592ecaa3db6512901ffbd8e6a668"
         },
         {
           "kind": "fetch",
-          "line": 1328,
+          "line": 1426,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after constrained interface keeps fetch visible\" 1 1 \"$T/r9regexinterfaceconstraint\"",
           "sha256": "sha256:620f94b6cd7556858ca1657039d8f14ec53dd4f2fce385539734f44c823835f6"
         },
         {
           "kind": "fetch",
-          "line": 1329,
+          "line": 1427,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after tuple type keeps fetch visible\" 1 1 \"$T/r9regextypetuple\"",
           "sha256": "sha256:51b6e4a80e2af1025d70df276e7ff22346cdd89519931a25f7d71c901268af44"
         },
         {
           "kind": "fetch",
-          "line": 1330,
+          "line": 1428,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after union type keeps fetch visible\" 1 1 \"$T/r9regextypeunion\"",
           "sha256": "sha256:5b8698b425402445c9d4a8221dccc59919165423086d8182abed7928557cd84f"
         },
         {
           "kind": "fetch",
-          "line": 1331,
+          "line": 1429,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"regex after ambient const keeps fetch visible\" 1 1 \"$T/r9regexdeclareconst\"",
           "sha256": "sha256:77c703e45c9531831fa32bcbc9d1fd386b620d5ea5feba36b9492ef204707115"
         },
         {
           "kind": "fetch",
-          "line": 1335,
+          "line": 1433,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_uncert \"multiline type with later fetch fails as uncertainty\" 1 \"$T/r9regexmultilinetypecontrol\"",
           "sha256": "sha256:a1b8f4ac109ec24fa5b083cda875cf8e0f5b75ccdf4a5c1b29ec9999d1c0fe54"
         },
         {
           "kind": "fetch",
-          "line": 1341,
+          "line": 1439,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"terminated multiline type keeps later fetch visible\" 1 1 \"$T/r9regexterminatedtypefetch\"",
           "sha256": "sha256:44de9e2e7e3379fb63f430b4013b0619e03cd453925a682faa2610b2ab445975"
         },
         {
           "kind": "fetch",
-          "line": 1345,
+          "line": 1443,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"bare-CR line comment exposes following fetch\" 1 1 \"$T/r9crlinecomment\"",
           "sha256": "sha256:cdfaf6debca4c60a49964fab1f9e83e54ab87f72ae31bdad74073781b785d059"
         },
         {
           "kind": "fetch",
-          "line": 1346,
+          "line": 1444,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"bare-CR legacy HTML comment exposes following fetch\" 1 1 \"$T/r9crhtmlcomment\"",
           "sha256": "sha256:670c4aa97073b6db678eb9751cbee48fb1eb279786aa137238ba308022964195"
         },
         {
           "kind": "fetch",
-          "line": 1347,
+          "line": 1445,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"bare-CR import boundary keeps later fetch visible\" 1 1 \"$T/r9crimportregex\"",
           "sha256": "sha256:08f786541562aa8226996c9885532519c870a27f5b7029f6b139627fc07bcdb9"
         },
         {
           "kind": "fetch",
-          "line": 1348,
+          "line": 1446,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"bare-CR export boundary keeps later fetch visible\" 1 1 \"$T/r9crexportregex\"",
           "sha256": "sha256:2b74d936d6340a6a6440e6ce34a53fcbcf36eebdec86dce8c022283e6cf7e972"
         },
         {
           "kind": "fetch",
-          "line": 1354,
+          "line": 1452,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"U+2028 import boundary keeps later fetch visible\" 1 1 \"$T/r9lsimportregex\"",
           "sha256": "sha256:9768193411b703ab1a355c1ebe0e954af46696e08d3dec71e95cd8d981287eaa"
         },
         {
           "kind": "fetch",
-          "line": 1355,
+          "line": 1453,
           "path": "scripts/test-scan-egress.sh",
           "preview": "check_count \"U+2029 export boundary keeps later fetch visible\" 1 1 \"$T/r9psexportregex\"",
           "sha256": "sha256:ea40faa768ca371e49511b65e860f82e838b478c5fa4633e9025bb4ff0c42e3f"
         },
         {
           "kind": "fetch",
-          "line": 1408,
+          "line": 1506,
           "path": "scripts/test-scan-egress.sh",
           "preview": "printf '<script>document.head.dataset.ready=\"1\"</script><script>const s=document.createElement(\"script\");s.type=\"module\";s.src=\"data:text/plain,fetch(%%22%sdocs.invalid/clean%%22)\"</script>\\n' \"$_pr\" > \"$SNAP_DIR/live.html\"",
           "sha256": "sha256:dd7b4f1c4d94d687ffb772238166b2ef0bc116e2ed67175eecfdcb03a2c85772"
         },
         {
           "kind": "language-network",
-          "line": 1408,
+          "line": 1506,
           "path": "scripts/test-scan-egress.sh",
           "preview": "printf '<script>document.head.dataset.ready=\"1\"</script><script>const s=document.createElement(\"script\");s.type=\"module\";s.src=\"data:text/plain,fetch(%%22%sdocs.invalid/clean%%22)\"</script>\\n' \"$_pr\" > \"$SNAP_DIR/live.html\"",
           "sha256": "sha256:dd7b4f1c4d94d687ffb772238166b2ef0bc116e2ed67175eecfdcb03a2c85772"
@@ -6910,10 +8536,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:350aa1561aa4aa2e54d2ea21bf9cba5befc190a57268a1aead13eb9b55cfdedd",
           "size": 854
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:954b1c835fdf061c343df957b3c6f2e8dcc201662170709890fd4001160b79c8",
           "size": 129
         }
@@ -6926,14 +8554,17 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:85678dcd517b7767433749a6f32100a9b8c8b437f6818911e705b966a33aa22c",
           "size": 5850
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:de37f0167befd62e569c1bf300902ef0269dee25be8a501ab46691442272860a",
           "size": 182
         },
         "scripts/duel-verdict.sh": {
+          "posixMode": 493,
           "sha256": "sha256:87e0fd329579786137902b247c9fac63a5b5f0eb4e0aea147e354232025ac05a",
           "size": 2147
         }
@@ -6963,28 +8594,29 @@
           "path": "SKILL.md",
           "preview": "Risk classes it surfaces: shell/`exec`/`spawn`, network egress (`curl`/`wget`/`fetch`/`nc`), writes outside project scope (`~/`, `/etc`, `$HOME`, `../..`), dynamic code (`eval`/`Function`/`atob`, including shell `eval \"$(...)\"`), obfuscati…",
           "sha256": "sha256:f0ce7507a0c8aecb5d8969e81cfdadb1f5fe2704842906a57b19b46593bbdd8d"
-        },
-        {
-          "kind": "network-package-execution",
-          "line": 22,
-          "path": "scripts/scan-skill.sh",
-          "preview": "\"unpinned-install|(pip install|npm install|cargo install|npx |uvx |\\| *sh\\b)\"",
-          "sha256": "sha256:e22600c29cd0bb0c6ea6f55f6132c01e6d9856dcd13cf17349f27ab5a33fdea3"
         }
       ],
       "externalReferences": [],
       "files": {
         "SKILL.md": {
-          "sha256": "sha256:a54cec499291fef59ff251522e6ac0448eb087c83d0d3c69c433ce6071c88cd2",
-          "size": 6108
+          "posixMode": 420,
+          "sha256": "sha256:46446aca886d9cbf72658ed20e258f1c1dce126990826b4794b9e2b74d64a896",
+          "size": 6562
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:933483d7f1f9d92f4f9beb3f5d0c1615ce54d6da250b6dea08474958a74aa164",
           "size": 147
         },
+        "scripts/scan-skill.py": {
+          "posixMode": 493,
+          "sha256": "sha256:5e7e7ec379b098fcbf40b88401c258f9c4847168150375064cbdb5163f5542ca",
+          "size": 5996
+        },
         "scripts/scan-skill.sh": {
-          "sha256": "sha256:104c4421ad49d2be3f9359880379348d4fd660ed864676d73d6ab8d469f7e547",
-          "size": 2712
+          "posixMode": 493,
+          "sha256": "sha256:291dd4072d5701b2264863ee9c72dec9a77d94ef0bd19373e4034d469160ee72",
+          "size": 489
         }
       },
       "networkCommands": [
@@ -7003,11 +8635,11 @@
           "sha256": "sha256:f0ce7507a0c8aecb5d8969e81cfdadb1f5fe2704842906a57b19b46593bbdd8d"
         },
         {
-          "kind": "package-network",
-          "line": 22,
-          "path": "scripts/scan-skill.sh",
-          "preview": "\"unpinned-install|(pip install|npm install|cargo install|npx |uvx |\\| *sh\\b)\"",
-          "sha256": "sha256:e22600c29cd0bb0c6ea6f55f6132c01e6d9856dcd13cf17349f27ab5a33fdea3"
+          "kind": "fetch",
+          "line": 18,
+          "path": "scripts/scan-skill.py",
+          "preview": "(\"network-egress\", r\"\\b(?:curl|wget|nc)\\b|\\bfetch\\s*\\(|axios|urllib|requests\\.(?:get|post)\"),",
+          "sha256": "sha256:59911ec06c8b036eba9d01781d4777db0c2665927aef899a3148b8173c3f0b74"
         }
       ],
       "nonHttpRemoteReferences": []
@@ -7017,10 +8649,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:9b48bb0ef6b78ae2b2a8ee81c59ed0d3ba380909f86defb559e1cdde59b3ab5d",
           "size": 7232
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:de70581c850ae06f1c24edaa8a931a4db55cefe2d093bfbad6c6a633165ed44c",
           "size": 128
         }
@@ -7033,10 +8667,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:0cf730e6aabafe2bce4da2a035e837c3e3d9f74ff0c6b14042bde52983de4442",
           "size": 6945
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:83c28e1e298fb43f0c469e6ca78b2412966355551ee7e716d4d5762125f09ea5",
           "size": 118
         }
@@ -7061,10 +8697,12 @@
       ],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:719b5fee1e824067303310bae696aa699c408f257c590501886930351d6276ad",
           "size": 6246
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:23c905d747827551e955849d2cf3eb803c333a8c16cdb0f1b20430583ee1a4db",
           "size": 145
         }
@@ -7077,10 +8715,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:99bcbaeb656c7b4f5f122c1625ff827ccef02658fc03221da867e365e668513b",
           "size": 3953
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:e2d60120dc85899f9721dfa5a378a2ea038fbf8584fd1a13b948bd5f43c25203",
           "size": 172
         }
@@ -7093,10 +8733,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:ba5372ef68dda85ab796946428b23a351d426d5b584ad76bd3c1f57245602ec3",
           "size": 7995
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:de7cf3116a35aa611b4aa5701fd2c1c7ad7e9aa670074a34754ce0c11ca40a31",
           "size": 108
         }
@@ -7161,14 +8803,17 @@
       ],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:db41181921a96f74e3e211e95ffb9b1da9603a550afd73939f84d7687eb562c9",
           "size": 5890
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:542a127907d8b20ce4a14d17bb06323746aa2601bcf18146f6d90eec43d961c8",
           "size": 132
         },
         "scripts/grab.sh": {
+          "posixMode": 493,
           "sha256": "sha256:f04d455570287d5323d2f28dbfa853d9053755b52236b7dcdaff2e3449e173b7",
           "size": 4345
         }
@@ -7181,10 +8826,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:9952c105b638334f2f28fb7bd0dec3789a47d3f2f5187fc04681ad1619650094",
           "size": 1634
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:52219d8c3d5a24d69273fe1c459e96c1faac4df90c005ddac9d6b031da4303fb",
           "size": 156
         }
@@ -7197,10 +8844,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:f7b452289f6585bb063b07dd10575f59ec567703cbee45369b6c5d90313951d4",
           "size": 10807
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:a51c4c1a14a3466fa3d551a22bd9da8b378df45dbd25e0744de0c0909883fe98",
           "size": 168
         }
@@ -7215,29 +8864,7 @@
           "classification": "informational",
           "occurrences": [
             {
-              "line": 49,
-              "path": "template.sh"
-            }
-          ],
-          "rationale": "This is a literal source-code glob for loopback development URLs, not a retrievable address.",
-          "url": "http://localhost/*|http://127.0.0.1/*"
-        },
-        {
-          "classification": "informational",
-          "occurrences": [
-            {
-              "line": 48,
-              "path": "template.sh"
-            }
-          ],
-          "rationale": "This is a literal source-code glob describing an HTTPS allow rule, not a retrievable address.",
-          "url": "https://*"
-        },
-        {
-          "classification": "informational",
-          "occurrences": [
-            {
-              "line": 169,
+              "line": 181,
               "path": "template.sh"
             }
           ],
@@ -7247,16 +8874,24 @@
       ],
       "files": {
         "SKILL.md": {
-          "sha256": "sha256:f387a513dc87312f7e228948f175c589fdb06cbe6ae52c7366f0d65a0ea783d3",
-          "size": 6444
+          "posixMode": 420,
+          "sha256": "sha256:72beb66215000a8f828b135c76e1d5c1cdf292c49b92d05b82984aacc33ec6e6",
+          "size": 6841
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:e87dbbb1879574d689a92756655e627c6591d4de12f912ad1149c8b817dbd864",
           "size": 116
         },
+        "safety.py": {
+          "posixMode": 493,
+          "sha256": "sha256:7ffd8a8b18ea6fde25ec40f7123370a70a9d7995d1a9325e91460d4ad664ca07",
+          "size": 7338
+        },
         "template.sh": {
-          "sha256": "sha256:2cd5b2b38dcc8182ca7d790424b6d1f2b0d47a0d677b38f42b1d54f0b4cd95b6",
-          "size": 7534
+          "posixMode": 420,
+          "sha256": "sha256:3f59703bf0853256d083480e289dcd745ac9923ff2eaf450d2340a005ca7ee3f",
+          "size": 8547
         }
       },
       "networkCommands": [
@@ -7264,8 +8899,8 @@
           "kind": "browser-open",
           "line": 35,
           "path": "SKILL.md",
-          "preview": "Copy `template.sh` to the target path. Replace the example stage below the `STAGES` marker with one `stage` per step, in dependency order. Use the library helpers (`stage`, `say`/`step`, `open_url`, `ask`/`ask_secret`, `write_env`, `set_se…",
-          "sha256": "sha256:bc744a507b04e8dae2af618cd2bbb7438e22c8d2f1ca8474195b35397af0c231"
+          "preview": "Copy `template.sh` and `safety.py` together to the target path. Replace the example stage below the `STAGES` marker with one `stage` per step, in dependency order. Use the library helpers (`stage`, `say`/`step`, `open_url`, `ask`/`ask_secr…",
+          "sha256": "sha256:34be0c9bce04b908c3b223695ca92f47367b5f0e0a0742c2008e3ffaeafd72f9"
         },
         {
           "kind": "browser-open",
@@ -7276,21 +8911,21 @@
         },
         {
           "kind": "browser-open",
-          "line": 44,
+          "line": 48,
           "path": "template.sh",
           "preview": "# open_url \"<url>\" — open in the human's browser, cross-platform incl. WSL.",
           "sha256": "sha256:2561907a99f13e7bec3db2c5664c0c7ad093ec30227658193354e574abf971ea"
         },
         {
           "kind": "browser-open",
-          "line": 45,
+          "line": 49,
           "path": "template.sh",
           "preview": "open_url() {",
           "sha256": "sha256:427e0108e9d536ed1b35ffb511033f3128a03e72a3cfd4e31eaff0d248c48a1c"
         },
         {
           "kind": "browser-open",
-          "line": 169,
+          "line": 181,
           "path": "template.sh",
           "preview": "open_url \"https://dashboard.example.com/developers/api-keys\"",
           "sha256": "sha256:6f11198d674511d6f9fc1dd4eec9b7dbb5ca65e268bed52e64b35d263df92b8a"
@@ -7303,14 +8938,17 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:c2cd484d912fa7212de9d542731d1d93f141e83cede89dbf9243c68afaff8637",
           "size": 6324
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:de3ae5faf5cad27bdba931ad6ebdba4073f3487595bd64d963e07a2f66dd88e1",
           "size": 122
         },
         "scripts/audit.sh": {
+          "posixMode": 493,
           "sha256": "sha256:55cd4c333020c57a78535d8b2d5a6591ec18577fec1cd9d1736124ac524f5667",
           "size": 4380
         }
@@ -7323,14 +8961,17 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:886324ce3f083c527a1e79866efb6193bdddb5a324a084a28fab1d9587511f9a",
           "size": 7058
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:c248ca4d009933fe341cd5855cc93d5a092b7729c822a89f748e072bff5f8f8b",
           "size": 139
         },
         "scripts/scaffold.sh": {
+          "posixMode": 493,
           "sha256": "sha256:2eed48360a965ea0d9386b8921f16b5655a0fe6fa8e5100545d0d92387e5a17d",
           "size": 3426
         }
@@ -7351,10 +8992,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:152c4552ca93e435a9aa6f9b68ad93ceee4e5e9a0f69621a5ea80a06492969d3",
           "size": 6255
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:99921ea176d3ccd14213f2a349e46f3b2f00f9c74e5c79a94a62b2067b8cffc0",
           "size": 155
         }
@@ -7375,10 +9018,12 @@
       "externalReferences": [],
       "files": {
         "SKILL.md": {
+          "posixMode": 420,
           "sha256": "sha256:266695b3c65fd72b09aaa364cb9f404c1e9da933d21332d1ac470dca46e87425",
           "size": 9752
         },
         "agents/openai.yaml": {
+          "posixMode": 420,
           "sha256": "sha256:c58339bc6646977d2b3b6f816fd1a28c2a54fde06a40bf3766acac1098654c52",
           "size": 124
         }

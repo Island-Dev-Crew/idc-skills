@@ -21,6 +21,8 @@ REPO_ROOT = Path(__file__).resolve().parents[1]
 SCRIPTS = REPO_ROOT / "scripts"
 FRESHNESS_HANDOFF_ENV = "IDC_SKILLS_FRESHNESS_HANDOFF"
 SHA256_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
+SSH_KEYGEN_ENV = "IDC_SKILLS_SSH_KEYGEN"
+SSH_KEYGEN_SHA256_ENV = "IDC_SKILLS_SSH_KEYGEN_SHA256"
 
 sys.path.insert(0, str(SCRIPTS))
 from install import tree_manifest  # noqa: E402
@@ -55,7 +57,15 @@ def main() -> int:
         )
     before = tree_manifest(REPO_ROOT / "skills").sha256
 
-    integrity = _python("skill_integrity.py", "verify", "--json")
+    integrity = _python(
+        "skill_integrity.py",
+        "verify",
+        "--ssh-keygen",
+        os.environ.get(SSH_KEYGEN_ENV, ""),
+        "--ssh-keygen-sha256",
+        os.environ.get(SSH_KEYGEN_SHA256_ENV, ""),
+        "--json",
+    )
     integrity_report = json.loads(integrity.stdout)
     if not (
         integrity_report.get("contentReady") is True

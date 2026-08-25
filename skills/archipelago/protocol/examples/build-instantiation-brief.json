@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0",
+  "planLock": "ops/mission/plan.lock.json",
+  "phaseId": "P1",
+  "emittedAt": "2026-07-08T14:00:00Z",
+  "projectLane": "feature",
+  "executionPath": "deep",
+  "practices": {
+    "active": ["spec-first", "phased delivery", "worktrees", "self-verification scripts", "screenshot debugging", "feedback loops"],
+    "deferred": [
+      { "practice": "parallel agent teams", "reason": "schema contracts still fluid; single-agent until P2" },
+      { "practice": "custom MCP", "reason": "local verification via gates is sufficient at this scale" }
+    ]
+  },
+  "supportingSkills": ["coding-agent", "github", "dogfood-readiness"],
+  "runtimeStack": {
+    "omc": "primary execution engine (Claude Code)",
+    "omx": "unused",
+    "openagent": "unused",
+    "clawhip": "session telemetry to #archipelago-builds",
+    "distribution": "GitHub Navigata1/archipelago"
+  },
+  "verificationStack": ["npm test", "playwright journeys", "schema validation on every gate artifact"],
+  "persistenceMonitoringStack": ["ops/mission/state.json", "clawhip discord channel", "nsb budget record"]
+}

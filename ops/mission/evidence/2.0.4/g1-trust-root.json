@@ -1,0 +1,61 @@
+{
+  "schema": "idc-skills-gate-evidence/v1",
+  "gate": "G1-G1",
+  "executedAt": "2026-08-24T02:34:18Z",
+  "command": "python3 -B -m unittest tests.test_trust_root -v",
+  "result": {
+    "exitCode": 0,
+    "testsRun": 28,
+    "testsPassed": 28,
+    "testsFailed": 0,
+    "testsSkipped": 0
+  },
+  "environment": {
+    "os": "Darwin 25.6.0 arm64",
+    "python": "3.14.7",
+    "openSSH": "OpenSSH_10.3p1 LibreSSL 3.3.6",
+    "git": "2.50.1 Apple Git-155"
+  },
+  "verifiedClaims": [
+    "Initial trusted root inside the candidate repository is rejected before candidate content verification.",
+    "A self-consistent attacker root without the previous threshold is rejected before the release statement is read.",
+    "Root rollback, same-version equivocation, skipped rotation, expired final root, and partial old threshold are rejected.",
+    "A valid N to N+1 rotation requires both the old root threshold and the new root self-threshold.",
+    "A version-3 external monotonic checkpoint binds the root digest, release sequence, canonical signed-statement digest, and every accepted intermediate root.",
+    "Serialized checkpoint replacement prevents concurrent verifier runs from regressing an already accepted state.",
+    "A forked intermediate root cannot disappear inside a later apparently matching root chain.",
+    "The threshold-signed release statement binds tag, commit, tree, archive, freshness index, manifest, registry, and install inventory.",
+    "Archive substitution and tag-tree mismatch are rejected.",
+    "Git and OpenSSH are absolute, external, owner-controlled, executable, and digest-pinned.",
+    "The public metadata builder opens public keys and detached signatures only and refuses output overwrite.",
+    "Release manifest, install inventory, release index, and registry inputs are parsed with strict producer-format grammars and semantically joined before acceptance.",
+    "The deterministic release archive is required to reproduce the exact committed Git tree, including bytes, modes, member set, and normalized metadata.",
+    "Extra archive members, missing members, special files, duplicate paths, digest substitutions, stale release indices, and release-index equivocation are rejected.",
+    "Successful external verification remains ineligible to claim readyToInstall until downstream content and freshness gates pass."
+  ],
+  "implementationSHA256": {
+    "scripts/build_trust_metadata.py": "90e8b80876dfbf977505399d4a7e823438b419985dccdaf023610ab4f79e374d",
+    "scripts/trust_root.py": "3ea9fcedcdca6ac643f44bd66aeb0556178537eb4d8c0f7e7ae63b58b99b9c47",
+    "scripts/verify_external_root.py": "8bc90f03f059753e45d07d12df38358cfc6c9244809e95e8b0d10138608af728",
+    "tests/test_trust_root.py": "034c92f9e1f6b76970b54bda0b4f129d69298dc08a32b6c14155ff32ed617d7b",
+    "tests/test_release_artifacts.py": "b7835f24c2c941e5a46af82a3199bb7567ad8466bf66a5e4f905ae838eb11279",
+    "trust/README.md": "3ac5e3c69d2dc9e41e39247fb697f948212fa7a6727fcd114bdfc1c3d3f375d6",
+    "trust/release-statement.schema.json": "5426f62eb0c1d1856762880d9d6426f0e214052c5e24e76debce67745c24f6e5",
+    "trust/root.schema.json": "0bdd260f1a6076bfd69162be181f256344b233e797593e2d30a47f994a7b926c",
+    "trust/release-index.schema.json": "8369290b226d5138bf218231b22fd64068796b42e6701d19619cd23ffe29f034",
+    "trust/install-inventory.schema.json": "beb786fe6cef5deeefeff3ab1de8c20c24c738ebd613f0b99d19f118211115c7"
+  },
+  "releaseChainRegression": {
+    "command": "python3 -B -m unittest tests.test_fleet_parity tests.test_freshness tests.test_release_artifacts tests.test_trust_root",
+    "testsRun": 82,
+    "testsPassed": 82,
+    "testsFailed": 0,
+    "testsSkipped": 0
+  },
+  "limitations": [
+    "The suite uses ephemeral fixture keys. No production private key was created, accessed, or committed.",
+    "Production G1 acceptance remains pending a witnessed 2-of-3 offline ceremony, a protected checkpoint path, and two independently administered root-digest publication channels.",
+    "This is a narrow TUF-style root update implementation using OpenSSH sshsig, not a claim of full TUF client conformance.",
+    "The externally pinned Python runtime, clean loader environment, operating system, and protected custody paths remain part of the trusted computing base."
+  ]
+}

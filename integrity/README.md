@@ -1,21 +1,46 @@
-# Forge 50 content integrity and freshness gate
+# Forge 50 external trust, content integrity, and freshness gate
 
-Release 2.0.3 separates two claims that one rollbackable repository must never
-collapse into one:
+## 2.0.4 assurance profile
 
-1. `scripts/skill_integrity.py` proves that the current signed content matches
+The stable 2.0.4 public release activates signed content integrity and requires
+the full content-signing fingerprint plus immutable release identity to match
+two out-of-repository publications. It does **not** claim that the production
+threshold root, external freshness authority, completed Kimi review,
+Windows/NTFS seat, or freshness-authorized four-root parity has passed. In this
+profile `contentReady` can be established; `readyToRun=true` cannot. The exact
+claim boundary is [documented separately](../docs/2.0.4-release-scope.md).
+
+The complete protocol below ships as reviewed source and remains the active
+full-profile mission. Its production activation receives a later immutable
+version identity rather than rewriting the 2.0.4 record.
+
+The deferred full-assurance protocol composes three claims that one rollbackable repository must
+never collapse into one:
+
+1. An externally installed `verify_external_root.py` first authenticates a
+   threshold-signed release statement from a separately obtained root. Its
+   canonical output authorizes the exact content key and candidate artifacts;
+   it never authorizes installation by itself.
+2. `scripts/skill_integrity.py` proves that the current signed content matches
    the canonical manifest. Its report uses `contentReady`; it never emits
    `readyToRun`.
-2. An independently installed copy of `bootstrap/idc_verify_fresh.py` proves
+3. An independently installed copy of `bootstrap/idc_verify_fresh.py` proves
    that the manifest and verifier are the newest release authorized by a
-   separately signed, expiring release index. Only that external launcher can
-   emit `readyToRun=true`.
+   separately signed, expiring release index, and that they match the threshold
+   verification result. Only that external launcher can emit
+   `readyToRun=true`.
 
-The trusted Forge signing fingerprint is:
+The current Forge content-signing fingerprint is:
 
 ```text
 SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA
 ```
+
+That value remains a content identity, not production threshold authority. For
+a later full-assurance release, the threshold release statement must authorize
+the same fingerprint and exact public-key plus allowed-signers bytes before the
+freshness launcher accepts it. Scoped 2.0.4 instead requires direct comparison
+of that fingerprint through both external witnesses before content verification.
 
 ## Why the split is necessary
 
@@ -23,16 +48,22 @@ A whole-tree rollback restores an old manifest, verifier, installer, hook, and
 workflow together. An old in-tree verifier can therefore approve its own old
 rules. A monotonic number inside that same tree does not fix the problem.
 
-The freshness launcher must live outside every checkout and be pinned by the
-operator or platform. It authenticates an external release index, compares the
-exact raw manifest, verifier, launcher, release sequence, and Git commit, then
-executes a private captured copy of the authenticated content verifier. The
-tracked launcher is distributable source and fixture material; running that
-copy from inside the repository is refused.
+The root verifier and freshness launcher must live outside every checkout and
+be pinned by the operator or platform. The root verifier starts from root bytes
+whose digest was checked through two independent channels. The freshness
+launcher then authenticates an external release index, compares the exact
+threshold result, raw manifest, content key, verifier, launcher, release
+sequence, and Git commit, and executes a private captured copy of the content
+verifier. Tracked copies are distributable source and fixture material; running
+the launcher copy from inside the repository is refused.
 
 ## Content integrity: five independently red checks
 
-`python3 scripts/skill_integrity.py verify` reports `contentReady=true` only
+The release CLI requires the absolute externally selected `ssh-keygen` path and
+its protected `sha256:` digest; it never discovers the verification executable
+through candidate-controlled `PATH`. `python3 scripts/skill_integrity.py verify
+--ssh-keygen /absolute/ssh-keygen --ssh-keygen-sha256 sha256:<digest>` reports
+`contentReady=true` only
 when all five checks pass:
 
 1. **Signature:** the independently known fingerprint, `idc-skills` principal,
@@ -55,7 +86,15 @@ Fixture keys can prove the five-check implementation, so a fixture may be
 `contentReady`. Fixture profile, wrong fingerprint, wrong cardinality, or stale
 sequence can never satisfy the external release launcher.
 
-## Freshness authority
+## Threshold result and freshness authority
+
+Before freshness, the external threshold verifier emits canonical
+`idc-skills-external-verification/v1` JSON. It binds the initial and final root,
+monotonic release sequence, release-statement digest, tag/commit/tree, archive,
+manifest, freshness index, registry, install inventory, and content-signing
+authority. The protected external root checkpoint serializes concurrent runs
+and rejects root rollback/equivocation plus release-sequence rollback or
+same-sequence statement equivocation. See [`../trust/README.md`](../trust/README.md).
 
 The launcher validates canonical `idc-skills-release-index/v1` bytes under the
 domain-separated OpenSSH namespace `idc-skills-release-index-v1`. Every release
@@ -66,16 +105,64 @@ entry binds:
   "gitCommit": "40-lowercase-hex",
   "launcherSHA256": "sha256:...",
   "manifestSHA256": "sha256:...",
-  "manifestSequence": 1,
-  "release": "2.0.3",
+  "manifestSequence": 2,
+  "release": "<next-full-assurance-version>",
   "verifierSHA256": "sha256:..."
 }
 ```
 
+The threshold release statement also binds a canonical
+`idc-skills-install-inventory/v1` artifact derived exactly from the signed
+manifest:
+
+```json
+{
+  "authority": "pre-install-expectation-only",
+  "manifest": {
+    "manifestSequence": 2,
+    "sha256": "sha256:...",
+    "size": 1234
+  },
+  "release": "<next-full-assurance-version>",
+  "schema": "idc-skills-install-inventory/v1",
+  "skills": {
+    "count": 50,
+    "names": ["agent-guardrails", "..."]
+  },
+  "targets": [
+    {"label": "agents", "releaseParity": "required"},
+    {"label": "claude", "releaseParity": "required"},
+    {"label": "pi", "releaseParity": "required"},
+    {"label": "hermes", "releaseParity": "required"}
+  ]
+}
+```
+
+This is a pre-install expectation only. It says which manifest-derived skill
+inventory every release-parity seat must contain; it does not claim that a host
+was inspected or that installation succeeded. The later
+`idc-fleet-parity-report/v1` is an observation-only result and binds its exact
+candidate, manifest, index, and install-inventory digests. It always carries
+`readyToRun=false`: the report bytes do not authenticate their own producer.
+The parity process requires its freshness handoff to equal the bound index
+digest, rejects aliased, overlapping, candidate-contained, symlinked, or
+non-directory fleet entries, and checks four physically distinct roots. Even
+so, a copied standalone JSON file is not an attestation. Preserve it inside the
+protected freshness-launcher capture and bind that capture into the separately
+signed platform/release evidence. The observation is deliberately downstream
+of freshness and is never fed back into a manifest, index, inventory, or release
+statement. Documentation schemas are
+[`../trust/release-index.schema.json`](../trust/release-index.schema.json) and
+[`../trust/install-inventory.schema.json`](../trust/install-inventory.schema.json);
+the exact-field canonical parsers in `scripts/trust_root.py` remain the runtime
+authority.
+
 The launcher requires its own installed bytes, the captured content verifier,
 and the captured signing-anchor files to equal their signed Git-tracked source
-records before either verifier mode can execute. It also requires that complete
-execution closure to equal the newest entry's manifest and exact Git tree.
+records before either verifier mode can execute. It also requires those anchor
+bytes, manifest, index, release, and Git commit to equal the externally
+threshold-authorized result, and requires the complete execution closure to
+equal the newest entry's manifest and exact Git tree.
 Ignored and untracked live extras are excluded rather than treated as
 executable release content. The index is
 strictly canonical, has unique increasing manifest sequences, carries its own
@@ -99,7 +186,10 @@ snapshot from the exact signed tracked-file closure. Ignored caches, local
 secrets, and other untracked bytes never enter that snapshot. It binds the
 signed closure to Git tree blobs without `git status`, filters, hooks, or
 worktree conversions, and updates the checkpoint only after content and
-freshness both pass.
+freshness both pass. At the final transition, the same exclusive checkpoint
+lock is the consumer-generation fence: it remains held through the staged-tree
+recheck and any authorized installer/consumer completion, so an older verified
+run cannot resume after a newer run and overwrite the newer installed bytes.
 
 ## External deployment
 
@@ -131,15 +221,47 @@ repository as well. Its exact schema is:
     }
   },
   "minimumIndexSequence": 1,
-  "minimumManifestSequence": 1,
+  "minimumManifestSequence": 2,
   "requireGitCommit": true,
-  "schema": "idc-skills-freshness-config/v1",
+  "schema": "idc-skills-freshness-config/v3",
   "source": {
     "allowedHosts": ["raw.githubusercontent.com"],
     "indexURL": "https://raw.githubusercontent.com/OWNER/REPO/trust-index/releases.json",
     "maxRedirects": 0,
     "signatureURL": "https://raw.githubusercontent.com/OWNER/REPO/trust-index/releases.json.sig",
     "type": "https"
+  },
+  "thresholdReceipt": {
+    "path": "/absolute/protected/evidence/<next-full-assurance-version>.external-verification.json",
+    "sha256": "sha256:<exact-canonical-verification-result>",
+    "size": 1234
+  },
+  "thresholdVerification": {
+    "arguments": [
+      "--repo", "/absolute/idc-skills",
+      "--trusted-root", "/absolute/protected/trust/1.root.json",
+      "--trusted-root-sha256", "sha256:<out-of-band-root-pin>",
+      "--root-update", "/absolute/protected/trust/2.root.json",
+      "--root-checkpoint", "/absolute/protected/state/root-checkpoint.json",
+      "--release-statement", "/absolute/protected/releases/<next-full-assurance-version>.release.json",
+      "--archive", "/absolute/protected/releases/idc-skills-<next-full-assurance-version>.tar.gz",
+      "--manifest", "/absolute/idc-skills/integrity/manifest.json",
+      "--freshness-index", "/absolute/protected/releases/releases.json",
+      "--registry", "/absolute/idc-skills/skills/registry.json",
+      "--install-inventory", "/absolute/protected/releases/install-inventory.json",
+      "--git", "/absolute/protected/git",
+      "--git-sha256", "sha256:<exact-git-bytes>",
+      "--ssh-keygen", "/absolute/protected/ssh-keygen",
+      "--ssh-keygen-sha256", "sha256:<exact-ssh-keygen-bytes>"
+    ],
+    "trustModule": {
+      "path": "/absolute/protected/idc-threshold/trust_root.py",
+      "sha256": "sha256:3ea9fcedcdca6ac643f44bd66aeb0556178537eb4d8c0f7e7ae63b58b99b9c47"
+    },
+    "verifier": {
+      "path": "/absolute/protected/idc-threshold/verify_external_root.py",
+      "sha256": "sha256:8bc90f03f059753e45d07d12df38358cfc6c9244809e95e8b0d10138608af728"
+    }
   }
 }
 ```
@@ -147,6 +269,25 @@ repository as well. Its exact schema is:
 An external protected file pair may be used instead with `source.type=file`,
 absolute `indexPath`, and absolute `signaturePath`. Repository-relative or
 repository-resolving authority paths are refused.
+
+`thresholdVerification` accepts only bounded flag/value pairs naming every
+shown input exactly once, except `--root-update`, which may be omitted or
+repeated for at most 32 sequential updates. Its Git and OpenSSH paths/digests
+must equal `executables`; its repository must equal the candidate; and its
+trusted root and root checkpoint must remain outside the candidate. The
+verifier and trust-module records have exactly `path` and `sha256`, must be
+adjacent external single-link files named `verify_external_root.py` and
+`trust_root.py`, and must match the two launcher-pinned implementation digests
+shown above. The verifier must also be executable.
+
+For each reproduction, the launcher captures and re-hashes those exact external
+bytes, stages them together in a fresh private temporary directory as mode 0700
+and 0600, and runs the staged verifier under the configured Python with `-I -B`,
+a minimal environment, a bounded output, and a timeout. It does this once before
+content verification and again immediately before the checkpoint/consumer
+transition. Both stdout byte streams must equal the externally pinned
+`thresholdReceipt`, and the receipt/config bytes must remain unchanged between
+runs. Parsing equivalent JSON is not sufficient.
 
 The authoritative process must be created by an external protected wrapper or
 runner that builds its environment from scratch, sets a protected temp root and
@@ -163,10 +304,34 @@ children receive a private temp directory, configured home, and a minimal
 environment; caller `PATH`, Python loaders, dynamic-loader variables, shell
 startup, Node options, Git configuration variables, proxy variables, and TLS
 overrides are not inherited.
+Consumers launched through this authority also receive
+`IDC_GUARD_STRICT=1`, making unsupported dangerous-Git grammar and guard
+transport/runtime failures fail closed for that child. Persistent installed
+hooks must point instead at the verified installation's
+`agent-guardrails/scripts/block-dangerous-git-strict.sh`. The installer
+byte/mode-verifies this durable wrapper; on every hook invocation it exports
+`IDC_GUARD_STRICT=1` and executes the adjacent classifier, failing closed if the
+classifier cannot run. Installation does not silently register or rewrite
+harness hook settings. Direct use of `block-dangerous-git.sh` remains the
+explicit advisory path for compatibility and cannot infer external authority
+from its own bytes.
+
+The signed runtime contract is [`runtime-requirements.json`](../runtime-requirements.json):
+Python 3.10 and Bash 3.2 are minimum floors, with Python 3.12 used by the
+cross-platform CI matrix. Falling below a floor fails closed; a listed minimum
+does not claim that every OS/runtime combination has been physically tested.
+The exact macOS and Windows candidate must still satisfy the external
+[`platform-evidence.schema.json`](../ops/mission/evidence/platform-evidence.schema.json)
+gate. Windows verification authenticates the manifest's POSIX-mode intent and
+exact bytes, while real NTFS ACL proof remains a separate required record under
+[`windows-metadata-policy.json`](windows-metadata-policy.json).
 
 Owner-controlled user files protect against repository rollback but not an
-attacker acting as the same OS user. Stronger claims require admin-owned POSIX
-paths, Windows ACL enforcement, or CI/platform state outside candidate control.
+attacker acting as the same OS user. The verifier re-hashes the private staged
+closure immediately before a child action, but repository code cannot make a
+hostile same-UID process unable to race or replace user-owned trust state.
+Stronger claims require admin-owned POSIX paths, Windows ACL enforcement,
+process isolation, or CI/platform state outside candidate control.
 The Python runtime and operating system remain part of the trusted computing
 base. The launcher does not claim a cross-platform tamper-proof offline floor.
 Without a live valid index, freshness is unverified and no child runs.
@@ -219,37 +384,69 @@ external paths and delegates through `python -I -B`. Those variables locate
 externally protected artifacts; they do not replace signature, digest, runtime,
 path, clean-process-environment, or checkpoint verification.
 
-## Release ceremony
+## Scoped 2.0.4 promotion ceremony
 
-1. Finalize every repository byte, release number, sequence, test, and document;
-   stage every new required control so the tracked closure is complete.
-2. Generate and biometrically sign the v3 manifest under namespace `file`.
-3. Commit the exact manifest and signature, replay that signed candidate from an
-   ordinary clean clone, and obtain a different-family exact-head approval. No
-   repository-controlled byte may change after this point.
-4. Push that exact candidate to staging, require the repository CI, and merge
-   through the protected review path. Capture the final staging merge commit and
-   prove its tree is byte-identical to the reviewed signed candidate.
-5. Build the canonical index entry from that final staging merge and the exact
-   manifest, verifier, and externally installed launcher bytes. Sign the index
-   under namespace `idc-skills-release-index-v1` as a second approval ceremony.
-6. Publish index and signature as one immutable pair/protected staging commit,
-   provision the external configuration's bootstrap digest and pinned runtime
-   hashes, and run the launcher against an ordinary clean staging clone through
-   a protected clean-environment wrapper and that exact Python runtime. Require
-   staging `readyToRun=true` before promotion. A failed consumer does not roll
-   the accepted freshness checkpoint backward.
-7. Promote the exact staging merge and the exact index-pair commit to the public
-   repository without rewriting either. Create an ordinary clean public clone,
-   switch only the protected source configuration to the public raw URLs, and
-   require the same `readyToRun=true` tuple and index digest from the public
-   source. Reusing the checkpoint is valid only when index sequence, digest, and
-   complete history are byte-identical.
-8. Only after the public-source proof may the exact merge be annotated and
-   SSH-signed as `2.0.3`, installed, reaccepted, or described as released.
+The limited-trust 2.0.4 sequence is normative in
+[`docs/2.0.4-release-scope.md`](../docs/2.0.4-release-scope.md): close and stage
+the exact inventory, regenerate and owner-sign the manifest, commit and replay
+one clean tree, require protected CI/review, publish two matching external
+fingerprint/release-identity witnesses, then publish and re-observe immutable
+GitHub objects. This ceremony proves content and publication comparisons only.
+It does not invoke or borrow the success label of the external threshold public
+release verifier.
 
-Any repository mutation after manifest signing returns to step 1. Any final
-commit rewrite after index construction returns to step 4.
+## Deferred full G0-G6 assurance ceremony
+
+1. Establish the production 2-of-3 root under separate custody and publish its
+   exact digest through two independently administered channels. No private key
+   or PIN enters Git, chat, logs, or candidate evidence.
+2. Finalize every repository byte, next full-assurance version identity, sequence, test, document,
+   state record, and generated report. Generate the v3 manifest, then perform
+   the owner-held biometric content signature as the last candidate-byte
+   mutation.
+3. Commit that exact manifest and signature. Create the annotated tag for that new version
+   locally at that commit, but do not publish it. Replay the commit and tag from
+   an ordinary clean clone. The tag is now an input to artifact construction,
+   not yet a public release claim.
+4. From that clean exact commit/tree and unpublished annotated tag, build the
+   deterministic archive, the manifest-derived pre-install inventory, and the
+   canonical release index. For a non-genesis index, require the latest signed
+   previous index plus the externally digest-pinned checkpoint that accepted its
+   complete history. Sign the new index under
+   `idc-skills-release-index-v1`.
+5. Build the threshold release payload only after the archive, inventory, signed
+   index, manifest, registry, commit, tree, and local annotated tag agree. Obtain
+   the required detached release-role signatures under
+   `idc-skills-release-statement-v1`; no builder opens a private key.
+6. Run the external threshold verifier, capture its canonical result outside
+   Git, hash-bind that result and the exact verifier/module/arguments in
+   freshness configuration v3, and require both launcher reproductions to be
+   byte-identical before it produces `readyToRun=true`.
+7. Install only through that freshness authority. Prove four physically
+   distinct fleet roots match and preserve the observation-only post-install
+   fleet-parity JSON inside an externally protected capture, including the exact
+   candidate, manifest, release-index, and pre-install-inventory digests. Sign
+   or witness the enclosing evidence record; the parity JSON cannot authenticate
+   itself. Then obtain the platform, protected-CI, hostile/Kimi, and two distinct
+   signed non-OpenAI exact-head review receipts. Any head or tag-target move
+   voids the affected evidence.
+8. Merge only through a protected path that preserves the accepted commit. If
+   merge strategy creates a different commit, or any accepted byte changes,
+   return to manifest generation and rebuild every downstream artifact and
+   receipt. Otherwise publish the already accepted annotated new-version tag and
+   the exact threshold-bound assets on GitHub, plus the root digest on the
+   separately administered company endpoint and independent
+   DNSSEC/transparency witness.
+9. Within the bounded observation window, verify the signed release statement,
+   immutable published tag, assets, structured site receipts, both trust
+   channels, and a fresh public consumer install before describing a later
+   immutable release as full-G0-G6 or production-assurance accepted. A
+   published release tag is permanent: never move, replace, delete, or reuse
+   it; corrections receive a new release identity.
+
+Any repository mutation after manifest signing returns to step 2. Any final
+commit or local tag-target rewrite after artifact construction returns to step
+2. Passing a gate never authorizes the next mutation by itself.
 
 Repository-owned CI can test content integrity and launcher fixtures, but it can
 roll back with the candidate. Whole-tree CI authority requires an organization-

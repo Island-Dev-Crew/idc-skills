@@ -1,0 +1,17 @@
+== O9 readyToRun authority ==
+grep: only bootstrap/idc_verify_fresh.py emits readyToRun (1164 rejection check, 1289 False, 1425 True, 1567 False).
+In-tree verifier report has contentReady + authority:"content-only" only; cmd_verify hardcodes
+expected_fingerprint=EXPECTED_SIGNING_FINGERPRINT and allow_fixture=False (no CLI override; test_freshness/
+test_skill_integrity confirm).
+Unit: _require_content_ready rejects any in-tree report containing readyToRun ("in-tree verifier improperly
+emitted whole-tree readiness") and rejects authority!="content-only".
+Fixture-profile manifests: verify_repository raises "fixture manifests cannot authorize installation or
+execution" unless allow_fixture=True (not reachable from CLI).
+OBSERVED (documented non-boundary): env IDC_SKILLS_FRESHNESS_HANDOFF=sha256:000...000 (forged marker) lets a
+direct invocation of scripts/pretooluse-skill-integrity.py pass the routing marker check:
+  $ echo '{}' | env IDC_SKILLS_FRESHNESS_HANDOFF=sha256:00..00 python3 scripts/pretooluse-skill-integrity.py \
+      --repo-root /tmp/K3-1/repo --installed-skills /tmp/K3-1/installed --skill agent-guardrails
+  SKILL CONTENT VERIFIED 5/5 - installed skill=agent-guardrails (rc=0)
+The content gate (signed manifest, 5/5) still ran and still binds all bytes; only the external anti-rollback
+layer is skipped. Documented in-tree: "the handoff marker ... is not itself the security boundary"
+(pretooluse-skill-integrity.py:7-8, install.py:32-36, reaccept.py:5, idc_verify_fresh.py:1494-1496).

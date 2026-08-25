@@ -1,0 +1,29 @@
+{
+  "archipelago": {
+    "protocolVersion": "1.0",
+    "ideaLock": "ops/mission/idea.lock.json",
+    "ideaLockSHA256": "sha256:72a446f35ac724c2cf8d1862548bb7f5e1c584eb8ad56166a4c91776a40bbbb5",
+    "planLock": "ops/mission/plan.lock.json",
+    "planLockSHA256": "sha256:821ceaa6b85751a58fe1dc3c8626d003d618fe08b84d94cb3f8e19eb244cb4a6",
+    "loop": {
+      "cycle": 1,
+      "stage": "S4",
+      "loopbacks": [
+        { "fromGate": "G4", "toStage": "S2", "reason": "runtime-journey probe found console error on kickoff command", "at": "2026-07-08T16:20:00Z" }
+      ]
+    },
+    "governance": {
+      "ledgerRunId": "nsb-run-2026-07-08-a3f9",
+      "budgetSpentUsd": 41.20,
+      "branchSweeps": ["ops/mission/sweeps/2026-07-08-p1.json"]
+    },
+    "compound": {
+      "notes": ["ops/mission/compound/2026-07-08-schema-friction.md"],
+      "memorySync": "synced",
+      "experiments": [
+        { "change": "G2 brief made mandatory for fast-path too", "metric": "loopback-count", "baseline": 3, "result": 4, "decision": "discard", "resultsRow": "ops/mission/results.tsv:5" }
+      ]
+    },
+    "fableShim": { "rewriterVersion": "1.0.0", "refusals": [] }
+  }
+}

@@ -1,0 +1,78 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://islanddevcrew.com/schemas/archipelago/build-instantiation-brief.schema.json",
+  "title": "ARCHIPELAGO G2 — build-instantiation brief",
+  "$comment": "Phase entry artifact. Source: build-orchestration-skill SKILL.md §3.5, verbatim headings made machine-readable. Emitted per phase before any standard/deep-path execution; the agent states exactly what it is instantiating.",
+  "type": "object",
+  "required": ["schemaVersion", "planLock", "phaseId", "projectLane", "executionPath", "practices", "runtimeStack", "verificationStack"],
+  "additionalProperties": false,
+  "properties": {
+    "schemaVersion": { "const": "1.0" },
+    "planLock": { "type": "string", "description": "idea id + plan freeze timestamp, or path to plan.lock.json" },
+    "phaseId": { "type": "string", "pattern": "^P[0-9]{1,6}$" },
+    "emittedAt": { "type": "string", "format": "date-time" },
+    "projectLane": { "enum": ["bugfix", "refactor", "feature", "greenfield", "design", "infra", "research"] },
+    "executionPath": { "enum": ["fast", "standard", "deep"] },
+    "practices": {
+      "type": "object",
+      "required": ["active", "deferred"],
+      "additionalProperties": false,
+      "$comment": "Explicitly choose which 52 practices are active instead of vaguely 'following best practices'. Every deferral needs a reason.",
+      "properties": {
+        "active": {
+          "type": "array", "minItems": 1,
+          "items": { "type": "string" },
+          "examples": [["spec-first", "phased delivery", "worktrees", "screenshot debugging", "self-verification scripts", "feedback loops"]]
+        },
+        "deferred": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["practice", "reason"],
+            "additionalProperties": false,
+            "properties": { "practice": { "type": "string" }, "reason": { "type": "string", "minLength": 8 } }
+          }
+        }
+      }
+    },
+    "supportingSkills": {
+      "type": "array",
+      "items": { "type": "string" },
+      "$comment": "One governing skill plus only needed specialists. Design-sensitive lanes include iron-canvas-master.",
+      "examples": [["coding-agent", "iron-canvas-master", "github"]]
+    },
+    "runtimeStack": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "State each layer's role or 'unused' — say so directly, per the skill.",
+      "properties": {
+        "omc": { "type": "string" },
+        "omx": { "type": "string" },
+        "openagent": { "type": "string" },
+        "clawhip": { "type": "string" },
+        "distribution": { "type": "string" }
+      }
+    },
+    "verificationStack": {
+      "type": "array", "minItems": 1,
+      "items": { "type": "string" },
+      "description": "Strongest available verification for this phase; must cover the plan.lock evidenceRequired lanes.",
+      "examples": [["npm test", "playwright journeys", "visual baseline diff"]]
+    },
+    "persistenceMonitoringStack": {
+      "type": "array",
+      "items": { "type": "string" },
+      "examples": [["ops/mission/state.json", "clawhip discord channel", "nsb budget record"]]
+    },
+    "ironCanvas": {
+      "type": "object",
+      "additionalProperties": false,
+      "$comment": "Present only when projectLane == design. Iron Canvas v5.0 sub-pipeline binding.",
+      "properties": {
+        "mode": { "type": "string", "examples": ["standard", "IMMERSIVE"] },
+        "autonomyTier": { "type": "string" },
+        "immerseEvidenceGate": { "type": "boolean", "description": "Phase 4.5 IMMERSE artifacts flow to dogfood Lane C (visual)." }
+      }
+    }
+  }
+}

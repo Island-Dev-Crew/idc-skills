@@ -1,0 +1,40 @@
+{
+ "authority": "content-only",
+ "checks": {
+  "external_reference_set": {
+   "detail": "all HTTP(S) references and network-command occurrences are signed and classified",
+   "failures": [],
+   "pass": true
+  },
+  "fetch_execute_policy": {
+   "detail": "fetch/execute patterns are denied unless an exact signed, reviewed example is present",
+   "failures": [],
+   "pass": true
+  },
+  "local_bytes": {
+   "detail": "all registered skill bytes, inventory, policy, and security-control bytes",
+   "failures": [],
+   "pass": true
+  },
+  "remote_content_pins": {
+   "detail": "pinned runtime instructions checked=0; allowlisted non-instruction references=0",
+   "failures": [],
+   "pass": true
+  },
+  "signature": {
+   "detail": "trusted fingerprint, signer binding, detached signature, and canonical manifest",
+   "failures": [],
+   "pass": true
+  }
+ },
+ "contentReady": true,
+ "expectedSigningFingerprint": "SHA256:opYnR5kLR2slaZGKP4g1pvh9JENdz69PYeG8PI0ZY3c",
+ "manifest": "/tmp/K3-1/fxt-extra-untracked-root/integrity/manifest.json",
+ "manifestSequence": 1,
+ "pass": true,
+ "profile": "fixture",
+ "release": "0.0.0-fixture",
+ "schema": "idc-skill-integrity-report/v2",
+ "score": "5/5",
+ "skillsChecked": 1
+}

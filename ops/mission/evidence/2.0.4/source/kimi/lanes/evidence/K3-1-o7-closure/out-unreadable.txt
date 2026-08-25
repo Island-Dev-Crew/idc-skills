@@ -1,0 +1,47 @@
+{
+ "authority": "content-only",
+ "checks": {
+  "external_reference_set": {
+   "detail": "all HTTP(S) references and network-command occurrences are signed and classified",
+   "failures": [
+    "[Errno 13] Permission denied: '/tmp/K3-1/fxt-unreadable/skills/demo/SKILL.md'"
+   ],
+   "pass": false
+  },
+  "fetch_execute_policy": {
+   "detail": "fetch/execute patterns are denied unless an exact signed, reviewed example is present",
+   "failures": [
+    "[Errno 13] Permission denied: '/tmp/K3-1/fxt-unreadable/skills/demo/SKILL.md'"
+   ],
+   "pass": false
+  },
+  "local_bytes": {
+   "detail": "all registered skill bytes, inventory, policy, and security-control bytes",
+   "failures": [
+    "[Errno 13] Permission denied: '/tmp/K3-1/fxt-unreadable/skills/demo/SKILL.md'",
+    "final repository snapshot failed: [Errno 13] Permission denied: '/tmp/K3-1/fxt-unreadable/skills/demo/SKILL.md'"
+   ],
+   "pass": false
+  },
+  "remote_content_pins": {
+   "detail": "pinned runtime instructions checked=0; allowlisted non-instruction references=0",
+   "failures": [],
+   "pass": true
+  },
+  "signature": {
+   "detail": "trusted fingerprint, signer binding, detached signature, and canonical manifest",
+   "failures": [],
+   "pass": true
+  }
+ },
+ "contentReady": false,
+ "expectedSigningFingerprint": "SHA256:opYnR5kLR2slaZGKP4g1pvh9JENdz69PYeG8PI0ZY3c",
+ "manifest": "/tmp/K3-1/fxt-unreadable/integrity/manifest.json",
+ "manifestSequence": 1,
+ "pass": false,
+ "profile": "fixture",
+ "release": "0.0.0-fixture",
+ "schema": "idc-skill-integrity-report/v2",
+ "score": "2/5",
+ "skillsChecked": 0
+}

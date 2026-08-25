@@ -1,0 +1,15 @@
+== anchors ==
+bbdbafebde00f411dfa55584f4943c88e5a0393a
+26b9285c1fe11a3ef875a34ff30faa0275eddf24
+0ca09971998a058ca80c05fbfde4ca4d1178fdf8
+tag
+beb78e369c93eb077136c88821776481b9c074e72d1bda63231c4296639375b1  integrity/manifest.json
+3819c3aef522bd157c10df06f02fb9e52831d8fc3ec1657877ccd2db92b9f1d9  /tmp/K3-8/releases.json
+b96035df279849d1539fce051a917f7519f9effb	refs/heads/trust-index
+256 SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA no comment (ED25519)
+== sigs ==
+Good "git" signature for idc-skills with ED25519 key SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA
+Good "file" signature for idc-skills with ED25519 key SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA
+Good "idc-skills-release-index-v1" signature for idc-skills with ED25519 key SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA
+== verifier hash search ==
+0f61c8dc24b627dc46c33c3e8c1e82ffd302bd620851bdfbecf6cda13e60bc47  ./scripts/skill_integrity.py

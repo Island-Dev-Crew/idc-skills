@@ -1,0 +1,7 @@
+CONTENT READY 5/5 — skills=50 profile=release
+  PASS signature: trusted fingerprint, signer binding, detached signature, and canonical manifest
+  PASS local_bytes: all registered skill bytes, inventory, policy, and security-control bytes
+  PASS external_reference_set: all HTTP(S) references and network-command occurrences are signed and classified
+  PASS remote_content_pins: pinned runtime instructions checked=0; allowlisted non-instruction references=12
+  PASS fetch_execute_policy: fetch/execute patterns are denied unless an exact signed, reviewed example is present
+rc=0

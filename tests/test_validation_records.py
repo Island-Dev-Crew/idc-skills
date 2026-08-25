@@ -3,6 +3,7 @@ from __future__ import annotations
 import html
 import json
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -11,6 +12,8 @@ from scripts import verify_validation_records
 
 
 REPO = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(REPO / "scripts"))
+from scripts import render_validation_report
 
 
 class ValidationRecordTests(unittest.TestCase):
@@ -56,6 +59,31 @@ class ValidationRecordTests(unittest.TestCase):
             rendered = report.read_bytes()
             self.assertNotIn(b"\r\n", rendered)
             self.assertEqual(rendered, (REPO / "docs/report.html").read_bytes())
+
+    def test_renderer_removes_controls_and_format_chars_without_corrupting_embedded_json(self) -> None:
+        hostile = "left\x00\x07\x1b\r\x85\u200b\u202e\u2066right"
+        record = {
+            "skill": "fixture",
+            "inv": "model",
+            "caseAvg": 9,
+            "confidence": 9,
+            "oneLiner": hostile,
+            "standoutStrength": hostile,
+            "residual": hostile,
+            "cases": [
+                {"title": hostile, "score": 9, "whatHappened": hostile},
+            ],
+        }
+        output = render_validation_report.render(
+            {"release": hostile, "generated": hostile, "records": [record]}
+        )
+        self.assertIn("leftright", output)
+        for unsafe in ("\x00", "\x07", "\x1b", "\r", "\x85", "\u200b", "\u202e", "\u2066"):
+            self.assertNotIn(unsafe, output)
+        match = verify_validation_records.REPORT_DATA_RE.search(output)
+        self.assertIsNotNone(match)
+        embedded = json.loads(html.unescape(match.group(1)))
+        self.assertEqual(embedded, [record])
 
     def test_missing_record_fails_name_set_gate(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

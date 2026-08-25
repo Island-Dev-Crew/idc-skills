@@ -12,6 +12,10 @@ TOTAL_STAGES="${TOTAL_STAGES:-1}"     # set to the real number of stages
 TOTAL_MINUTES="${TOTAL_MINUTES:-5}"   # honest estimate; drives time-remaining
 ENV_FILE="${ENV_FILE:-.env}"
 WIZARD_ALLOWED_HOSTS="${WIZARD_ALLOWED_HOSTS:-}"
+WIZARD_ALLOW_PLAINTEXT_ENV="${WIZARD_ALLOW_PLAINTEXT_ENV:-0}"
+WIZARD_PYTHON="${WIZARD_PYTHON:-python3}"
+WIZARD_LIB_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+WIZARD_SAFETY="${WIZARD_SAFETY:-$WIZARD_LIB_DIR/safety.py}"
 
 # ── palette (degrade to plain if no TTY) ──
 if [ -t 1 ]; then
@@ -44,27 +48,30 @@ step() { printf '  %s→%s %s\n' "$JADE" "$RESET" "$1"; }
 
 # open_url "<url>" — open in the human's browser, cross-platform incl. WSL.
 open_url() {
-  local url="$1" authority host allowed=""
-  case "$url" in
-    https://*) ;;
-    http://localhost/*|http://127.0.0.1/*) ;;
-    *) printf '  %srefusing non-HTTPS or malformed URL:%s %s\n' "$GARNET" "$RESET" "$url" >&2; return 2 ;;
-  esac
-  authority="${url#*://}"; authority="${authority%%/*}"; authority="${authority##*@}"
-  host="${authority%%:*}"
-  [ -n "$host" ] || { printf '  %sinvalid URL host:%s %s\n' "$GARNET" "$RESET" "$url" >&2; return 2; }
+  local url="$1" parsed="" normalized="" host="" allowed=""
+  [ -f "$WIZARD_SAFETY" ] || { printf '  %smissing wizard safety helper:%s %s\n' "$GARNET" "$RESET" "$WIZARD_SAFETY" >&2; return 2; }
+  if ! parsed="$("$WIZARD_PYTHON" -I -B "$WIZARD_SAFETY" url "$url")"; then
+    printf '  %srefusing unsafe URL:%s %s\n' "$GARNET" "$RESET" "$url" >&2
+    return 2
+  fi
+  normalized="${parsed%%$'\n'*}"
+  host="${parsed#*$'\n'}"; host="${host%%$'\n'*}"
+  if [ -z "$normalized" ] || [ -z "$host" ]; then
+    printf '  %sURL parser returned no authority%s\n' "$GARNET" "$RESET" >&2
+    return 2
+  fi
   for allowed in $WIZARD_ALLOWED_HOSTS; do
     [ "$host" = "$allowed" ] && break
   done
-  if [ "$host" != "localhost" ] && [ "$host" != "127.0.0.1" ] && [ "$host" != "$allowed" ]; then
+  if [ "$host" != "localhost" ] && [ "$host" != "127.0.0.1" ] && [ "$host" != "::1" ] && [ "$host" != "$allowed" ]; then
     confirm "Open reviewed external host '$host'?" || return 1
   fi
-  printf '  %sopening%s %s\n' "$STEEL" "$RESET" "$url"
-  if command -v open >/dev/null 2>&1; then open "$url" >/dev/null 2>&1 || true
-  elif command -v wslview >/dev/null 2>&1; then wslview "$url" >/dev/null 2>&1 || true
+  printf '  %sopening%s %s\n' "$STEEL" "$RESET" "$normalized"
+  if command -v open >/dev/null 2>&1; then open "$normalized" >/dev/null 2>&1 || true
+  elif command -v wslview >/dev/null 2>&1; then wslview "$normalized" >/dev/null 2>&1 || true
   elif grep -qi microsoft /proc/version 2>/dev/null && command -v explorer.exe >/dev/null 2>&1; then
-    explorer.exe "$url" >/dev/null 2>&1 || true
-  elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$url" >/dev/null 2>&1 || true
+    explorer.exe "$normalized" >/dev/null 2>&1 || true
+  elif command -v xdg-open >/dev/null 2>&1; then xdg-open "$normalized" >/dev/null 2>&1 || true
   else printf '  %s(open it manually)%s\n' "$DIM" "$RESET"; fi
 }
 
@@ -86,12 +93,17 @@ ask_secret() {
 
 # write_env KEY "<value>" — idempotent upsert into $ENV_FILE (KEY=value).
 write_env() {
-  local key="$1" val="$2" env_dir tmp="" mode=""
+  local key="$1" val="$2" env_dir tmp="" mode="" git_path=""
+  [ "$WIZARD_ALLOW_PLAINTEXT_ENV" = "1" ] || { printf 'plaintext env persistence requires explicit WIZARD_ALLOW_PLAINTEXT_ENV=1 opt-in\n' >&2; return 2; }
   case "$key" in ''|[!A-Za-z_]*|*[!A-Za-z0-9_]*) printf 'invalid env key: %s\n' "$key" >&2; return 2 ;; esac
   case "$val" in *$'\n'*|*$'\r'*) printf 'refusing multiline env value for %s\n' "$key" >&2; return 2 ;; esac
   [ ! -L "$ENV_FILE" ] || { printf 'refusing symlinked ENV_FILE: %s\n' "$ENV_FILE" >&2; return 2; }
   env_dir="$(dirname "$ENV_FILE")"
   [ -d "$env_dir" ] || { printf 'ENV_FILE directory does not exist: %s\n' "$env_dir" >&2; return 2; }
+  git_path="$(command -v git 2>/dev/null || true)"
+  [ -n "$git_path" ] || { printf 'Git is required to prove plaintext env scope\n' >&2; return 2; }
+  ENV_FILE="$("$WIZARD_PYTHON" -I -B "$WIZARD_SAFETY" env "$ENV_FILE" --git "$git_path")" || return 2
+  env_dir="$(dirname "$ENV_FILE")"
   touch "$ENV_FILE"
   chmod 600 "$ENV_FILE"
   if grep -qE "^${key}=" "$ENV_FILE" 2>/dev/null; then
@@ -173,5 +185,7 @@ open_url "https://dashboard.example.com/developers/api-keys"
 step "Sign in, then Developers → API keys → Reveal test key → copy it."
 pause "Press Enter when done…"
 ask_secret "Paste the API key" API_KEY
-write_env "EXAMPLE_API_KEY" "$API_KEY"
+step "Save the key directly in your approved password manager; do not save it in this repository."
+confirm "The key is saved in the password manager" || exit 1
 set_secret "EXAMPLE_API_KEY" "$API_KEY"
+unset API_KEY

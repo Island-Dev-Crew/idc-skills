@@ -1,0 +1,14 @@
+== O8 TOCTOU ==
+1) Single-snapshot capture: _read_regular_snapshot uses O_NOFOLLOW + lstat/fstat dev+ino identity for
+   manifest, sig, pubkey, allowed_signers; signature verified over captured bytes; SAME bytes parsed.
+   (_load_verified_manifest_snapshot, scripts/skill_integrity.py:1021-1043)
+2) Continuous-mutation race: 30 verify_repository runs with SKILL.md toggling signed<->mutated every 0.5ms:
+   passed=1 (mutator happened to hold signed bytes at both scans), failed=29 with
+   "skill files differs" / "repositoryFiles differs" / "repository bytes or policy changed during integrity verification".
+3) Deterministic between-snapshot swap (build_manifest wrapped; file mutated after first snapshot):
+   contentReady=False, failure "repository bytes or policy changed during integrity verification". HELD.
+4) _file_record compares dev/ino/size/mtime_ns before vs after hashing ("file changed while hashing").
+5) No mtime/size caching anywhere: every run re-hashes all bytes (sha256_file over full content).
+Residual (documented at scripts/skill_integrity.py:1223-1227): mutation AFTER the final snapshot but before
+content execution is the same-user post-check boundary; launcher mitigates by executing from a private staged
+snapshot (_staged_repository) and re-reading manifest/verifier/launcher/config before the state transition.

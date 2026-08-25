@@ -1,0 +1,43 @@
+[HELD] obj4-time/4a expires == now: rejected as expected: release index is expired
+[PASS] obj4-time/4b expires = now+1s: accepted, report={'schema': 'idc-skills-release-index/v1', 'indexSequence': 1, 'generatedAt': '2026-08-19T11:00:00Z', 'validUntil': '2026-08-19T12:00:01Z', 'releases': [{'release': '2.0.3', 'manifestSequence': 1, 'man
+[PASS] obj4-time/4c lifetime exactly 31 days: accepted, report={'schema': 'idc-skills-release-index/v1', 'indexSequence': 1, 'generatedAt': '2026-08-19T11:00:00Z', 'validUntil': '2026-09-19T11:00:00Z', 'releases': [{'release': '2.0.3', 'manifestSequence': 1, 'man
+[HELD] obj4-time/4d lifetime 31 days + 1s: rejected as expected: release index validity window exceeds 31 days
+[PASS] obj4-time/4e generated = now+300s (skew boundary): accepted, report={'schema': 'idc-skills-release-index/v1', 'indexSequence': 1, 'generatedAt': '2026-08-19T12:05:00Z', 'validUntil': '2026-08-26T12:05:00Z', 'releases': [{'release': '2.0.3', 'manifestSequence': 1, 'man
+[HELD] obj4-time/4f generated = now+301s: rejected as expected: release index was generated implausibly far in the future
+[HELD] obj4-time/4g fractional-second validUntil: rejected as expected: validUntil must use whole-second UTC precision
+[HELD] obj4-time/4h non-Z offset validUntil: rejected as expected: validUntil must be an RFC3339 UTC timestamp ending in Z
+[UNEXPECTED-REJECT] obj4-time/4i validUntil == generatedAt: wrong error: release index is expired
+[INFO] obj4-time/4j real index lifetime: shipped index lifetime = 30.0 days (limit 31)
+[PASS] obj4-time/4k real index valid 1s before expiry: accepted, report={'schema': 'idc-skills-release-index/v1', 'indexSequence': 1, 'generatedAt': '2026-08-21T17:46:09Z', 'validUntil': '2026-09-20T17:46:09Z', 'releases': [{'release': '2.0.3', 'manifestSequence': 1, 'man
+[HELD] obj4-time/4l real index expired at validUntil exactly: rejected as expected: release index is expired
+[HELD] obj4-time/4m index expires between checkpoint write and consumer: rejected as expected: release index is expired
+[HELD] obj4-time/4m-note: checkpoint write and consumer each re-parse the expiring index; no consumer runs after expiry
+[HELD] obj5-bootstrap/5a first run with wrong bootstrap digest: rejected as expected: first-run index does not match the externally pinned bootstrap digest
+[HELD] obj5-bootstrap/5b index/sig pair swapped between captures: rejected as expected: signature invalid for namespace 'idc-skills-release-index-v1': Signature verification failed: incorrect signature
+[HELD] obj5-bootstrap/5b-note: signature is verified over the exact captured index bytes; a swapped pair cannot pass
+[PASS] obj5-bootstrap/5c first run with consistent pair matching pin: accepted, report={'schema': 'idc-skills-freshness-report/v1', 'pass': True, 'readyToRun': True, 'contentReady': True, 'freshnessVerified': True, 'score': '5/5+freshness', 'release': '2.0.3', 'manifestSequence': 1, 'in
+[HELD] obj6-http/6a1 http scheme: rejected as expected: indexURL must be HTTPS on an allowed host
+[HELD] obj6-http/6a2 userinfo in URL: rejected as expected: indexURL must be HTTPS on an allowed host
+[HELD] obj6-http/6a3 fragment in URL: rejected as expected: indexURL must be HTTPS on an allowed host
+[HELD] obj6-http/6a4 non-443 port: rejected as expected: indexURL must be HTTPS on an allowed host
+[HELD] obj6-http/6a5 host outside allowedHosts: rejected as expected: indexURL must be HTTPS on an allowed host
+[HELD] obj6-http/6a6 trailing-dot host bypass: rejected as expected: indexURL must be HTTPS on an allowed host
+[HELD] obj6-http/6a7 uppercase allowedHosts entry: rejected as expected: allowedHosts must be a non-empty unique lowercase string array
+[HELD] obj6-http/6a8 maxRedirects=4: rejected as expected: maxRedirects must be an integer between 0 and 3
+[PASS] obj6-http/6a9 split index/sig origins across two allowed hosts: accepted, report={'bootstrapIndexSHA256': 'sha256:9f8cb47d74d1a56c96e3e97a237dbec5f179781f368f234caf9bebcba617a07c', 'checkpointPath': '/tmp/k32-fix-7uy14hdg/f/runtime/state/checkpoint.json', 'consumerHome': '/tmp/k32
+[BY-DESIGN] obj6-http/6a9-note: both URLs share one allowedHosts set; the signature is still verified over fetched index bytes, so cross-origin substitution cannot forge content
+[HELD] obj6-http/6b1 redirect to other host: rejected as expected: release-index redirect left the configured HTTPS origin policy
+[HELD] obj6-http/6b2 redirect to http: rejected as expected: release-index redirect left the configured HTTPS origin policy
+[HELD] obj6-http/6b3 redirect with userinfo: rejected as expected: release-index redirect left the configured HTTPS origin policy
+[HELD] obj6-http/6b4 redirect to port 444: rejected as expected: release-index redirect left the configured HTTPS origin policy
+[HELD] obj6-http/6b5 redirect count exceeded: rejected as expected: release-index redirect left the configured HTTPS origin policy
+[HELD] obj6-http/6b6 fragment in redirect target: release-index redirect left the configured HTTPS origin policy
+[ACCEPTED] obj6-http/6c1 normal fetch: fetched 11 bytes
+[HELD] obj6-http/6c2 oversized body (>maximum): rejected: release-index response exceeds 1024 bytes
+[ACCEPTED] obj6-http/6c3 same-host redirect then body: fetched 11 bytes
+[HELD] obj6-http/6c4 redirect to disallowed host: rejected: release-index redirect left the configured HTTPS origin policy
+[ERROR] obj6-http/6c5 IncompleteRead mid-body: IncompleteRead: IncompleteRead(7 bytes read, 4 more expected)
+[OBSERVE] obj6-http/6c5-note: IncompleteRead is http.client.HTTPException, NOT OSError: escapes _fetch_https uncaught; main() does not catch it either -> traceback, exit 1. Still fail-CLOSED (no READY), robustness nit.
+[HELD] obj6-http/6d connection refused mid-bootstrap: rejected as expected: release-index fetch failed: <urlopen error [Errno 111] Connection refused>
+[HELD] obj6-http/6e HTTPS_PROXY env set, still direct (refused): rejected as expected: release-index fetch failed: <urlopen error [Errno 111] Connection refused>
+[HELD] obj6-http/6e-note: opener built with ProxyHandler({}); proxy env ignored

@@ -1,0 +1,9 @@
+ANCHOR VERIFICATION K3-6
+tag object: bbdbafebde00f411dfa55584f4943c88e5a0393a (expect bbdbafebde00f411dfa55584f4943c88e5a0393a) MATCH
+commit: 26b9285c1fe11a3ef875a34ff30faa0275eddf24 (expect 26b9285c1fe11a3ef875a34ff30faa0275eddf24) MATCH
+tree: 0ca09971998a058ca80c05fbfde4ca4d1178fdf8 (expect 0ca09971998a058ca80c05fbfde4ca4d1178fdf8) MATCH
+manifest sha256: beb78e369c93eb077136c88821776481b9c074e72d1bda63231c4296639375b1 (expect beb78e369c93eb077136c88821776481b9c074e72d1bda63231c4296639375b1) MATCH
+key fingerprint: SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA (expect SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA) MATCH
+tag sig: Good 'git' signature (git tag -v 2.0.3)
+manifest sig: Good 'file' signature
+trust-index sig: Good 'idc-skills-release-index-v1' signature; releases.json lists commit+manifest sha matching anchors

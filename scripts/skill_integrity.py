@@ -46,6 +46,7 @@ MAX_REMOTE_BYTES = 4 * 1024 * 1024
 MAX_MANIFEST_BYTES = 64 * 1024 * 1024
 MAX_ANCHOR_BYTES = 64 * 1024
 MAX_SIGNATURE_BYTES = 1024 * 1024
+MAX_EXECUTABLE_BYTES = 256 * 1024 * 1024
 MIN_MANIFEST_SEQUENCE = 1
 MAX_MANIFEST_SEQUENCE = (1 << 53) - 1
 SHA256_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
@@ -55,7 +56,10 @@ REQUIRED_RELEASE_CONTROL_FILES = (
     ".github/workflows/validate.yml",
     "AGENTS.md",
     "bootstrap/idc_verify_fresh.py",
+    "console/assemble.sh",
     "CONTEXT.md",
+    "executable-dependencies.json",
+    "IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html",
     "integrity/README.md",
     "integrity/policy.json",
     "keys/allowed_signers",
@@ -66,12 +70,32 @@ REQUIRED_RELEASE_CONTROL_FILES = (
     "scripts/reaccept.py",
     "scripts/setup-signing-wizard.sh",
     "scripts/skill_integrity.py",
+    "scripts/verify_runtime_requirements.py",
+    "scripts/verify_platform_evidence.py",
+    "scripts/verify_fleet_parity.py",
+    "scripts/verify_forge_50.py",
+    "scripts/verify_provenance.py",
+    "scripts/verify_public_release.py",
+    "scripts/verify_release_reviews.py",
     "scripts/test-skill-integrity.sh",
     "skills/registry.json",
     "tests/test_install.py",
     "tests/test_freshness.py",
     "tests/test_security_scripts.py",
     "tests/test_skill_integrity.py",
+    "tests/test_runtime_boundaries.py",
+    "tests/test_archipelago_protocol.py",
+    "tests/test_console_lock.py",
+    "tests/test_fleet_parity.py",
+    "tests/test_provenance.py",
+    "tests/test_public_release.py",
+    "tests/test_release_reviews.py",
+    "tests/test_supply_chain_intake.py",
+    "runtime-requirements.json",
+    "integrity/windows-metadata-policy.json",
+    "ops/mission/evidence/platform-evidence.schema.json",
+    "ops/mission/sealed-artifacts.json",
+    "scripts/verify-sealed-artifacts.mjs",
 )
 
 URL_RE = re.compile(r"https?://[^\s<>\"'`]+", re.IGNORECASE)
@@ -237,6 +261,24 @@ def _file_record(path: Path) -> dict[str, Any]:
     return {"sha256": digest, "size": before.st_size}
 
 
+def _skill_file_record(path: Path, *, windows_posix_mode: int | None = None) -> dict[str, Any]:
+    record = _file_record(path)
+    if os.name == "nt":
+        mode = windows_posix_mode
+        if mode is None:
+            raise IntegrityError(
+                f"Windows skill verification requires authenticated POSIX mode metadata: {path}"
+            )
+    else:
+        mode = stat.S_IMODE(path.stat(follow_symlinks=False).st_mode)
+    if type(mode) is not int or not 0 <= mode <= 0o777:
+        raise IntegrityError(f"invalid canonical POSIX mode for skill file: {path}")
+    if mode & 0o022:
+        raise IntegrityError(f"unsafe group/world-writable skill file mode {mode:04o}: {path}")
+    record["posixMode"] = mode
+    return record
+
+
 def _scan_text(data: bytes, relative_path: str) -> tuple[list[dict[str, Any]], list[dict[str, Any]], list[dict[str, Any]], list[str]]:
     try:
         text = data.decode("utf-8", errors="strict")
@@ -312,7 +354,11 @@ def _load_registry(skills_dir: Path) -> tuple[dict[str, Any], list[str]]:
     return registry, sorted(names)
 
 
-def scan_skills(skills_dir: Path) -> tuple[dict[str, Any], dict[str, Any]]:
+def scan_skills(
+    skills_dir: Path,
+    *,
+    windows_mode_overrides: Mapping[str, Any] | None = None,
+) -> tuple[dict[str, Any], dict[str, Any]]:
     registry, registered = _load_registry(skills_dir)
     actual = sorted(
         child.name
@@ -338,7 +384,14 @@ def scan_skills(skills_dir: Path) -> tuple[dict[str, Any], dict[str, Any]]:
         for path in _walk_regular_files(directory):
             relative = path.relative_to(directory).as_posix()
             data = path.read_bytes()
-            files[relative] = {"sha256": sha256_bytes(data), "size": len(data)}
+            override_mode = None
+            if os.name == "nt" and windows_mode_overrides is not None:
+                repository_record = windows_mode_overrides.get(f"skills/{name}/{relative}")
+                if isinstance(repository_record, dict):
+                    override_mode = repository_record.get("posixMode")
+            files[relative] = _skill_file_record(
+                path, windows_posix_mode=override_mode
+            )
             refs, found_commands, found_denied, found_non_http = _scan_text(data, relative)
             occurrences.extend(refs)
             commands.extend(found_commands)
@@ -695,7 +748,10 @@ def build_manifest(
     if not _is_relative_to(policy_path, repo_root):
         raise IntegrityError("policy must be inside repo root")
     policy = _load_json(policy_path, "integrity policy")
-    registry, skills = scan_skills(skills_dir)
+    registry, skills = scan_skills(
+        skills_dir,
+        windows_mode_overrides=windows_mode_overrides,
+    )
     registered = sorted(skills)
     _validate_policy(policy, registered)
     reference_policy = _policy_reference_map(policy)
@@ -792,9 +848,19 @@ def build_manifest(
     }
 
 
-def _fingerprint_public_key(key_data: str) -> str:
+def _native_ssh_keygen() -> Path:
+    candidate = shutil.which("ssh-keygen")
+    if not candidate:
+        raise IntegrityError("ssh-keygen is required")
+    return Path(candidate).resolve(strict=True)
+
+
+def _fingerprint_public_key(
+    key_data: str, ssh_keygen: Path | str | None = None
+) -> str:
+    executable = Path(ssh_keygen).resolve(strict=True) if ssh_keygen else _native_ssh_keygen()
     process = subprocess.run(
-        ["ssh-keygen", "-lf", "-"],
+        [str(executable), "-lf", "-"],
         input=key_data,
         text=True,
         capture_output=True,
@@ -840,6 +906,44 @@ def _read_regular_snapshot(path: Path, label: str, max_bytes: int) -> bytes:
     return data
 
 
+def _validate_pinned_ssh_keygen(
+    value: Path | str,
+    expected_digest: str,
+    repo_root: Path,
+) -> Path:
+    path = Path(value)
+    if not path.is_absolute():
+        raise IntegrityError("ssh-keygen path must be absolute")
+    if not isinstance(expected_digest, str) or SHA256_RE.fullmatch(expected_digest) is None:
+        raise IntegrityError("ssh-keygen SHA-256 must use sha256:<64-lowercase-hex>")
+    try:
+        path_metadata = os.lstat(path)
+        resolved = path.resolve(strict=True)
+        metadata = resolved.stat()
+    except OSError as exc:
+        raise IntegrityError(f"cannot inspect pinned ssh-keygen: {path}: {exc}") from exc
+    if stat.S_ISLNK(path_metadata.st_mode):
+        raise IntegrityError("pinned ssh-keygen path must not be a symlink")
+    if not stat.S_ISREG(metadata.st_mode) or not os.access(resolved, os.X_OK):
+        raise IntegrityError("pinned ssh-keygen must be an executable regular file")
+    try:
+        resolved.relative_to(repo_root.resolve())
+    except ValueError:
+        pass
+    else:
+        raise IntegrityError("pinned ssh-keygen must live outside the repository")
+    if os.name != "nt" and (
+        metadata.st_uid not in {0, os.geteuid()} or metadata.st_mode & 0o022
+    ):
+        raise IntegrityError("pinned ssh-keygen must be owner-controlled and not group/world writable")
+    observed = sha256_bytes(
+        _read_regular_snapshot(resolved, "pinned ssh-keygen", MAX_EXECUTABLE_BYTES)
+    )
+    if observed != expected_digest:
+        raise IntegrityError("pinned ssh-keygen digest differs from protected configuration")
+    return resolved
+
+
 def _decode_anchor(data: bytes, label: str) -> str:
     try:
         return data.decode("utf-8")
@@ -851,6 +955,7 @@ def _validate_anchor_bytes(
     public_key_data: bytes,
     allowed_signers_data: bytes,
     expected_fingerprint: str,
+    ssh_keygen: Path,
 ) -> None:
     try:
         public_fields = _decode_anchor(public_key_data, "public signing key").strip().split()
@@ -859,7 +964,7 @@ def _validate_anchor_bytes(
     if len(public_fields) < 2:
         raise IntegrityError("invalid public signing key")
     public_material = " ".join(public_fields[:2]) + "\n"
-    public_fingerprint = _fingerprint_public_key(public_material)
+    public_fingerprint = _fingerprint_public_key(public_material, ssh_keygen)
     if public_fingerprint != expected_fingerprint:
         raise IntegrityError(
             f"public-key fingerprint mismatch: expected {expected_fingerprint}, got {public_fingerprint}"
@@ -875,7 +980,7 @@ def _validate_anchor_bytes(
     if len(fields) < 3 or SIGN_IDENTITY not in fields[0].split(","):
         raise IntegrityError(f"allowed_signers must bind principal {SIGN_IDENTITY!r}")
     allowed_material = " ".join(fields[1:3]) + "\n"
-    allowed_fingerprint = _fingerprint_public_key(allowed_material)
+    allowed_fingerprint = _fingerprint_public_key(allowed_material, ssh_keygen)
     if allowed_fingerprint != expected_fingerprint or allowed_material != public_material:
         raise IntegrityError(
             "allowed_signers key does not match the trusted public signing key "
@@ -883,13 +988,19 @@ def _validate_anchor_bytes(
         )
 
 
-def validate_anchor(public_key: Path, allowed_signers: Path, expected_fingerprint: str) -> None:
+def validate_anchor(
+    public_key: Path,
+    allowed_signers: Path,
+    expected_fingerprint: str,
+    ssh_keygen: Path,
+) -> None:
     """Validate one captured public-key and allowed-signers snapshot."""
 
     _validate_anchor_bytes(
         _read_regular_snapshot(public_key, "public signing key", MAX_ANCHOR_BYTES),
         _read_regular_snapshot(allowed_signers, "allowed_signers", MAX_ANCHOR_BYTES),
         expected_fingerprint,
+        ssh_keygen,
     )
 
 
@@ -897,6 +1008,7 @@ def _verify_signature_bytes(
     manifest_data: bytes,
     signature_data: bytes,
     allowed_signers_data: bytes,
+    ssh_keygen: Path,
 ) -> None:
     """Verify the exact bytes later parsed; never reopen caller-controlled paths."""
 
@@ -912,7 +1024,7 @@ def _verify_signature_bytes(
             os.chmod(signature_snapshot, 0o600)
             process = subprocess.run(
                 [
-                    "ssh-keygen",
+                    str(ssh_keygen),
                     "-Y",
                     "verify",
                     "-f",
@@ -1007,6 +1119,27 @@ def _load_canonical_manifest_bytes(data: bytes) -> dict[str, Any]:
             or not 0 <= record["posixMode"] <= 0o777
         ):
             raise IntegrityError(f"invalid repositoryFiles record: {relative}")
+    for skill_name, skill in manifest["skills"].items():
+        if not isinstance(skill_name, str) or not isinstance(skill, dict):
+            raise IntegrityError("skills must map names to skill records")
+        files = skill.get("files")
+        if not isinstance(files, dict) or not files:
+            raise IntegrityError(f"skill has no signed file map: {skill_name}")
+        for relative, record in files.items():
+            if not isinstance(relative, str) or not isinstance(record, dict):
+                raise IntegrityError(f"invalid skill file record: {skill_name}/{relative}")
+            if set(record) != {"sha256", "size", "posixMode"}:
+                raise IntegrityError(f"skill file record keys differ: {skill_name}/{relative}")
+            if (
+                not isinstance(record["sha256"], str)
+                or SHA256_RE.fullmatch(record["sha256"]) is None
+                or type(record["size"]) is not int
+                or record["size"] < 0
+                or type(record["posixMode"]) is not int
+                or not 0 <= record["posixMode"] <= 0o777
+                or record["posixMode"] & 0o022
+            ):
+                raise IntegrityError(f"invalid or unsafe skill file record: {skill_name}/{relative}")
     if data != canonical_bytes(manifest):
         raise IntegrityError("manifest JSON is not canonical")
     return manifest
@@ -1023,6 +1156,7 @@ def _load_verified_manifest_snapshot(
     public_key: Path,
     allowed_signers: Path,
     expected_fingerprint: str,
+    ssh_keygen: Path,
 ) -> dict[str, Any]:
     """Capture every signed input once, authenticate it, then parse those same bytes."""
 
@@ -1038,8 +1172,12 @@ def _load_verified_manifest_snapshot(
     allowed_signers_data = _read_regular_snapshot(
         allowed_signers, "allowed_signers", MAX_ANCHOR_BYTES
     )
-    _validate_anchor_bytes(public_key_data, allowed_signers_data, expected_fingerprint)
-    _verify_signature_bytes(manifest_data, signature_data, allowed_signers_data)
+    _validate_anchor_bytes(
+        public_key_data, allowed_signers_data, expected_fingerprint, ssh_keygen
+    )
+    _verify_signature_bytes(
+        manifest_data, signature_data, allowed_signers_data, ssh_keygen
+    )
     return _load_canonical_manifest_bytes(manifest_data)
 
 
@@ -1060,6 +1198,8 @@ def verify_repository(
     public_key: Path | None = None,
     allowed_signers: Path | None = None,
     expected_fingerprint: str = EXPECTED_SIGNING_FINGERPRINT,
+    ssh_keygen: Path | str | None = None,
+    ssh_keygen_sha256: str | None = None,
     allow_fixture: bool = False,
     include_verified_manifest: bool = False,
 ) -> dict[str, Any]:
@@ -1078,11 +1218,27 @@ def verify_repository(
     try:
         if expected_fingerprint != EXPECTED_SIGNING_FINGERPRINT and not allow_fixture:
             raise IntegrityError("release verification cannot override the trusted Forge fingerprint")
+        if ssh_keygen is None or ssh_keygen_sha256 is None:
+            if not allow_fixture:
+                raise IntegrityError(
+                    "release verification requires an absolute, digest-pinned ssh-keygen"
+                )
+            fixture_tool = _native_ssh_keygen()
+            ssh_keygen = fixture_tool
+            ssh_keygen_sha256 = sha256_bytes(
+                _read_regular_snapshot(
+                    fixture_tool, "fixture ssh-keygen", MAX_EXECUTABLE_BYTES
+                )
+            )
+        verified_ssh_keygen = _validate_pinned_ssh_keygen(
+            ssh_keygen, ssh_keygen_sha256, repo_root
+        )
         stored = _load_verified_manifest_snapshot(
             manifest_path,
             public_key,
             allowed_signers,
             expected_fingerprint,
+            verified_ssh_keygen,
         )
         if stored.get("profile") != "release" and not allow_fixture:
             raise IntegrityError("fixture manifests cannot authorize installation or execution")
@@ -1287,10 +1443,19 @@ def verify_skill_directory(directory: Path, expected_files: Mapping[str, Any]) -
     """Compare an installed/staged skill directory to its signed file map."""
 
     def capture() -> dict[str, Any]:
-        return {
-            path.relative_to(directory).as_posix(): _file_record(path)
-            for path in _walk_regular_files(directory)
-        }
+        result: dict[str, Any] = {}
+        for path in _walk_regular_files(directory):
+            relative = path.relative_to(directory).as_posix()
+            expected = expected_files.get(relative)
+            windows_mode = (
+                expected.get("posixMode")
+                if os.name == "nt" and isinstance(expected, dict)
+                else None
+            )
+            result[relative] = _skill_file_record(
+                path, windows_posix_mode=windows_mode
+            )
+        return result
 
     try:
         actual = capture()
@@ -1306,8 +1471,16 @@ def verify_skill_directory(directory: Path, expected_files: Mapping[str, Any]) -
             failures.append(f"unexpected file: {relative}")
         elif relative not in actual:
             failures.append(f"missing file: {relative}")
-        elif expected[relative] != actual[relative]:
+        elif not isinstance(expected[relative], dict):
+            failures.append(f"invalid signed file record: {relative}")
+        elif expected[relative].get("sha256") != actual[relative].get("sha256") or expected[relative].get(
+            "size"
+        ) != actual[relative].get("size"):
             failures.append(f"byte drift: {relative}")
+        elif expected[relative].get("posixMode") != actual[relative].get("posixMode"):
+            failures.append(f"POSIX mode drift: {relative}")
+        elif expected[relative] != actual[relative]:
+            failures.append(f"signed file-record drift: {relative}")
     return failures
 
 
@@ -1355,10 +1528,15 @@ def cmd_sign(args: argparse.Namespace) -> int:
     public_key = (args.public_key or repo_root / "keys" / "idc-skills-signing.pub").resolve()
     allowed_signers = (args.allowed_signers or repo_root / "keys" / "allowed_signers").resolve()
     try:
+        ssh_keygen = _validate_pinned_ssh_keygen(
+            args.ssh_keygen, args.ssh_keygen_sha256, repo_root
+        )
         manifest = _load_canonical_manifest(manifest_path)
         if manifest.get("profile") != "release":
             raise IntegrityError("only a release-profile manifest may be signed by this command")
-        validate_anchor(public_key, allowed_signers, EXPECTED_SIGNING_FINGERPRINT)
+        validate_anchor(
+            public_key, allowed_signers, EXPECTED_SIGNING_FINGERPRINT, ssh_keygen
+        )
         signature = Path(str(manifest_path) + ".sig")
         if signature.exists():
             if signature.is_symlink() or not signature.is_file():
@@ -1366,7 +1544,7 @@ def cmd_sign(args: argparse.Namespace) -> int:
             signature.unlink()
         process = subprocess.run(
             [
-                "ssh-keygen",
+                str(ssh_keygen),
                 "-Y",
                 "sign",
                 "-f",
@@ -1387,6 +1565,7 @@ def cmd_sign(args: argparse.Namespace) -> int:
             public_key,
             allowed_signers,
             EXPECTED_SIGNING_FINGERPRINT,
+            ssh_keygen,
         )
     except (IntegrityError, OSError, subprocess.SubprocessError) as exc:
         print(f"SIGN REFUSED — {exc}", file=sys.stderr)
@@ -1420,6 +1599,8 @@ def cmd_verify(args: argparse.Namespace) -> int:
         public_key=args.public_key,
         allowed_signers=args.allowed_signers,
         expected_fingerprint=EXPECTED_SIGNING_FINGERPRINT,
+        ssh_keygen=args.ssh_keygen,
+        ssh_keygen_sha256=args.ssh_keygen_sha256,
         allow_fixture=False,
     )
     if args.json:
@@ -1455,6 +1636,8 @@ def build_parser() -> argparse.ArgumentParser:
     sign.add_argument("--manifest", type=Path, help="canonical manifest path")
     sign.add_argument("--public-key", type=Path, help="agent-served public-key path")
     sign.add_argument("--allowed-signers", type=Path, help="OpenSSH allowed_signers path")
+    sign.add_argument("--ssh-keygen", type=Path, required=True, help="absolute pinned OpenSSH executable")
+    sign.add_argument("--ssh-keygen-sha256", required=True, help="protected executable digest")
     sign.set_defaults(function=cmd_sign)
 
     verify = subparsers.add_parser(
@@ -1463,6 +1646,8 @@ def build_parser() -> argparse.ArgumentParser:
     verify.add_argument("--manifest", type=Path, help="signed manifest path")
     verify.add_argument("--public-key", type=Path, help="trusted public-key path")
     verify.add_argument("--allowed-signers", type=Path, help="OpenSSH allowed_signers path")
+    verify.add_argument("--ssh-keygen", type=Path, required=True, help="absolute pinned OpenSSH executable")
+    verify.add_argument("--ssh-keygen-sha256", required=True, help="protected executable digest")
     verify.add_argument("--json", action="store_true", help="emit the machine-readable report")
     verify.set_defaults(function=cmd_verify)
     return parser

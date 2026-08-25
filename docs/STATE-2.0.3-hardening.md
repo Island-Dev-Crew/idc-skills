@@ -1,5 +1,11 @@
 # STATE — 2.0.3 hardening (durable, survives context compaction)
 
+> Historical construction snapshot, superseded: 2.0.3 was published on
+> 2026-08-22 at commit `26b9285c1fe11a3ef875a34ff30faa0275eddf24` with
+> annotated tag object `bbdbafebde00f411dfa55584f4943c88e5a0393a`. The
+> pending language below describes the pre-promotion moment and is not current
+> release state. Current 2.0.4 work lives in `ops/mission/state.json`.
+
 State, not instructions. This is the final signed-content snapshot for
 the Kimi → Codex → Claude loop.
 

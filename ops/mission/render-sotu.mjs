@@ -37,15 +37,24 @@ try {
 }
 
 // ---------- helpers ----------
-const esc = (s) =>
+const displaySafe = (s) =>
   String(s ?? "")
+    .replace(/[\u0000-\u0008\u000b-\u001f\u007f-\u009f]/g, "")
+    .replace(/\p{Cf}/gu, "");
+
+const esc = (s) =>
+  displaySafe(s)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
     .replace(/"/g, "&quot;");
 
 // Only http(s) URLs become links; anything else renders as text.
-const safeUrl = (u) => (/^https?:\/\//i.test(String(u ?? "")) ? esc(u) : null);
+const safeUrl = (u) => {
+  const raw = String(u ?? "");
+  const safe = displaySafe(raw);
+  return safe === raw && /^https?:\/\//i.test(safe) ? esc(safe) : null;
+};
 
 const warn = (msg) => console.error(`[render-sotu] warning: ${msg}`);
 
@@ -87,8 +96,8 @@ function coldStartChecklist() {
   return [
     `Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.`,
     `Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.`,
-    `Before the 2.0.3/v3 manifest is signed: pick the next unblocked task -> branch ${policies.branchPrefix ?? "mission/"}<phase>-<slug> -> implement -> run gates -> update state.json and journal -> node ops/mission/render-sotu.mjs -> commit the controlled bytes.`,
-    `After a valid 2.0.3/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.`,
+    `Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -> branch ${policies.branchPrefix ?? "mission/"}<phase>-<slug> -> implement -> run gates -> update state.json and journal -> node ops/mission/render-sotu.mjs -> commit the controlled bytes.`,
+    `After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.`,
     `Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.`,
     `End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.`,
   ];
@@ -285,6 +294,8 @@ const html = `<!doctype html>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'">
 <title>${esc(m.name ?? "Mission")} — State of the Union</title>
 <style>
 :root{color-scheme:dark;--bg:#070f1c;--paper:#0d1b2f;--paper-2:#10243b;--ink:#eef6ff;--muted:#a9bdd3;--line:rgba(169,189,211,.18);--accent:#58d7b3;--blue:#77b7ff;--amber:#ffd166;--red:#ff8f8f;--good:#8ef2c0}
@@ -309,7 +320,7 @@ section{padding-top:34px}
 .chip.amber{color:var(--amber);border-color:rgba(255,209,102,.4)}
 .chip.red{color:var(--red);border-color:rgba(255,143,143,.4)}
 .chip.blue{color:var(--blue);border-color:rgba(119,183,255,.4)}
-.panel,.phase{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(16,36,59,.95),rgba(13,27,47,.95));box-shadow:0 18px 46px rgba(0,0,0,.25);padding:20px}
+.panel,.phase{min-width:0;max-width:100%;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(16,36,59,.95),rgba(13,27,47,.95));box-shadow:0 18px 46px rgba(0,0,0,.25);padding:20px}
 .phase{margin-top:14px}
 .phase.active{border-color:rgba(88,215,179,.45)}
 .phase header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:8px}
@@ -327,11 +338,11 @@ th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-ali
 th{background:rgba(255,255,255,.05);color:#fff;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase}
 td{color:var(--muted)}
 td b{color:#fff}
-.table-wrap{overflow-x:auto;border-radius:12px}
+.table-wrap{width:100%;max-width:100%;min-width:0;overflow-x:auto;border-radius:12px}
 .timeline{display:grid;gap:10px}
-.tl-item{display:grid;grid-template-columns:72px 1fr;gap:14px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.035)}
+.tl-item{min-width:0;display:grid;grid-template-columns:72px minmax(0,1fr);gap:14px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.035)}
 .tl-item time{color:var(--accent);font-size:.8rem;font-weight:900}
-.tl-item p{color:var(--muted)}
+.tl-item p{min-width:0;overflow-wrap:anywhere;color:var(--muted)}
 details.resume{margin-top:14px;border:1px dashed rgba(88,215,179,.4);border-radius:12px;padding:10px 14px}
 details.resume summary{cursor:pointer;color:var(--accent);font-weight:800}
 .prompt-box{position:relative;margin-top:10px}
@@ -380,7 +391,7 @@ ${prTimeline()}
 ${journalSection()}
 
   <p class="footer">GENERATED by ops/mission/render-sotu.mjs from state.json and journal.md when present — do not hand-edit.
-  Before v3 signing, update the source state/journal, rerender, and commit all three. After a valid 2.0.3/v3 signature exists, these are frozen signed bytes; use the external release receipt or restart the signing ceremony.</p>
+  Before v3 signing, update the source state/journal, rerender, and commit all three. After a valid 2.0.4/v3 signature exists, these are frozen signed bytes; use the external release receipt or restart the signing ceremony.</p>
 </main>
 <script>
 document.querySelectorAll("button.copy").forEach((b) => {

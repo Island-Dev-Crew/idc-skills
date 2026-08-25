@@ -1,0 +1,13 @@
+guard fail-open lines:
+# contains backticks/parens inside command substitution breaks bash's parser (3.2).
+set -uo pipefail
+
+cmd="$(cat | jq -r '.tool_input.command // .toolInput.command // .command // empty' 2>/dev/null || true)"
+if [ -z "${cmd:-}" ]; then
+  echo "block-dangerous-git: no command found in hook payload (guard OPEN)" >&2
+  exit 0
+fi
+if ! command -v python3 >/dev/null 2>&1; then
+  echo "block-dangerous-git: python3 not found; classifier unavailable (guard OPEN)" >&2
+  exit 0
+fi

@@ -1,15 +1,28 @@
 {
   "controlFiles": [
     "CHANGELOG.md",
+    "executable-dependencies.json",
     "IDC-Skills-2.0.2-Gap-Analysis-and-Integrity-Review-v1-2026-08-19.html",
+    "IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html",
+    "integrity/windows-metadata-policy.json",
     "README.md",
     "docs/report.html",
     "ops/validation/new-records-2.0.2.json",
     "ops/validation/skill-records.json",
+    "ops/mission/sealed-artifacts.json",
     "scripts/render_validation_report.py",
+    "scripts/verify_fleet_parity.py",
+    "scripts/verify_forge_50.py",
+    "scripts/verify_provenance.py",
+    "scripts/verify_public_release.py",
+    "scripts/verify_release_reviews.py",
+    "scripts/verify-sealed-artifacts.mjs",
     "scripts/verify_validation_records.py",
     "THIRD-PARTY-NOTICES.md",
     "provenance.json",
+    "runtime-requirements.json",
+    "scripts/verify_platform_evidence.py",
+    "scripts/verify_runtime_requirements.py",
     "tests/test_validation_records.py"
   ],
   "deniedPatternExceptions": [
@@ -86,14 +99,6 @@
       "skill": "skill-supply-chain-review"
     },
     {
-      "classification": "executable-deny-rule",
-      "kind": "network-package-execution",
-      "path": "scripts/scan-skill.sh",
-      "rationale": "This regex is an input to the supply-chain scanner and flags unpinned package or pipe-shell execution.",
-      "sha256": "sha256:e22600c29cd0bb0c6ea6f55f6132c01e6d9856dcd13cf17349f27ab5a33fdea3",
-      "skill": "skill-supply-chain-review"
-    },
-    {
       "classification": "reviewed-lockfile-install",
       "kind": "network-package-execution",
       "path": "SKILL.md",
@@ -167,14 +172,6 @@
     },
     {
       "allowedSkills": [
-        "wizard"
-      ],
-      "classification": "informational",
-      "rationale": "This is a literal source-code glob for loopback development URLs, not a retrievable address.",
-      "url": "http://localhost/*|http://127.0.0.1/*"
-    },
-    {
-      "allowedSkills": [
         "self-contained-ship"
       ],
       "classification": "informational",
@@ -191,19 +188,83 @@
     },
     {
       "allowedSkills": [
-        "wizard"
-      ],
-      "classification": "informational",
-      "rationale": "This is a literal source-code glob describing an HTTPS allow rule, not a retrievable address.",
-      "url": "https://*"
-    },
-    {
-      "allowedSkills": [
         "research"
       ],
       "classification": "api-endpoint",
       "rationale": "This fixed DeepAPI endpoint transports untrusted research data; credentials, spend, and response validation remain separate controls.",
       "url": "https://deepapi.co/v1/research/deep"
+    },
+    {
+      "allowedSkills": [
+        "archipelago"
+      ],
+      "classification": "informational",
+      "rationale": "This literal scheme prefix is inspected by the vendored runtime probe and is not a retrievable address.",
+      "url": "https://"
+    },
+    {
+      "allowedSkills": [
+        "archipelago"
+      ],
+      "classification": "informational",
+      "rationale": "This is the pinned upstream provenance repository; helpers are vendored and never fetched at invocation.",
+      "url": "https://github.com/Navigata1/archipelago"
+    },
+    {
+      "allowedSkills": [
+        "archipelago"
+      ],
+      "classification": "informational",
+      "rationale": "This reserved example PR URL is fixture data in a signed vendored contract example.",
+      "url": "https://github.com/Navigata1/archipelago/pull/12"
+    },
+    {
+      "allowedSkills": [
+        "archipelago"
+      ],
+      "classification": "informational",
+      "rationale": "This is a JSON Schema identifier in a signed vendored schema, not runtime instruction egress.",
+      "url": "https://islanddevcrew.com/schemas/archipelago/build-instantiation-brief.schema.json"
+    },
+    {
+      "allowedSkills": [
+        "archipelago"
+      ],
+      "classification": "informational",
+      "rationale": "This is a JSON Schema identifier in a signed vendored schema, not runtime instruction egress.",
+      "url": "https://islanddevcrew.com/schemas/archipelago/evidence-bundle.schema.json"
+    },
+    {
+      "allowedSkills": [
+        "archipelago"
+      ],
+      "classification": "informational",
+      "rationale": "This is a JSON Schema identifier in a signed vendored schema, not runtime instruction egress.",
+      "url": "https://islanddevcrew.com/schemas/archipelago/idea.lock.schema.json"
+    },
+    {
+      "allowedSkills": [
+        "archipelago"
+      ],
+      "classification": "informational",
+      "rationale": "This is a JSON Schema identifier in a signed vendored schema, not runtime instruction egress.",
+      "url": "https://islanddevcrew.com/schemas/archipelago/plan.lock.schema.json"
+    },
+    {
+      "allowedSkills": [
+        "archipelago"
+      ],
+      "classification": "informational",
+      "rationale": "This is a JSON Schema identifier in a signed vendored schema, not runtime instruction egress.",
+      "url": "https://islanddevcrew.com/schemas/archipelago/state.extension.schema.json"
+    },
+    {
+      "allowedSkills": [
+        "archipelago"
+      ],
+      "classification": "informational",
+      "rationale": "This is the JSON Schema dialect identifier in signed local schema files; no runtime fetch occurs.",
+      "url": "https://json-schema.org/draft/2020-12/schema"
     },
     {
       "allowedSkills": [

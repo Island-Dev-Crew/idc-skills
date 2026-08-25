@@ -1,0 +1,6 @@
+E9 hook keying / disagreement:
+(a) payload {"skill":"short","tool_input":{"skill":"agent-guardrails"}} => hook verifies ONLY top-level "short", prints "SKILL CONTENT VERIFIED 5/5 - installed skill=short", exit 0. Container order [payload, tool_input, toolInput, input], first match wins; JSON textual order irrelevant (tested reversed order, same result).
+(b) FAIL-OPEN COMBINATION: agent-guardrails installed SKILL.md tampered + conflicting payload (top-level skill=short) => exit 0 VERIFIED(short) while harness keying on tool_input.skill would invoke the TAMPERED agent-guardrails. Control: single-field payload {"tool_input":{"skill":"agent-guardrails"}} => BLOCKED "byte drift: SKILL.md" exit 2.
+(c) unknown/renamed skill "renamed-copy" => BLOCKED exit 2 (name must exist in signed manifest).
+(d) --skill explicit + payload mismatch => BLOCKED (shipped test).
+Reachability: needs a harness whose payload includes a model/attacker-influenced top-level skill|skill_name|name field while invoking per tool_input.skill (or vice versa). Claude Code's Skill payload carries only tool_input.skill; disagreement requires a different/proxy harness shape.

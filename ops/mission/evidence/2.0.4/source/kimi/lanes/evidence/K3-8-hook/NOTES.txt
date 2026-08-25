@@ -1,0 +1,2 @@
+payload {"tool_name":"Skill","tool_input":{"skill":"diagnose"}} with drifted diagnose -> SKILL BLOCKED - installed bytes drifted (exit 2)
+payload {"tool_name":"Skill","name":"research","tool_input":{"skill":"diagnose"}} -> SKILL CONTENT VERIFIED 5/5 - installed skill=research (exit 0) while operative skill diagnose was drifted

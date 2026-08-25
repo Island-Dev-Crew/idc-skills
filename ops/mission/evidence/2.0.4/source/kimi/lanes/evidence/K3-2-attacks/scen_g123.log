@@ -1,0 +1,25 @@
+[PASS] obj0-baseline/valid 2.0.3 release verify: accepted, report={'schema': 'idc-skills-freshness-report/v1', 'pass': True, 'readyToRun': True, 'contentReady': True, 'freshnessVerified': True, 'score': '5/5+freshness', 'release': '2.0.3', 'manifestSequence': 1, 'in
+[PASS] obj1-replay/1a older-but-signed 2.0.2 as pinned current index, no checkpoint: accepted, report={'schema': 'idc-skills-freshness-report/v1', 'pass': True, 'readyToRun': True, 'contentReady': True, 'freshnessVerified': True, 'score': '5/5+freshness', 'release': '2.0.2', 'manifestSequence': 1, 'in
+[BY-DESIGN] obj1-replay/1a-note: launcher accepts older signed content when the external index (operator-pinned bootstrap digest) authorizes it; index is the authority
+[HELD] obj1-replay/1b replay older index+repo against seq2 checkpoint: rejected as expected: release index replayed a lower indexSequence
+[HELD] obj1-replay/1c index with descending manifestSequence order: rejected as expected: release entries must have strictly increasing unique sequences
+[HELD] obj1-replay/1d repo at older entry while newest is newer: rejected as expected: repository release tuple does not equal the newest signed index entry
+[PASS] obj1-replay/1e checkpoint deleted, index==pinned bootstrap digest: accepted, report={'schema': 'idc-skills-freshness-report/v1', 'pass': True, 'readyToRun': True, 'contentReady': True, 'freshnessVerified': True, 'score': '5/5+freshness', 'release': '2.0.3', 'manifestSequence': 1, 'in
+[UNEXPECTED-REJECT] obj1-replay/1f checkpoint deleted, index != pinned bootstrap digest: wrong error: repository release tuple does not equal the newest signed index entry
+[HELD] obj2-sequence/2a index manifestSequence below repo manifest: rejected as expected: repository release tuple does not equal the newest signed index entry
+[HELD] obj2-sequence/2b indexSequence=0: rejected as expected: indexSequence must be an integer between 1 and 9007199254740991
+[HELD] obj2-sequence/2b2 index below configured floor: rejected as expected: release index is below the configured index floor
+[PASS] obj2-sequence/2c0 advance to index seq2 [A,B]: accepted, report={'schema': 'idc-skills-freshness-report/v1', 'pass': True, 'readyToRun': True, 'contentReady': True, 'freshnessVerified': True, 'score': '5/5+freshness', 'release': '2.0.4', 'manifestSequence': 2, 'in
+[HELD] obj2-sequence/2c1 removed prior release from index history: rejected as expected: release index rewrote or removed accepted history
+[HELD] obj2-sequence/2d entry reorder: rejected as expected: release entries must have strictly increasing unique sequences
+[HELD] obj2-sequence/2e1 duplicate manifestSequence: rejected as expected: release entries must have strictly increasing unique sequences
+[HELD] obj2-sequence/2e2 duplicate release name: rejected as expected: release entries must have unique release names
+[HELD] obj3-checkpoint/3a same-sequence different-digest equivocation: rejected as expected: release index equivocation at the same indexSequence
+[PASS] obj3-checkpoint/3b1 rolled-back checkpoint + newer index re-accepted: accepted, report={'schema': 'idc-skills-freshness-report/v1', 'pass': True, 'readyToRun': True, 'contentReady': True, 'freshnessVerified': True, 'score': '5/5+freshness', 'release': '2.0.3', 'manifestSequence': 1, 'in
+[BY-DESIGN] obj3-checkpoint/3b1-note: restoring an older checkpoint only re-accepts already-signed newer indexes; it cannot authorize anything older
+[HELD] obj3-checkpoint/3b2 rolled-back checkpoint + same-seq new digest: rejected as expected: release index equivocation at the same indexSequence
+[HELD] obj3-checkpoint/3c forward-rolled checkpoint blocks current index: rejected as expected: release index replayed a lower indexSequence
+[AVAILABILITY-ONLY] obj3-checkpoint/3c-note: crafting a forward checkpoint requires write access to the protected state dir; effect is denial of service, not rollback
+[HELD] obj3-checkpoint/3d1 checkpoint is a symlink: rejected as expected: refusing symlinked freshness checkpoint: /tmp/k32-fix-k36cjazk/f/runtime/state/checkpoint.json
+[HELD] obj3-checkpoint/3d2 checkpoint is hard-linked: rejected as expected: freshness checkpoint must not be hard-linked: /tmp/k32-fix-k36cjazk/f/runtime/state/checkpoint.json
+[HELD] obj3-checkpoint/3d3 checkpoint dangling symlink: rejected as expected: checkpoint may not be a dangling symlink

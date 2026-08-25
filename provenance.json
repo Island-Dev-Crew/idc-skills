@@ -52,11 +52,36 @@
       "skill_count": 7,
       "license": "MIT (confirmed from the live upstream repository on 2026-08-19)",
       "notice_status": "MIT notice preserved in THIRD-PARTY-NOTICES.md"
+    },
+    {
+      "id": "archipelago-protocol",
+      "author": "Island Development Crew",
+      "repo": "Navigata1/archipelago",
+      "repo_url": "https://github.com/Navigata1/archipelago",
+      "commit": "b9f7cee2823f9791503db20f33b22c9e20af7abe",
+      "commit_verification": "Fresh detached checkout at the exact commit on 2026-08-22; vendored file-level upstream and result hashes are recorded in skills/archipelago/protocol/UPSTREAM.json.",
+      "archive_local": null,
+      "archive_sha256": null,
+      "archive_sha256_verification": "not applicable - signed vendored files bind the exact Git commit and reviewed local modifications",
+      "skill_count": 1,
+      "license": "MIT",
+      "notice_status": "MIT notice and vendored LICENSE preserved",
+      "local_modifications": "Dependency-free contract validation, exact phase-gate parsing, unique evidence files, explicit loopback resolution, and fail-closed phase/status behavior."
     }
   ],
   "transformation": "Sources were vendored, stripped of vendor-specific identifiers, and welded to the IDC evidence discipline. The current per-island validation records preserve each case score, confidence value, standout strength, and residual rather than asserting one universal confidence floor. Per-island lineage is recorded in skills/registry.json under each entry's `provenance` field.",
   "fusion_report": "IDC-SKILLS-FUSION-REPORT-v1 (two local HTML copies are byte-identical: ~/Downloads/IDC-SKILLS-FUSION-REPORT-v1.html and v1_1.html)",
   "lineage_mapping": "skills/registry.json skills[].provenance records the per-island source or IDC origin.",
+  "executable_dependencies": "executable-dependencies.json records every required or conditional tool family, its pin/evidence mechanism, and the no-network-install invocation policy.",
+  "shipped_test_material": [
+    {
+      "path": "skills/self-contained-ship/scripts/test-scan-egress.sh",
+      "lines": 2199,
+      "cases": 619,
+      "sha256": "ce569d0633b50a7054da5ed9c8beb5153ebf9e1ae07b12c8922242b8614dd3c3",
+      "status": "signed executable test material; not production runtime and not a completeness proof"
+    }
+  ],
   "remaining_to_full_lock": [
     "Recover the exact historical ICM source commit or fusion-time archive. The live 2026-08-19 head and MIT license are recorded, but they are not substituted for the missing historical anchor."
   ]

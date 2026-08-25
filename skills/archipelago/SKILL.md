@@ -5,7 +5,7 @@ description: Jon's full-cycle, evidence-gated build protocol — typed contracts
 
 # Archipelago: the evidence-gated build protocol
 
-The signed local island is the operating covenant. Upstream provenance is **`Navigata1/archipelago`**, reviewed at `b9f7cee2823f9791503db20f33b22c9e20af7abe` on 2026-08-19. Runnable scripts and JSON schemas must be vendored under a reviewed `protocol/` folder or obtained at an explicitly reviewed immutable commit; never fetch or execute a mutable upstream head at runtime. Apply the methodology when invoked: run the locally reviewed procedure, don't narrate it back.
+The signed local island is the operating covenant. Upstream provenance is **`Navigata1/archipelago`** at `b9f7cee2823f9791503db20f33b22c9e20af7abe`. The runnable scripts, schemas, examples, license, source hashes, and reviewed local hardening are vendored under `protocol/`; never fetch or execute upstream at runtime. `protocol/UPSTREAM.json` binds every unchanged or modified helper to its upstream and result digest. Apply the methodology when invoked: run the locally reviewed procedure, don't narrate it back.
 
 > **The one rule that governs everything: nothing crosses a gate on claims alone.**
 
@@ -39,34 +39,32 @@ You cannot talk your way to a 5; you can only evidence your way there. Mark unve
 
 ## Operating procedure
 
-Run everything **from the target repo root** (the scripts hardcode `ops/mission/*` relative to the working directory). Protocol gates `G0–G6` are conceptual (loopback routing, artifact typing); phase-gate ids like `P0-G1` are the **runnable commands** in `plan.lock`/`state.json`: same letter `G`, different namespaces, the single most error-prone point when driving this. `loop.py fail` does not auto-resolve a phase-gate id to its conceptual G-family, so `--route` is **required**, not optional: omit it and the failure silently routes to S2 regardless of what it actually falsifies.
+Run everything **from the target repo root**; resolve `<archipelago-skill-dir>` to the directory containing this `SKILL.md`. The vendored scripts intentionally read and write `ops/mission/*` relative to the current working directory. Protocol gates `G0–G6` are conceptual (loopback routing, artifact typing); phase-gate ids like `P0-G1` are runnable commands in `plan.lock`/`state.json`. The hardened loop resolves the exact phase-gate to its embedded G-family, resets a manually failed gate, records the exact id, and blocks phase close until a later passing run resolves its loopback.
 
 ```sh
-python3 scripts/validate_contracts.py ops/mission/idea.lock.json   # S0: validate the idea lock (reads argv[1] only — one lock per call, see Honest boundaries)
-python3 scripts/validate_contracts.py ops/mission/plan.lock.json   # S1: validate the plan lock in a SEPARATE invocation
-python3 scripts/kickoff.py --idea ops/mission/idea.lock.json \
+python3 <archipelago-skill-dir>/protocol/scripts/validate_contracts.py ops/mission/idea.lock.json ops/mission/plan.lock.json
+python3 <archipelago-skill-dir>/protocol/scripts/kickoff.py --idea ops/mission/idea.lock.json \
     --plan ops/mission/plan.lock.json --repo <org>/<repo> --out ops/mission/state.json
-python3 scripts/loop.py status                                         # where am I, is the chain intact
-python3 scripts/loop.py run-gates P0                                   # run every pending gate in a phase
-python3 scripts/loop.py fail P1-G1 --reason "…" --route S1             # honest failure + loopback (route required)
-python3 scripts/loop.py verify-ledger                                  # CI-safe tamper gate — exits non-zero on a broken chain
-python3 scripts/loop.py close-phase P0                                 # only when all gates passed AND fresh
-python3 scripts/run_runtime_probes.py                                  # S6: capture the runtime evidence UI/behavior claims are scored against
-python3 scripts/dogfood_lanes.py                                       # S6: run the band-cap scorer — recomputes any hand-authored band-5 claim down to its evidenced band
+python3 <archipelago-skill-dir>/protocol/scripts/loop.py status
+python3 <archipelago-skill-dir>/protocol/scripts/loop.py run-gates P0
+python3 <archipelago-skill-dir>/protocol/scripts/loop.py fail P1-G1 --reason "…" --route S1
+python3 <archipelago-skill-dir>/protocol/scripts/loop.py verify-ledger
+python3 <archipelago-skill-dir>/protocol/scripts/loop.py close-phase P0
+python3 <archipelago-skill-dir>/protocol/scripts/run_runtime_probes.py
+python3 <archipelago-skill-dir>/protocol/scripts/dogfood_lanes.py
 ```
 
-Kickoff *consumes* the locks. It refuses a plan that doesn't govern this idea, a blocked verdict, or overwriting an existing mission, because **the repo is the memory**: a cold agent session with zero context can resume from the tree alone.
+Kickoff *consumes* the locks. It validates both contracts, captures their stable repository bytes, and records their SHA-256 digests. Gate ids use the path-safe form `P<1-6 ASCII digits>-G<0-6>`. Every later loop action rejects lock drift, an unsafe gate id, or any gate id, title, or command that differs from the approved `plan.lock`. It also refuses a plan that doesn't govern this idea, a blocked verdict, a symlink/out-of-repository lock, or overwriting an existing mission, because **the repo is the memory**: a cold agent session with zero context can resume from the tree alone.
 
 ## Honest boundaries
 
 - The ledger is tamper-evident local JSONL, not a hosted notary, and only entries *after* a given one prove it wasn't tampered with. The tip entry has nothing chained over it yet. For a gate-crossing tip (which carries an `evidenceSha256`), re-derive it from that raw gate evidence before trusting it at a phase-close or ship decision. For an event type with **no** evidence field (a phase-close or route event), re-derivation is undefined: distrust the unresumed tip outright and resume/append a subsequent entry to chain over it before relying on it.
-- `loop.py status` signals a tampered/broken chain **only in stdout text** (`ledger: tampered entry N`); it still exits 0, so its exit code is not a CI-safe tamper gate; grep the output, don't trust the code. For an exit-code-bearing gate, use `loop.py verify-ledger` instead: it exits non-zero on a tampered entry and is the CI-safe check.
+- `loop.py status` and `loop.py verify-ledger` both exit nonzero on a broken ledger. Use `verify-ledger` in CI because its output surface is narrow and purpose-built.
 - Runtime evidence proves the app worked *in that run, on that machine*, and no more.
-- Every script *should* degrade honestly and **record the degradation as a finding** rather than skip silently, but one known gap violates this: `validate_contracts.py` resolves its schema/example siblings relative to its own location, so a bare invocation can **PASS on the co-located bundled example fixtures while never touching `ops/mission/*.lock.json`**, a green with a non-zero file count that says nothing about your mission. Always invoke with explicit lock paths and confirm the validated file list is the mission locks (not bundled fixtures) before trusting the S0/S1 green.
-- `validate_contracts.py` reads only its **first** path argument (`argv[1]`); any further paths are silently dropped. The old one-line form passing both locks validated the idea lock and **never opened the plan lock** while still exiting green. Validate one lock per invocation (run it once for `idea.lock.json`, then again for `plan.lock.json`) and confirm each run names the lock you meant; a single call cannot cover both.
-- `loop.py fail` stamps the wrong provenance: it hard-codes the ledger's `fromGate` to `G2` for any id not starting with a capital `G`, and every phase-gate id is `P#-G#`, so `fromGate` reads `G2` no matter which gate failed, even with `--route` correct. Read the failing gate from the `--reason`/route you supplied, not from the ledger's `fromGate`, until the script parses the id.
-- Evidence files are named by gate-id + date only (no run counter), so a fix-and-rerun cycle **overwrites the prior run's evidence** and the ledger's `evidenceSha256` for a superseded run then matches nothing on disk. The tip re-derivation above only works for a gate's *latest* run; raw evidence for earlier runs is not retained under current naming.
-- `close-phase` does **not** block on an open loopback: `loop.py fail` only appends a ledger loopback and moves the loop stage; it never resets the named gate's `status`, so a previously-passed gate stays `passed` and `close-phase` closes the phase (gates 2/2, exit 0) with a recorded loopback still naming one of its gates as falsified. A recorded loopback is not an enforced block; resolve it (re-run the gate to fresh evidence) before closing, don't rely on close-phase to catch it.
+- Bare `validate_contracts.py` validates only the bundled examples. Mission gates must pass the explicit idea/plan paths and confirm both filenames appear. The dependency-free local validator covers the schema keywords used by the vendored contracts; it does not claim general JSON Schema 2020-12 conformance.
+- Gate evidence uses a unique nanosecond filename, so reruns retain prior raw output instead of overwriting it. Before command launch, the loop exclusively creates and fsyncs that file and appends a fsynced `gate-start` ledger entry. It concurrently drains stdout/stderr into a 1 MiB evidence-output cap, recording any truncation, and enforces a 300-second ceiling with process-group termination; `IDC_ARCHIPELAGO_GATE_TIMEOUT_SECONDS` may lower but never raise that ceiling. A timeout is a failed gate. The ledger is still local and tamper-evident rather than a hosted notary.
+- Gate commands are intentionally executable authority. `plan.lock.hitl` must represent the human approval for those exact hash-bound command strings; never kickoff a plan received from an untrusted source. If a repository carries `ops/mission/render-sotu.mjs`, rendering additionally requires `IDC_ARCHIPELAGO_NODE` to be an absolute executable and `IDC_ARCHIPELAGO_NODE_SHA256` to match its bytes; the loop does not discover Node from `PATH`.
+- `loop.py fail --route` accepts only declared stages `S0` through `S7` and refuses a target later than the mission's current stage. A failure can keep work at the current stage or return to an earlier one; it cannot advance the mission.
 - Gate falsifiability (that a gate command can actually fail) is an author responsibility: the tooling validates schema shape, not whether a gate is decorative. Catch no-op gates (`exit 0` and the like) in G-review.
 
 ## Where this sits in the archipelago

@@ -24,12 +24,29 @@ jobs:
       matrix:
         os:
           - ubuntu-latest
-          - windows-latest
           - macos-latest
+          # Windows/NTFS remains an explicitly deferred full-assurance seat
+          # for 2.0.4; do not convert an unverified platform into a green
+          # scoped-release claim.
 
     steps:
       - name: Check out the exact candidate
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          # Pull-request defaults check out a synthetic merge ref. The signed
+          # manifest and review receipts bind the immutable head instead, while
+          # the evidence contract also needs the historical 2.0.3 commit.
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+
+      - name: Prove the checkout is the immutable candidate
+        shell: bash
+        env:
+          EXPECTED_HEAD: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          test -z "$(git status --porcelain)"
 
       - name: Set up Python
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
@@ -54,6 +71,10 @@ jobs:
       # This repository-owned workflow is intentionally content-only. A
       # whole-tree readiness check must be required from outside candidate
       # code (pinned org workflow/action/runner policy).
+      - name: Pin the OpenSSH verifier used by content reacceptance
+        shell: bash
+        run: python -B scripts/ci_tool_pins.py
+
       - name: Content-reaccept all fifty skills and installer profiles
         env:
           IDC_SKILLS_FRESHNESS_HANDOFF: sha256:0000000000000000000000000000000000000000000000000000000000000000
@@ -77,6 +98,7 @@ jobs:
             scripts/setup-signing-wizard.sh \
             scripts/test-skill-integrity.sh \
             skills/agent-guardrails/scripts/block-dangerous-git.sh \
+            skills/agent-guardrails/scripts/block-dangerous-git-strict.sh \
             skills/agent-guardrails/scripts/test-block-dangerous-git.sh \
             skills/self-contained-ship/scripts/scan-egress.sh \
             skills/self-contained-ship/scripts/test-scan-egress.sh \
@@ -89,6 +111,7 @@ jobs:
             scripts/setup-signing-wizard.sh \
             scripts/test-skill-integrity.sh \
             skills/agent-guardrails/scripts/block-dangerous-git.sh \
+            skills/agent-guardrails/scripts/block-dangerous-git-strict.sh \
             skills/agent-guardrails/scripts/test-block-dangerous-git.sh \
             skills/self-contained-ship/scripts/scan-egress.sh \
             skills/self-contained-ship/scripts/test-scan-egress.sh \

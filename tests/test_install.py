@@ -264,6 +264,53 @@ class InstallerTests(unittest.TestCase):
             rerun = run_unsigned_fixture_install(root / "skills", [spec])
             self.assertEqual(rerun.targets[0].skills[0].status, "unchanged")
 
+    def test_cleanup_failure_after_verified_swap_does_not_relabel_success_or_leak_stage(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = write_skill(root, "alpha", MODEL_SKILL)
+            target = root / "target"
+            spec = install.TargetSpec("custom", target)
+            first = run_unsigned_fixture_install(root / "skills", [spec])
+            self.assertTrue(first.success)
+            source.joinpath("SKILL.md").write_bytes(MODEL_SKILL + b"\nupdated\n")
+
+            original_remove = install._remove_path
+
+            def fail_backup_cleanup(path: Path) -> None:
+                if path.name == "backup" or ".backup-" in path.name:
+                    raise OSError("injected backup cleanup failure")
+                original_remove(path)
+
+            with mock.patch.object(
+                install, "_remove_path", side_effect=fail_backup_cleanup
+            ):
+                report = run_unsigned_fixture_install(root / "skills", [spec])
+
+            self.assertTrue(report.success, report.errors)
+            self.assertEqual(report.targets[0].status, "ok")
+            self.assertEqual(report.targets[0].skills[0].status, "updated")
+            self.assertEqual(
+                (target / "alpha/SKILL.md").read_bytes(), MODEL_SKILL + b"\nupdated\n"
+            )
+            self.assertEqual(list(target.glob(".alpha.install-*")), [])
+
+    @unittest.skipIf(os.name == "nt", "POSIX directory permissions are required")
+    def test_readonly_old_destination_cleanup_leaves_no_backup_or_stage(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            source = write_skill(root, "alpha", MODEL_SKILL)
+            target = root / "target"
+            spec = install.TargetSpec("custom", target)
+            self.assertTrue(run_unsigned_fixture_install(root / "skills", [spec]).success)
+            (target / "alpha").chmod(0o555)
+            source.joinpath("SKILL.md").write_bytes(MODEL_SKILL + b"\nupdated\n")
+
+            report = run_unsigned_fixture_install(root / "skills", [spec])
+
+            self.assertTrue(report.success, report.errors)
+            self.assertEqual(list(target.glob(".alpha.install-*")), [])
+            self.assertEqual(list(target.glob(".alpha.backup-*")), [])
+
     def test_dry_run_creates_nothing(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
@@ -391,6 +438,110 @@ class InstallerTests(unittest.TestCase):
             repaired = run_unsigned_fixture_install(root / "skills", [spec])
             self.assertTrue(repaired.success)
             self.assertEqual(stat.S_IMODE(installed.stat().st_mode), 0o755)
+
+    @unittest.skipIf(
+        os.name == "nt", "the installed guard entrypoint is a POSIX shell script"
+    )
+    def test_installed_agent_guardrails_has_durable_strict_git_entrypoint(self) -> None:
+        repository = Path(__file__).resolve().parents[1]
+        with tempfile.TemporaryDirectory() as temporary:
+            target = Path(temporary) / "target"
+            spec = install.TargetSpec("custom", target)
+            source = repository / "skills" / "agent-guardrails"
+            signed_files = {
+                path.relative_to(source).as_posix(): (
+                    install.skill_integrity._skill_file_record(path)
+                )
+                for path in install.skill_integrity._walk_regular_files(source)
+            }
+
+            def verified_report(*_args: object, **_kwargs: object) -> dict[str, object]:
+                return {
+                    "contentReady": True,
+                    "profile": "release",
+                    "score": "5/5",
+                    "_verifiedManifest": {
+                        "skills": {"agent-guardrails": {"files": signed_files}}
+                    },
+                }
+
+            with mock.patch.object(
+                install.skill_integrity, "verify_repository", side_effect=verified_report
+            ):
+                report = install.run_install(
+                    repository / "skills",
+                    [spec],
+                    ["agent-guardrails"],
+                    repo_root=repository,
+                )
+            self.assertTrue(report.success, report.errors)
+            installed_scripts = target / "agent-guardrails" / "scripts"
+            advisory = installed_scripts / "block-dangerous-git.sh"
+            strict = installed_scripts / "block-dangerous-git-strict.sh"
+            self.assertTrue(strict.is_file(), "installed strict guard entrypoint is missing")
+
+            environment = os.environ.copy()
+            environment.pop("IDC_GUARD_STRICT", None)
+            dynamic_payload = b'{"tool_input":{"command":"C=git; $C push"}}\n'
+            advisory_result = subprocess.run(
+                [str(advisory)],
+                input=dynamic_payload,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=environment,
+                check=False,
+            )
+            strict_result = subprocess.run(
+                [str(strict)],
+                input=dynamic_payload,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=environment,
+                check=False,
+            )
+            safe_result = subprocess.run(
+                [str(strict)],
+                input=b'{"tool_input":{"command":"git status"}}\n',
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=environment,
+                check=False,
+            )
+
+            self.assertEqual(advisory_result.returncode, 0, advisory_result.stderr)
+            self.assertEqual(strict_result.returncode, 2, strict_result.stderr)
+            self.assertIn(b"variable command dispatch", strict_result.stderr)
+            self.assertEqual(safe_result.returncode, 0, safe_result.stderr)
+
+            with mock.patch.object(
+                install.skill_integrity, "verify_repository", side_effect=verified_report
+            ):
+                verify = install.run_install(
+                    repository / "skills",
+                    [spec],
+                    ["agent-guardrails"],
+                    verify_only=True,
+                    repo_root=repository,
+                )
+            self.assertTrue(verify.success, verify.errors)
+            self.assertEqual(verify.targets[0].skills[0].status, "verified")
+
+            advisory.rename(installed_scripts / "block-dangerous-git.sh.missing")
+            unavailable_result = subprocess.run(
+                [str(strict)],
+                input=b'{"tool_input":{"command":"git status"}}\n',
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                env=environment,
+                check=False,
+            )
+            self.assertEqual(
+                unavailable_result.returncode, 2, unavailable_result.stderr
+            )
+            self.assertIn(
+                b"strict entrypoint cannot execute classifier",
+                unavailable_result.stderr,
+            )
 
     def test_manifest_digest_includes_posix_mode_when_present(self) -> None:
         regular = install.ManifestEntry("scripts/run.sh", 1, "a", posix_mode=0o644)
@@ -603,7 +754,7 @@ from scripts import install
 fixture_root = Path(sys.argv[1])
 source = fixture_root / "skills" / "alpha"
 files = {
-    path.relative_to(source).as_posix(): install.skill_integrity._file_record(path)
+    path.relative_to(source).as_posix(): install.skill_integrity._skill_file_record(path)
     for path in install.skill_integrity._walk_regular_files(source)
 }
 verified = {

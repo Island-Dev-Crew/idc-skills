@@ -1,0 +1,13 @@
+== K3-8 Phase-2 replay: K3-5-C1 ==
+fixture.html (data: first):
+<!doctype html><html><body>
+<img srcset="data:image/gif;base64,R0lGODlhAQABAAAAACw= 1x, //127.0.0.1:8971/k38-srcset-leak.png 2x">
+</body></html>
+scanner rc=0 (0=PASS/green)
+control.html (no data: first):
+scanner rc=1 (1=FAIL)
+fixture2.html (blob: first + ping data: first):
+scanner rc=0
+
+runtime hit (Chromium --force-device-scale-factor=2, loopback only):
+127.0.0.1 - - [22/Aug/2026 13:42:24] "GET /k38-srcset-leak.png HTTP/1.1" 404 -

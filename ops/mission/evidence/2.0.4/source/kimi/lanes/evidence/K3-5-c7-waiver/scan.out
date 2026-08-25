@@ -1,0 +1,15 @@
+WAIVED /tmp/K3-5/t/c11/u2.ts:3:/re/.test(s); // egress-ok
+--- scan-egress: 0 un-waived, 1 waived, 0 non-fetching URI(s), 1 text file(s), 0 symlink(s), 0 special, 0 unreadable, 0 binary fail(s), 0 binary waived ---
+scan-egress: PASS — every file scanned clean or explicitly waived
+rc=0
+WAIVED /tmp/K3-5/t/c6b/w.html:1:<img src="//127.0.0.1:8971/w1.png"> # egress-ok
+WAIVED /tmp/K3-5/t/c6b/w.html:2:<img src="//127.0.0.1:8971/w3.png"> <script>fetch("//127.0.0.1:8971/w4")</script> // egress-ok
+WAIVED /tmp/K3-5/t/c6b/w.html:2:<img src="//127.0.0.1:8971/w3.png"> <script>fetch("//127.0.0.1:8971/w4")</script> // egress-ok
+WAIVED /tmp/K3-5/t/c6b/w.html:3:<img src="//127.0.0.1:8971/w6.png"> /* egress-ok */
+--- scan-egress: 0 un-waived, 4 waived, 0 non-fetching URI(s), 1 text file(s), 0 symlink(s), 0 special, 0 unreadable, 0 binary fail(s), 0 binary waived ---
+scan-egress: PASS — every file scanned clean or explicitly waived
+rc=0
+WAIVED /tmp/K3-5/t/c10/w.js:1:const u = "https://127.0.0.1:8971/w8-instr // egress-ok
+--- scan-egress: 0 un-waived, 1 waived, 0 non-fetching URI(s), 1 text file(s), 0 symlink(s), 0 special, 0 unreadable, 0 binary fail(s), 0 binary waived ---
+scan-egress: PASS — every file scanned clean or explicitly waived
+rc=0

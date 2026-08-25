@@ -1,0 +1,8 @@
+E3 staged-closure vs live-mutable consumer (full launcher stack):
+1) verify: READY readyToRun=true 5/5+freshness release=2.0.3 commit=26b9285... indexSHA256=sha256:3819c3...
+2) launcher install -- --custom-target lane=/tmp/K3-3/e3-target --skill short => installed, source==destination sha256 27a7af1a...
+3) appended 24 bytes to live repo scripts/install.py, reran launcher install =>
+   "NOT READY - signed repository file drifted: scripts/install.py"; NO target2 written. Restored via git checkout; tree clean.
+4) launcher hook -- --installed-skills /tmp/K3-3/e3-target --skill short => "SKILL CONTENT VERIFIED 5/5" exit 0.
+5) launcher install -- --repo-root /evil ... => "NOT READY - consumer arguments may not override the verified repository root"; no writes.
+Conclusion: consumer executes the STAGED signed closure (temp dir, python -I -B, scrubbed env, cwd=staged); live-tree swap post-install/pre-run is detected by git-tree+manifest binding before any consumer execution. HELD.

@@ -56,6 +56,16 @@ check_inherited_parameters_bound() { # <expected-exit> <entry-count> <label>
   else fail=$((fail+1)); printf '  FAIL  want=%s got=%s :: %s\n' "$want" "$got" "$label"; fi
 }
 
+check_strict() { # <expected-exit> <command-string> <label>
+  local want="$1" cmd="$2" label="$3" got
+  printf '{"tool_input":{"command":%s}}' "$(printf '%s' "$cmd" | jq -R -s .)" \
+    | env -i PATH="$PATH" HOME="${HOME:-/tmp}" TMPDIR="${TMPDIR:-/tmp}" \
+      IDC_GUARD_STRICT=1 bash "$GUARD" >/dev/null 2>&1
+  got=$?
+  if [ "$got" = "$want" ]; then pass=$((pass+1)); printf '  ok    [%s] %s\n' "$got" "$label"
+  else fail=$((fail+1)); printf '  FAIL  want=%s got=%s :: %s\n' "$want" "$got" "$label"; fi
+}
+
 CANARY_DIR="$(mktemp -d)"
 trap 'rm -rf "$CANARY_DIR"' EXIT
 
@@ -558,6 +568,189 @@ check_inherited 0 "env -ivS 'git status'" 'bundled env -ivS retains ignore-envir
 check_inherited 2 "env -iS 'GIT_CONFIG_PARAMETERS=\"'alias.p'='push'\" git p'" \
   'bundled env -iS clears then installs visible dangerous PARAMETERS' \
   "GIT_CONFIG_PARAMETERS='alias.p'='status'"
+
+echo "== must BLOCK (exit 2) — 2.0.4 G2 red-team grammar regressions =="
+# K3-203-002: redirections are valid throughout a simple command, including when glued to the
+# decisive subcommand/option/pathspec. Every equivalent destructive form must classify alike.
+check 2 'git push>/dev/null'                         'attached output redirect after push'
+check 2 'git push</dev/null origin main'             'attached input redirect after push'
+check 2 'git</dev/null push origin main'             'attached redirect after git word'
+check 2 'git reset --hard>/dev/null'                  'attached redirect after reset option'
+check 2 'git restore .>/dev/null'                     'attached redirect after whole-tree pathspec'
+check 2 'git checkout .>discard.log'                  'attached redirect after checkout pathspec'
+check 2 'git clean --force>/dev/null -d'              'attached redirect after clean force option'
+check 2 'git switch --discard-changes>/dev/null main' 'attached redirect after switch option'
+check 2 'git branch --force>/dev/null topic'          'attached redirect after branch option'
+check 2 'git push>>/dev/null'                         'attached append redirect after push'
+
+# K3-203-003: Git appends call-site arguments to a bang-alias shell body. Classify the body and
+# those arguments together instead of blessing the body in isolation.
+check 2 "git -c alias.p='!git' p push"               'bang alias bare git plus push argument'
+check 2 "git -c alias.p='!git' p reset --hard"       'bang alias bare git plus reset arguments'
+check 2 "git -c alias.p='!git' p clean -fd"          'bang alias bare git plus clean arguments'
+check 0 "git -c alias.p='!git' p status"             'bang alias bare git plus safe status argument'
+
+# K3-203-015/016/017: non-alias config can remove clean's force floor; plumbing can rewrite refs;
+# static Bash brace expansion is outside the declared POSIX grammar and therefore blocks.
+check 2 'git -c clean.requireForce=false clean -d'    'clean requireForce=false deletes untracked files'
+check 2 'git update-ref refs/heads/topic HEAD~1'       'update-ref force moves a branch ref'
+check 2 'git update-ref -d refs/heads/topic'           'update-ref deletes a branch ref'
+check 2 'git tag -f release HEAD~1'                    'tag -f clobbers a tag ref'
+check 2 'git {push,}'                                  'Bash brace expansion is fail-closed'
+
+# Strict release mode turns every explicitly unsupported dynamic grammar into a block while the
+# ordinary advisory mode retains its documented compatibility behavior.
+# shellcheck disable=SC2016 # literal attack strings; the test must not execute them
+check_strict 2 'C=git; $C push'                        'strict mode blocks variable dispatch'
+# shellcheck disable=SC2016 # literal attack strings; the test must not execute them
+check_strict 2 'git $(printf pu)sh'                    'strict mode blocks command assembly'
+check_strict 2 'eval "git push"'                      'strict mode blocks eval'
+check_strict 2 'sh -c "git push"'                     'strict mode blocks nested shell command'
+check_strict 2 'f(){ git push; }; f'                   'strict mode blocks function definitions'
+check_strict 0 'git status'                            'strict mode retains proved safe Git command'
+
+echo "== must BLOCK/ALLOW — 2.0.4 K3-204 guard regressions =="
+# GUARD-C1: Git executes several runtime config values as commands. Exercise every config transport
+# the classifier claims to model, plus Git's direct editor environment, without treating unrelated
+# config or an inherited editor on a non-editor command as dangerous.
+check 2 "git -c core.editor='git push origin main #' commit --allow-empty" \
+  'inline exec-valued core.editor config blocks'
+check 2 "git -ccore.editor='git push origin main #' commit --allow-empty" \
+  'glued inline exec-valued config blocks'
+check 2 "ED='git push origin main #' git --config-env=sequence.editor=ED rebase -i HEAD~1" \
+  'config-env exec-valued sequence.editor blocks'
+check 2 "GIT_CONFIG_PARAMETERS=\"'core.editor'='git push origin main #'\" git commit --allow-empty" \
+  'command PARAMETERS exec-valued config blocks'
+check 2 "GIT_CONFIG_COUNT=1 GIT_CONFIG_KEY_0=core.editor GIT_CONFIG_VALUE_0='git push origin main #' git commit --allow-empty" \
+  'command COUNT exec-valued config blocks'
+check_inherited 2 'git commit --allow-empty' \
+  'inherited PARAMETERS exec-valued config blocks' \
+  "GIT_CONFIG_PARAMETERS='core.editor'='git push origin main #'"
+check_inherited 2 'git commit --allow-empty' \
+  'inherited COUNT exec-valued config blocks' \
+  'GIT_CONFIG_COUNT=1' 'GIT_CONFIG_KEY_0=core.editor' \
+  'GIT_CONFIG_VALUE_0=git push origin main #'
+check 2 "export GIT_CONFIG_PARAMETERS=\"'core.editor'='git push origin main #'\"; git commit --allow-empty" \
+  'exported exec-valued config persists across segments'
+check 2 "GIT_EDITOR='git push origin main #' git commit --allow-empty" \
+  'visible GIT_EDITOR command injection blocks'
+check_inherited 2 'git commit --allow-empty' \
+  'inherited GIT_EDITOR command injection blocks' \
+  'GIT_EDITOR=git push origin main #'
+check 2 "git config core.editor 'git push origin main #'" \
+  'persistent exec-valued config mutation blocks'
+check 2 "git config --global diff.external 'git push origin main #'" \
+  'persistent patterned exec-valued config mutation blocks'
+check 2 "git -c credential.helper='!git push' fetch" \
+  'credential helper runtime command blocks'
+check 2 "git -c filter.attack.process='git push' status" \
+  'filter process runtime command blocks'
+check 2 "git -c submodule.x.update='!git push' submodule update" \
+  'custom submodule update command blocks'
+check 2 "git -c core.alternateRefsCommand='git push' rev-list --alternate-refs" \
+  'alternate refs shell command blocks'
+check 2 "git -c diff.attack.textconv='git push' diff" \
+  'textconv runtime command blocks'
+check 2 "git -c gc.recentObjectsHook='git push' gc" \
+  'recent-objects shell hook blocks'
+check 2 "git -c gpg.ssh.defaultKeyCommand='git push' commit -S -m msg" \
+  'SSH signing key command blocks'
+check 2 "git -c difftool.attack.path='/tmp/attack' difftool" \
+  'difftool executable path blocks'
+check 2 "git -c mergetool.attack.path='/tmp/attack' mergetool" \
+  'mergetool executable path blocks'
+check 2 "git -c remote.origin.uploadpack='git push' fetch origin" \
+  'remote upload-pack command blocks'
+check 2 "git -c uploadpack.packObjectsHook='git push' upload-pack ." \
+  'upload-pack shell hook blocks'
+check 2 "git -c sendemail.ccCmd='git push' send-email patch" \
+  'base send-email recipient command blocks'
+check 2 "git -c sendemail.work.sendmailCmd='git push' send-email patch" \
+  'identity sendmail command blocks'
+check 2 "git -c sendemail.smtpServer='/tmp/attack' send-email patch" \
+  'send-email executable SMTP-server path blocks'
+check 2 "GIT_SSH_COMMAND='git push' git fetch" \
+  'visible Git SSH command blocks on a network operation'
+check 2 "GIT_EXTERNAL_DIFF='git push' git diff" \
+  'visible external diff command blocks on diff'
+check 2 "GIT_PAGER='git push' git -p log" \
+  'visible pager command blocks under explicit pagination'
+check 2 "EDITOR='git push origin main #' git commit --allow-empty" \
+  'fallback EDITOR command injection blocks'
+check 2 "PAGER='git push' git -p log" \
+  'fallback pager command blocks under explicit pagination'
+check 0 'git -c user.name=alice status' \
+  'ordinary runtime config remains usable'
+check 0 'git -c submodule.x.update=checkout status' \
+  'built-in submodule update strategy remains usable'
+check 0 'git -c core.pager= status' \
+  'empty executable config value remains usable'
+check 0 'git -c pager.status=false status' \
+  'boolean per-command pager setting remains usable'
+check 0 'git -c sendemail.smtpServer=smtp.example.com send-email patch' \
+  'ordinary SMTP host remains usable'
+check 0 'git config --get core.editor' \
+  'reading an executable config key remains usable'
+check 0 'git config --unset core.editor' \
+  'removing an executable config key remains usable'
+check_inherited 0 'git status' \
+  'inherited editor is inert for a non-editor command' \
+  'GIT_EDITOR=vim'
+check_inherited 0 'git commit -m msg --allow-empty' \
+  'explicit commit message does not invoke inherited editor' \
+  'GIT_EDITOR=vim'
+
+# GUARD-C2/C3/C4: cover plumbing equivalents of the existing hard-reset/whole-tree/ref rules while
+# keeping concrete single-file checkout-index recovery and non-forced checkout-index use available.
+check 2 'git read-tree --reset -u HEAD'                'read-tree reset plus update discards worktree'
+check 2 'git read-tree -mu HEAD'                       'read-tree merged update discards worktree'
+check 2 'git read-tree --merge --update HEAD'          'read-tree long merge plus update blocks'
+check 2 'git checkout-index -f -a'                     'checkout-index force plus all overwrites tree'
+check 2 'git checkout-index -fa'                       'checkout-index bundled force plus all blocks'
+check 2 'git checkout-index --force --all'             'checkout-index long force plus all blocks'
+check 2 'git checkout-index -f -a --prefix=./'         'checkout-index prefixed whole-tree overwrite blocks'
+check 0 'git checkout-index -f README.md'              'checkout-index forced concrete file remains usable'
+check 0 'git checkout-index -a'                        'checkout-index all without overwrite force remains usable'
+check 2 'git tag -d v1'                                'tag short delete removes tag ref'
+check 2 'git tag --delete v1'                          'tag long delete removes tag ref'
+check 2 'git tag --del v1'                             'tag abbreviated delete removes tag ref'
+check 0 'git tag --list'                               'tag listing remains usable'
+
+# GUARD-C5/C6: named descriptor redirections and both Bash coproc spellings still expose the literal
+# git invocation to the classifier. These are inert strings; the fixture never executes them.
+check 2 '{fd}>&1 git push origin main'                  'leading named-fd duplication before push'
+check 2 '{input}</dev/null git push origin main'        'leading named-fd input before push'
+check 2 '{log}>/dev/null git reset --hard'              'leading named-fd output before hard reset'
+check 2 'coproc git push origin main'                   'anonymous coproc executes git push'
+check 2 'coproc WORKER { git reset --hard; }'           'named coproc group executes hard reset'
+
+# GUARD-C7/C8: strict mode rejects parameter-driven Git grammar it cannot prove. Advisory mode stays
+# compatible, quoted ordinary operands remain usable, and a variable in a non-Git command is inert.
+# shellcheck disable=SC2016 # literal attack strings; the test must not execute them
+check_strict 2 'git re${UNSET}set --hard'               'strict blocks unquoted mid-token parameter splice'
+# shellcheck disable=SC2016
+check_strict 2 'git reset --hard${UNSET:-}'             'strict blocks unquoted option parameter splice'
+# shellcheck disable=SC2016
+check_strict 2 'X=push; git $X origin main'             'strict blocks unquoted variable subcommand dispatch'
+# shellcheck disable=SC2016
+check_strict 2 'X=status; git "$X"'                    'strict blocks quoted variable subcommand dispatch'
+# shellcheck disable=SC2016
+check_strict 2 'g${UNSET}it push origin main'           'strict blocks parameter-spliced command word'
+# shellcheck disable=SC2016
+check_strict 2 'X=git; "$X" push origin main'          'strict blocks quoted variable command dispatch'
+# shellcheck disable=SC2016
+check 0 'X=status; git $X'                              'advisory mode retains variable-dispatch compatibility'
+# shellcheck disable=SC2016
+check_strict 0 'git status "$PATHSPEC"'                'strict allows quoted variable in ordinary operand'
+# shellcheck disable=SC2016
+check_strict 0 'echo $HOME'                             'strict ignores parameter expansion outside Git'
+check_strict 0 "git commit -m '\$HOME'"               'strict allows single-quoted literal dollar text'
+
+# GUARD-C9: the hook streams command text to the classifier over a file descriptor, so a command
+# above Linux MAX_ARG_STRLEN must not fail open at an environment-variable exec boundary.
+oversized_git_push="git push # $(printf '%*s' 1100000 '' | tr ' ' A)"
+check 2 "$oversized_git_push"                          'advisory oversized command avoids E2BIG handoff'
+check_strict 2 "$oversized_git_push"                   'strict oversized dangerous command fails closed'
 
 check_inherited 0 'git status' 'PARAMETERS parser never evaluates config bytes' \
   "GIT_CONFIG_PARAMETERS='user.name=\$(touch $CANARY_DIR/gcp-pwned)'"

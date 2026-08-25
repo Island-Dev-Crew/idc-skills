@@ -1,0 +1,27 @@
+{
+  "schemaVersion": "1.0",
+  "id": "idea-archipelago-orchestrator",
+  "frozenAt": "2026-07-07T15:00:00Z",
+  "frozenBy": "jon-isaac",
+  "problem": {
+    "statement": "IDC frameworks hand off by operator memory; there is no typed contract at the seams, so build quality depends on the human remembering the pipeline.",
+    "successCriteria": [
+      "One real IDC project runs S0 through S7 with every gate crossing producing a schema-valid artifact",
+      "A cold session resumes the mission from the repo alone with zero conversation context"
+    ]
+  },
+  "domain": { "id": 6, "letter": "F", "name": "Elite Software Craft" },
+  "definitionOfDone": [
+    { "claim": "mission-control kickoff consumes plan.lock.json without manual translation", "falsifiedBy": "diff plan.lock phases[] against generated state.json phases[] — any semantic mismatch falsifies" },
+    { "claim": "a failed G4 gate routes back to the correct stage automatically", "falsifiedBy": "inject a failing runtime-journey probe; loopbacks[] must record G4->S2 within the same cycle" }
+  ],
+  "confidence": {
+    "score": 8,
+    "biggestRisk": "Gate schemas ossify before real-run feedback, forcing a breaking v2 within one month.",
+    "nextAction": "Run Kaydence through P0-P1 of the loop and log every schema friction point."
+  },
+  "psznDedupe": { "checked": true, "nearestNeighbor": null, "similarity": null },
+  "rejectedAlternatives": [
+    { "idea": "standalone orchestrator CLI from scratch", "reason": "mission-control already owns durable state, gates, PR loops, and resume — extending beats rebuilding" }
+  ]
+}

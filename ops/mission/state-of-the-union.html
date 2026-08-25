@@ -3,7 +3,9 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>IDC Forge 2.0.3 Hardening and Freshness — State of the Union</title>
+<meta name="referrer" content="no-referrer">
+<meta http-equiv="Content-Security-Policy" content="default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'">
+<title>IDC Forge 2.0.4 World-Class Trust and Utility — State of the Union</title>
 <style>
 :root{color-scheme:dark;--bg:#070f1c;--paper:#0d1b2f;--paper-2:#10243b;--ink:#eef6ff;--muted:#a9bdd3;--line:rgba(169,189,211,.18);--accent:#58d7b3;--blue:#77b7ff;--amber:#ffd166;--red:#ff8f8f;--good:#8ef2c0}
 *{box-sizing:border-box}
@@ -27,7 +29,7 @@ section{padding-top:34px}
 .chip.amber{color:var(--amber);border-color:rgba(255,209,102,.4)}
 .chip.red{color:var(--red);border-color:rgba(255,143,143,.4)}
 .chip.blue{color:var(--blue);border-color:rgba(119,183,255,.4)}
-.panel,.phase{border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(16,36,59,.95),rgba(13,27,47,.95));box-shadow:0 18px 46px rgba(0,0,0,.25);padding:20px}
+.panel,.phase{min-width:0;max-width:100%;border:1px solid var(--line);border-radius:16px;background:linear-gradient(180deg,rgba(16,36,59,.95),rgba(13,27,47,.95));box-shadow:0 18px 46px rgba(0,0,0,.25);padding:20px}
 .phase{margin-top:14px}
 .phase.active{border-color:rgba(88,215,179,.45)}
 .phase header{display:flex;flex-wrap:wrap;align-items:center;gap:10px;margin-bottom:8px}
@@ -45,11 +47,11 @@ th,td{border:1px solid var(--line);padding:8px 10px;text-align:left;vertical-ali
 th{background:rgba(255,255,255,.05);color:#fff;font-size:.76rem;letter-spacing:.06em;text-transform:uppercase}
 td{color:var(--muted)}
 td b{color:#fff}
-.table-wrap{overflow-x:auto;border-radius:12px}
+.table-wrap{width:100%;max-width:100%;min-width:0;overflow-x:auto;border-radius:12px}
 .timeline{display:grid;gap:10px}
-.tl-item{display:grid;grid-template-columns:72px 1fr;gap:14px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.035)}
+.tl-item{min-width:0;display:grid;grid-template-columns:72px minmax(0,1fr);gap:14px;border:1px solid var(--line);border-radius:12px;padding:12px 14px;background:rgba(255,255,255,.035)}
 .tl-item time{color:var(--accent);font-size:.8rem;font-weight:900}
-.tl-item p{color:var(--muted)}
+.tl-item p{min-width:0;overflow-wrap:anywhere;color:var(--muted)}
 details.resume{margin-top:14px;border:1px dashed rgba(88,215,179,.4);border-radius:12px;padding:10px 14px}
 details.resume summary{cursor:pointer;color:var(--accent);font-weight:800}
 .prompt-box{position:relative;margin-top:10px}
@@ -63,30 +65,30 @@ button.copy:hover{background:rgba(88,215,179,.2)}
 <body>
 <main>
   <header class="hero">
-    <p class="eyebrow">Mission Control &middot; State of the Union &middot; state updated 2026-08-21 17:31Z</p>
-    <h1>IDC Forge 2.0.3 Hardening and Freshness</h1>
-    <p class="tagline">Fifty fused skills, hardened at the bytes and released only on replayable freshness proof.</p>
+    <p class="eyebrow">Mission Control &middot; State of the Union &middot; state updated 2026-08-25 16:27Z</p>
+    <h1>IDC Forge 2.0.4 World-Class Trust and Utility</h1>
+    <p class="tagline">Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.</p>
     <div style="margin-top:14px">
-      <span class="chip blue">mission: in_progress</span>
-      <span class="chip green">active phase: P5</span>
-      <span class="chip blue">17/21 tasks</span>
-      <span class="chip amber">16/19 gates passed</span>
-      <span class="chip ">0 PRs merged</span>
-      <span class="chip ">sessions: 4</span>
-      <span class="chip ">updated: 2026-08-21T17:31:18Z</span>
+      <span class="chip blue">mission: active</span>
+      <span class="chip green">active phase: R204</span>
+      <span class="chip blue">36/45 tasks</span>
+      <span class="chip amber">30/39 gates passed</span>
+      <span class="chip ">1 PRs merged</span>
+      <span class="chip ">sessions: 13</span>
+      <span class="chip ">updated: 2026-08-25T16:27:05Z</span>
     </div>
-    <div class="bar big" role="img" aria-label="Overall progress 81%"><div class="fill" style="width:81%"></div></div>
-    <p class="small muted" style="margin-top:6px">Overall: 81% of tasks complete &middot; repo Navigata1/idc-skills-forge &middot; plan: CODEX-DOUBLE-CHECK-SPEC-2.0.3.md</p>
+    <div class="bar big" role="img" aria-label="Overall progress 80%"><div class="fill" style="width:80%"></div></div>
+    <p class="small muted" style="margin-top:6px">Overall: 80% of tasks complete &middot; repo Island-Dev-Crew/idc-skills &middot; plan: ops/mission/plan-2.0.4.md</p>
   </header>
 
   <section aria-labelledby="coldstart">
     <h2 id="coldstart">Cold-Start Prompt (any new session, zero context)</h2>
     <div class="panel">
-      <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are cold-starting the &quot;IDC Forge 2.0.3 Hardening and Freshness&quot; mission with zero prior context.
+      <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are cold-starting the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission with zero prior context.
 
-Local repo: /Users/IDC2.5/Desktop/IDC-skills  (Navigata1/idc-skills-forge, default branch main)
-Governing plan: CODEX-DOUBLE-CHECK-SPEC-2.0.3.md
-Mission status: in_progress — active phase: P5
+Local repo: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23  (Island-Dev-Crew/idc-skills, default branch main)
+Governing plan: ops/mission/plan-2.0.4.md
+Mission status: active — active phase: R204
 
 Mission conventions:
   - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
@@ -96,22 +98,24 @@ Mission conventions:
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
   - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
   - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
-  - The owner authorized the gated push, review, merge, promotion, tag, publication, and reinstall sequence. A failed signature, clean-clone, CI, freshness, public-source, or installed-byte check stops the sequence; force-push and unrelated mutation remain unauthorized.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Before the 2.0.3/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
-  After a valid 2.0.3/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
   End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
     </div>
   </section>
 
   <section aria-labelledby="metrics"><h2 id="metrics">Scoreboard: Baseline &rarr; Current &rarr; Target</h2>
-  <div class="table-wrap"><table><thead><tr><th>Metric</th><th>Baseline</th><th>Current</th><th>Target</th></tr></thead><tbody><tr><td><b>Signed release integrity checks</b></td><td>0/5</td><td><span class="chip amber">2.0.3/v3 contentReady 5/5; external readyToRun pending</span></td><td>2.0.3/v3 contentReady plus external readyToRun</td></tr><tr><td><b>Semantic validation records matching registry</b></td><td>40/50</td><td><span class="chip amber">50/50 (150 cases)</span></td><td>50/50</td></tr><tr><td><b>Dangerous-Git guard fixtures</b></td><td>179</td><td><span class="chip green">300</span></td><td>300</td></tr><tr><td><b>Egress scanner fixtures</b></td><td>71</td><td><span class="chip green">589</span></td><td>589</td></tr><tr><td><b>Anti-rollback implementation review and tests</b></td><td>0</td><td><span class="chip green">a58f59e — Claude Opus + Codex APPROVE; 100 unit tests + 20 subtests</span></td><td>a58f59e — Claude Opus + Codex APPROVE; 100 unit tests + 20 subtests</td></tr><tr><td><b>Retained upstream archives exact to historical Git blob trees</b></td><td>0/2 independently recomputed</td><td><span class="chip amber">2/2 exact (75/75 + 167/167)</span></td><td>2/2</td></tr><tr><td><b>Named harnesses with tier, source, and probe</b></td><td>4</td><td><span class="chip green">15</span></td><td>15</td></tr><tr><td><b>Canonical skills locally re-derived green</b></td><td>0/50</td><td><span class="chip green">50/50</span></td><td>50/50</td></tr><tr><td><b>Repo-owned cross-platform validators</b></td><td>0</td><td><span class="chip green">1</span></td><td>1</td></tr><tr><td><b>Windows-native installers</b></td><td>0</td><td><span class="chip green">1</span></td><td>1</td></tr><tr><td><b>claude.ai export failures from unsupported top-level keys</b></td><td>13</td><td><span class="chip amber">0 in the historical snapshot export; current profile remains fail-closed</span></td><td>0</td></tr><tr><td><b>Current claude.ai blockers kept visible</b></td><td>13 unsupported-key failures reported</td><td><span class="chip amber">48 descriptions over 200; 13 explicit-only semantics unpreserved</span></td><td>No output unless both classes are resolved with measured behavior</td></tr></tbody></table></div>
+  <div class="table-wrap"><table><thead><tr><th>Metric</th><th>Baseline</th><th>Current</th><th>Target</th></tr></thead><tbody><tr><td><b>Signed release integrity checks</b></td><td>0/5</td><td><span class="chip amber">2.0.3 public release reverified 5/5 with signed external freshness</span></td><td>2.0.4 contentReady 5/5; a later full-assurance release adds externalTrustVerified and readyToRun</td></tr><tr><td><b>Semantic validation records matching registry</b></td><td>40/50</td><td><span class="chip amber">50/50 (150 cases)</span></td><td>50/50</td></tr><tr><td><b>Dangerous-Git guard fixtures</b></td><td>179</td><td><span class="chip green">395</span></td><td>395</td></tr><tr><td><b>Egress scanner fixtures</b></td><td>71</td><td><span class="chip green">619</span></td><td>619</td></tr><tr><td><b>Anti-rollback implementation review and tests</b></td><td>0</td><td><span class="chip green">a58f59e — Claude Opus + Codex APPROVE; 100 unit tests + 20 subtests</span></td><td>a58f59e — Claude Opus + Codex APPROVE; 100 unit tests + 20 subtests</td></tr><tr><td><b>Retained upstream archives exact to historical Git blob trees</b></td><td>0/2 independently recomputed</td><td><span class="chip amber">2/2 exact (75/75 + 167/167)</span></td><td>2/2</td></tr><tr><td><b>Named harnesses with tier, source, and probe</b></td><td>4</td><td><span class="chip green">15</span></td><td>15</td></tr><tr><td><b>Canonical skills locally re-derived green</b></td><td>0/50</td><td><span class="chip green">50/50</span></td><td>50/50</td></tr><tr><td><b>Repo-owned cross-platform validators</b></td><td>0</td><td><span class="chip green">1</span></td><td>1</td></tr><tr><td><b>Windows-native installers</b></td><td>0</td><td><span class="chip green">1</span></td><td>1</td></tr><tr><td><b>claude.ai export failures from unsupported top-level keys</b></td><td>13</td><td><span class="chip amber">0 in the historical snapshot export; current profile remains fail-closed</span></td><td>0</td></tr><tr><td><b>Current claude.ai blockers kept visible</b></td><td>13 unsupported-key failures reported</td><td><span class="chip amber">48 descriptions over 200; 13 explicit-only semantics unpreserved</span></td><td>No output unless both classes are resolved with measured behavior</td></tr><tr><td><b>Scoped 2.0.4 and deferred full-profile findings</b></td><td>21 (1 critical, 17 medium, 3 low)</td><td><span class="chip amber">31/31 source identifiers evidence-reconciled; scoped R204 remains gated by signing, clean-clone CI/review, and two matching external witnesses, while platform and complete-review work is deferred to a later full-profile release</span></td><td>0 scoped R204 blockers; every full-profile item remains fixed, accepted residual, false positive, explicitly open, or explicitly deferred</td></tr><tr><td><b>Independent initial trust channels</b></td><td>0 production channels independent of the code checkout</td><td><span class="chip amber">Scoped two-witness architecture selected; endpoints pending. Production root ceremony remains deferred.</span></td><td>2 matching scoped fingerprint/identity witnesses for 2.0.4; later 2 channels plus offline threshold root</td></tr><tr><td><b>Executable evidence contract</b></td><td>Narrative package with confirmed citation and digest mismatches</td><td><span class="chip amber">31/31 source-bundle-bound records validate; 28 evidence/replay and 15 Archipelago tests pass including falsification cases</span></td><td>Complete package passes; all falsification fixtures fail closed</td></tr><tr><td><b>Real platform acceptance seats</b></td><td>Historical macOS and Windows evidence is not full-assurance evidence for the later release</td><td><span class="chip amber">Scoped 2.0.4 explicitly makes no Windows/NTFS acceptance claim; full-profile real seats remain pending</span></td><td>macOS/Bash 3.2 and Windows/NTFS/OpenSSH pass at one later full-assurance head</td></tr><tr><td><b>Installed Forge fleet parity</b></td><td>2.0.3 at 50/50 across four fleet roots</td><td><span class="chip amber">Seven physical-root and artifact-identity regressions pass; scoped 2.0.4 makes no freshness-authorized parity claim</span></td><td>Later full-assurance release at 50/50 byte, size, mode, provenance, and loader parity across four physical roots in signed or witnessed external evidence</td></tr></tbody></table></div>
   <p class="small muted" style="margin-top:6px">green = at/past target &middot; blue = moving toward target &middot; amber = unchanged &middot; red = moving away</p></section>
-  <section aria-labelledby="risks"><h2 id="risks">Risks &amp; Blockers</h2><div class="panel"><ul class="bare"><li><span class="chip red">blocker</span> The checked-in 2.0.3/v3 content candidate is signed and verifies 5/5, but external freshness and readyToRun proof remain pending.</li><li><span class="chip red">blocker</span> Exact final clean-clone replay, independent review, required CI, transport, merge, promotion, tag, and reinstall remain downstream release gates.</li><li><span class="chip red">blocker</span> Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; this product limitation is not a blocker for the native 2.0.3 candidate.</li><li><span class="chip red">blocker</span> The first requested video's source frames remain unavailable after YouTube 403/reload failures; transcript evidence is complete and no visual claim is made.</li><li><span class="chip red">blocker</span> The historical ICM fusion commit remains unknown; the live head and license are recorded without substituting current provenance for missing historical evidence.</li><li><span class="chip blue">low</span> <b>Historical P0-P3 review lacked a different-family seat</b> &mdash; <span class="muted">The historical P0-P3 limitation remains recorded, but the current anti-rollback implementation has Claude Opus + OpenAI Codex APPROVE at a58f59e. That approval is exact-head and not release authorization.</span></li><li><span class="chip red">high</span> <b>Several requested harnesses may not expose a native Agent Skills loader</b> &mdash; <span class="muted">Buzz and Grok Bot remain unsupported/unknown, native-Windows Hermes has a failed observation, and several authenticated behavior probes remain partial or unrun. The matrix does not invent installation paths.</span></li><li><span class="chip red">high</span> <b>2.0.3 external freshness and promotion are pending</b> &mdash; <span class="muted">The checked-in v3 manifest/signature bind the 2.0.3 sequence-1 content candidate and verify 5/5. External index/checkpoint publication and readyToRun proof remain separate pending gates.</span></li><li><span class="chip amber">medium</span> <b>Guard and scanner are bounded defense-in-depth controls</b> &mdash; <span class="muted">The accepted 300-case guard and 589-case scanner matrices are red-capable for their documented surfaces, but they are not a shell sandbox or a general language-runtime proof. Signed content and sealed-load/external freshness remain separate gates.</span></li><li><span class="chip red">high</span> <b>The complete current pack is intentionally blocked from claude.ai export</b> &mdash; <span class="muted">Current public documentation imposes a 200-character description limit and does not establish an explicit-only equivalent for thirteen user-invoked islands. No live upload or routing probe was run; this is not a native 2.0.3 release claim.</span></li><li><span class="chip amber">medium</span> <b>Whole-run rollback stops at the unexpected-I/O boundary</b> &mdash; <span class="muted">Every destination is preflighted and each skill replacement is atomic, but a multi-skill or multi-target run is not rollback-atomic after an unexpected mid-run I/O failure.</span></li><li><span class="chip red">high</span> <b>Trusted bootstrap cannot be established by repository code</b> &mdash; <span class="muted">A consumer must compare the signing-key fingerprint through a trusted out-of-band channel before executing the verifier. Five green checks without that bootstrap do not establish authorship.</span></li><li><span class="chip blue">low</span> <b>First requested video's visual channel is unavailable</b> &mdash; <span class="muted">Transcript extraction succeeded, but YouTube rejected source-video retrieval. The report makes no frame or screen claim.</span></li><li><span class="chip amber">medium</span> <b>Historical ICM fusion commit remains unpinned</b> &mdash; <span class="muted">The live head and MIT license are recorded, but no current revision is substituted for the missing fusion-time source commit or archive.</span></li></ul></div></section>
+  <section aria-labelledby="risks"><h2 id="risks">Risks &amp; Blockers</h2><div class="panel"><ul class="bare"><li><span class="chip red">blocker</span> The repaired construction worktree is unsigned and uncommitted. The current manifest describes 2.0.4 sequence 2, but its retained 2.0.3 signature fails as intended. Owner signing must wait until every controlled byte and the staged inventory are final.</li><li><span class="chip red">blocker</span> The company-site trust endpoint and independent second-channel target must be supplied before scoped 2.0.4 public promotion; implementation cannot invent their administrative independence or deployment proof.</li><li><span class="chip blue">low</span> <b>Historical P0-P3 review lacked a different-family seat</b> &mdash; <span class="muted">The historical P0-P3 limitation remains recorded, but the current anti-rollback implementation has Claude Opus + OpenAI Codex APPROVE at a58f59e. That approval is exact-head and not release authorization.</span></li><li><span class="chip red">high</span> <b>Several requested harnesses may not expose a native Agent Skills loader</b> &mdash; <span class="muted">Buzz and Grok Bot remain unsupported/unknown, native-Windows Hermes has a failed observation, and several authenticated behavior probes remain partial or unrun. The matrix does not invent installation paths.</span></li><li><span class="chip red">high</span> <b>Deferred production root ceremony and independent full-profile publication are pending</b> &mdash; <span class="muted">Code can implement and test threshold-root behavior, but authorized human key holders must conduct the production ceremony and publish the initial root through at least two separately administered channels before a later full-profile release. This is not a scoped 2.0.4 promotion gate; scoped 2.0.4 separately requires two matching external witnesses for its owner-held Forge signing fingerprint and exact release identity.</span></li><li><span class="chip red">high</span> <b>Scoped 2.0.4 must not inherit full-profile acceptance claims</b> &mdash; <span class="muted">The owner authorized a stable public content-authenticated release before production 2-of-3 custody, complete Kimi acceptance, Windows/NTFS evidence, freshness-authorized four-root parity, and the publication observer are complete. Release notes and external channels must label those items deferred; a later full-profile release receives a new immutable version identity.</span></li><li><span class="chip amber">medium</span> <b>Guard and scanner are bounded defense-in-depth controls</b> &mdash; <span class="muted">The construction 395-case guard and 619-case scanner matrices are red-capable for their documented surfaces, but they are not a shell sandbox or a general language-runtime proof. Signed content, signed waiver authority, sealed-load execution, external freshness, and packet-level network observation remain separate boundaries.</span></li><li><span class="chip red">high</span> <b>The complete current pack is intentionally blocked from claude.ai export</b> &mdash; <span class="muted">Current public documentation imposes a 200-character description limit and does not establish an explicit-only equivalent for thirteen user-invoked islands. No live upload or routing probe was run; this is not a native 2.0.3 release claim.</span></li><li><span class="chip amber">medium</span> <b>Whole-run rollback stops at the unexpected-I/O boundary</b> &mdash; <span class="muted">Every destination is preflighted and each skill replacement is atomic, but a multi-skill or multi-target run is not rollback-atomic after an unexpected mid-run I/O failure.</span></li><li><span class="chip red">high</span> <b>Trusted bootstrap cannot be established by repository code</b> &mdash; <span class="muted">A consumer must compare the signing-key fingerprint through a trusted out-of-band channel before executing the verifier. Five green checks without that bootstrap do not establish authorship.</span></li><li><span class="chip blue">low</span> <b>First requested video's visual channel is unavailable</b> &mdash; <span class="muted">Transcript extraction succeeded, but YouTube rejected source-video retrieval. The report makes no frame or screen claim.</span></li><li><span class="chip amber">medium</span> <b>Historical ICM fusion commit remains unpinned</b> &mdash; <span class="muted">The live head and MIT license are recorded, but no current revision is substituted for the missing fusion-time source commit or archive.</span></li></ul></div></section>
 
   <section aria-labelledby="phases">
     <h2 id="phases">Phases</h2>
@@ -142,12 +146,12 @@ Operating procedure:
       <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
       <td>2026-08-12T03:23:21Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P0 (copy into a fresh session)</summary>
-        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.3 Hardening and Freshness&quot; mission at phase P0: Contract and red-capable tooling.
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase P0: Contract and red-capable tooling.
 
-Mission: Fifty fused skills, hardened at the bytes and released only on replayable freshness proof.
-North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
-Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
-Governing plan: CODEX-DOUBLE-CHECK-SPEC-2.0.3.md
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
 
 Phase goal: Replace portability claims with a sourced harness contract, a repo-owned validator, and a Windows-native installer/exporter.
 All tasks in this phase are done.
@@ -160,13 +164,15 @@ Mission conventions:
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
   - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
   - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
-  - The owner authorized the gated push, review, merge, promotion, tag, publication, and reinstall sequence. A failed signature, clean-clone, CI, freshness, public-source, or installed-byte check stops the sequence; force-push and unrelated mutation remain unauthorized.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Before the 2.0.3/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
-  After a valid 2.0.3/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
   End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
       </details>
@@ -192,12 +198,12 @@ Operating procedure:
       <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
       <td>2026-08-12T03:23:21Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P1 (copy into a fresh session)</summary>
-        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.3 Hardening and Freshness&quot; mission at phase P1: Gauntlet critique and integration.
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase P1: Gauntlet critique and integration.
 
-Mission: Fifty fused skills, hardened at the bytes and released only on replayable freshness proof.
-North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
-Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
-Governing plan: CODEX-DOUBLE-CHECK-SPEC-2.0.3.md
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
 
 Phase goal: Blind critics refute each artifact, builders repair surviving findings, and the integration branch receives only evidenced changes.
 All tasks in this phase are done.
@@ -210,13 +216,15 @@ Mission conventions:
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
   - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
   - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
-  - The owner authorized the gated push, review, merge, promotion, tag, publication, and reinstall sequence. A failed signature, clean-clone, CI, freshness, public-source, or installed-byte check stops the sequence; force-push and unrelated mutation remain unauthorized.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Before the 2.0.3/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
-  After a valid 2.0.3/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
   End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
       </details>
@@ -242,12 +250,12 @@ Operating procedure:
       <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
       <td>2026-08-12T03:23:21Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P2 (copy into a fresh session)</summary>
-        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.3 Hardening and Freshness&quot; mission at phase P2: Recursive fifty-island health sweep.
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase P2: Recursive fifty-island health sweep.
 
-Mission: Fifty fused skills, hardened at the bytes and released only on replayable freshness proof.
-North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
-Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
-Governing plan: CODEX-DOUBLE-CHECK-SPEC-2.0.3.md
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
 
 Phase goal: Run the stricter contract over every island and keep only skill changes tied to concrete red cases.
 All tasks in this phase are done.
@@ -260,13 +268,15 @@ Mission conventions:
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
   - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
   - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
-  - The owner authorized the gated push, review, merge, promotion, tag, publication, and reinstall sequence. A failed signature, clean-clone, CI, freshness, public-source, or installed-byte check stops the sequence; force-push and unrelated mutation remain unauthorized.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Before the 2.0.3/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
-  After a valid 2.0.3/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
   End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
       </details>
@@ -292,12 +302,12 @@ Operating procedure:
       <td>ops/mission/evidence/fresh-clone-reacceptance-61779de.json</td>
       <td>2026-08-12T03:23:21Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P3 (copy into a fresh session)</summary>
-        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.3 Hardening and Freshness&quot; mission at phase P3: Fresh-clone reacceptance.
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase P3: Fresh-clone reacceptance.
 
-Mission: Fifty fused skills, hardened at the bytes and released only on replayable freshness proof.
-North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
-Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
-Governing plan: CODEX-DOUBLE-CHECK-SPEC-2.0.3.md
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
 
 Phase goal: Re-derive the final gates from a clean clone and publish an honest completion report.
 All tasks in this phase are done.
@@ -310,13 +320,15 @@ Mission conventions:
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
   - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
   - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
-  - The owner authorized the gated push, review, merge, promotion, tag, publication, and reinstall sequence. A failed signature, clean-clone, CI, freshness, public-source, or installed-byte check stops the sequence; force-push and unrelated mutation remain unauthorized.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Before the 2.0.3/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
-  After a valid 2.0.3/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
   End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
       </details>
@@ -347,12 +359,12 @@ Operating procedure:
       <td>ops/validation/skill-records.json</td>
       <td>2026-08-19T18:45:25Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P4 (copy into a fresh session)</summary>
-        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.3 Hardening and Freshness&quot; mission at phase P4: Current upstream, video, and Forge-50 synthesis.
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase P4: Current upstream, video, and Forge-50 synthesis.
 
-Mission: Fifty fused skills, hardened at the bytes and released only on replayable freshness proof.
-North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
-Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
-Governing plan: CODEX-DOUBLE-CHECK-SPEC-2.0.3.md
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
 
 Phase goal: Re-derive the current Matt Pocock delta, extract both requested videos honestly, and independently review every Forge seat before changing the release.
 All tasks in this phase are done.
@@ -365,26 +377,28 @@ Mission conventions:
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
   - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
   - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
-  - The owner authorized the gated push, review, merge, promotion, tag, publication, and reinstall sequence. A failed signature, clean-clone, CI, freshness, public-source, or installed-byte check stops the sequence; force-push and unrelated mutation remain unauthorized.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Before the 2.0.3/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
-  After a valid 2.0.3/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
   End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
       </details>
-    </article><article class="phase active">
+    </article><article class="phase">
       <header>
-        <span class="chip amber">in progress</span>
+        <span class="chip green">done</span>
         <h3>P5 &middot; Signed Skill Integrity Gate</h3>
         <span class="muted small">est. sessions: 1</span>
       </header>
       <p class="muted">Bind all 50 skill trees and the security control plane to the external Forge key, then prove every claimed defense red before green.</p>
-      <div class="bar"><div class="fill" style="width:67%"></div></div>
-      <p class="small muted">2/3 tasks &middot; 67%</p>
-      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>P5-T1</b> Build manifest, signature, installer, and PreToolUse enforcement<br><span class="muted small">One repository gate; no circular per-skill self-checkers.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P5-T2</b> Adversarially attack trust anchor, encodings, paths, links, and installed copies<br><span class="muted small">Adversarial passes found a fingerprint-override false green, optional installed-tree binding, wide-encoding and control-path bypasses, a manifest-swap race, and a live-tree change after first hash; all were repaired and regression-tested.</span></li><li class="task-in_progress"><span class="mark">&#9689;</span> <b>P5-T3</b> Freeze, sign, and obtain exact-head cross-family verdict<br><span class="muted small">Signed head 250f7d7 passed exact clean-clone content replay and different-family review. Replacement CI run 32508134303 passed macOS and Ubuntu; Windows proved the mode/discovery repairs but exposed inherited core.autocrlf rewriting temporary-repository Git blobs. The byte-preserving fixture repair invalidates that signature and must be re-signed and re-reviewed before replacement CI.</span></li></ul>
+      <div class="bar"><div class="fill" style="width:100%"></div></div>
+      <p class="small muted">3/3 tasks &middot; 100%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>P5-T1</b> Build manifest, signature, installer, and PreToolUse enforcement<br><span class="muted small">One repository gate; no circular per-skill self-checkers.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P5-T2</b> Adversarially attack trust anchor, encodings, paths, links, and installed copies<br><span class="muted small">Adversarial passes found a fingerprint-override false green, optional installed-tree binding, wide-encoding and control-path bypasses, a manifest-swap race, and a live-tree change after first hash; all were repaired and regression-tested.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P5-T3</b> Freeze, sign, and obtain exact-head cross-family verdict<br><span class="muted small">Historical 2.0.3 work completed at public commit 26b9285c1fe11a3ef875a34ff30faa0275eddf24, signed tag object bbdbafebde00f411dfa55584f4943c88e5a0393a, after exact-head review and three-platform CI.</span></li></ul>
       <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
       <td><span class="chip green">passed</span></td>
       <td><b>Anti-rollback implementation and canonical validator matrices pass</b><br><span class="small">Exact implementation a58f59e has Claude Opus + OpenAI Codex APPROVE, 100 unit tests plus 20 subtests, and canonical validation 50/50. This proves implementation only, not signed release readiness.</span></td>
@@ -407,26 +421,16 @@ Operating procedure:
       <td>ops/mission/evidence/guard-scanner-final-2026-08-20.md</td>
       <td>2026-08-20T09:45:00Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P5 (copy into a fresh session)</summary>
-        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.3 Hardening and Freshness&quot; mission at phase P5: Signed Skill Integrity Gate.
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase P5: Signed Skill Integrity Gate.
 
-Mission: Fifty fused skills, hardened at the bytes and released only on replayable freshness proof.
-North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
-Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
-Governing plan: CODEX-DOUBLE-CHECK-SPEC-2.0.3.md
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
 
 Phase goal: Bind all 50 skill trees and the security control plane to the external Forge key, then prove every claimed defense red before green.
-Remaining tasks:
-  - [in_progress] P5-T3: Freeze, sign, and obtain exact-head cross-family verdict (Signed head 250f7d7 passed exact clean-clone content replay and different-family review. Replacement CI run 32508134303 passed macOS and Ubuntu; Windows proved the mode/discovery repairs but exposed inherited core.autocrlf rewriting temporary-repository Git blobs. The byte-preserving fixture repair invalidates that signature and must be re-signed and re-reviewed before replacement CI.)
+All tasks in this phase are done.
 All gates passed — close the phase and advance.
-Next actions (from last session):
-  - Reaccept the exact signed tree from a clean clone and require exact-head independent review plus three-platform CI.
-  - Construct and sign the external freshness index from the final staging merge, prove readyToRun, then promote, tag, publish, and reinstall only that exact tree.
-Known blockers:
-  - The checked-in 2.0.3/v3 content candidate is signed and verifies 5/5, but external freshness and readyToRun proof remain pending.
-  - Exact final clean-clone replay, independent review, required CI, transport, merge, promotion, tag, and reinstall remain downstream release gates.
-  - Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; this product limitation is not a blocker for the native 2.0.3 candidate.
-  - The first requested video's source frames remain unavailable after YouTube 403/reload failures; transcript evidence is complete and no visual claim is made.
-  - The historical ICM fusion commit remains unknown; the live head and license are recorded without substituting current provenance for missing historical evidence.
 Mission conventions:
   - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
   - Positive harness claims require an authoritative source and reproducible probe.
@@ -435,59 +439,55 @@ Mission conventions:
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
   - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
   - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
-  - The owner authorized the gated push, review, merge, promotion, tag, publication, and reinstall sequence. A failed signature, clean-clone, CI, freshness, public-source, or installed-byte check stops the sequence; force-push and unrelated mutation remain unauthorized.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Before the 2.0.3/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
-  After a valid 2.0.3/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
   End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
       </details>
     </article><article class="phase">
       <header>
-        <span class="chip red">blocked</span>
+        <span class="chip green">done</span>
         <h3>P6 &middot; 2.0.3 transport, promotion, tag, and fleet resync</h3>
         <span class="muted small">est. sessions: 1</span>
       </header>
       <p class="muted">Reaccept the exact signed 2.0.3 candidate, obtain external freshness, transport the exact tree, promote it, tag it, and prove installed copies match.</p>
-      <div class="bar"><div class="fill" style="width:0%"></div></div>
-      <p class="small muted">0/3 tasks &middot; 0%</p>
-      <ul class="tasks"><li class="task-pending"><span class="mark">&#9675;</span> <b>P6-T1</b> Commit final candidate and reaccept from a fresh clone<br><span class="muted small">Pending the final signed 2.0.3/v3 exact commit and clean-clone acceptance.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>P6-T2</b> Transport exact candidate and merge release review<br><span class="muted small">Transport and merge require the exact signed candidate, independent review, staging CI, and the documented external freshness handoff.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>P6-T3</b> Promote exact merged tree, tag 2.0.3, and resync Claude/Codex<br><span class="muted small">Requires external readyToRun=true for the exact merged tree.</span></li></ul>
+      <div class="bar"><div class="fill" style="width:100%"></div></div>
+      <p class="small muted">3/3 tasks &middot; 100%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>P6-T1</b> Commit final candidate and reaccept from a fresh clone<br><span class="muted small">Completed historically at public commit 26b9285c1fe11a3ef875a34ff30faa0275eddf24.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P6-T2</b> Transport exact candidate and merge release review<br><span class="muted small">PR #4 merged with required review and CI.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>P6-T3</b> Promote exact merged tree, tag 2.0.3, and resync Claude/Codex<br><span class="muted small">2.0.3 published, tagged, and installed with 50/50 byte-and-mode parity.</span></li></ul>
       <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
-      <td><span class="chip ">pending</span></td>
-      <td><b>Fresh clone passes reacceptance and remains byte-clean</b><br><span class="small">Pending the final 2.0.3/v3 signature and exact clean-clone replay. Component approvals do not substitute for signed-tree acceptance.</span></td>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Fresh clone passes reacceptance and remains byte-clean</b><br><span class="small">Re-derived during the 2.0.4 assessment from the immutable public tag: contentReady=true, score=5/5, 101 unit tests, and a clean detached clone.</span></td>
       <td><code>python scripts/reaccept.py</code></td>
-      <td>&mdash;</td>
-      <td>&mdash;</td></tr><tr>
-      <td><span class="chip ">pending</span></td>
-      <td><b>Exact 2.0.3 transport candidate has required CI green</b><br><span class="small">Signed candidate run 32508134303 passed macOS and Ubuntu and failed Windows after all 101 tests ran. The prior OpenSSH, mode, and Git-discovery errors were cleared; Windows then rejected temporary fixture repositories because inherited Git-for-Windows core.autocrlf normalized Python-written CRLF live bytes to LF Git blobs, producing signed-byte-to-tree mismatches. Each FreshnessFixture now sets core.autocrlf=false before its first add/commit so Git preserves the exact bytes the fixture manifest signs. Production freshness code and strict blob comparison remain unchanged. Final signing, clean-clone replay, exact-head review, and replacement three-platform CI remain pending.</span></td>
+      <td>https://github.com/Island-Dev-Crew/idc-skills/releases/tag/2.0.3</td>
+      <td>2026-08-22T18:30:00Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Exact 2.0.3 transport candidate has required CI green</b><br><span class="small">Historical release PR #4 merged only after required CI passed. Public main and signed tag now resolve to 26b9285c1fe11a3ef875a34ff30faa0275eddf24.</span></td>
       <td><code>gh pr checks &lt;release-pr&gt; --watch</code></td>
       <td>https://github.com/Navigata1/idc-skills-forge/actions/runs/32508134303</td>
-      <td>2026-08-21T17:30:19Z</td></tr><tr>
-      <td><span class="chip ">pending</span></td>
-      <td><b>Public main, tag, and installed trees resolve to released bytes</b><br><span class="small">Blocked until external signed index/checkpoint yields readyToRun=true for the exact merged tree; no public promotion, tag, or installed-tree verification has been claimed.</span></td>
+      <td>2026-08-22T18:30:00Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Public main, tag, and installed trees resolve to released bytes</b><br><span class="small">Public main, peeled tag, trust-index commit, manifest/index signatures, and all four installed fleet roots were independently rechecked during the 2.0.4 assessment.</span></td>
       <td><code>git ls-remote idc refs/heads/main refs/tags/2.0.3 &amp;&amp; &lt;external freshness launcher&gt; reaccept</code></td>
-      <td>&mdash;</td>
-      <td>&mdash;</td></tr></tbody></table></div>
+      <td>ops/mission/evidence/release-2.0.3-final.json</td>
+      <td>2026-08-22T18:30:00Z</td></tr></tbody></table></div>
       <details class="resume"><summary>Resume prompt for P6 (copy into a fresh session)</summary>
-        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.3 Hardening and Freshness&quot; mission at phase P6: 2.0.3 transport, promotion, tag, and fleet resync.
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase P6: 2.0.3 transport, promotion, tag, and fleet resync.
 
-Mission: Fifty fused skills, hardened at the bytes and released only on replayable freshness proof.
-North star: Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.
-Repo: Navigata1/idc-skills-forge (local: /Users/IDC2.5/Desktop/IDC-skills), default branch: main.
-Governing plan: CODEX-DOUBLE-CHECK-SPEC-2.0.3.md
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
 
 Phase goal: Reaccept the exact signed 2.0.3 candidate, obtain external freshness, transport the exact tree, promote it, tag it, and prove installed copies match.
-Remaining tasks:
-  - [pending] P6-T1: Commit final candidate and reaccept from a fresh clone (Pending the final signed 2.0.3/v3 exact commit and clean-clone acceptance.)
-  - [pending] P6-T2: Transport exact candidate and merge release review (Transport and merge require the exact signed candidate, independent review, staging CI, and the documented external freshness handoff.)
-  - [pending] P6-T3: Promote exact merged tree, tag 2.0.3, and resync Claude/Codex (Requires external readyToRun=true for the exact merged tree.)
-Gates not yet passed:
-  - [pending] Fresh clone passes reacceptance and remains byte-clean  -&gt;  python scripts/reaccept.py
-  - [pending] Exact 2.0.3 transport candidate has required CI green  -&gt;  gh pr checks &lt;release-pr&gt; --watch
-  - [pending] Public main, tag, and installed trees resolve to released bytes  -&gt;  git ls-remote idc refs/heads/main refs/tags/2.0.3 &amp;&amp; &lt;external freshness launcher&gt; reaccept
+All tasks in this phase are done.
+All gates passed — close the phase and advance.
 Mission conventions:
   - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
   - Positive harness claims require an authoritative source and reproducible probe.
@@ -496,24 +496,488 @@ Mission conventions:
   - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
   - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
   - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
-  - The owner authorized the gated push, review, merge, promotion, tag, publication, and reinstall sequence. A failed signature, clean-clone, CI, freshness, public-source, or installed-byte check stops the sequence; force-push and unrelated mutation remain unauthorized.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
 
 Operating procedure:
   Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
   Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
-  Before the 2.0.3/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
-  After a valid 2.0.3/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
+  End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
+      </details>
+    </article><article class="phase">
+      <header>
+        <span class="chip green">done</span>
+        <h3>G0 &middot; Executable evidence contract</h3>
+        <span class="muted small">est. sessions: 1</span>
+      </header>
+      <p class="muted">Make every security finding, source citation, fixture, command, result, and status independently recomputable.</p>
+      <div class="bar"><div class="fill" style="width:100%"></div></div>
+      <p class="small muted">3/3 tasks &middot; 100%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>G0-T1</b> Define the machine-readable evidence schema and validator<br><span class="muted small">Dependency-free validator now binds roster completeness, exact Git revisions and line ranges, fixture and output digests, command script existence, observed/expected exits, discriminators, and dispositions.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>G0-T2</b> Reconcile every Kimi 2.0.3 finding to exact released and fixture revisions<br><span class="muted small">All source paths and ranges now resolve against the immutable 2.0.3 commit. K3-203-004 through 008 cite the released self-contained-ship scanner, K3-203-001 has released scope, and K3-203-008 is bound to the exact u2.ts/scan.out pair.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>G0-T3</b> Prove evidence tampering is rejected<br><span class="muted small">The immutable originals remain under source/kimi. Twenty-eight negative-capable contract/replay tests prove source, roster, fixture, capture, semantic binding, strict parsing, and path tampering are rejected without claiming an emitted capture was re-executed.</span></li></ul>
+      <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Complete 2.0.4 evidence package validates</b><br><span class="small">The v2 ledger validates all 31 roster IDs against exact 2.0.3 blobs plus the hash-bound Kimi source bundle, exact preserved fixtures/captures, semantic bindings, and explicit dispositions. It emits preserved bytes without laundering them into execution claims.</span></td>
+      <td><code>python3 -B scripts/validate_evidence.py ops/mission/evidence/2.0.4/evidence.json</code></td>
+      <td>ops/mission/evidence/2.0.4/evidence.json</td>
+      <td>2026-08-23T16:41:26Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Evidence validator fails closed on falsification fixtures</b><br><span class="small">Twenty-eight evidence and replay tests pass. They reject missing or duplicate records, invalid ranges, source-bundle, fixture, capture, semantic-binding, strict-JSON, symlink/path, size, and unsupported execution-claim attacks. Fifteen adjacent Archipelago tests pass bounded output, timeout, route, state, ledger, and evidence-custody controls.</span></td>
+      <td><code>python3 -B -m unittest tests.test_evidence_contract</code></td>
+      <td>tests/test_evidence_contract.py</td>
+      <td>2026-08-23T16:41:26Z</td></tr></tbody></table></div>
+      <details class="resume"><summary>Resume prompt for G0 (copy into a fresh session)</summary>
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase G0: Executable evidence contract.
+
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
+
+Phase goal: Make every security finding, source citation, fixture, command, result, and status independently recomputable.
+All tasks in this phase are done.
+All gates passed — close the phase and advance.
+Mission conventions:
+  - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
+  - Positive harness claims require an authoritative source and reproducible probe.
+  - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
+  - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
+
+Operating procedure:
+  Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
+  Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
+  End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
+      </details>
+    </article><article class="phase">
+      <header>
+        <span class="chip amber">in progress</span>
+        <h3>G1 &middot; Independent first-contact trust</h3>
+        <span class="muted small">est. sessions: 2</span>
+      </header>
+      <p class="muted">Reject a fully self-consistent counterfeit checkout before repository content can define its own authority.</p>
+      <div class="bar"><div class="fill" style="width:67%"></div></div>
+      <p class="small muted">2/3 tasks &middot; 67%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>G1-T1</b> Implement versioned threshold root metadata and authorized rotation<br><span class="muted small">Canonical strict root metadata, 2-of-N OpenSSH threshold verification, exact N+1 rotation, old-plus-new authorization, expiry, and a locked monotonic external checkpoint are implemented and falsified. The checkpoint binds the authenticated root at every retained version, not only the final root.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>G1-T2</b> Bind release identity and attestations into one statement<br><span class="muted small">The release statement threshold-binds tag, commit, tree, releaseSequence, deterministic archive, signed-history freshness index, registry, pre-install expectation inventory, and exact content-signing key/allowed-signers bytes. Builders verify manifest and index signatures, annotated tag, expiry, commit/tree and cross-artifact semantics before signing. The external freshness launcher pins and reruns the exact threshold verifier/module twice, then holds the protected checkpoint generation lock through staged-tree recheck and consumer completion.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>G1-T3</b> Conduct the production root ceremony and publish two independent trust channels<br><span class="muted small">Public formats, a private-key-blind builder, verifier, ceremony protocol, and company-site architecture are ready. Actual 2-of-3 custody, signatures, external root/checkpoint placement, and two-channel publication remain owner acceptance boundaries; no secret material belongs in Git, chat, logs, or mission evidence.</span></li></ul>
+      <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Threshold root and rotation verifier reject trust attacks</b><br><span class="small">Twenty-eight OpenSSH-backed root tests and 82 focused root, freshness, release-artifact, and fleet-parity tests pass. They cover forged root, rollback, threshold, expiry, substitution, rotation, signed-history index construction, deterministic exact-tree archives, annotated tags, production wire formats, semantic joins, checkpoint concurrency, and physical installed-root identity. Production custody and first-contact channels remain pending.</span></td>
+      <td><code>python3 -B -m unittest tests.test_trust_root</code></td>
+      <td>ops/mission/evidence/2.0.4/g1-trust-root.json</td>
+      <td>2026-08-24T02:34:18Z</td></tr><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>Independent bootstrap verifies candidate offline</b><br><span class="small">Pending the owner-held production wrapper, 2-of-3 root ceremony, protected external checkpoint, exact candidate artifacts, and matching root digest observed through two separately administered channels. Candidate-repository evidence is never allowed to supply this command's initial authority.</span></td>
+      <td><code>/trusted/idc/run-2.0.4-external-verification</code></td>
+      <td>ops/mission/evidence/2.0.4/g1-bootstrap.json</td>
+      <td>&mdash;</td></tr></tbody></table></div>
+      <details class="resume"><summary>Resume prompt for G1 (copy into a fresh session)</summary>
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase G1: Independent first-contact trust.
+
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
+
+Phase goal: Reject a fully self-consistent counterfeit checkout before repository content can define its own authority.
+Remaining tasks:
+  - [pending] G1-T3: Conduct the production root ceremony and publish two independent trust channels (Public formats, a private-key-blind builder, verifier, ceremony protocol, and company-site architecture are ready. Actual 2-of-3 custody, signatures, external root/checkpoint placement, and two-channel publication remain owner acceptance boundaries; no secret material belongs in Git, chat, logs, or mission evidence.)
+Gates not yet passed:
+  - [pending] Independent bootstrap verifies candidate offline  -&gt;  /trusted/idc/run-2.0.4-external-verification
+Mission conventions:
+  - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
+  - Positive harness claims require an authoritative source and reproducible probe.
+  - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
+  - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
+
+Operating procedure:
+  Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
+  Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
+  End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
+      </details>
+    </article><article class="phase">
+      <header>
+        <span class="chip green">done</span>
+        <h3>G2 &middot; Fail-closed Git command grammar</h3>
+        <span class="muted small">est. sessions: 1</span>
+      </header>
+      <p class="muted">Classify supported Git command forms by declared grammar and block ambiguous mutations at enforced release boundaries.</p>
+      <div class="bar"><div class="fill" style="width:100%"></div></div>
+      <p class="small muted">3/3 tasks &middot; 100%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>G2-T1</b> Tokenize attached redirections and normalize supported Git forms<br><span class="muted small">Includes attached operators, global options, brace/parameter forms, plumbing mutations, functions, aliases, and wrapper paths.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>G2-T2</b> Evaluate bang-alias bodies together with invocation arguments<br><span class="muted small">Call-site verbs cannot be discarded after resolving an alias body.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>G2-T3</b> Enforce guard failure at the release caller<br><span class="muted small">Tests operate only on disposable local repositories and never contact a remote.</span></li></ul>
+      <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Baseline and adversarial Git corpus pass</b><br><span class="small">The expanded matrix passes 395/395. It retains the earlier RED evidence and adds executable Git config, read-tree/checkout-index/tag mutations, named-FD and coproc grammar, parameter/variable dispatch, a 64 KiB strict-input availability ceiling that avoids OS argument-size failure, strict-wrapper, and safe-control regressions.</span></td>
+      <td><code>bash skills/agent-guardrails/scripts/test-block-dangerous-git.sh</code></td>
+      <td>ops/mission/evidence/2.0.4/g2-git-grammar.md</td>
+      <td>2026-08-24T02:34:18Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Parser differentials and enforced-exit tests pass</b><br><span class="small">Nine Python differential tests pass; strict mode blocks unsupported dynamic grammar, missing payloads, and oversize input before handoff, while safe input below the ceiling remains usable. The installer ships a byte/mode-verified strict wrapper, and the external freshness launcher always enables strict mode. ShellCheck passes.</span></td>
+      <td><code>python3 -B -m unittest tests.test_git_guard_grammar</code></td>
+      <td>ops/mission/evidence/2.0.4/g2-git-grammar.md</td>
+      <td>2026-08-24T02:34:18Z</td></tr></tbody></table></div>
+      <details class="resume"><summary>Resume prompt for G2 (copy into a fresh session)</summary>
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase G2: Fail-closed Git command grammar.
+
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
+
+Phase goal: Classify supported Git command forms by declared grammar and block ambiguous mutations at enforced release boundaries.
+All tasks in this phase are done.
+All gates passed — close the phase and advance.
+Mission conventions:
+  - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
+  - Positive harness claims require an authoritative source and reproducible probe.
+  - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
+  - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
+
+Operating procedure:
+  Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
+  Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
+  End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
+      </details>
+    </article><article class="phase">
+      <header>
+        <span class="chip green">done</span>
+        <h3>G3 &middot; Egress parser, runtime, and waiver authority</h3>
+        <span class="muted small">est. sessions: 2</span>
+      </header>
+      <p class="muted">Detect every modeled network candidate, deny artifact self-waivers, bound resource use, and prove enhanced artifacts make no unexpected requests.</p>
+      <div class="bar"><div class="fill" style="width:100%"></div></div>
+      <p class="small muted">3/3 tasks &middot; 100%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>G3-T1</b> Close candidate, encoding, markup, CSS, XML, and browser-fetch parser gaps<br><span class="muted small">Includes meta refresh, data/blob lists, srcdoc, handlers, SVG/XLink, image-set variants, XML stylesheets, and attributionsrc.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>G3-T2</b> Move waiver authority into a separately signed policy<br><span class="muted small">Artifact-local comments never grant their own exemption.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>G3-T3</b> Enforce byte ceilings and sealed-load browser proof<br><span class="muted small">Oversized or complexity-bounded input fails explicitly; enhanced HTML requires static and runtime proof. The runtime harness asserts WebRTC guard installation and zero construction attempts, but does not claim packet-level capture.</span></li></ul>
+      <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Baseline and adversarial egress corpus pass</b><br><span class="small">The original floor and all prior RED fixtures remain green at 619/619. New coverage closes quoted meta-refresh targets, srcdoc/camelCase/location sinks, bounded call scanning, and per-finding legacy-waiver binding while retaining safe controls.</span></td>
+      <td><code>bash skills/self-contained-ship/scripts/test-scan-egress.sh</code></td>
+      <td>ops/mission/evidence/2.0.4/g3-egress.json</td>
+      <td>2026-08-23T16:41:26Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Signed waiver and bounded-resource tests pass</b><br><span class="small">Eight policy tests pass. Waivers bind revision, file digest, stable finding fingerprint, reviewer, reason, and expiry; Python and ssh-keygen are exact external digest-pinned inputs; UNCERT is never waivable.</span></td>
+      <td><code>python3 -B -m unittest tests.test_egress_policy</code></td>
+      <td>ops/mission/evidence/2.0.4/g3-egress.json</td>
+      <td>2026-08-23T16:41:26Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Sealed browser loads emit no unexpected requests</b><br><span class="small">Four sealed-harness attack tests pass. The production gate applies the Chrome WebRTC IP policy, blocks RTCPeerConnection constructors before artifact code, asserts zero RTC attempts, zero modeled external requests and artifact service workers, exact CSP, no console errors, and zero overflowing elements at mobile, tablet, desktop, and print. Packet-level ICE capture remains an explicit residual.</span></td>
+      <td><code>node scripts/verify-sealed-artifacts.mjs</code></td>
+      <td>ops/mission/evidence/2.0.4/g3-sealed-browser.json</td>
+      <td>2026-08-23T16:41:26Z</td></tr></tbody></table></div>
+      <details class="resume"><summary>Resume prompt for G3 (copy into a fresh session)</summary>
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase G3: Egress parser, runtime, and waiver authority.
+
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
+
+Phase goal: Detect every modeled network candidate, deny artifact self-waivers, bound resource use, and prove enhanced artifacts make no unexpected requests.
+All tasks in this phase are done.
+All gates passed — close the phase and advance.
+Mission conventions:
+  - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
+  - Positive harness claims require an authoritative source and reproducible probe.
+  - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
+  - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
+
+Operating procedure:
+  Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
+  Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
+  End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
+      </details>
+    </article><article class="phase">
+      <header>
+        <span class="chip amber">in progress</span>
+        <h3>G4 &middot; Hook, credential, URL, runtime, and platform boundaries</h3>
+        <span class="muted small">est. sessions: 2</span>
+      </header>
+      <p class="muted">Bind the exact skill identity and mode, keep secrets out of unsafe carriers, parse URLs canonically, and prove claimed platform behavior.</p>
+      <div class="bar"><div class="fill" style="width:67%"></div></div>
+      <p class="small muted">2/3 tasks &middot; 67%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>G4-T1</b> Normalize hook identity and bind signed POSIX modes<br><span class="muted small">Unknown, duplicate, conflicting, and duplicate-JSON-key representations fail. Signed skill records bind SHA-256, size, and safe POSIX mode; physical mode drift fails on POSIX.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>G4-T2</b> Harden runtime, trusted tools, secret transport, and URL parsing<br><span class="muted small">Python 3.10 and Bash 3.2 floors are signed; ssh-keygen is absolute and digest-pinned; DeepAPI bearer bytes stay out of argv; wizard URL and plaintext storage policies are fail-closed.</span></li><li class="task-in_progress"><span class="mark">&#9689;</span> <b>G4-T3</b> Record the same-UID residual and obtain real platform evidence<br><span class="muted small">Same-UID mutation is explicitly an advisory residual requiring admin/OS isolation. Claude's macOS/Bash 3.2 record applies only to the superseded 28edb94 head and is void after repair; real macOS plus Windows NTFS/OpenSSH evidence must be re-captured at the final signed head.</span></li></ul>
+      <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Runtime-boundary unit and shell tests pass</b><br><span class="small">Fifty-four focused skill-integrity, freshness, and runtime-boundary tests pass; the full discovery suite is 271/271. Canonical validation remains 50/50 with zero errors and thirteen named advisories. Bash syntax and ShellCheck pass on the construction tree.</span></td>
+      <td><code>python3 -B -m unittest tests.test_skill_integrity tests.test_freshness tests.test_runtime_boundaries</code></td>
+      <td>ops/mission/evidence/2.0.4/g4-runtime.json</td>
+      <td>2026-08-24T02:34:18Z</td></tr><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>Real platform seats pass the same candidate</b><br><span class="small">Requires real macOS/Bash 3.2 and Windows/NTFS/OpenSSH evidence; emulation is not a platform claim.</span></td>
+      <td><code>python3 -B scripts/verify_platform_evidence.py ops/mission/evidence/2.0.4/platform-matrix.json --candidate-head &lt;exact-40-hex-candidate&gt;</code></td>
+      <td>ops/mission/evidence/2.0.4/platform-matrix.json</td>
+      <td>&mdash;</td></tr></tbody></table></div>
+      <details class="resume"><summary>Resume prompt for G4 (copy into a fresh session)</summary>
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase G4: Hook, credential, URL, runtime, and platform boundaries.
+
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
+
+Phase goal: Bind the exact skill identity and mode, keep secrets out of unsafe carriers, parse URLs canonically, and prove claimed platform behavior.
+Remaining tasks:
+  - [in_progress] G4-T3: Record the same-UID residual and obtain real platform evidence (Same-UID mutation is explicitly an advisory residual requiring admin/OS isolation. Claude's macOS/Bash 3.2 record applies only to the superseded 28edb94 head and is void after repair; real macOS plus Windows NTFS/OpenSSH evidence must be re-captured at the final signed head.)
+Gates not yet passed:
+  - [pending] Real platform seats pass the same candidate  -&gt;  python3 -B scripts/verify_platform_evidence.py ops/mission/evidence/2.0.4/platform-matrix.json --candidate-head &lt;exact-40-hex-candidate&gt;
+Mission conventions:
+  - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
+  - Positive harness claims require an authoritative source and reproducible probe.
+  - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
+  - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
+
+Operating procedure:
+  Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
+  Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
+  End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
+      </details>
+    </article><article class="phase">
+      <header>
+        <span class="chip amber">in progress</span>
+        <h3>G5 &middot; Forge-50 provenance and installed parity</h3>
+        <span class="muted small">est. sessions: 2</span>
+      </header>
+      <p class="muted">Fortify all fifty islands while preserving their separation, exact provenance, loader semantics, and installed bytes and modes.</p>
+      <div class="bar"><div class="fill" style="width:67%"></div></div>
+      <p class="small muted">2/3 tasks &middot; 67%</p>
+      <ul class="tasks"><li class="task-done"><span class="mark">&#9679;</span> <b>G5-T1</b> Close third-party provenance and executable dependency records<br><span class="muted small">Archipelago is vendored at full commit b9f7cee with MIT license, unchanged/modified file hashes, reviewed local hardening, and no runtime fetch. Provenance names four source families, the unrecovered historical ICM commit, eighteen executable-tool families, and shipped test material.</span></li><li class="task-done"><span class="mark">&#9679;</span> <b>G5-T2</b> Harden intake evidence, authority hierarchy, and console locking<br><span class="muted small">Intake rows percent-encode untrusted bytes and include hidden/ignored/symlink/special content; handoff hierarchy is corrected; console.lock is idempotently assembled from exact HEAD blobs bound to blocks-tree a8bada7.</span></li><li class="task-in_progress"><span class="mark">&#9689;</span> <b>G5-T3</b> Reinstall and prove 50-of-50 byte, size, mode, provenance, and loader parity<br><span class="muted small">The four-root verifier is implemented, independently refuted, and freshness-routed. Its standalone JSON is explicitly observation-only and cannot authenticate itself. Actual reinstall/parity and a signed or witnessed enclosing evidence record wait for a signed accepted candidate; Claude.ai limitations remain explicit unless measured behavior supports a sanitized profile.</span></li></ul>
+      <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Canonical validation, records, and provenance closure pass</b><br><span class="small">The repaired construction tree passes 50/50 with zero errors, 50 semantic records, four source families, eighteen explicitly recorded tool families, eighteen vendored protocol files, and five protocol contracts. Thirteen named Claude.ai compatibility advisories remain visible. This is worktree construction evidence until re-derived at a signed exact head.</span></td>
+      <td><code>python3 -B scripts/verify_forge_50.py --json</code></td>
+      <td>ops/mission/evidence/2.0.4/g5-forge-50.json</td>
+      <td>2026-08-23T16:41:26Z</td></tr><tr>
+      <td><span class="chip green">passed</span></td>
+      <td><b>Intake and console adversarial suites pass</b><br><span class="small">Nine focused adversarial tests pass. The byte-safe scanner covers symlinks, special files, NUL/control names, ignored content, bounds, and terminal-safe encoding; console assembly rejects untracked/ignored and index-flagged sources and now supports explicit BSD shasum or GNU sha256sum syntax.</span></td>
+      <td><code>python3 -B -m unittest tests.test_supply_chain_intake tests.test_console_lock</code></td>
+      <td>ops/mission/evidence/2.0.4/g5-forge-50.json</td>
+      <td>2026-08-23T16:41:26Z</td></tr><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>All four fleet roots match candidate bytes and modes</b><br><span class="small">Seven parity regressions pass. The observation-only verifier binds commit/tag/tree plus index, inventory, and manifest digests; requires handoff/index equality; rejects same-inode, case-alias, overlapping, candidate-contained, symlinked, special-file, and extra-entry roots; and requires four physical roots. Codex, Claude, Pi, and Hermes parity still must run from the private staged signed candidate and be preserved in signed or witnessed external evidence.</span></td>
+      <td><code>&lt;external freshness launcher&gt; fleet-parity -- --json</code></td>
+      <td>ops/mission/evidence/2.0.4/g5-fleet-parity.json</td>
+      <td>&mdash;</td></tr></tbody></table></div>
+      <details class="resume"><summary>Resume prompt for G5 (copy into a fresh session)</summary>
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase G5: Forge-50 provenance and installed parity.
+
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
+
+Phase goal: Fortify all fifty islands while preserving their separation, exact provenance, loader semantics, and installed bytes and modes.
+Remaining tasks:
+  - [in_progress] G5-T3: Reinstall and prove 50-of-50 byte, size, mode, provenance, and loader parity (The four-root verifier is implemented, independently refuted, and freshness-routed. Its standalone JSON is explicitly observation-only and cannot authenticate itself. Actual reinstall/parity and a signed or witnessed enclosing evidence record wait for a signed accepted candidate; Claude.ai limitations remain explicit unless measured behavior supports a sanitized profile.)
+Gates not yet passed:
+  - [pending] All four fleet roots match candidate bytes and modes  -&gt;  &lt;external freshness launcher&gt; fleet-parity -- --json
+Mission conventions:
+  - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
+  - Positive harness claims require an authoritative source and reproducible probe.
+  - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
+  - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
+
+Operating procedure:
+  Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
+  Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
+  End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
+      </details>
+    </article><article class="phase">
+      <header>
+        <span class="chip amber">in progress</span>
+        <h3>G6 &middot; Deferred full-assurance exact-head acceptance</h3>
+        <span class="muted small">est. sessions: 2</span>
+      </header>
+      <p class="muted">Bind production threshold custody, complete independent review, real platforms, freshness-authorized fleet parity, publication observation, and readyToRun to a later immutable release identity.</p>
+      <div class="bar"><div class="fill" style="width:0%"></div></div>
+      <p class="small muted">0/3 tasks &middot; 0%</p>
+      <ul class="tasks"><li class="task-pending"><span class="mark">&#9675;</span> <b>G6-T1</b> Freeze and reaccept one later full-assurance candidate<br><span class="muted small">DEFERRED FOR FULL ASSURANCE. Begin from the immutable 2.0.4 lineage but assign a new version identity; production platform, independent review, parity, custody, CI, and publication proofs must then bind that exact later head.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>G6-T2</b> Obtain protected CI, two-party review, and complete blind Kimi acceptance for the later release<br><span class="muted small">DEFERRED FOR FULL ASSURANCE. Green CI never overrides partial, advisory, unverified, or semantically failing gate output.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>G6-T3</b> Merge, tag, publish, independently verify, and reinstall the later full-assurance release<br><span class="muted small">DEFERRED FOR FULL ASSURANCE. Merge policy remains review; production root ceremony, observer, site deployment, tag, and publication are separately auditable acceptance actions under a new immutable version.</span></li></ul>
+      <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>Later full-assurance candidate passes complete clean-clone reacceptance</b><br><span class="small">DEFERRED FOR FULL ASSURANCE. All G0-G5 gates, legacy baselines, signatures, threshold metadata, archive hashes, and candidate cleanliness must bind to one later-version commit and tree; this gate does not block the separately defined scoped 2.0.4 promotion.</span></td>
+      <td><code>python3 -B scripts/reaccept.py</code></td>
+      <td>external later-version clean-clone reacceptance receipt; path supplied at gate time</td>
+      <td>&mdash;</td></tr><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>Exact-head independent review and blind Kimi rerun accept</b><br><span class="small">DEFERRED FOR FULL ASSURANCE. Nine v2 verifier tests pass locally. Externally pinned authority records must name distinct families, principals, and Ed25519 keys; both signed receipts must bind one packet that indexes all eleven K3-204 lanes and all 31 K3-203 reconciliations; every lane must be complete; any head move voids both. This gate does not block the separately defined scoped 2.0.4 promotion.</span></td>
+      <td><code>python3 -I -B scripts/verify_release_reviews.py /external/reviews.json --repo-root /candidate/idc-skills --git /trusted/bin/git --git-sha256 sha256:&lt;git-bytes&gt; --review-authorities /trusted/reviews/authorities.json --review-authorities-sha256 sha256:&lt;authority-record-bytes&gt; --ssh-keygen /trusted/bin/ssh-keygen --ssh-keygen-sha256 sha256:&lt;ssh-keygen-bytes&gt; --json</code></td>
+      <td>external exact-head cross-family and Kimi receipts; path supplied at gate time</td>
+      <td>&mdash;</td></tr><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>Full threshold publication and independent observer match the later candidate</b><br><span class="small">DEFERRED FOR FULL ASSURANCE. Ten v2 publication-verifier tests pass locally. It verifies threshold release signatures and an externally pinned observer signature over every structured receipt digest, candidate, root, and channel locator. This strict PUBLIC RELEASE VERIFIED gate is not claimed by scoped 2.0.4.</span></td>
+      <td><code>python3 -I -B scripts/verify_public_release.py /external/publication.json --repo-root /candidate/idc-skills --git /trusted/bin/git --git-sha256 sha256:&lt;git-bytes&gt; --canonical-repository Island-Dev-Crew/idc-skills --site-host &lt;company-site-host&gt; --trusted-root /trusted/idc/1.root.json --trusted-root-sha256 sha256:&lt;out-of-band-root-pin&gt; --ssh-keygen /trusted/bin/ssh-keygen --ssh-keygen-sha256 sha256:&lt;ssh-keygen-bytes&gt; --observer-authority /trusted/publication/observer-authority.json --observer-authority-sha256 sha256:&lt;observer-authority-record-bytes&gt; --json</code></td>
+      <td>external GitHub, company-site, and second-channel receipts; path supplied at gate time</td>
+      <td>&mdash;</td></tr></tbody></table></div>
+      <details class="resume"><summary>Resume prompt for G6 (copy into a fresh session)</summary>
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase G6: Deferred full-assurance exact-head acceptance.
+
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
+
+Phase goal: Bind production threshold custody, complete independent review, real platforms, freshness-authorized fleet parity, publication observation, and readyToRun to a later immutable release identity.
+Remaining tasks:
+  - [pending] G6-T1: Freeze and reaccept one later full-assurance candidate (DEFERRED FOR FULL ASSURANCE. Begin from the immutable 2.0.4 lineage but assign a new version identity; production platform, independent review, parity, custody, CI, and publication proofs must then bind that exact later head.)
+  - [pending] G6-T2: Obtain protected CI, two-party review, and complete blind Kimi acceptance for the later release (DEFERRED FOR FULL ASSURANCE. Green CI never overrides partial, advisory, unverified, or semantically failing gate output.)
+  - [pending] G6-T3: Merge, tag, publish, independently verify, and reinstall the later full-assurance release (DEFERRED FOR FULL ASSURANCE. Merge policy remains review; production root ceremony, observer, site deployment, tag, and publication are separately auditable acceptance actions under a new immutable version.)
+Gates not yet passed:
+  - [pending] Later full-assurance candidate passes complete clean-clone reacceptance  -&gt;  python3 -B scripts/reaccept.py
+  - [pending] Exact-head independent review and blind Kimi rerun accept  -&gt;  python3 -I -B scripts/verify_release_reviews.py /external/reviews.json --repo-root /candidate/idc-skills --git /trusted/bin/git --git-sha256 sha256:&lt;git-bytes&gt; --review-authorities /trusted/reviews/authorities.json --review-authorities-sha256 sha256:&lt;authority-record-bytes&gt; --ssh-keygen /trusted/bin/ssh-keygen --ssh-keygen-sha256 sha256:&lt;ssh-keygen-bytes&gt; --json
+  - [pending] Full threshold publication and independent observer match the later candidate  -&gt;  python3 -I -B scripts/verify_public_release.py /external/publication.json --repo-root /candidate/idc-skills --git /trusted/bin/git --git-sha256 sha256:&lt;git-bytes&gt; --canonical-repository Island-Dev-Crew/idc-skills --site-host &lt;company-site-host&gt; --trusted-root /trusted/idc/1.root.json --trusted-root-sha256 sha256:&lt;out-of-band-root-pin&gt; --ssh-keygen /trusted/bin/ssh-keygen --ssh-keygen-sha256 sha256:&lt;ssh-keygen-bytes&gt; --observer-authority /trusted/publication/observer-authority.json --observer-authority-sha256 sha256:&lt;observer-authority-record-bytes&gt; --json
+Mission conventions:
+  - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
+  - Positive harness claims require an authoritative source and reproducible probe.
+  - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
+  - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
+
+Operating procedure:
+  Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
+  Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
+  Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
+  End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
+      </details>
+    </article><article class="phase active">
+      <header>
+        <span class="chip amber">in progress</span>
+        <h3>R204 &middot; Scoped 2.0.4 content-authenticated promotion</h3>
+        <span class="muted small">est. sessions: 1</span>
+      </header>
+      <p class="muted">Publish one exact owner-signed content tree with protected review and two matching out-of-repository fingerprint/release-identity witnesses, without borrowing full-assurance labels.</p>
+      <div class="bar"><div class="fill" style="width:0%"></div></div>
+      <p class="small muted">0/3 tasks &middot; 0%</p>
+      <ul class="tasks"><li class="task-in_progress"><span class="mark">&#9689;</span> <b>R204-T1</b> Finalize inventory, regenerate manifest, obtain biometric signature, and commit<br><span class="muted small">Local freeze work is authorized; private key material never leaves the 1Password SSH agent.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>R204-T2</b> Replay exact candidate, push branch, and obtain protected CI/review<br><span class="muted small">No force-push. Review and CI bind the exact signed tree before merge.</span></li><li class="task-pending"><span class="mark">&#9675;</span> <b>R204-T3</b> Publish two witnesses, immutable tag/assets, and post-publication comparison<br><span class="muted small">The company endpoint and second channel are owner/external actions. Publication evidence remains outside the signed tree.</span></li></ul>
+      <div class="table-wrap"><table><thead><tr><th>Gate</th><th>Check</th><th>Command</th><th>Evidence</th><th>Last run</th></tr></thead><tbody><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>Exact staged inventory and owner-signed manifest verify</b><br><span class="small">The manifest must be sequence 2, close over the exact staged inventory, and reach contentReady 5/5 after the owner-held biometric signature. No later tracked-byte mutation is allowed.</span></td>
+      <td><code>python3 -B scripts/skill_integrity.py verify --ssh-keygen &lt;trusted-absolute-ssh-keygen&gt; --ssh-keygen-sha256 sha256:&lt;trusted-executable-bytes&gt;</code></td>
+      <td>signed candidate commit and local verification output; exact identity recorded after signing</td>
+      <td>&mdash;</td></tr><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>Clean clone plus protected GitHub CI/review preserve the signed tree</b><br><span class="small">A merge strategy may create a different commit only if its tree is byte-identical to the signed accepted tree. Any controlled-byte change returns to manifest generation and biometric signing.</span></td>
+      <td><code>python3 -B scripts/reaccept.py &amp;&amp; git diff --exit-code</code></td>
+      <td>external clean-clone receipt, GitHub Actions checks, and PR review at the exact candidate</td>
+      <td>&mdash;</td></tr><tr>
+      <td><span class="chip ">pending</span></td>
+      <td><b>GitHub and two external scoped witnesses repeat the same release identity</b><br><span class="small">All three observations must match the full Forge fingerprint, tag, commit, tree, and manifest SHA-256. This scoped comparison does not emit PUBLIC RELEASE VERIFIED, externalTrustVerified, or readyToRun.</span></td>
+      <td><code>external comparison: GitHub release + company well-known endpoint + DNSSEC/transparency witness</code></td>
+      <td>external scoped-publication receipt recorded outside the signed repository</td>
+      <td>&mdash;</td></tr></tbody></table></div>
+      <details class="resume"><summary>Resume prompt for R204 (copy into a fresh session)</summary>
+        <div class="prompt-box"><button class="copy" type="button">Copy</button><pre>You are resuming the &quot;IDC Forge 2.0.4 World-Class Trust and Utility&quot; mission at phase R204: Scoped 2.0.4 content-authenticated promotion.
+
+Mission: Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.
+North star: A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.
+Repo: Island-Dev-Crew/idc-skills (local: /Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23), default branch: main.
+Governing plan: ops/mission/plan-2.0.4.md
+
+Phase goal: Publish one exact owner-signed content tree with protected review and two matching out-of-repository fingerprint/release-identity witnesses, without borrowing full-assurance labels.
+Remaining tasks:
+  - [in_progress] R204-T1: Finalize inventory, regenerate manifest, obtain biometric signature, and commit (Local freeze work is authorized; private key material never leaves the 1Password SSH agent.)
+  - [pending] R204-T2: Replay exact candidate, push branch, and obtain protected CI/review (No force-push. Review and CI bind the exact signed tree before merge.)
+  - [pending] R204-T3: Publish two witnesses, immutable tag/assets, and post-publication comparison (The company endpoint and second channel are owner/external actions. Publication evidence remains outside the signed tree.)
+Gates not yet passed:
+  - [pending] Exact staged inventory and owner-signed manifest verify  -&gt;  python3 -B scripts/skill_integrity.py verify --ssh-keygen &lt;trusted-absolute-ssh-keygen&gt; --ssh-keygen-sha256 sha256:&lt;trusted-executable-bytes&gt;
+  - [pending] Clean clone plus protected GitHub CI/review preserve the signed tree  -&gt;  python3 -B scripts/reaccept.py &amp;&amp; git diff --exit-code
+  - [pending] GitHub and two external scoped witnesses repeat the same release identity  -&gt;  external comparison: GitHub release + company well-known endpoint + DNSSEC/transparency witness
+Next actions (from last session):
+  - Finalize the scoped 2.0.4 controlled bytes and Git inventory, regenerate the sequence-2 manifest, and obtain the owner-held biometric content signature as the last tracked-byte mutation.
+  - Commit and clean-clone replay that exact signed tree, then require protected GitHub CI and review without accepting any controlled-byte drift.
+  - Before public promotion, publish the full Forge fingerprint plus exact tag, commit, tree, and manifest digest through the company endpoint and a DNSSEC or independently administered transparency channel; publish and re-observe only if both agree.
+  - Do not buy Kimi credits for 2.0.4. Preserve full Kimi, production 2-of-3 custody, Windows/NTFS, freshness-authorized fleet parity, the disjoint observer, and readyToRun as pending G1-G6 gates for a later immutable release.
+Known blockers:
+  - The repaired construction worktree is unsigned and uncommitted. The current manifest describes 2.0.4 sequence 2, but its retained 2.0.3 signature fails as intended. Owner signing must wait until every controlled byte and the staged inventory are final.
+  - The company-site trust endpoint and independent second-channel target must be supplied before scoped 2.0.4 public promotion; implementation cannot invent their administrative independence or deployment proof.
+Mission conventions:
+  - ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.
+  - Positive harness claims require an authoritative source and reproducible probe.
+  - Canonical skill bytes are preserved unless a red-capable evaluation justifies an edit.
+  - Worktree evidence is draft evidence until re-derived from a fresh clone.
+  - A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.
+  - The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.
+  - Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.
+  - GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.
+  - An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.
+  - The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized.
+
+Operating procedure:
+  Read ops/mission/state.json FIRST — it is the source of truth, not this prompt.
+  Verify reality matches state: git log --oneline -5, and re-run the active phase's gate commands.
+  Before the 2.0.4/v3 manifest is signed: pick the next unblocked task -&gt; branch codex/&lt;phase&gt;-&lt;slug&gt; -&gt; implement -&gt; run gates -&gt; update state.json and journal -&gt; node ops/mission/render-sotu.mjs -&gt; commit the controlled bytes.
+  After a valid 2.0.4/v3 signature exists, state.json, journal.md, and this generated HTML are frozen signed bytes: record downstream staging/index/public/tag receipts outside the tree, or invalidate the signature and restart finalization before any tracked edit.
   Never hand-edit state-of-the-union.html. Never merge without fresh gate evidence; keep it in ops/mission/evidence/ before signing and in the external release receipt after signing.
   End of a pre-sign session: update resume.nextActions for a stranger, append the journal, render, and commit. End of a post-sign session: leave the signed tree untouched.</pre></div>
       </details>
     </article>
   </section>
 
-
-<section aria-labelledby="journal"><h2 id="journal">Journal (latest first)</h2><div class="timeline"><article class="tl-item"><time>&#9998;</time><p><b>2026-08-21T17:31Z — Windows fixture repositories become byte-preserving</b><br><br>- Signed head `250f7d7a17f7781e5679dfda5a33ad6e53b0116c` passed exact clean-clone content replay and different-family **APPROVE**. PR #4 run `32508134303` passed macOS and Ubuntu but failed Windows after executing all 101 tests; merge remained blocked.<br>- The earlier native-OpenSSH, canonical-mode, and exact-Git-discovery errors were absent. The remaining four failures and five errors were strict `signed bytes differ from Git tree object` rejections in temporary fixtures.<br>- `FreshnessFixture` wrote CRLF text bytes under Windows, signed those live bytes, then inherited Git-for-Windows `core.autocrlf`, which normalized committed blobs to LF. The external launcher correctly rejected the live-byte/Git-object split. Every fixture repository now sets `core.autocrlf=false` before its first add, preserving the exact bytes used by its signed manifest; production blob comparison remains byte-unchanged and strict.<br>- Focused failing-class regressions and all 101 local tests pass. These controlled test/evidence bytes invalidate `250f7d7`; manifest generation, biometric signing, clean-clone replay, exact-head review, and replacement three-platform CI restart.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-21T17:17Z — review completes Windows fixture mode canonicalization</b><br><br>- Signed head `13d26f151f7ff8d7d3f2b888717a7b69f122c55f` passed exact clean-clone content replay, direct signature and 189-record verification, and 101 local tests. Different-family review still returned **CHANGES_REQUIRED** on one Windows fixture path; no push or CI retry occurred.<br>- The base `FreshnessFixture` already signed canonical modes and forced matching Git index entries, but `_prepare_real_content_fixture` called `build_manifest` without Windows mode overrides. Under Win32 stat semantics that generated `0666` records and would move the real-verifier test from Git-discovery error to signed-mode failure.<br>- The real-verifier fixture now captures its exact committed index with `git ls-files -s -z`, rejects unsupported modes, maps only `100644`/`100755` to canonical `0644`/`0755`, and passes that mapping as Windows-only manifest overrides. Production Git discovery, manifest verification, and launcher mode enforcement remain byte-unchanged.<br>- Focused regressions and all 101 tests pass. These controlled test/evidence bytes invalidate `13d26f1`; manifest generation, biometric signing, clean-clone replay, exact-head review, and replacement three-platform CI restart.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-21T17:07Z — Windows clears OpenSSH and exposes fixture mode assumptions</b><br><br>- Corrected signed head `7a5ad4987a2daa8ee09d3d2c846935550f7a163c` passed exact clean-clone content replay and received different-family **APPROVE**. PR #4 run `32505833243` passed macOS and Ubuntu but failed Windows; merge remained blocked.<br>- Windows no longer produced the prior 19 native-OpenSSH fingerprint failures. The production `SYSTEMDRIVE`/`PROGRAMDATA` derivation cleared that boundary, fixture keys and fingerprints completed, and the runner executed all 101 tests. The suite ended with four failures, five errors, and three platform skips.<br>- The failures shared two test-authority causes: `FreshnessFixture` signed Windows `st_mode` bits as canonical POSIX modes even though Git tracks only `100644`/`100755`, and the real-verifier fixture asked copied code to rediscover Git through `os.defpath` although the fixture already held an exact Git path. Neither finding justifies weakening the production launcher's strict signed-mode-to-Git-tree comparison.<br>- The fixture now signs explicit canonical modes, forces the matching Git index modes on every platform, and supplies its resolved Git executable only through a scoped test mock. The private-stage test always asserts the signed `0755` record and checks physical POSIX mode only where the host can represent it. Focused regressions and all 101 local tests pass. These controlled test/evidence bytes invalidate `7a5ad49`; signing, clean-clone replay, exact-head review, and replacement three-platform CI restart.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-21T16:45Z — exact-head review corrects diagnostic attribution before transport</b><br><br>- Signed head `44e88d1532578032fe772d582fe8cd09d33e3883` passed 101/101 tests, direct OpenSSH file-namespace verification, independent recomputation of all 189 signed file records, deterministic reacceptance, and content verification at 5/5 with `contentReady=true` and no in-tree `readyToRun` field.<br>- The different-family review returned **CHANGES_REQUIRED** because the preceding diagnostic record overstated the measurement. Run `32369890504` was a deliberately failed unsigned diagnostic whose passing environment arm supplied `PROGRAMDATA` and `ALLUSERSPROFILE` together; it did not prove that either variable alone cleared fingerprinting. The earlier “ProgramData alone” wording is superseded by this correction.<br>- Separate read-only inspection of the official Win32 OpenSSH source identifies `ProgramData` as a required initialization path input, but the production conclusion remains pending until replacement Windows CI runs the diagnostic-free code that derives only `SYSTEMDRIVE` and `PROGRAMDATA` from trusted `SYSTEMROOT`.<br>- Gate P6-G2 again cites failed candidate run `32369472573`; the diagnostic run remains named in its notes and explicitly labeled failed. These signed-evidence corrections invalidate `44e88d1`, so manifest generation, biometric signing, clean-clone replay, exact-head review, and three-platform CI restart.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-20T12:40Z — unsigned Windows diagnostic proves the minimal ProgramData dependency</b><br><br>- Derived-`SYSTEMDRIVE` head `15436fe4ff8f8c954bc43c905cfa4ad95c8f54b3` passed local signing, clean-clone reacceptance, and different-family review, but replacement run `32369472573` again passed macOS/Ubuntu and failed all 19 Windows freshness fixtures. Merge remained blocked.<br>- An explicitly unsigned diagnostic commit was pushed only to measure the Windows process bootstrap and was never a release candidate. It selected `C:\\Windows\\System32\\OpenSSH\\ssh-keygen.exe`. Production, identity, home-drive, and app-data variants exited 255; the `PROGRAMDATA` variant and full ambient environment exited 0.<br>- Win32 OpenSSH process initialization fatally requires `ProgramData`. The diagnostic workflow has been removed. The launcher derives `C:\\ProgramData` from the already retained trusted system drive, adds no caller-supplied environment value, and retains the stripped PATH/home/loader/proxy/Git/TLS boundary.<br>- The assertion now proves both deterministic `SYSTEMDRIVE` and `PROGRAMDATA` derivation plus `PYTHONPATH` exclusion. Manifest generation, biometric signing, clean-clone replay, exact-head review, and three-platform CI restart on the diagnostic-free candidate.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-20T12:27Z — Windows native OpenSSH requires its OS drive bootstrap</b><br><br>- Exact signed head `70ffc9ebb308e4c3652cc8deda65e52b8fd60c3e` received different-family **APPROVE**, then PR #4 run `32368246838` passed macOS and Ubuntu but failed Windows after four minutes. Merge remained blocked.<br>- Windows selected the native OpenSSH executable and generated fixture keys successfully under the runner environment. All 19 failures occurred only when fingerprinting under the stripped environment, each with native `ssh-keygen` exit 255.<br>- Win32 OpenSSH expands the current profile path read from the registry; hosted Windows profile records commonly use `%SystemDrive%`. The verification environment already retains `SystemRoot` and now derives only its drive prefix as `SYSTEMDRIVE`, preserving the stripped PATH/home/loader/proxy boundary. A regression asserts derivation and continued `PYTHONPATH` exclusion.<br>- Because bootstrap, tests, and mission evidence are controlled bytes, `70ffc9e` is no longer the final candidate. Manifest regeneration, biometric signing, clean-clone replay, exact-head review, and three-platform CI restart.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-20T12:15Z — full signed-document sweep closes present-tense drift</b><br><br>- Signed commit `12287c302f6ad2b55afebed642d803f3e5249b8d` independently passed 101 tests, direct OpenSSH verification, 189 tracked-file digest/size recomputations, deterministic rendering, and contentReady 5/5.<br>- The review still returned **CHANGES_REQUIRED** because the metric headline, changelog, durable state note, and build-spec context retained present-tense 2.0.2/pre-sign wording. P5 was also marked done while task P5-T3 remained in progress.<br>- Every current-state document now describes the checked-in v3, 2.0.3, sequence-1 content candidate as signed at 5/5 while keeping external `readyToRun`, final review, CI, merge, promotion, tag, and reinstall pending. Historical journal and doctrine references remain explicitly historical.<br>- P5 remains in progress until the exact-head review receipt exists. These controlled corrections invalidate `12287c3`; the final manifest/signature and acceptance loop restart on the next immutable commit.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-20T12:03Z — exact-head review corrects final signed-state language</b><br><br>- Signed commit `32b3030536e771e09428e2b22bdd088b040ec11a` passed local and clean-clone 5/5 content verification plus 101 tests, but the different-family exact-head review returned **CHANGES_REQUIRED**.<br>- The blocking inconsistency was signed mission state that still described the checked-in artifact as historical 2.0.2/v2. The state now records the v3, 2.0.3, sequence-1 content candidate as 5/5 while keeping `readyToRun`, external freshness, merge, promotion, tag, and reinstall explicitly pending.<br>- The review also found one test signing helper still resolving bare `ssh-keygen`. All fixture generation, signing, fingerprinting, verification, and signed config now reuse the same native-Windows-preferred exact executable selector.<br>- These tracked corrections invalidate `32b3030` as the final candidate. The manifest/signature, clean-clone replay, exact-head review, and three-platform CI restart on the next immutable commit.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-20T10:43Z — Windows CI isolates Git-for-Windows runtime selection</b><br><br>- PR #4 run `32359757190` passed macOS and Ubuntu. Windows completed the copied-runtime setup but all 19 freshness errors were the same `ssh-keygen -lf` exit 255 under the minimal Windows-native verification environment.<br>- Key generation had succeeded before the hardened invocation. The fixture had selected Git-for-Windows OpenSSH from ambient `PATH`, then treated that MSYS-linked executable as if it were the native Windows runtime.<br>- Windows Server 2025 already installs native OpenSSH. Freshness fixtures now prefer `%SystemRoot%\\System32\\OpenSSH\\ssh-keygen.exe` when present, bind that exact executable and digest in their signed config, and preserve the private HOME/temp and stripped-environment boundary. Other platforms retain exact `PATH` resolution.<br>- The failed run does not authorize merge. Because the fixture and mission evidence are signed controlled bytes, manifest regeneration, biometric re-signing, clean-clone replay, independent review, and replacement CI remain mandatory.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-20T10:28Z — replacement CI passes macOS/Ubuntu and narrows Windows environment failure</b><br><br>- PR #4 run `32358722982` passed the complete macOS and Ubuntu jobs. Windows used the copied Python runtime and real public-key file but OpenSSH still exited nonzero with empty diagnostics under the stripped subprocess environment.<br>- Every temporary OpenSSH operation now receives a fresh private `HOME`, `USERPROFILE`, and temp-root tuple while retaining the pinned executable-only `PATH`; no caller home, loader, proxy, Git, or TLS environment is restored.<br>- The Windows install test also exposed parser-time `Path.home()` resolution before the freshness handoff check. `--home` is now lazily resolved only after a valid handoff marker, so a missing marker fails closed without consulting ambient user state.<br>- The replacement run remains red and merge remains blocked. These controlled changes invalidate the preceding signature and review; the full sign/replay/review/CI sequence restarts.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-20T10:08Z — completed CI logs expose Windows OpenSSH stdin incompatibility</b><br><br>- The completed run confirmed macOS shared Ubuntu's unprotected setup-python runtime failure. Windows reached the freshness fixtures but rejected `ssh-keygen -lf -`; its OpenSSH build does not accept the Unix stdin pseudo-filename for public-key fingerprinting.<br>- Fingerprinting now writes the already-captured public key to a private temporary file and passes that real path to the exact digest-pinned `ssh-keygen`. This preserves the same trust decision while using the portable OpenSSH interface.<br>- The first copied-runtime replacement signature and clean-clone replay are void-on-move. All pre-sign gates, biometric signing, clean-clone replay, exact-head review, and replacement CI remain required.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-20T10:06Z — PR #4 CI rejects an unprotected hosted Python runtime</b><br><br>- Exact signed head `3139972f165ee8b5288a55bee89b560c375085ce` passed clean-clone reacceptance and a different-family Claude Opus review, then opened PR #4 without force.<br>- GitHub Actions run `32357025682` failed Ubuntu because the setup-python toolcache executable was group/world writable. The freshness tests correctly refused to model that runtime as externally protected; merge was not attempted.<br>- The workflow now creates a private `venv --copies` runtime and places its platform-specific executable directory first for all later steps. A local owner-controlled copied runtime passes the complete 101-test suite.<br>- Because the workflow and mission evidence are controlled signed bytes, the prior manifest, signature, clean-clone receipt, and exact-head verdict are stale. Manifest regeneration, biometric re-signing, clean-clone replay, independent review, and replacement three-OS CI are mandatory before merge.</p></article></div></section>
+<section aria-labelledby="prs"><h2 id="prs">Merged Work (1 PRs)</h2><div class="timeline"><article class="tl-item"><time>#4</time><p><b>release: idc skills forge 2.0.3</b> &mdash; P6 &middot; <a href="https://github.com/Navigata1/idc-skills-forge/pull/4">view</a></p></article></div></section>
+<section aria-labelledby="journal"><h2 id="journal">Journal (latest first)</h2><div class="timeline"><article class="tl-item"><time>&#9998;</time><p><b>2026-08-25T16:27Z — owner selects the bounded public 2.0.4 assurance profile</b><br><br>- The owner authorized stable 2.0.4 publication and own-fleet use without purchasing additional Kimi capacity now. This authorizes a public content-authenticated profile, not a retroactive PASS for the complete G0-G6 acceptance ceremony.<br>- Scoped promotion requires one owner-signed sequence-2 manifest, exact staged-inventory closure, clean-clone reproduction, protected CI and review, immutable GitHub objects, and two matching out-of-repository publications of the full Forge fingerprint plus tag, commit, tree, and manifest digest.<br>- Production 2-of-3 root/release custody, Kimi K3-204 lanes 8 and 10 plus hostile synthesis, independent Windows/NTFS acceptance, freshness-authorized four-root parity, the disjoint publication observer, and `readyToRun=true` remain explicitly deferred full-profile gates. A later completion receives a new immutable version identity.<br>- Claude's pause left no commit, tag, push, signature, publication, or install. The sequence-2 manifest matches current worktree bytes but the index is unstaged and the retained 2.0.3 signature fails it as intended. The prior construction correlators are historical after manifest regeneration; underlying evidence and package digests remain byte-identical.<br>- A redacted gitleaks pass reported eighteen generic-key candidates. Each inspected hit is the public Forge `SHA256:` signing fingerprint in preserved tracked evidence, not a private credential. Two ignored Python cache files are non-release residue and will be removed before staging.<br>- Canonical state now separates active scoped phase `R204` from deferred full-assurance `G6`. R204 gates only the owner-signed inventory, clean-clone plus protected GitHub CI/review, and matching GitHub/company/second-channel observations; G1-G6 remain pending without blocking or lending their labels to scoped publication.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-24T02:40Z — Claude conditional go executed; artifact and parity joins harden the construction tree</b><br><br>- Claude's return was treated as authorization to continue bounded pre-freeze remediation, not as authority to sign, tag, merge, publish, or install. VERIFY-1 now rejects strict command payloads above 64 KiB before grammar analysis while retaining a below-ceiling control; the expanded native Bash matrix remains 395/395 and the differential suite is 9/9.<br>- Release production and verification now semantically join the strict manifest, registry, install inventory, release index, annotated tag, commit, tree, archive, allowed signers, and threshold statement. Deterministic archives must reproduce the exact committed Git tree in member set, bytes, modes, and normalized metadata; release-index rollback and equivocation fail closed.<br>- The external freshness launcher now supplies the fleet consumer with authenticated release context. Fleet parity requires four absolute, inode-distinct, non-overlapping physical roots outside the candidate repository, classifies every immediate entry, rejects links and special files, and binds the reported tag/commit/tree and artifact digests to the accepted freshness receipt.<br>- Independent read-only join review reproduced and closed same-root reuse, unexpected-entry omission, caller-shaped standalone identity, and macOS case-alias source-root bypasses. Standalone fleet output remains explicitly observation-only with `readyToRun=false`; authoritative acceptance still requires signed or independently witnessed external freshness evidence.<br>- The repaired construction tree's target release-chain suite is 82/82 and the full repository suite passes 271/271. No production key was accessed, no controlled release reference was created, and the release remains NO-SHIP until the frozen exact-head owner ceremony and external gates complete.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-23T17:11Z — late defensive review blockers closed; ship hold remains</b><br><br>- A fresh read-only Codex security review found that the freshness checkpoint lock ended before the installing consumer completed. A deterministic two-generation regression reproduced the stale-overwrite ordering. The final checkpoint lock now remains the cross-process generation fence through expiry recheck, staged-tree verification, and consumer completion; freshness passes 29/29.<br>- The same review found that publication-observer separation covered root metadata keys but not a distinct content-signing key bound into the threshold statement. The verifier now canonicalizes that signed OpenSSH fingerprint into the same key identity domain and rejects reuse; publication verification passes 10/10 with distinct root, release-role, content, and observer fixtures.<br>- Mission Control's G6 review and publication commands now name every required external authority, trusted-root, Git, OpenSSH, and digest argument. A regression checks both command surfaces. Documentation explicitly states that parsers prove key possession, labels, and byte binding; human ceremony establishes real organizational independence.<br>- The repaired construction tree now passes 241/241 Python tests. These fixes close local construction defects only. The release remains unsigned, uncommitted, and NO-SHIP pending the exact-head owner, platform, independent-review, CI, root-custody, fleet-parity, tag, publication, and fresh-consumer gates.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-23T16:41Z — Claude and partial Kimi findings repaired; exact-head acceptance remains open</b><br><br>- Reproduced the supplied Claude register and all available K3-204 lane artifacts against `28edb946a84b7da85f8a38807b9a2def2f5aae31`. Kimi supplied lane files 0–7 and 9; lane 8 was not independently completed, lane 10 never started, and no hostile synthesis or signed seven-part acceptance receipt was returned. Codex construction QA does not replace those independent seats.<br>- Evidence contract v2 now binds the immutable Kimi source bundle, exact preserved fixtures/captures, and semantic assertions without fabricating execution or exit observations. Twenty-eight evidence/replay tests plus fifteen Archipelago tests pass, and the authoritative 31-record ledger validates at SHA-256 `5a2aa47a894646ce504dff6a3951fe8cae88e4908ad2b4366bd96a7583886690`.<br>- Trust checkpoint v3 serializes concurrent updates, binds monotonic release sequence and canonical signed-statement bytes, and authenticates the retained intermediate root across a later rotation. The external freshness configuration is v3 and reruns exact pinned copies of `verify_external_root.py` and `trust_root.py` twice, requiring byte identity with the protected receipt. Focused trust/freshness/public/review suites pass 69/69.<br>- The strict installed Git guard and its current matrix pass 395/395. The static egress matrix passes 619/619; signed-waiver Python and OpenSSH are exact digest-pinned inputs; the sealed harness blocks WebRTC constructors, applies the Chrome IP policy, asserts zero RTC attempts, and detects element overflow. Packet-level ICE observation remains a declared residual rather than a false containment claim.<br>- External review schema v2 parses and hash-checks the indexed packet, requires all eleven K3-204 lanes and all 31 K3-203 reconciliations, and verifies two disjoint non-OpenAI Ed25519 authority keys. Publication schema v2 independently verifies release-threshold signatures and a disjoint externally pinned observer signature over every candidate, channel locator, and structured receipt digest.<br>- The repaired construction worktree passes 238/238 Python tests, 50/50 canonical validation, 50 semantic records, four source families, eighteen executable-tool families, eighteen vendored protocol files, and five contracts. These are local construction results only. The 2.0.3 manifest/signature still correctly refuse the changed 2.0.4 tree; real macOS and Windows seats, owner signing, production root custody/channels, protected CI, signed fleet parity, fresh non-OpenAI review, merge, tag, publication, and consumer verification remain open.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-22T23:49Z — G5 local closure passes; signed fleet parity remains open</b><br><br>- Exact implementation head `bb965ccc8557b0d431389fc4843ba6dde3bbd7cf` (tree `2ea708a1f30708adcb076f9b97a8d4939ffbb827`) passes 168 Python tests, 50/50 canonical validation, 50 semantic records, four source-family records, eleven executable-tool families, eighteen vendored protocol files, and five explicit contracts. The 2,146-line disclosed egress corpus remains 607/607 at SHA-256 `d4865cd50dae5742468a59dfb435bf281d01e8d9d8bad3b462ca58d3dcb8e275`.<br>- Archipelago is vendored at `b9f7cee2823f9791503db20f33b22c9e20af7abe` with its MIT license, exact upstream/result hashes, duplicate-key rejection, pre/post validation capture, approved lock digests, gate-command rebinding, and a digest-pinned optional Node renderer. The Forge intake scanner produced 41 advisory rows: published hashes, interpreter shebangs, non-secret renderer variables, and deliberate hash-bound subprocess authority; there were no network-egress, unpinned-install, prompt-injection, link, special-file, oversized, or binary findings.<br>- The supply-chain scanner now captures bounded stable regular-file bytes without following links and percent-encodes untrusted names and snippets. `console.lock` is idempotently assembled from exact HEAD blobs with blocks-tree `a8bada7a3cbfc4b6661ecea12f573b8750768117` and body SHA-256 `992671fdd1d262d73393094efadafc232efcb8370bbedb4d4f6a625b5b826169`; Git and shasum must be explicit absolute executables.<br>- G5-G1/G2 and G5-T1/T2 are closed. The four-root verifier deliberately refuses direct invocation; G5-G3/T3 remain open until a signed 2.0.4 candidate passes external freshness and is then installed into Codex, Claude, Pi, and Hermes. No unsigned fleet mutation occurred.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-22T23:24Z — G4 code and local runtime boundary pass; exact platform gate remains open</b><br><br>- Hook payloads now accept exactly one normalized skill identity, reject duplicate JSON keys and duplicate/conflicting representations, and preserve blocking exit `2` when a live hook pipe closes. Signed per-skill records bind SHA-256, size, and safe POSIX mode; group/world-writable skill files fail.<br>- The freshness launcher passes an absolute, externally configured and digest-pinned `ssh-keygen` into the captured verifier and every consumer. Release verification no longer discovers its cryptographic executable through `PATH`.<br>- The signed runtime floor is Python 3.10 and Bash 3.2. DeepAPI bearer material moves through a mode-0600 curl config rather than argv; the wizard defaults to password-manager custody, makes plaintext `.env` an explicit ignored/non-public opt-in, and standards-parses the exact normalized URL it opens.<br>- Forty-eight focused G4 tests, all 155 repository tests, real macOS Bash 3.2 parsing, ShellCheck, and 50/50 canonical validation pass. Windows uses authenticated signed POSIX intent rather than making a false NTFS-mode claim.<br>- G4-G1, G4-T1, and G4-T2 are closed. G4-G2 and G4-T3 remain open until one frozen head has real macOS and Windows/NTFS/OpenSSH records. Same-UID post-check mutation is an explicit advisory residual; stronger enforcement requires admin-owned trust state or OS/process isolation.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-22T23:00Z — G1 code closes; production first trust remains an owner gate</b><br><br>- Added strict canonical `idc-skills-root/v1` metadata with OpenSSH 2-of-N role thresholds, final-root expiry, sequential N+1 rotation, dual old/new authorization, and a monotonic protected external checkpoint. An initial root located inside the candidate repository is rejected before candidate content is read.<br>- Added threshold-signed `idc-skills-release-statement/v1` binding the exact tag, commit, tree, archive, manifest, freshness index, registry, and four-root installation inventory. Git and OpenSSH paths are absolute, external, owner-controlled, and digest-pinned; release artifacts are streaming-hashed from stable file descriptors.<br>- The public builder accepts public keys and detached signatures only, never a private key. Sixteen tests pass, including self-consistent forged authority, rollback, same-version equivocation, mirror withholding after accepted rotation, skipped root, expiry, partial threshold, tool-digest substitution, archive substitution, tag/tree mismatch, safe public assembly, and valid dual-threshold recovery.<br>- Success emits `externalTrustVerified=true`, `eligibleForContentVerification=true`, and `readyToInstall=false`. G1-G2 and G1-T3 remain pending until the owner conducts the real 2-of-3 ceremony, places the protected root/checkpoint outside Git, and proves one matching root digest through two separately administered channels. GitHub remains canonical distribution; the company site is a separate trust/discovery channel, not a second mutable skill tree.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-22T22:48Z — G0 closes with 31 immutable, replayable Kimi records</b><br><br>- The complete `idc.security-evidence/v1` package reconciles all 31 Kimi identifiers to exact 2.0.3 Git blobs and line ranges, preserved fixture bytes, captured output bytes, replay commands, and explicit dispositions. The source scanner citations for K3-203-004 through 008, K3-203-001 released scope, and K3-203-008 u2.ts/output binding are corrected without modifying the raw red-team package.<br>- Every replay re-hashes its fixture and captured output, requires the execution record to bind the same fixture digest, rejects unsafe or non-regular paths, and emits the preserved output byte-for-byte. All 31 replays match the ledger output digests.<br>- Thirteen focused validator and replay tests pass, including negative cases for roster omission, unresolved or out-of-range source, absent command script, fixture/output/binding tamper, changed replay bytes, path escape, and a confirmed disposition without a passing discriminator. G0 is closed; candidate regressions remain separate G2-G5 proof rather than being laundered into the historical evidence record.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-22 — G3 externalizes waiver authority and seals the browser matrix</b><br><br>- The retained red sequence was `589 pass / 15 fail`, then `601 pass / 3 fail`, before the expanded scanner reached `607/607`. New coverage includes multi-candidate data-first lists, bare meta refresh, UTF-16/control-byte active text, literal markup sinks, `-webkit-image-set`, XML stylesheets, multi-URL `attributionsrc`, default-denied inline waivers, and explicit size ceilings.<br>- Artifact-local `egress-ok` comments no longer authorize a default scan. Canonical policy bytes must carry a valid detached OpenSSH signature rooted in caller-owned allowed-signers/fingerprint inputs and bind the exact revision, path, file digest, stable finding fingerprint, reviewer, reason, and expiry. Exact artifact or policy tampering fails; `UNCERT` remains non-waivable; binary exemptions use the same signed exact-finding contract.<br>- The scanner now fails before whole-file parsing above 16 MiB per file or 64 MiB aggregate, with the ceiling repeated inside the stable-snapshot path. Six policy tests and ShellCheck pass.<br>- A dependency-free Chrome DevTools gate intercepts and rejects non-local requests, uses an ephemeral profile with service workers/extensions disabled, asserts the exact CSP, empty artifact service-worker state, no console errors, and no page overflow at 375x812, 768x1024, 1440x900, and emulated print. The generated mission heartbeat required a real mobile timeline overflow fix before this gate passed.<br>- G3 is closed for its declared static, signed-waiver, resource, and sealed-load surfaces. The scanner remains a bounded language model, and the heartbeat is not the bespoke enhanced flagship report; final enhanced-artifact QA remains a G6 release deliverable.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-22T22:52Z — G2 closes the declared Git grammar at 325/325</b><br><br>- Added the Kimi red corpus before implementation. The 2.0.3 classifier returned `pass=301 fail=18`: every attached-redirection, invoked-bang-alias, non-alias clean policy, plumbing ref, forced tag, and brace-expansion exploit failed its expected block.<br>- The classifier now removes unquoted redirection operator/target pairs anywhere in a simple command before Git argv analysis, composes invoked bang-alias bodies with call-site arguments, resolves `clean.requireForce` through the visible runtime-config layers, and blocks `update-ref` plus forced tags.<br>- `IDC_GUARD_STRICT=1` makes missing payload/interpreter and unsupported dynamic shell grammar exit `2`; ordinary mode retains an announced compatibility fail-open. The strict/release distinction is explicit in the skill rather than implied by a green fixture count.<br>- Native macOS Bash 3.2 passes 325/325, seven parser differential tests pass, ShellCheck is clean, canonical skill validation remains 50/50 with the same thirteen named Claude.ai advisories, and G2 is closed.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-22T22:24Z — G0 evidence validator proves it can go red</b><br><br>- Added the dependency-free `idc.security-evidence/v1` validator and an inspectable JSON Schema. A valid record binds the preserved source roster, exact Git revision and line range, fixture bytes, exact command, expected and observed exit, captured output bytes, discriminator, and disposition.<br>- The validator extracts all `K3-203-NNN` identifiers from the hash-bound Kimi roster and rejects a package that silently omits one. This makes package completeness a recomputed fact rather than a self-declared count.<br>- Nine focused tests pass. The gate fails on a missing revision path, out-of-range line, fixture or output digest mismatch, output bound to different fixture bytes, absent command script, confirmed status without a passing discriminator, and incomplete roster coverage.<br>- G0-T1 is done and G0-T2 is active. No finding is marked reconciled until the complete preserved Kimi package validates.</p></article><article class="tl-item"><time>&#9998;</time><p><b>2026-08-22T22:02Z — 2.0.3 history reconciled and 2.0.4 G0-G6 mission opened</b><br><br>- Public `Island-Dev-Crew/idc-skills` main and annotated tag `2.0.3` were re-derived at commit `26b9285c1fe11a3ef875a34ff30faa0275eddf24`, tree `0ca09971998a058ca80c05fbfde4ca4d1178fdf8`, and tag object `bbdbafebde00f411dfa55584f4943c88e5a0393a`. Historical P5/P6 are closed instead of carrying obsolete pending language into the new mission.<br>- The owner authorized execution of the 2.0.4 G0-G6 hardening plan. Release construction remains HOLD until every gate is green at one exact candidate head; a controlled-byte move voids signatures, attestations, evidence, and review.<br>- GitHub remains canonical for source and immutable releases. The proposed company site is a separately administered trust and discovery channel, not a replacement code host and not an independent trust root merely because it links back to GitHub.<br>- G0 is active. Production threshold signing, exact company-site deployment, real platform seats, exact-head independent review, blind Kimi rerun, merge, tag, publication, and reinstall remain explicit downstream evidence gates.</p></article></div></section>
 
   <p class="footer">GENERATED by ops/mission/render-sotu.mjs from state.json and journal.md when present — do not hand-edit.
-  Before v3 signing, update the source state/journal, rerender, and commit all three. After a valid 2.0.3/v3 signature exists, these are frozen signed bytes; use the external release receipt or restart the signing ceremony.</p>
+  Before v3 signing, update the source state/journal, rerender, and commit all three. After a valid 2.0.4/v3 signature exists, these are frozen signed bytes; use the external release receipt or restart the signing ceremony.</p>
 </main>
 <script>
 document.querySelectorAll("button.copy").forEach((b) => {

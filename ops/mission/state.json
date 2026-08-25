@@ -1,23 +1,61 @@
 {
   "version": 1,
   "mission": {
-    "name": "IDC Forge 2.0.3 Hardening and Freshness",
-    "tagline": "Fifty fused skills, hardened at the bytes and released only on replayable freshness proof.",
-    "repo": "Navigata1/idc-skills-forge",
-    "repoPath": "/Users/IDC2.5/Desktop/IDC-skills",
+    "name": "IDC Forge 2.0.4 World-Class Trust and Utility",
+    "tagline": "Ship 2.0.4 with bounded content trust while preserving the stronger external-threshold mission as an unwaived later profile.",
+    "repo": "Island-Dev-Crew/idc-skills",
+    "repoPath": "/Users/IDC2.5/Desktop/IDC-Skills-Forge-2.0.4-Repaired-Construction-2026-08-23",
     "defaultBranch": "main",
-    "planDoc": "CODEX-DOUBLE-CHECK-SPEC-2.0.3.md",
-    "northStar": "Keep the capped Forge 50 semantically excellent while every integrity, provenance, compatibility, and release claim is bound to evidence that can fail.",
-    "status": "in_progress",
+    "planDoc": "ops/mission/plan-2.0.4.md",
+    "northStar": "A new consumer can reject a counterfeit repository without trusting it to define its own root; every parser, waiver, credential, provenance, platform, and release claim is independently recomputable.",
+    "status": "active",
     "started": "2026-08-11",
-    "updated": "2026-08-21T17:31:18Z",
-    "sessionCount": 4
+    "updated": "2026-08-25T16:27:05Z",
+    "sessionCount": 13
   },
   "policies": {
     "merge": "review",
     "branchPrefix": "codex/",
     "maxPrLines": 400,
-    "notes": "The owner authorized the gated 2.0.3 push, review, merge, promotion, tag, publication, and reinstall pipeline. Every signature, clean-clone, CI, freshness, public-source, and installed-byte gate remains mandatory. No force-push, credential disclosure, evidence rewriting, or unrelated mutation is authorized."
+    "notes": "The owner authorized stable 2.0.4 publication under the bounded public content-authenticated profile in docs/2.0.4-release-scope.md. GitHub remains canonical distribution; two out-of-repository publications must repeat the full Forge fingerprint and immutable release identity before promotion. This scoped publication does not close or waive the still-active production 2-of-3, complete Kimi, Windows/NTFS, freshness-authorized fleet, publication-observer, or readyToRun G1-G6 gates. No force-push, credential disclosure, evidence rewriting, or unrelated mutation is authorized."
+  },
+  "releaseScope": {
+    "version": "2.0.4",
+    "profile": "limited-trust-content-authenticated-v1",
+    "status": "scoped-promotion-authorized",
+    "canonicalRepository": "Island-Dev-Crew/idc-skills",
+    "contentAuthority": {
+      "signers": "1 owner-held Forge key",
+      "privateKeyCustody": "1Password SSH agent; never Git, chat, environment variables, or evidence",
+      "claim": "contentReady only"
+    },
+    "externalWitnesses": {
+      "required": 2,
+      "values": [
+        "full Forge signing fingerprint",
+        "tag",
+        "commit",
+        "tree",
+        "manifest SHA-256"
+      ],
+      "channels": [
+        "company well-known endpoint",
+        "DNSSEC or independently administered transparency channel"
+      ]
+    },
+    "fullPublicVerifier": {
+      "status": "not-claimed",
+      "reason": "The production threshold release statement and disjoint publication-observer authority are deferred."
+    },
+    "deferred": [
+      "production 2-of-3 root and release-role custody",
+      "complete eleven-lane Kimi K3-204 acceptance and hostile synthesis",
+      "independent Windows/NTFS/OpenSSH acceptance",
+      "freshness-authorized four-root fleet parity",
+      "disjoint publication-observer attestation",
+      "externalTrustVerified and readyToRun=true"
+    ],
+    "laterCompletionRule": "A completed full-assurance ceremony receives a new immutable version identity; it cannot be backfilled into 2.0.4."
   },
   "phases": [
     {
@@ -307,7 +345,7 @@
       "id": "P5",
       "title": "Signed Skill Integrity Gate",
       "goal": "Bind all 50 skill trees and the security control plane to the external Forge key, then prove every claimed defense red before green.",
-      "status": "in_progress",
+      "status": "done",
       "sessionsEstimate": "1",
       "gates": [
         {
@@ -371,12 +409,12 @@
         {
           "id": "P5-T3",
           "title": "Freeze, sign, and obtain exact-head cross-family verdict",
-          "status": "in_progress",
+          "status": "done",
           "dependsOn": [
             "P5-T2"
           ],
           "pr": null,
-          "notes": "Signed head 250f7d7 passed exact clean-clone content replay and different-family review. Replacement CI run 32508134303 passed macOS and Ubuntu; Windows proved the mode/discovery repairs but exposed inherited core.autocrlf rewriting temporary-repository Git blobs. The byte-preserving fixture repair invalidates that signature and must be re-signed and re-reviewed before replacement CI."
+          "notes": "Historical 2.0.3 work completed at public commit 26b9285c1fe11a3ef875a34ff30faa0275eddf24, signed tag object bbdbafebde00f411dfa55584f4943c88e5a0393a, after exact-head review and three-platform CI."
         }
       ]
     },
@@ -384,67 +422,527 @@
       "id": "P6",
       "title": "2.0.3 transport, promotion, tag, and fleet resync",
       "goal": "Reaccept the exact signed 2.0.3 candidate, obtain external freshness, transport the exact tree, promote it, tag it, and prove installed copies match.",
-      "status": "blocked",
+      "status": "done",
       "sessionsEstimate": "1",
       "gates": [
         {
           "id": "P6-G1",
           "title": "Fresh clone passes reacceptance and remains byte-clean",
           "command": "python scripts/reaccept.py",
-          "status": "pending",
-          "evidence": null,
-          "lastRun": null,
-          "notes": "Pending the final 2.0.3/v3 signature and exact clean-clone replay. Component approvals do not substitute for signed-tree acceptance."
+          "status": "passed",
+          "evidence": "https://github.com/Island-Dev-Crew/idc-skills/releases/tag/2.0.3",
+          "lastRun": "2026-08-22T18:30:00Z",
+          "notes": "Re-derived during the 2.0.4 assessment from the immutable public tag: contentReady=true, score=5/5, 101 unit tests, and a clean detached clone."
         },
         {
           "id": "P6-G2",
           "title": "Exact 2.0.3 transport candidate has required CI green",
           "command": "gh pr checks <release-pr> --watch",
-          "status": "pending",
+          "status": "passed",
           "evidence": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32508134303",
-          "lastRun": "2026-08-21T17:30:19Z",
-          "notes": "Signed candidate run 32508134303 passed macOS and Ubuntu and failed Windows after all 101 tests ran. The prior OpenSSH, mode, and Git-discovery errors were cleared; Windows then rejected temporary fixture repositories because inherited Git-for-Windows core.autocrlf normalized Python-written CRLF live bytes to LF Git blobs, producing signed-byte-to-tree mismatches. Each FreshnessFixture now sets core.autocrlf=false before its first add/commit so Git preserves the exact bytes the fixture manifest signs. Production freshness code and strict blob comparison remain unchanged. Final signing, clean-clone replay, exact-head review, and replacement three-platform CI remain pending."
+          "lastRun": "2026-08-22T18:30:00Z",
+          "notes": "Historical release PR #4 merged only after required CI passed. Public main and signed tag now resolve to 26b9285c1fe11a3ef875a34ff30faa0275eddf24."
         },
         {
           "id": "P6-G3",
           "title": "Public main, tag, and installed trees resolve to released bytes",
           "command": "git ls-remote idc refs/heads/main refs/tags/2.0.3 && <external freshness launcher> reaccept",
-          "status": "pending",
-          "evidence": null,
-          "lastRun": null,
-          "notes": "Blocked until external signed index/checkpoint yields readyToRun=true for the exact merged tree; no public promotion, tag, or installed-tree verification has been claimed."
+          "status": "passed",
+          "evidence": "ops/mission/evidence/release-2.0.3-final.json",
+          "lastRun": "2026-08-22T18:30:00Z",
+          "notes": "Public main, peeled tag, trust-index commit, manifest/index signatures, and all four installed fleet roots were independently rechecked during the 2.0.4 assessment."
         }
       ],
       "tasks": [
         {
           "id": "P6-T1",
           "title": "Commit final candidate and reaccept from a fresh clone",
-          "status": "pending",
+          "status": "done",
           "dependsOn": [
             "P5-T3"
           ],
-          "pr": null,
-          "notes": "Pending the final signed 2.0.3/v3 exact commit and clean-clone acceptance."
+          "pr": 4,
+          "notes": "Completed historically at public commit 26b9285c1fe11a3ef875a34ff30faa0275eddf24."
         },
         {
           "id": "P6-T2",
           "title": "Transport exact candidate and merge release review",
-          "status": "pending",
+          "status": "done",
           "dependsOn": [
             "P6-T1"
           ],
-          "pr": null,
-          "notes": "Transport and merge require the exact signed candidate, independent review, staging CI, and the documented external freshness handoff."
+          "pr": 4,
+          "notes": "PR #4 merged with required review and CI."
         },
         {
           "id": "P6-T3",
           "title": "Promote exact merged tree, tag 2.0.3, and resync Claude/Codex",
-          "status": "pending",
+          "status": "done",
           "dependsOn": [
             "P6-T2"
           ],
+          "pr": 4,
+          "notes": "2.0.3 published, tagged, and installed with 50/50 byte-and-mode parity."
+        }
+      ]
+    },
+    {
+      "id": "G0",
+      "title": "Executable evidence contract",
+      "goal": "Make every security finding, source citation, fixture, command, result, and status independently recomputable.",
+      "status": "done",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "G0-G1",
+          "title": "Complete 2.0.4 evidence package validates",
+          "command": "python3 -B scripts/validate_evidence.py ops/mission/evidence/2.0.4/evidence.json",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/2.0.4/evidence.json",
+          "lastRun": "2026-08-23T16:41:26Z",
+          "notes": "The v2 ledger validates all 31 roster IDs against exact 2.0.3 blobs plus the hash-bound Kimi source bundle, exact preserved fixtures/captures, semantic bindings, and explicit dispositions. It emits preserved bytes without laundering them into execution claims."
+        },
+        {
+          "id": "G0-G2",
+          "title": "Evidence validator fails closed on falsification fixtures",
+          "command": "python3 -B -m unittest tests.test_evidence_contract",
+          "status": "passed",
+          "evidence": "tests/test_evidence_contract.py",
+          "lastRun": "2026-08-23T16:41:26Z",
+          "notes": "Twenty-eight evidence and replay tests pass. They reject missing or duplicate records, invalid ranges, source-bundle, fixture, capture, semantic-binding, strict-JSON, symlink/path, size, and unsupported execution-claim attacks. Fifteen adjacent Archipelago tests pass bounded output, timeout, route, state, ledger, and evidence-custody controls."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "G0-T1",
+          "title": "Define the machine-readable evidence schema and validator",
+          "status": "done",
+          "dependsOn": [],
           "pr": null,
-          "notes": "Requires external readyToRun=true for the exact merged tree."
+          "notes": "Dependency-free validator now binds roster completeness, exact Git revisions and line ranges, fixture and output digests, command script existence, observed/expected exits, discriminators, and dispositions."
+        },
+        {
+          "id": "G0-T2",
+          "title": "Reconcile every Kimi 2.0.3 finding to exact released and fixture revisions",
+          "status": "done",
+          "dependsOn": ["G0-T1"],
+          "pr": null,
+          "notes": "All source paths and ranges now resolve against the immutable 2.0.3 commit. K3-203-004 through 008 cite the released self-contained-ship scanner, K3-203-001 has released scope, and K3-203-008 is bound to the exact u2.ts/scan.out pair."
+        },
+        {
+          "id": "G0-T3",
+          "title": "Prove evidence tampering is rejected",
+          "status": "done",
+          "dependsOn": ["G0-T1", "G0-T2"],
+          "pr": null,
+          "notes": "The immutable originals remain under source/kimi. Twenty-eight negative-capable contract/replay tests prove source, roster, fixture, capture, semantic binding, strict parsing, and path tampering are rejected without claiming an emitted capture was re-executed."
+        }
+      ]
+    },
+    {
+      "id": "G1",
+      "title": "Independent first-contact trust",
+      "goal": "Reject a fully self-consistent counterfeit checkout before repository content can define its own authority.",
+      "status": "in_progress",
+      "sessionsEstimate": "2",
+      "gates": [
+        {
+          "id": "G1-G1",
+          "title": "Threshold root and rotation verifier reject trust attacks",
+          "command": "python3 -B -m unittest tests.test_trust_root",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/2.0.4/g1-trust-root.json",
+          "lastRun": "2026-08-24T02:34:18Z",
+          "notes": "Twenty-eight OpenSSH-backed root tests and 82 focused root, freshness, release-artifact, and fleet-parity tests pass. They cover forged root, rollback, threshold, expiry, substitution, rotation, signed-history index construction, deterministic exact-tree archives, annotated tags, production wire formats, semantic joins, checkpoint concurrency, and physical installed-root identity. Production custody and first-contact channels remain pending."
+        },
+        {
+          "id": "G1-G2",
+          "title": "Independent bootstrap verifies candidate offline",
+          "command": "/trusted/idc/run-2.0.4-external-verification",
+          "status": "pending",
+          "evidence": "ops/mission/evidence/2.0.4/g1-bootstrap.json",
+          "lastRun": null,
+          "notes": "Pending the owner-held production wrapper, 2-of-3 root ceremony, protected external checkpoint, exact candidate artifacts, and matching root digest observed through two separately administered channels. Candidate-repository evidence is never allowed to supply this command's initial authority."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "G1-T1",
+          "title": "Implement versioned threshold root metadata and authorized rotation",
+          "status": "done",
+          "dependsOn": ["G0-T3"],
+          "pr": null,
+          "notes": "Canonical strict root metadata, 2-of-N OpenSSH threshold verification, exact N+1 rotation, old-plus-new authorization, expiry, and a locked monotonic external checkpoint are implemented and falsified. The checkpoint binds the authenticated root at every retained version, not only the final root."
+        },
+        {
+          "id": "G1-T2",
+          "title": "Bind release identity and attestations into one statement",
+          "status": "done",
+          "dependsOn": ["G1-T1"],
+          "pr": null,
+          "notes": "The release statement threshold-binds tag, commit, tree, releaseSequence, deterministic archive, signed-history freshness index, registry, pre-install expectation inventory, and exact content-signing key/allowed-signers bytes. Builders verify manifest and index signatures, annotated tag, expiry, commit/tree and cross-artifact semantics before signing. The external freshness launcher pins and reruns the exact threshold verifier/module twice, then holds the protected checkpoint generation lock through staged-tree recheck and consumer completion."
+        },
+        {
+          "id": "G1-T3",
+          "title": "Conduct the production root ceremony and publish two independent trust channels",
+          "status": "pending",
+          "dependsOn": ["G1-T1", "G1-T2"],
+          "pr": null,
+          "notes": "Public formats, a private-key-blind builder, verifier, ceremony protocol, and company-site architecture are ready. Actual 2-of-3 custody, signatures, external root/checkpoint placement, and two-channel publication remain owner acceptance boundaries; no secret material belongs in Git, chat, logs, or mission evidence."
+        }
+      ]
+    },
+    {
+      "id": "G2",
+      "title": "Fail-closed Git command grammar",
+      "goal": "Classify supported Git command forms by declared grammar and block ambiguous mutations at enforced release boundaries.",
+      "status": "done",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "G2-G1",
+          "title": "Baseline and adversarial Git corpus pass",
+          "command": "bash skills/agent-guardrails/scripts/test-block-dangerous-git.sh",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/2.0.4/g2-git-grammar.md",
+          "lastRun": "2026-08-24T02:34:18Z",
+          "notes": "The expanded matrix passes 395/395. It retains the earlier RED evidence and adds executable Git config, read-tree/checkout-index/tag mutations, named-FD and coproc grammar, parameter/variable dispatch, a 64 KiB strict-input availability ceiling that avoids OS argument-size failure, strict-wrapper, and safe-control regressions."
+        },
+        {
+          "id": "G2-G2",
+          "title": "Parser differentials and enforced-exit tests pass",
+          "command": "python3 -B -m unittest tests.test_git_guard_grammar",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/2.0.4/g2-git-grammar.md",
+          "lastRun": "2026-08-24T02:34:18Z",
+          "notes": "Nine Python differential tests pass; strict mode blocks unsupported dynamic grammar, missing payloads, and oversize input before handoff, while safe input below the ceiling remains usable. The installer ships a byte/mode-verified strict wrapper, and the external freshness launcher always enables strict mode. ShellCheck passes."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "G2-T1",
+          "title": "Tokenize attached redirections and normalize supported Git forms",
+          "status": "done",
+          "dependsOn": ["G0-T3"],
+          "pr": null,
+          "notes": "Includes attached operators, global options, brace/parameter forms, plumbing mutations, functions, aliases, and wrapper paths."
+        },
+        {
+          "id": "G2-T2",
+          "title": "Evaluate bang-alias bodies together with invocation arguments",
+          "status": "done",
+          "dependsOn": ["G2-T1"],
+          "pr": null,
+          "notes": "Call-site verbs cannot be discarded after resolving an alias body."
+        },
+        {
+          "id": "G2-T3",
+          "title": "Enforce guard failure at the release caller",
+          "status": "done",
+          "dependsOn": ["G2-T1", "G2-T2"],
+          "pr": null,
+          "notes": "Tests operate only on disposable local repositories and never contact a remote."
+        }
+      ]
+    },
+    {
+      "id": "G3",
+      "title": "Egress parser, runtime, and waiver authority",
+      "goal": "Detect every modeled network candidate, deny artifact self-waivers, bound resource use, and prove enhanced artifacts make no unexpected requests.",
+      "status": "done",
+      "sessionsEstimate": "2",
+      "gates": [
+        {
+          "id": "G3-G1",
+          "title": "Baseline and adversarial egress corpus pass",
+          "command": "bash skills/self-contained-ship/scripts/test-scan-egress.sh",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/2.0.4/g3-egress.json",
+          "lastRun": "2026-08-23T16:41:26Z",
+          "notes": "The original floor and all prior RED fixtures remain green at 619/619. New coverage closes quoted meta-refresh targets, srcdoc/camelCase/location sinks, bounded call scanning, and per-finding legacy-waiver binding while retaining safe controls."
+        },
+        {
+          "id": "G3-G2",
+          "title": "Signed waiver and bounded-resource tests pass",
+          "command": "python3 -B -m unittest tests.test_egress_policy",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/2.0.4/g3-egress.json",
+          "lastRun": "2026-08-23T16:41:26Z",
+          "notes": "Eight policy tests pass. Waivers bind revision, file digest, stable finding fingerprint, reviewer, reason, and expiry; Python and ssh-keygen are exact external digest-pinned inputs; UNCERT is never waivable."
+        },
+        {
+          "id": "G3-G3",
+          "title": "Sealed browser loads emit no unexpected requests",
+          "command": "node scripts/verify-sealed-artifacts.mjs",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/2.0.4/g3-sealed-browser.json",
+          "lastRun": "2026-08-23T16:41:26Z",
+          "notes": "Four sealed-harness attack tests pass. The production gate applies the Chrome WebRTC IP policy, blocks RTCPeerConnection constructors before artifact code, asserts zero RTC attempts, zero modeled external requests and artifact service workers, exact CSP, no console errors, and zero overflowing elements at mobile, tablet, desktop, and print. Packet-level ICE capture remains an explicit residual."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "G3-T1",
+          "title": "Close candidate, encoding, markup, CSS, XML, and browser-fetch parser gaps",
+          "status": "done",
+          "dependsOn": ["G0-T3"],
+          "pr": null,
+          "notes": "Includes meta refresh, data/blob lists, srcdoc, handlers, SVG/XLink, image-set variants, XML stylesheets, and attributionsrc."
+        },
+        {
+          "id": "G3-T2",
+          "title": "Move waiver authority into a separately signed policy",
+          "status": "done",
+          "dependsOn": ["G3-T1"],
+          "pr": null,
+          "notes": "Artifact-local comments never grant their own exemption."
+        },
+        {
+          "id": "G3-T3",
+          "title": "Enforce byte ceilings and sealed-load browser proof",
+          "status": "done",
+          "dependsOn": ["G3-T1", "G3-T2"],
+          "pr": null,
+          "notes": "Oversized or complexity-bounded input fails explicitly; enhanced HTML requires static and runtime proof. The runtime harness asserts WebRTC guard installation and zero construction attempts, but does not claim packet-level capture."
+        }
+      ]
+    },
+    {
+      "id": "G4",
+      "title": "Hook, credential, URL, runtime, and platform boundaries",
+      "goal": "Bind the exact skill identity and mode, keep secrets out of unsafe carriers, parse URLs canonically, and prove claimed platform behavior.",
+      "status": "in_progress",
+      "sessionsEstimate": "2",
+      "gates": [
+        {
+          "id": "G4-G1",
+          "title": "Runtime-boundary unit and shell tests pass",
+          "command": "python3 -B -m unittest tests.test_skill_integrity tests.test_freshness tests.test_runtime_boundaries",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/2.0.4/g4-runtime.json",
+          "lastRun": "2026-08-24T02:34:18Z",
+          "notes": "Fifty-four focused skill-integrity, freshness, and runtime-boundary tests pass; the full discovery suite is 271/271. Canonical validation remains 50/50 with zero errors and thirteen named advisories. Bash syntax and ShellCheck pass on the construction tree."
+        },
+        {
+          "id": "G4-G2",
+          "title": "Real platform seats pass the same candidate",
+          "command": "python3 -B scripts/verify_platform_evidence.py ops/mission/evidence/2.0.4/platform-matrix.json --candidate-head <exact-40-hex-candidate>",
+          "status": "pending",
+          "evidence": "ops/mission/evidence/2.0.4/platform-matrix.json",
+          "lastRun": null,
+          "notes": "Requires real macOS/Bash 3.2 and Windows/NTFS/OpenSSH evidence; emulation is not a platform claim."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "G4-T1",
+          "title": "Normalize hook identity and bind signed POSIX modes",
+          "status": "done",
+          "dependsOn": ["G0-T3"],
+          "pr": null,
+          "notes": "Unknown, duplicate, conflicting, and duplicate-JSON-key representations fail. Signed skill records bind SHA-256, size, and safe POSIX mode; physical mode drift fails on POSIX."
+        },
+        {
+          "id": "G4-T2",
+          "title": "Harden runtime, trusted tools, secret transport, and URL parsing",
+          "status": "done",
+          "dependsOn": ["G4-T1"],
+          "pr": null,
+          "notes": "Python 3.10 and Bash 3.2 floors are signed; ssh-keygen is absolute and digest-pinned; DeepAPI bearer bytes stay out of argv; wizard URL and plaintext storage policies are fail-closed."
+        },
+        {
+          "id": "G4-T3",
+          "title": "Record the same-UID residual and obtain real platform evidence",
+          "status": "in_progress",
+          "dependsOn": ["G4-T1", "G4-T2"],
+          "pr": null,
+          "notes": "Same-UID mutation is explicitly an advisory residual requiring admin/OS isolation. Claude's macOS/Bash 3.2 record applies only to the superseded 28edb94 head and is void after repair; real macOS plus Windows NTFS/OpenSSH evidence must be re-captured at the final signed head."
+        }
+      ]
+    },
+    {
+      "id": "G5",
+      "title": "Forge-50 provenance and installed parity",
+      "goal": "Fortify all fifty islands while preserving their separation, exact provenance, loader semantics, and installed bytes and modes.",
+      "status": "in_progress",
+      "sessionsEstimate": "2",
+      "gates": [
+        {
+          "id": "G5-G1",
+          "title": "Canonical validation, records, and provenance closure pass",
+          "command": "python3 -B scripts/verify_forge_50.py --json",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/2.0.4/g5-forge-50.json",
+          "lastRun": "2026-08-23T16:41:26Z",
+          "notes": "The repaired construction tree passes 50/50 with zero errors, 50 semantic records, four source families, eighteen explicitly recorded tool families, eighteen vendored protocol files, and five protocol contracts. Thirteen named Claude.ai compatibility advisories remain visible. This is worktree construction evidence until re-derived at a signed exact head."
+        },
+        {
+          "id": "G5-G2",
+          "title": "Intake and console adversarial suites pass",
+          "command": "python3 -B -m unittest tests.test_supply_chain_intake tests.test_console_lock",
+          "status": "passed",
+          "evidence": "ops/mission/evidence/2.0.4/g5-forge-50.json",
+          "lastRun": "2026-08-23T16:41:26Z",
+          "notes": "Nine focused adversarial tests pass. The byte-safe scanner covers symlinks, special files, NUL/control names, ignored content, bounds, and terminal-safe encoding; console assembly rejects untracked/ignored and index-flagged sources and now supports explicit BSD shasum or GNU sha256sum syntax."
+        },
+        {
+          "id": "G5-G3",
+          "title": "All four fleet roots match candidate bytes and modes",
+          "command": "<external freshness launcher> fleet-parity -- --json",
+          "status": "pending",
+          "evidence": "ops/mission/evidence/2.0.4/g5-fleet-parity.json",
+          "lastRun": null,
+          "notes": "Seven parity regressions pass. The observation-only verifier binds commit/tag/tree plus index, inventory, and manifest digests; requires handoff/index equality; rejects same-inode, case-alias, overlapping, candidate-contained, symlinked, special-file, and extra-entry roots; and requires four physical roots. Codex, Claude, Pi, and Hermes parity still must run from the private staged signed candidate and be preserved in signed or witnessed external evidence."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "G5-T1",
+          "title": "Close third-party provenance and executable dependency records",
+          "status": "done",
+          "dependsOn": ["G0-T3"],
+          "pr": null,
+          "notes": "Archipelago is vendored at full commit b9f7cee with MIT license, unchanged/modified file hashes, reviewed local hardening, and no runtime fetch. Provenance names four source families, the unrecovered historical ICM commit, eighteen executable-tool families, and shipped test material."
+        },
+        {
+          "id": "G5-T2",
+          "title": "Harden intake evidence, authority hierarchy, and console locking",
+          "status": "done",
+          "dependsOn": ["G5-T1"],
+          "pr": null,
+          "notes": "Intake rows percent-encode untrusted bytes and include hidden/ignored/symlink/special content; handoff hierarchy is corrected; console.lock is idempotently assembled from exact HEAD blobs bound to blocks-tree a8bada7."
+        },
+        {
+          "id": "G5-T3",
+          "title": "Reinstall and prove 50-of-50 byte, size, mode, provenance, and loader parity",
+          "status": "in_progress",
+          "dependsOn": ["G5-T1", "G5-T2"],
+          "pr": null,
+          "notes": "The four-root verifier is implemented, independently refuted, and freshness-routed. Its standalone JSON is explicitly observation-only and cannot authenticate itself. Actual reinstall/parity and a signed or witnessed enclosing evidence record wait for a signed accepted candidate; Claude.ai limitations remain explicit unless measured behavior supports a sanitized profile."
+        }
+      ]
+    },
+    {
+      "id": "G6",
+      "title": "Deferred full-assurance exact-head acceptance",
+      "goal": "Bind production threshold custody, complete independent review, real platforms, freshness-authorized fleet parity, publication observation, and readyToRun to a later immutable release identity.",
+      "status": "in_progress",
+      "sessionsEstimate": "2",
+      "gates": [
+        {
+          "id": "G6-G1",
+          "title": "Later full-assurance candidate passes complete clean-clone reacceptance",
+          "command": "python3 -B scripts/reaccept.py",
+          "status": "pending",
+          "evidence": "external later-version clean-clone reacceptance receipt; path supplied at gate time",
+          "lastRun": null,
+          "notes": "DEFERRED FOR FULL ASSURANCE. All G0-G5 gates, legacy baselines, signatures, threshold metadata, archive hashes, and candidate cleanliness must bind to one later-version commit and tree; this gate does not block the separately defined scoped 2.0.4 promotion."
+        },
+        {
+          "id": "G6-G2",
+          "title": "Exact-head independent review and blind Kimi rerun accept",
+          "command": "python3 -I -B scripts/verify_release_reviews.py /external/reviews.json --repo-root /candidate/idc-skills --git /trusted/bin/git --git-sha256 sha256:<git-bytes> --review-authorities /trusted/reviews/authorities.json --review-authorities-sha256 sha256:<authority-record-bytes> --ssh-keygen /trusted/bin/ssh-keygen --ssh-keygen-sha256 sha256:<ssh-keygen-bytes> --json",
+          "status": "pending",
+          "evidence": "external exact-head cross-family and Kimi receipts; path supplied at gate time",
+          "lastRun": null,
+          "notes": "DEFERRED FOR FULL ASSURANCE. Nine v2 verifier tests pass locally. Externally pinned authority records must name distinct families, principals, and Ed25519 keys; both signed receipts must bind one packet that indexes all eleven K3-204 lanes and all 31 K3-203 reconciliations; every lane must be complete; any head move voids both. This gate does not block the separately defined scoped 2.0.4 promotion."
+        },
+        {
+          "id": "G6-G3",
+          "title": "Full threshold publication and independent observer match the later candidate",
+          "command": "python3 -I -B scripts/verify_public_release.py /external/publication.json --repo-root /candidate/idc-skills --git /trusted/bin/git --git-sha256 sha256:<git-bytes> --canonical-repository Island-Dev-Crew/idc-skills --site-host <company-site-host> --trusted-root /trusted/idc/1.root.json --trusted-root-sha256 sha256:<out-of-band-root-pin> --ssh-keygen /trusted/bin/ssh-keygen --ssh-keygen-sha256 sha256:<ssh-keygen-bytes> --observer-authority /trusted/publication/observer-authority.json --observer-authority-sha256 sha256:<observer-authority-record-bytes> --json",
+          "status": "pending",
+          "evidence": "external GitHub, company-site, and second-channel receipts; path supplied at gate time",
+          "lastRun": null,
+          "notes": "DEFERRED FOR FULL ASSURANCE. Ten v2 publication-verifier tests pass locally. It verifies threshold release signatures and an externally pinned observer signature over every structured receipt digest, candidate, root, and channel locator. This strict PUBLIC RELEASE VERIFIED gate is not claimed by scoped 2.0.4."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "G6-T1",
+          "title": "Freeze and reaccept one later full-assurance candidate",
+          "status": "pending",
+          "dependsOn": ["G1-T3", "G2-T3", "G3-T3", "G4-T3", "G5-T3"],
+          "pr": null,
+          "notes": "DEFERRED FOR FULL ASSURANCE. Begin from the immutable 2.0.4 lineage but assign a new version identity; production platform, independent review, parity, custody, CI, and publication proofs must then bind that exact later head."
+        },
+        {
+          "id": "G6-T2",
+          "title": "Obtain protected CI, two-party review, and complete blind Kimi acceptance for the later release",
+          "status": "pending",
+          "dependsOn": ["G6-T1"],
+          "pr": null,
+          "notes": "DEFERRED FOR FULL ASSURANCE. Green CI never overrides partial, advisory, unverified, or semantically failing gate output."
+        },
+        {
+          "id": "G6-T3",
+          "title": "Merge, tag, publish, independently verify, and reinstall the later full-assurance release",
+          "status": "pending",
+          "dependsOn": ["G6-T2"],
+          "pr": null,
+          "notes": "DEFERRED FOR FULL ASSURANCE. Merge policy remains review; production root ceremony, observer, site deployment, tag, and publication are separately auditable acceptance actions under a new immutable version."
+        }
+      ]
+    },
+    {
+      "id": "R204",
+      "title": "Scoped 2.0.4 content-authenticated promotion",
+      "goal": "Publish one exact owner-signed content tree with protected review and two matching out-of-repository fingerprint/release-identity witnesses, without borrowing full-assurance labels.",
+      "status": "in_progress",
+      "sessionsEstimate": "1",
+      "gates": [
+        {
+          "id": "R204-G1",
+          "title": "Exact staged inventory and owner-signed manifest verify",
+          "command": "python3 -B scripts/skill_integrity.py verify --ssh-keygen <trusted-absolute-ssh-keygen> --ssh-keygen-sha256 sha256:<trusted-executable-bytes>",
+          "status": "pending",
+          "evidence": "signed candidate commit and local verification output; exact identity recorded after signing",
+          "lastRun": null,
+          "notes": "The manifest must be sequence 2, close over the exact staged inventory, and reach contentReady 5/5 after the owner-held biometric signature. No later tracked-byte mutation is allowed."
+        },
+        {
+          "id": "R204-G2",
+          "title": "Clean clone plus protected GitHub CI/review preserve the signed tree",
+          "command": "python3 -B scripts/reaccept.py && git diff --exit-code",
+          "status": "pending",
+          "evidence": "external clean-clone receipt, GitHub Actions checks, and PR review at the exact candidate",
+          "lastRun": null,
+          "notes": "A merge strategy may create a different commit only if its tree is byte-identical to the signed accepted tree. Any controlled-byte change returns to manifest generation and biometric signing."
+        },
+        {
+          "id": "R204-G3",
+          "title": "GitHub and two external scoped witnesses repeat the same release identity",
+          "command": "external comparison: GitHub release + company well-known endpoint + DNSSEC/transparency witness",
+          "status": "pending",
+          "evidence": "external scoped-publication receipt recorded outside the signed repository",
+          "lastRun": null,
+          "notes": "All three observations must match the full Forge fingerprint, tag, commit, tree, and manifest SHA-256. This scoped comparison does not emit PUBLIC RELEASE VERIFIED, externalTrustVerified, or readyToRun."
+        }
+      ],
+      "tasks": [
+        {
+          "id": "R204-T1",
+          "title": "Finalize inventory, regenerate manifest, obtain biometric signature, and commit",
+          "status": "in_progress",
+          "dependsOn": [],
+          "pr": null,
+          "notes": "Local freeze work is authorized; private key material never leaves the 1Password SSH agent."
+        },
+        {
+          "id": "R204-T2",
+          "title": "Replay exact candidate, push branch, and obtain protected CI/review",
+          "status": "pending",
+          "dependsOn": ["R204-T1"],
+          "pr": null,
+          "notes": "No force-push. Review and CI bind the exact signed tree before merge."
+        },
+        {
+          "id": "R204-T3",
+          "title": "Publish two witnesses, immutable tag/assets, and post-publication comparison",
+          "status": "pending",
+          "dependsOn": ["R204-T2"],
+          "pr": null,
+          "notes": "The company endpoint and second channel are owner/external actions. Publication evidence remains outside the signed tree."
         }
       ]
     }
@@ -453,8 +951,8 @@
     {
       "label": "Signed release integrity checks",
       "baseline": "0/5",
-      "current": "2.0.3/v3 contentReady 5/5; external readyToRun pending",
-      "target": "2.0.3/v3 contentReady plus external readyToRun",
+      "current": "2.0.3 public release reverified 5/5 with signed external freshness",
+      "target": "2.0.4 contentReady 5/5; a later full-assurance release adds externalTrustVerified and readyToRun",
       "direction": "up"
     },
     {
@@ -467,16 +965,16 @@
     {
       "label": "Dangerous-Git guard fixtures",
       "baseline": 179,
-      "current": 300,
-      "target": 300,
+      "current": 395,
+      "target": 395,
       "direction": "up",
       "tone": "green"
     },
     {
       "label": "Egress scanner fixtures",
       "baseline": 71,
-      "current": 589,
-      "target": 589,
+      "current": 619,
+      "target": 619,
       "direction": "up",
       "tone": "green"
     },
@@ -535,6 +1033,41 @@
       "current": "48 descriptions over 200; 13 explicit-only semantics unpreserved",
       "target": "No output unless both classes are resolved with measured behavior",
       "direction": "down"
+    },
+    {
+      "label": "Scoped 2.0.4 and deferred full-profile findings",
+      "baseline": "21 (1 critical, 17 medium, 3 low)",
+      "current": "31/31 source identifiers evidence-reconciled; scoped R204 remains gated by signing, clean-clone CI/review, and two matching external witnesses, while platform and complete-review work is deferred to a later full-profile release",
+      "target": "0 scoped R204 blockers; every full-profile item remains fixed, accepted residual, false positive, explicitly open, or explicitly deferred",
+      "direction": "down"
+    },
+    {
+      "label": "Independent initial trust channels",
+      "baseline": "0 production channels independent of the code checkout",
+      "current": "Scoped two-witness architecture selected; endpoints pending. Production root ceremony remains deferred.",
+      "target": "2 matching scoped fingerprint/identity witnesses for 2.0.4; later 2 channels plus offline threshold root",
+      "direction": "up"
+    },
+    {
+      "label": "Executable evidence contract",
+      "baseline": "Narrative package with confirmed citation and digest mismatches",
+      "current": "31/31 source-bundle-bound records validate; 28 evidence/replay and 15 Archipelago tests pass including falsification cases",
+      "target": "Complete package passes; all falsification fixtures fail closed",
+      "direction": "up"
+    },
+    {
+      "label": "Real platform acceptance seats",
+      "baseline": "Historical macOS and Windows evidence is not full-assurance evidence for the later release",
+      "current": "Scoped 2.0.4 explicitly makes no Windows/NTFS acceptance claim; full-profile real seats remain pending",
+      "target": "macOS/Bash 3.2 and Windows/NTFS/OpenSSH pass at one later full-assurance head",
+      "direction": "up"
+    },
+    {
+      "label": "Installed Forge fleet parity",
+      "baseline": "2.0.3 at 50/50 across four fleet roots",
+      "current": "Seven physical-root and artifact-identity regressions pass; scoped 2.0.4 makes no freshness-authorized parity claim",
+      "target": "Later full-assurance release at 50/50 byte, size, mode, provenance, and loader parity across four physical roots in signed or witnessed external evidence",
+      "direction": "up"
     }
   ],
   "risks": [
@@ -549,14 +1082,19 @@
       "note": "Buzz and Grok Bot remain unsupported/unknown, native-Windows Hermes has a failed observation, and several authenticated behavior probes remain partial or unrun. The matrix does not invent installation paths."
     },
     {
-      "title": "2.0.3 external freshness and promotion are pending",
+      "title": "Deferred production root ceremony and independent full-profile publication are pending",
       "severity": "high",
-      "note": "The checked-in v3 manifest/signature bind the 2.0.3 sequence-1 content candidate and verify 5/5. External index/checkpoint publication and readyToRun proof remain separate pending gates."
+      "note": "Code can implement and test threshold-root behavior, but authorized human key holders must conduct the production ceremony and publish the initial root through at least two separately administered channels before a later full-profile release. This is not a scoped 2.0.4 promotion gate; scoped 2.0.4 separately requires two matching external witnesses for its owner-held Forge signing fingerprint and exact release identity."
+    },
+    {
+      "title": "Scoped 2.0.4 must not inherit full-profile acceptance claims",
+      "severity": "high",
+      "note": "The owner authorized a stable public content-authenticated release before production 2-of-3 custody, complete Kimi acceptance, Windows/NTFS evidence, freshness-authorized four-root parity, and the publication observer are complete. Release notes and external channels must label those items deferred; a later full-profile release receives a new immutable version identity."
     },
     {
       "title": "Guard and scanner are bounded defense-in-depth controls",
       "severity": "medium",
-      "note": "The accepted 300-case guard and 589-case scanner matrices are red-capable for their documented surfaces, but they are not a shell sandbox or a general language-runtime proof. Signed content and sealed-load/external freshness remain separate gates."
+      "note": "The construction 395-case guard and 619-case scanner matrices are red-capable for their documented surfaces, but they are not a shell sandbox or a general language-runtime proof. Signed content, signed waiver authority, sealed-load execution, external freshness, and packet-level network observation remain separate boundaries."
     },
     {
       "title": "The complete current pack is intentionally blocked from claude.ai export",
@@ -584,19 +1122,28 @@
       "note": "The live head and MIT license are recorded, but no current revision is substituted for the missing fusion-time source commit or archive."
     }
   ],
-  "prLog": [],
+  "prLog": [
+    {
+      "number": 4,
+      "title": "release: idc skills forge 2.0.3",
+      "phase": "P6",
+      "status": "merged",
+      "url": "https://github.com/Navigata1/idc-skills-forge/pull/4",
+      "head": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+      "notes": "Historical 2.0.3 release transport; public Island-Dev-Crew main and signed tag resolve to the same commit."
+    }
+  ],
   "resume": {
-    "activePhase": "P5",
+    "activePhase": "R204",
     "nextActions": [
-      "Reaccept the exact signed tree from a clean clone and require exact-head independent review plus three-platform CI.",
-      "Construct and sign the external freshness index from the final staging merge, prove readyToRun, then promote, tag, publish, and reinstall only that exact tree."
+      "Finalize the scoped 2.0.4 controlled bytes and Git inventory, regenerate the sequence-2 manifest, and obtain the owner-held biometric content signature as the last tracked-byte mutation.",
+      "Commit and clean-clone replay that exact signed tree, then require protected GitHub CI and review without accepting any controlled-byte drift.",
+      "Before public promotion, publish the full Forge fingerprint plus exact tag, commit, tree, and manifest digest through the company endpoint and a DNSSEC or independently administered transparency channel; publish and re-observe only if both agree.",
+      "Do not buy Kimi credits for 2.0.4. Preserve full Kimi, production 2-of-3 custody, Windows/NTFS, freshness-authorized fleet parity, the disjoint observer, and readyToRun as pending G1-G6 gates for a later immutable release."
     ],
     "blockers": [
-      "The checked-in 2.0.3/v3 content candidate is signed and verifies 5/5, but external freshness and readyToRun proof remain pending.",
-      "Exact final clean-clone replay, independent review, required CI, transport, merge, promotion, tag, and reinstall remain downstream release gates.",
-      "Current claude.ai export remains blocked by 48 over-limit descriptions and 13 user-only invocation semantics; this product limitation is not a blocker for the native 2.0.3 candidate.",
-      "The first requested video's source frames remain unavailable after YouTube 403/reload failures; transcript evidence is complete and no visual claim is made.",
-      "The historical ICM fusion commit remains unknown; the live head and license are recorded without substituting current provenance for missing historical evidence."
+      "The repaired construction worktree is unsigned and uncommitted. The current manifest describes 2.0.4 sequence 2, but its retained 2.0.3 signature fails as intended. Owner signing must wait until every controlled byte and the staged inventory are final.",
+      "The company-site trust endpoint and independent second-channel target must be supplied before scoped 2.0.4 public promotion; implementation cannot invent their administrative independence or deployment proof."
     ],
     "conventions": [
       "ops/mission/state.json is the source of truth; never hand-edit state-of-the-union.html.",
@@ -606,7 +1153,9 @@
       "A historical compatibility transform preserves metadata values only; it never asserts invocation semantics.",
       "The public-key fingerprint must be confirmed out of band before repository code is trusted; a repository green light cannot bootstrap its own authorship.",
       "Any signed skill, policy, verifier, installer, hook, workflow, report, state, journal, or other controlled-byte change after final signing invalidates the release and requires manifest regeneration plus a new signature.",
-      "The owner authorized the gated push, review, merge, promotion, tag, publication, and reinstall sequence. A failed signature, clean-clone, CI, freshness, public-source, or installed-byte check stops the sequence; force-push and unrelated mutation remain unauthorized."
+      "GitHub is the canonical code and release channel. A company site is a discovery and independent trust channel only when its administrative custody and publication path do not merely repeat repository-controlled data.",
+      "An external site is not required for skill execution; it is required for the selected two-channel first-contact trust design unless a different genuinely independent channel is accepted.",
+      "The scoped 2.0.4 content-authenticated release and the full G0-G6 acceptance profile are distinct. Merge policy remains review; signing, channel deployment, tag, merge, and release publication stay separately evidenced actions. A failed signature, inventory closure, clean-clone, CI, review, external-channel, tag, asset, or semantic check stops scoped promotion. Full-profile gates remain pending without being converted to waivers or PASS claims; force-push and unrelated mutation remain unauthorized."
     ]
   }
 }

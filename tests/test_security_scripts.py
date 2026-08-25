@@ -101,6 +101,25 @@ def load_integrity_hook():
 
 
 class SecurityScriptTests(unittest.TestCase):
+    def test_integrity_hook_requires_one_unambiguous_identity_representation(self) -> None:
+        module = load_integrity_hook()
+        self.assertEqual(
+            module._skill_from_payload({"tool_input": {"skillName": "short"}}),
+            "short",
+        )
+        with self.assertRaisesRegex(ValueError, "duplicate hook skill representations"):
+            module._skill_from_payload(
+                {"skill": "short", "tool_input": {"skill_name": "short"}}
+            )
+        with self.assertRaisesRegex(ValueError, "conflicting hook skill representations"):
+            module._skill_from_payload(
+                {"skill": "short", "toolInput": {"name": "research"}}
+            )
+        with self.assertRaisesRegex(ValueError, "must be an object"):
+            module._skill_from_payload({"tool_input": "short"})
+        with self.assertRaisesRegex(ValueError, "duplicate JSON key"):
+            module._unique_object([("skill", "short"), ("skill", "research")])
+
     def test_integrity_hook_requires_installed_skill_root(self) -> None:
         process = subprocess.run(
             [
@@ -128,7 +147,7 @@ class SecurityScriptTests(unittest.TestCase):
             shutil.copytree(REPO / "skills" / "short", installed / "short")
             source = installed / "short"
             expected = {
-                path.relative_to(source).as_posix(): skill_integrity._file_record(path)
+                path.relative_to(source).as_posix(): skill_integrity._skill_file_record(path)
                 for path in skill_integrity._walk_regular_files(source)
             }
             verified = {
@@ -207,7 +226,14 @@ class SecurityScriptTests(unittest.TestCase):
                 verified, "short", {"skill": "research"}
             )
             self.assertEqual(mismatch_code, 2)
-            self.assertIn("explicit skill and hook payload disagree", mismatch_error)
+            self.assertIn("explicit skill and hook payload conflict", mismatch_error)
+
+            original_mode = stat.S_IMODE((installed / "short" / "SKILL.md").stat().st_mode)
+            (installed / "short" / "SKILL.md").chmod(0o666)
+            mode_code, _, mode_error = invoke(verified, "short")
+            self.assertEqual(mode_code, 2)
+            self.assertIn("unsafe group/world-writable skill file mode", mode_error)
+            (installed / "short" / "SKILL.md").chmod(original_mode)
 
             (installed / "short" / "SKILL.md").write_bytes(b"poisoned\n")
             drift_code, _, drift_error = invoke(verified, "short")
@@ -219,6 +245,7 @@ class SecurityScriptTests(unittest.TestCase):
                 ready_error,
                 unknown_error,
                 mismatch_error,
+                mode_error,
                 drift_error,
             ):
                 message.encode("ascii")
@@ -333,6 +360,22 @@ exit 9
     def test_wizard_env_write_is_private_and_host_confirmed(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             root = Path(temporary)
+            template_text = (REPO / "skills/wizard/template.sh").read_text(encoding="utf-8")
+            library, _ = template_text.rsplit(
+                'stage "Example — capture an API key"', 1
+            )
+            wizard = root / "wizard.sh"
+            wizard.write_text(
+                library
+                + '''stage "Fixture"
+open_url "https://dashboard.example.com/developers/api-keys"
+ask_secret "Paste the API key" API_KEY
+write_env "EXAMPLE_API_KEY" "$API_KEY"
+unset API_KEY
+''',
+                encoding="utf-8",
+            )
+            shutil.copy2(REPO / "skills/wizard/safety.py", root / "safety.py")
             tools = root / "tools"
             tools.mkdir()
             write_executable(tools / "open", "exit 0\n")
@@ -340,11 +383,12 @@ exit 9
             environment = os.environ.copy()
             environment["PATH"] = f"{tools}:{environment['PATH']}"
             environment["ENV_FILE"] = str(root / ".env")
+            environment["WIZARD_ALLOW_PLAINTEXT_ENV"] = "1"
             process = subprocess.run(
-                bash_command(REPO / "skills/wizard/template.sh"),
+                bash_command(wizard),
                 cwd=root,
                 env=environment,
-                input="y\n\nfixture-secret\n",
+                input="y\nfixture-secret\n",
                 text=True,
                 capture_output=True,
                 check=False,
@@ -355,6 +399,83 @@ exit 9
             self.assertEqual(
                 env_file.read_text(encoding="utf-8"), "EXAMPLE_API_KEY=fixture-secret\n"
             )
+
+    def test_wizard_url_parser_rejects_authority_confusion_and_opens_normalized_url(self) -> None:
+        safety = REPO / "skills/wizard/safety.py"
+
+        def run(value: str) -> subprocess.CompletedProcess[str]:
+            return subprocess.run(
+                [sys.executable, "-I", "-B", str(safety), "url", value],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+
+        for value in (
+            "https://trusted.invalid@evil.invalid/path",
+            "https://trusted.invalid:444/path",
+            "https://trusted.invalid\\@evil.invalid/path",
+            "https://trusted.invalid/path\nhttps://evil.invalid",
+            "http://trusted.invalid/path",
+            "https://tést.invalid/path",
+        ):
+            with self.subTest(value=value):
+                self.assertEqual(run(value).returncode, 2)
+
+        query = run("HTTPS://TRUSTED.INVALID:443/path?next=https://evil.invalid@x#panel")
+        self.assertEqual(query.returncode, 0, query.stderr)
+        self.assertEqual(
+            query.stdout.splitlines(),
+            ["https://trusted.invalid/path?next=https://evil.invalid@x#panel", "trusted.invalid"],
+        )
+        loopback = run("http://[::1]:4173/dev")
+        self.assertEqual(loopback.returncode, 0, loopback.stderr)
+        self.assertEqual(loopback.stdout.splitlines()[1], "::1")
+
+    @unittest.skipIf(os.name == "nt", "POSIX plaintext-path policy fixture")
+    def test_wizard_plaintext_env_is_opt_in_ignored_and_outside_publication_paths(self) -> None:
+        safety = REPO / "skills/wizard/safety.py"
+        git = Path(shutil.which("git") or "").resolve()
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            subprocess.run([str(git), "-C", str(root), "init", "-q"], check=True)
+            target = root / ".env"
+
+            unignored = subprocess.run(
+                [sys.executable, "-I", "-B", str(safety), "env", str(target), "--git", str(git)],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(unignored.returncode, 2)
+            self.assertIn("not covered by a Git ignore rule", unignored.stderr)
+
+            (root / ".gitignore").write_text(".env\n", encoding="utf-8")
+            ignored = subprocess.run(
+                [sys.executable, "-I", "-B", str(safety), "env", str(target), "--git", str(git)],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(ignored.returncode, 0, ignored.stderr)
+
+            public = root / "public"
+            public.mkdir()
+            publication = subprocess.run(
+                [sys.executable, "-I", "-B", str(safety), "env", str(public / ".env"), "--git", str(git)],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(publication.returncode, 2)
+            self.assertIn("build or publication context", publication.stderr)
+
+    def test_research_bearer_secret_is_not_in_curl_argv(self) -> None:
+        text = (REPO / "skills/research/SKILL.md").read_text(encoding="utf-8")
+        self.assertNotIn('-H "Authorization: Bearer $KEY"', text)
+        self.assertIn('CURL_CONFIG="$TMP/curl.conf"', text)
+        self.assertIn('curl --config "$CURL_CONFIG"', text)
+        self.assertIn('chmod 600 "$CURL_CONFIG"', text)
 
 
 if __name__ == "__main__":

@@ -1,0 +1,80 @@
+{
+  "dryRun": false,
+  "errors": [
+    "fail: [Errno 13] Permission denied: '/tmp/K3-3/e6-fail/.short.install-xy0ybacc'"
+  ],
+  "integrity": {
+    "authority": "content-only",
+    "checks": {
+      "external_reference_set": {
+        "detail": "all HTTP(S) references and network-command occurrences are signed and classified",
+        "failures": [],
+        "pass": true
+      },
+      "fetch_execute_policy": {
+        "detail": "fetch/execute patterns are denied unless an exact signed, reviewed example is present",
+        "failures": [],
+        "pass": true
+      },
+      "local_bytes": {
+        "detail": "all registered skill bytes, inventory, policy, and security-control bytes",
+        "failures": [],
+        "pass": true
+      },
+      "remote_content_pins": {
+        "detail": "pinned runtime instructions checked=0; allowlisted non-instruction references=12",
+        "failures": [],
+        "pass": true
+      },
+      "signature": {
+        "detail": "trusted fingerprint, signer binding, detached signature, and canonical manifest",
+        "failures": [],
+        "pass": true
+      }
+    },
+    "contentReady": true,
+    "expectedSigningFingerprint": "SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA",
+    "manifest": "/tmp/K3-3/repo/integrity/manifest.json",
+    "manifestSequence": 1,
+    "pass": true,
+    "profile": "release",
+    "release": "2.0.3",
+    "schema": "idc-skill-integrity-report/v2",
+    "score": "5/5",
+    "skillsChecked": 50
+  },
+  "mode": "install",
+  "success": false,
+  "targets": [
+    {
+      "name": "ok",
+      "path": "/tmp/K3-3/e6-ok",
+      "provenance": "user-specified",
+      "skills": [
+        {
+          "destinationSha256": "27a7af1a37fdfe0bae7a92df4e76632140f1f20c71b8544f3c8c0c8b9b25c45c",
+          "skill": "short",
+          "sourceSha256": "27a7af1a37fdfe0bae7a92df4e76632140f1f20c71b8544f3c8c0c8b9b25c45c",
+          "status": "installed"
+        },
+        {
+          "destinationSha256": "bab7d52c6828e48b52db71ea44bdb5432561a6107e7288744dbd7ab79a02d43a",
+          "skill": "arch-survey",
+          "sourceSha256": "bab7d52c6828e48b52db71ea44bdb5432561a6107e7288744dbd7ab79a02d43a",
+          "status": "installed"
+        }
+      ],
+      "status": "ok"
+    },
+    {
+      "error": "[Errno 13] Permission denied: '/tmp/K3-3/e6-fail/.short.install-xy0ybacc'",
+      "name": "fail",
+      "path": "/tmp/K3-3/e6-fail",
+      "provenance": "user-specified",
+      "skills": [],
+      "status": "error"
+    }
+  ],
+  "transactionBoundary": "all selected targets and skill destinations are preflighted before writes; each skill-directory replacement is atomic; a multi-skill/multi-target run is not rollback-atomic after an unexpected I/O failure",
+  "verifyOnly": false
+}

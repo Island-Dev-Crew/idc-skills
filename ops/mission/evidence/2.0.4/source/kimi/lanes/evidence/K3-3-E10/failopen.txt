@@ -1,0 +1,15 @@
+== malformed JSON
+SKILL BLOCKED - integrity adapter failure: JSONDecodeError
+exit=2
+== JSON array
+SKILL BLOCKED - integrity adapter failure: ValueError
+exit=2
+== empty stdin
+SKILL BLOCKED - hook payload did not identify a skill
+exit=2
+== oversize stdin (>1MiB)
+SKILL BLOCKED - integrity adapter failure: ValueError
+exit=2
+== missing installed root
+SKILL BLOCKED - installed bytes drifted for short: expected a real directory, not a symlink: /tmp/K3-3/does-not-exist/short
+exit=2

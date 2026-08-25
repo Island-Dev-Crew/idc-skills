@@ -1,0 +1,32 @@
+{
+  "schema": "idc.release-reconciliation/v1",
+  "observedAt": "2026-08-22T18:30:00Z",
+  "status": "historical-release-reconciled",
+  "release": "2.0.3",
+  "repository": "Island-Dev-Crew/idc-skills",
+  "commit": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+  "tree": "0ca09971998a058ca80c05fbfde4ca4d1178fdf8",
+  "tag": {
+    "name": "2.0.3",
+    "object": "bbdbafebde00f411dfa55584f4943c88e5a0393a",
+    "peeledCommit": "26b9285c1fe11a3ef875a34ff30faa0275eddf24"
+  },
+  "publicEndpoints": {
+    "release": "https://github.com/Island-Dev-Crew/idc-skills/releases/tag/2.0.3",
+    "ciRun": "https://github.com/Navigata1/idc-skills-forge/actions/runs/32508134303",
+    "transportPullRequest": "https://github.com/Navigata1/idc-skills-forge/pull/4"
+  },
+  "reconciliation": {
+    "publicMainMatchesReleaseCommit": true,
+    "annotatedTagPeelsToReleaseCommit": true,
+    "releaseTreeWasCleanCloneReaccepted": true,
+    "contentVerification": "5/5",
+    "unitTests": "101 passed",
+    "fleetInventory": "50/50 across Codex, Claude, Pi, and Hermes at assessment time"
+  },
+  "limitations": [
+    "This record reconciles the already-shipped 2.0.3 history so the 2.0.4 mission does not report obsolete pending work.",
+    "It is not evidence that 2.0.4 is ready, signed, reviewed, published, or installed.",
+    "Installed-root parity is time-sensitive and must be re-derived at the exact 2.0.4 candidate."
+  ]
+}

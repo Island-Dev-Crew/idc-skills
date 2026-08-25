@@ -1,0 +1,8 @@
+EGRESS /tmp/K3-5/t/ext/a.sh:1:<script src="//scanner-test.invalid/x.js"></script>
+EGRESS /tmp/K3-5/t/ext/a.py:1:<script src="//scanner-test.invalid/x.js"></script>
+EGRESS /tmp/K3-5/t/ext/b.TXT:1:fetch("//scanner-test.invalid/api")
+EGRESS /tmp/K3-5/t/ext/noext:1:<script src="//scanner-test.invalid/x.js"></script>
+EGRESS /tmp/K3-5/t/ext/UPPER.SH:1:<script src="//scanner-test.invalid/x.js"></script>
+--- scan-egress: 5 un-waived, 0 waived, 0 non-fetching URI(s), 5 text file(s), 0 symlink(s), 0 special, 0 unreadable, 0 binary fail(s), 0 binary waived ---
+scan-egress: FAIL — un-waived external reference(s), symlink(s), non-regular/unreadable file(s), traversal error, or binary file(s)
+rc=1

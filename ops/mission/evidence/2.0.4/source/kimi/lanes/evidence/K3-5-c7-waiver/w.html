@@ -1,0 +1,7 @@
+<img src="//127.0.0.1:8971/w1.png"> <!-- egress-ok reviewed -->
+<img src="//127.0.0.1:8971/w2.png">
+<!-- egress-ok wrong line -->
+<img src="//127.0.0.1:8971/w3.png"> <script>fetch("//127.0.0.1:8971/w4")</script> <!-- egress-ok one waiver two findings -->
+<script>const s = `prefix
+//127.0.0.1:8971/w5-template // egress-ok
+suffix`;</script>

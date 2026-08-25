@@ -1,0 +1,7 @@
+remote after push>/dev/null and git</dev/null push: refs moved v2->v3 (94adab2, 97a2b34)
+reset --hard>/dev/null restored destroyed README (v3)
+restore .>/dev/null and checkout .>x discarded whole-tree edits
+clean --force>/dev/null -d deleted untracked-proof.txt
+branch --force>/dev/null keep HEAD~1 moved ref (both = 70a40d5)
+bang-alias: p push -> 3665bcc; GIT_CONFIG_PARAMETERS p push -> bc8ab28; p reset --hard restored; p clean -fd deleted
+bc8ab2892f7ffdf0da3e8def29f27859b6002d2a	refs/heads/main

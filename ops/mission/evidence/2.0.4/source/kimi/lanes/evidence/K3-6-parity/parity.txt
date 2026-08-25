@@ -1,0 +1,5 @@
+THREE-WAY NAME PARITY: skills/ dirs == registry.json skills[].name == manifest.json skillNames (50 == 50 == 50) — verified by script
+FILE HASH PARITY: 119/119 skill files sha256 match manifest; no on-disk file missing from manifest; no manifest entry missing on disk
+INVOCATION PARITY: registry invocation (37 model / 13 user) == frontmatter disable-model-invocation == openai.yaml policy.allow_implicit_invocation
+MANIFEST REGEN: python3 scripts/skill_integrity.py manifest == signed integrity/manifest.json (canonical equality, all keys)
+INTEGRITY GATE: python3 scripts/skill_integrity.py verify -> CONTENT READY 5/5

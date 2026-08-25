@@ -1,0 +1,5 @@
+mode=install success=true
+integrity-score=5/5 content-ready=true
+transaction-boundary=all selected targets and skill destinations are preflighted before writes; each skill-directory replacement is atomic; a multi-skill/multi-target run is not rollback-atomic after an unexpected I/O failure
+target=agents status=ok path=/tmp/k30-challenge/home/.agents/skills
+  skill=wizard status=installed source-sha256=9431625cd764a8a68f16f36f323c7924f113bdb72141f77fe44a2e6081fb5d5f destination-sha256=9431625cd764a8a68f16f36f323c7924f113bdb72141f77fe44a2e6081fb5d5f

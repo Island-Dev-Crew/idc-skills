@@ -1,0 +1,20 @@
+== O5a: 2.0.2 manifest+sig replayed into 2.0.3 tree ==
+raw crypto over replayed manifest:
+Good "file" signature for idc-skills with ED25519 key SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA
+crypto_rc=0 (old sig is a valid Forge 'file' signature)
+
+verifier result:
+CONTENT NOT READY 0/5 — skills=50 profile=unverified
+  FAIL signature: trusted fingerprint, signer binding, detached signature, and canonical manifest
+    - manifest schema must be 'idc-skill-integrity/v3'
+  FAIL local_bytes: all registered skill bytes, inventory, policy, and security-control bytes
+
+50062fb8b07bc0a44d00f1ebc43a36f5cbf522b32c01f7a65f89e12146aea800  integrity/manifest.json
+f9bb022d95538e9edd7e07b53a37060be68b6d97f2031d269f678f7ab42eefd8  integrity/manifest.json.sig
+
+== O5b: launcher checkpoint anti-rollback unit results ==
+rejected: replay lower indexSequence (2 -> 1) -> release index replayed a lower indexSequence
+rejected: equivocation same sequence different digest -> release index equivocation at the same indexSequence
+rejected: history rewrite (entry mutated) -> release index rewrote or removed accepted history
+rejected: first-run wrong bootstrap digest -> first-run index does not match the externally pinned bootstrap digest
+accepted (control): first-run with correct externally pinned bootstrap digest

@@ -1,1 +1,5 @@
 * text=auto eol=lf
+
+# Red-team source artifacts are immutable evidence. Preserve supplied bytes, including CRLF,
+# UTF-16/32 fixtures, control bytes, archives, and captured command output.
+ops/mission/evidence/2.0.4/source/** -text whitespace=-trailing-space,-space-before-tab

@@ -1,0 +1,90 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://islanddevcrew.com/schemas/archipelago/state.extension.schema.json",
+  "title": "ARCHIPELAGO — mission-control state.json extension (v1 -> v1+arch)",
+  "$comment": "STRICTLY ADDITIVE to mission-control's ops/mission/state.json v1 (references/state-schema.md). Everything mission-control and render_sotu.mjs already read is untouched; ARCHIPELAGO adds ONE optional top-level block: 'archipelago'. A v1 file with no block is a valid mission that simply isn't loop-managed. This schema validates only the extension block.",
+  "type": "object",
+  "properties": {
+    "archipelago": {
+      "type": "object",
+      "required": ["protocolVersion", "ideaLock", "ideaLockSHA256", "planLock", "planLockSHA256", "loop"],
+      "additionalProperties": false,
+      "properties": {
+        "protocolVersion": { "const": "1.0" },
+        "ideaLock": { "type": "string", "description": "Path to idea.lock.json (S0 output). Kickoff copies its definitionOfDone into mission metrics/gates." },
+        "ideaLockSHA256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$", "description": "Kickoff-captured digest; every loop action rejects lock drift." },
+        "planLock": { "type": "string", "description": "Path to plan.lock.json (S1 output). Kickoff copies phases[] into state.phases — a copy, not a translation." },
+        "planLockSHA256": { "type": "string", "pattern": "^sha256:[0-9a-f]{64}$", "description": "Kickoff-captured digest; gate ids, titles, and commands must continue to match this plan." },
+        "loop": {
+          "type": "object",
+          "required": ["cycle", "stage"],
+          "additionalProperties": false,
+          "properties": {
+            "cycle": { "type": "integer", "minimum": 1, "description": "Nth full pass through S0->S7 for this goal." },
+            "stage": { "enum": ["S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7"] },
+            "loopbacks": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["fromGate", "toStage", "reason", "at"],
+                "additionalProperties": false,
+                "$comment": "Routing rule: a failed gate returns to the earliest stage whose output the failure falsifies.",
+                "properties": {
+                  "gate": { "type": "string", "pattern": "^P[0-9]{1,6}-G[0-6]$" },
+                  "fromGate": { "enum": ["G0", "G1", "G2", "G3", "G4", "G5", "G6"] },
+                  "toStage": { "enum": ["S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7"] },
+                  "reason": { "type": "string" },
+                  "at": { "type": "string", "format": "date-time" },
+                  "resolvedAt": { "type": "string", "format": "date-time" }
+                }
+              }
+            }
+          }
+        },
+        "governance": {
+          "type": "object",
+          "additionalProperties": false,
+          "$comment": "S6. Honesty rule inherited from NBCLI: enforced vs advisory is stated, never implied.",
+          "properties": {
+            "ledgerRunId": { "type": "string", "description": "NBCLI tamper-evident run ledger id. A merged change with no ledger entry is a governance incident." },
+            "budgetSpentUsd": { "type": "number" },
+            "branchSweeps": { "type": "array", "items": { "type": "string" }, "description": "Paths to clawsweeper decision files applied this cycle (HITL rule intact)." }
+          }
+        },
+        "compound": {
+          "type": "object",
+          "additionalProperties": false,
+          "$comment": "S7. Two engines: ce-compound notes into governed memory; autoresearch-style budgeted experiments ON THE PROTOCOL, kept/discarded strictly by measured improvement.",
+          "properties": {
+            "notes": { "type": "array", "items": { "type": "string" }, "description": "Paths to compound notes written this cycle." },
+            "memorySync": { "enum": ["pending", "synced", "skipped"], "description": "FORGE HIVEMIND fleet sync status." },
+            "experiments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["change", "metric", "baseline", "result", "decision"],
+                "additionalProperties": false,
+                "properties": {
+                  "change": { "type": "string", "description": "What protocol rule/prompt/gate config was modified." },
+                  "metric": { "type": "string", "examples": ["time-to-merge-hours", "loopback-count", "lane-coverage-pct", "fused-confidence-first-pass"] },
+                  "baseline": { "type": "number" },
+                  "result": { "type": "number" },
+                  "decision": { "enum": ["keep", "discard"] },
+                  "resultsRow": { "type": "string", "description": "Line ref in ops/mission/results.tsv" }
+                }
+              }
+            }
+          }
+        },
+        "fableShim": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "rewriterVersion": { "type": "string" },
+            "refusals": { "type": "array", "items": { "type": "string" }, "$comment": "The rewriter's refuse-if-unsafe rule: refusals are logged, never silently dropped." }
+          }
+        }
+      }
+    }
+  }
+}

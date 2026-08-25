@@ -1,0 +1,72 @@
+{
+  "license": {
+    "path": "LICENSE",
+    "sha256": "sha256:f0c3180227394a440ce6aa176bfedd0a6ee36190ad3958cc1fdb398ce51195aa",
+    "spdx": "MIT"
+  },
+  "localReview": {
+    "date": "2026-08-22",
+    "status": "vendored-pinned-with-reviewed-local-hardening"
+  },
+  "modifiedFiles": [
+    {
+      "changes": "dependency-free schema subset validator; validates every named artifact rather than silently dropping argv after the first; rejects duplicate JSON keys",
+      "path": "scripts/validate_contracts.py",
+      "resultSHA256": "sha256:fff7c312d0f63653b19c3f493855b8893a0ce2f8178b4abd7808ee9e715cc4fb",
+      "upstreamSHA256": "sha256:3dbbff214726f37d75b48c52450893d584d863cfacfeca5ed16e2fcf4d996b6e"
+    },
+    {
+      "changes": "bounded schema-constrained phase-gate parsing; non-forward loopback routing; symlink-safe state and ledger handling; in-repository directory-fd evidence creation and retained-fd hashing plus fsynced gate-start custody before execution; bounded streamed output and timeout termination; failed-gate reset; approved lock and command rebinding; pinned Node renderer; Cc/Cf-safe fallback report",
+      "path": "scripts/loop.py",
+      "resultSHA256": "sha256:83e99912e9025729993839e186764f91efaad362d8d7f09c57f0641f82447d6e",
+      "upstreamSHA256": "sha256:20160326d0ee7a78584468f69db00a7239bf3934996e56f4ca2ed698a1a7a53d"
+    },
+    {
+      "changes": "dependency-free contract validation before state creation; stable in-repository lock capture before and after validation; SHA-256 idea and plan binding",
+      "path": "scripts/kickoff.py",
+      "resultSHA256": "sha256:981121b9316e54ef3786aed1dade236d3453160ac394c2661518c5a632f6086b",
+      "upstreamSHA256": "sha256:ff524a9931fb1ae8ed461078f1fc1083fbd60efb6b9dcbf346b1dba791ee369d"
+    },
+    {
+      "changes": "schema-constrained path-safe gate id and loopback resolution timestamp fields; required idea and plan lock digests",
+      "path": "schemas/state.extension.schema.json",
+      "resultSHA256": "sha256:39a862ea594061febdf8bee4d945727f5749fdc0098691c589011ebeeac15126",
+      "upstreamSHA256": "sha256:dc0ba056c0423171fc517e62b3fd6331bb106546addb40d640e50436ee947f3b"
+    },
+    {
+      "changes": "bounded schema-constrained path-safe phase and phase-gate id grammar for evidence filename construction and G-family routing",
+      "path": "schemas/plan.lock.schema.json",
+      "resultSHA256": "sha256:d5930b6f268ec4b8a09140525715ceed15f59b3d1f84ba185890670c98cbe287",
+      "upstreamSHA256": "sha256:e72303bdcf4f12ed2bc5f9d863461056971962bec30297d690aa7c53caa59f34"
+    },
+    {
+      "changes": "bounded schema-constrained phase id grammar consistent with plan and runtime identifiers",
+      "path": "schemas/build-instantiation-brief.schema.json",
+      "resultSHA256": "sha256:7f2fb52bc5112bfb75edeb02442b648ac9279b5c1d14eb43349cb9d1c167f8f2",
+      "upstreamSHA256": "sha256:933cff5e50018732cc1c3aa2b9b2dfc815e9851548d82ec66f03124a21cfb40f"
+    },
+    {
+      "changes": "example records the exact bundled idea and plan lock digests required by the hardened state extension",
+      "path": "examples/state.extension.json",
+      "resultSHA256": "sha256:509e650d36df3d89d7efe753ca837928105572c700e21e06227b7ffa4fd99be7",
+      "upstreamSHA256": "sha256:d5e5c6eaca0fed283e024bcccedcfdc9ba4de0a5c099a6c926db18d522cf311c"
+    }
+  ],
+  "schema": "idc-vendored-protocol/v1",
+  "source": {
+    "commit": "b9f7cee2823f9791503db20f33b22c9e20af7abe",
+    "repository": "https://github.com/Navigata1/archipelago"
+  },
+  "unchangedFiles": {
+    "examples/build-instantiation-brief.json": "sha256:8c48640bb4f79f701b3fb1fb4a0e4fd4c5d46b8fd0754e04bbcf5af5478ad672",
+    "examples/evidence-bundle.json": "sha256:12dbc4ce8aef1787087b4db18035c658083819a2ee30594894f876b229c9c1d0",
+    "examples/idea.lock.json": "sha256:72a446f35ac724c2cf8d1862548bb7f5e1c584eb8ad56166a4c91776a40bbbb5",
+    "examples/plan.lock.json": "sha256:821ceaa6b85751a58fe1dc3c8626d003d618fe08b84d94cb3f8e19eb244cb4a6",
+    "schemas/evidence-bundle.schema.json": "sha256:24f61c4b6d6d958a92cf0912fa313ab675b810d019981aa528dadb1f0923e529",
+    "schemas/idea.lock.schema.json": "sha256:20f2057e0f16ea17da292ed26996ea69bdf99649d070f414168dd8202d864310",
+    "scripts/dogfood_lanes.py": "sha256:1e0d12c7c1ba9634c3946933c8aafb0f9f679fd3d861089d174b1b1cbb5f36d3",
+    "scripts/run_runtime_probes.py": "sha256:987a8904f56d82f1792def0dbf892ee08f517326f7af4cf66ac52b3729a56fea",
+    "scripts/test_lane_caps.py": "sha256:18a54dd1d0cc2ddf38cefb6312d0a5836b1df35d9e8207d8fa4a294b58d595c5",
+    "scripts/test_shell_agnostic.py": "sha256:a2e429c48db6916f61600e38480cb578e002936177a3bb49b1cd0bfcfbe48cd9"
+  }
+}

@@ -2,6 +2,11 @@
 
 The IDC Skills Forge contains adapted or fused material from the projects below. The per-island lineage statement is recorded in `skills/registry.json`; immutable source and archive evidence is recorded in `provenance.json`.
 
+The vendored Archipelago protocol is IDC-authored under MIT and is separately
+bound to `Navigata1/archipelago@b9f7cee2823f9791503db20f33b22c9e20af7abe`
+by `skills/archipelago/protocol/UPSTREAM.json`; its complete license is retained
+at `skills/archipelago/protocol/LICENSE`.
+
 ## David Ondrej — skills
 
 MIT License

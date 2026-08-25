@@ -33,21 +33,38 @@ One self-contained paragraph does the work:
 For deep source-backed runs, DeepAPI (`deepapi.co`) is an available backend, not a requirement; the discipline above stands whatever tool does the reading. It is paid external egress: a cost cap is not spend authorization, so obtain explicit operator approval (or a pre-authorized enforced budget) before calling it. Keep the endpoint fixed; do not source a shell profile or honor an environment-overridden base URL, either of which can turn research into arbitrary code execution or credential exfiltration. Retrieve the credential from the approved password manager into process memory only, never an env file, shell history, repository file, or chat. If used with 1Password CLI, adapt the item reference without exposing the value:
 
 ```bash
+set +x # secrets and protected carriers must never be shell-traced
 umask 077
 command -v op >/dev/null || { echo "password-manager CLI unavailable" >&2; exit 1; }
 KEY="$(op read 'op://Private/DeepAPI/credential')" || exit 1
 [ -n "$KEY" ] || { echo "DeepAPI credential unavailable" >&2; exit 1; }
+case "$KEY" in *$'\n'*|*$'\r'*|*'"'*|*'\\'*) echo "credential has unsupported config characters" >&2; unset KEY; exit 1 ;; esac
 TMP="$(mktemp -d "${TMPDIR:-/tmp}/deepapi-research.XXXXXXXX")"
-trap 'unset KEY; rm -rf "$TMP"' EXIT
+chmod 700 "$TMP"
+trap 'unset KEY; rm -f "$TMP/curl.conf"; rm -rf "$TMP"' EXIT HUP INT TERM
 IDK=$(uuidgen)                                      # retries must reuse the SAME Idempotency-Key
 jq -n --rawfile p "$TMP/prompt.txt" '{query:$p, maxCostUsd:"0.20"}' > "$TMP/body.json"
-curl --fail-with-body --silent --show-error --max-time 120 "https://deepapi.co/v1/research/deep" \
-  -H "Authorization: Bearer $KEY" -H "Content-Type: application/json" \
-  -H "Idempotency-Key: $IDK" -d @"$TMP/body.json" > "$TMP/result.json"
+CURL_CONFIG="$TMP/curl.conf"
+{
+  printf 'header = "Authorization: Bearer %s"\n' "$KEY"
+  printf 'header = "Content-Type: application/json"\n'
+  printf 'header = "Idempotency-Key: %s"\n' "$IDK"
+} > "$CURL_CONFIG"
+chmod 600 "$CURL_CONFIG"
+if ! curl --config "$CURL_CONFIG" --fail-with-body --silent --show-error --max-time 120 \
+  "https://deepapi.co/v1/research/deep" -d @"$TMP/body.json" > "$TMP/result.json"; then
+  rm -f "$CURL_CONFIG"; unset KEY; exit 1
+fi
+rm -f "$CURL_CONFIG"
 unset KEY
 jq -r '.status, .output.answer' "$TMP/result.json"
 jq -r '.output.sources[]?.url'  "$TMP/result.json"
 ```
+
+The bearer value lives only in process memory and a mode-`0600` curl config
+inside a mode-`0700` scratch directory; it never appears in curl's argv. The
+carrier is deleted and the shell variable cleared immediately after transport,
+before response processing.
 
 Create `"$TMP/prompt.txt"` with the approved research prompt before the call. One call caps at ~700 words; for a bigger topic, use only the approved number of calls, one per numbered sub-question (each its own Idempotency-Key), and synthesize. Key missing → stop and ask the user to save it in the password manager; never ask them to paste it into chat and never print or log it. `402 insufficient_credits` → stop; any top-up or additional spend belongs to the operator. If `sources` is empty while the answer shows `[n]` markers, deliver the report but tell the user the citations didn't come back.
 

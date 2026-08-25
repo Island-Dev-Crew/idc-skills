@@ -1,0 +1,7 @@
+URL-SET PARITY: independent byte scan (scheme URLs, bare domains, shorteners) vs manifest externalReferences
+
+manifest enumerates 12 external references across 8 skills; independent scan finds the same set.
+Manifest additionally lists bare glob 'https://*' (wizard/template.sh logical line 48) that the independent regex missed (1-char host glob) — manifest is a strict superset.
+Occurrence 'line' numbers are LOGICAL lines after backslash-newline continuation joining (skill_integrity.py _scan_text: logical_text = text.replace('\
+',' ')); verified reproducible: regenerated manifest is canonically identical to the signed one.
+Bare hostnames not enumerated as externalReferences: cname.vercel-dns.com (domain-wire:60), claude.ai (idc-skill-authoring:95), doctrine placeholder lanes parent.com/app/ai; nonHttpRemoteReferences is empty. DNS-target hostnames are arguably external references — recall gap at the bare-host layer only.

@@ -4,17 +4,22 @@ import argparse
 import contextlib
 import datetime as dt
 import importlib.util
+import http.client
 import io
 import json
 import os
 import shutil
 import subprocess
 import tempfile
+import threading
 import unittest
 from pathlib import Path
 from unittest import mock
 
 from bootstrap import idc_verify_fresh as fresh
+
+
+REPO = Path(__file__).resolve().parents[1]
 
 
 def _ssh_keygen_executable() -> str:
@@ -63,6 +68,21 @@ class FreshnessFixture:
         self.repo.mkdir()
         self.trust.mkdir(mode=0o700)
         self.runtime.mkdir(mode=0o700)
+        threshold_tools = self.runtime / "threshold-tools"
+        threshold_tools.mkdir(mode=0o700)
+        source_root = Path(__file__).resolve().parents[1]
+        self.threshold_verifier = threshold_tools / "verify_external_root.py"
+        self.threshold_trust_module = threshold_tools / "trust_root.py"
+        shutil.copyfile(
+            source_root / "scripts" / "verify_external_root.py",
+            self.threshold_verifier,
+        )
+        shutil.copyfile(
+            source_root / "scripts" / "trust_root.py",
+            self.threshold_trust_module,
+        )
+        self.threshold_verifier.chmod(0o700)
+        self.threshold_trust_module.chmod(0o600)
         (self.repo / "keys").mkdir()
         (self.repo / "integrity").mkdir()
         (self.repo / "scripts").mkdir()
@@ -189,6 +209,7 @@ class FreshnessFixture:
         self.checkpoint = self.runtime / "state" / "checkpoint.json"
         self.index = self.trust / "releases.json"
         self.index_signature = Path(str(self.index) + ".sig")
+        self.threshold_receipt = self.runtime / "threshold-verification.json"
         self.config = self.runtime / "freshness.json"
         self.now = dt.datetime(2026, 8, 19, 12, 0, tzinfo=dt.timezone.utc)
         self.entry = {
@@ -200,6 +221,53 @@ class FreshnessFixture:
             "gitCommit": self.commit,
         }
         self.write_index([self.entry])
+        self.threshold_root = self.trust / "1.root.json"
+        self.threshold_statement = self.trust / "release-statement.json"
+        self.threshold_archive = self.trust / "archive.tar.gz"
+        self.threshold_inventory = self.trust / "install-inventory.json"
+        self.threshold_registry = self.trust / "registry.json"
+        for path, content in (
+            (self.threshold_root, b"fixture root placeholder\n"),
+            (self.threshold_statement, b"fixture release placeholder\n"),
+            (self.threshold_archive, b"fixture archive\n"),
+            (self.threshold_inventory, b"fixture inventory\n"),
+            (self.threshold_registry, b"fixture registry\n"),
+        ):
+            path.write_bytes(content)
+            path.chmod(0o600)
+        threshold_state = self.runtime / "threshold-state"
+        threshold_state.mkdir(mode=0o700)
+        self.threshold_root_checkpoint = threshold_state / "root-checkpoint.json"
+        self.threshold_arguments = [
+            "--repo",
+            str(self.repo),
+            "--trusted-root",
+            str(self.threshold_root),
+            "--trusted-root-sha256",
+            "sha256:" + "e" * 64,
+            "--root-checkpoint",
+            str(self.threshold_root_checkpoint),
+            "--release-statement",
+            str(self.threshold_statement),
+            "--archive",
+            str(self.threshold_archive),
+            "--freshness-index",
+            str(self.index),
+            "--install-inventory",
+            str(self.threshold_inventory),
+            "--manifest",
+            str(self.manifest),
+            "--registry",
+            str(self.threshold_registry),
+            "--git",
+            self.git,
+            "--git-sha256",
+            fresh.sha256_bytes(Path(self.git).read_bytes()),
+            "--ssh-keygen",
+            self.ssh_keygen,
+            "--ssh-keygen-sha256",
+            fresh.sha256_bytes(Path(self.ssh_keygen).read_bytes()),
+        ]
         self.write_config()
 
     def write_index(
@@ -225,6 +293,8 @@ class FreshnessFixture:
         self.index_signature = _sign(self.index, self.private_key, namespace)
 
     def write_config(self, *, bootstrap_digest: str | None = None) -> None:
+        self.write_threshold_receipt()
+        threshold_data = self.threshold_receipt.read_bytes()
         self.config.write_bytes(
             fresh.canonical_bytes(
                 {
@@ -240,6 +310,26 @@ class FreshnessFixture:
                     "minimumIndexSequence": 1,
                     "minimumManifestSequence": 1,
                     "requireGitCommit": True,
+                    "thresholdReceipt": {
+                        "path": str(self.threshold_receipt),
+                        "sha256": fresh.sha256_bytes(threshold_data),
+                        "size": len(threshold_data),
+                    },
+                    "thresholdVerification": {
+                        "arguments": self.threshold_arguments,
+                        "verifier": {
+                            "path": str(self.threshold_verifier),
+                            "sha256": fresh.sha256_bytes(
+                                self.threshold_verifier.read_bytes()
+                            ),
+                        },
+                        "trustModule": {
+                            "path": str(self.threshold_trust_module),
+                            "sha256": fresh.sha256_bytes(
+                                self.threshold_trust_module.read_bytes()
+                            ),
+                        },
+                    },
                     "executables": {
                         "python": {
                             "path": self.python,
@@ -260,6 +350,59 @@ class FreshnessFixture:
             )
         )
 
+    def write_threshold_receipt(self) -> None:
+        tree = subprocess.run(
+            [self.git, "-C", str(self.repo), "rev-parse", "HEAD^{tree}"],
+            text=True,
+            capture_output=True,
+            check=True,
+        ).stdout.strip()
+        root_digest = "sha256:" + "a" * 64
+        statement_digest = "sha256:" + "b" * 64
+        signed_statement_digest = "sha256:" + "d" * 64
+        placeholder = {"sha256": "sha256:" + "c" * 64, "size": 1}
+        value = {
+            "schema": "idc-skills-external-verification/v1",
+            "externalTrustVerified": True,
+            "eligibleForContentVerification": True,
+            "readyToInstall": False,
+            "initialRoot": {"version": 1, "sha256": root_digest},
+            "finalRoot": {"version": 1, "sha256": root_digest},
+            "rootCheckpoint": {
+                "schema": "idc-skills-root-checkpoint/v3",
+                "version": 1,
+                "rootSHA256": root_digest,
+                "releaseSequence": 1,
+                "signedStatementSHA256": signed_statement_digest,
+            },
+            "release": "2.0.3",
+            "releaseSequence": 1,
+            "signedStatementSHA256": signed_statement_digest,
+            "statementSHA256": statement_digest,
+            "git": {"commit": self.commit, "tag": "2.0.3", "tree": tree},
+            "artifacts": {
+                "archive": placeholder,
+                "freshnessIndex": {
+                    "sha256": fresh.sha256_bytes(self.index.read_bytes()),
+                    "size": self.index.stat().st_size,
+                },
+                "installInventory": placeholder,
+                "manifest": {
+                    "sha256": fresh.sha256_bytes(self.manifest.read_bytes()),
+                    "size": self.manifest.stat().st_size,
+                },
+                "registry": placeholder,
+            },
+            "contentSigning": {
+                "allowedSignersSHA256": fresh.sha256_bytes(self.allowed.read_bytes()),
+                "fingerprint": self.fingerprint,
+                "publicKeySHA256": fresh.sha256_bytes(self.public_key.read_bytes()),
+            },
+        }
+        self.threshold_receipt.write_bytes(
+            (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode("utf-8")
+        )
+
     @staticmethod
     def content_runner(
         verifier: bytes,
@@ -270,6 +413,7 @@ class FreshnessFixture:
         repo_root: Path,
         python_executable: str,
         ssh_keygen: str,
+        ssh_keygen_sha256: str,
     ) -> dict[str, object]:
         del (
             verifier,
@@ -280,6 +424,7 @@ class FreshnessFixture:
             repo_root,
             python_executable,
             ssh_keygen,
+            ssh_keygen_sha256,
         )
         return {
             "schema": "idc-skill-integrity-report/v2",
@@ -298,6 +443,7 @@ class FreshnessFixture:
             "expected_fingerprint": self.fingerprint,
             "now": self.now,
             "content_runner": self.content_runner,
+            "threshold_runner": lambda config, repo: config["_thresholdReceiptData"],
         }
         arguments.update(overrides)
         return fresh.verify_release(self.repo, self.config, **arguments)  # type: ignore[arg-type]
@@ -359,18 +505,41 @@ def _prepare_real_content_fixture(fixture: FreshnessFixture) -> None:
         ".github/workflows/validate.yml",
         "AGENTS.md",
         "bootstrap/idc_verify_fresh.py",
+        "console/assemble.sh",
         "CONTEXT.md",
+        "executable-dependencies.json",
+        "IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html",
         "integrity/README.md",
+        "integrity/windows-metadata-policy.json",
+        "ops/mission/evidence/platform-evidence.schema.json",
+        "ops/mission/sealed-artifacts.json",
         "scripts/install.py",
         "scripts/install.sh",
         "scripts/pretooluse-skill-integrity.py",
         "scripts/reaccept.py",
         "scripts/setup-signing-wizard.sh",
         "scripts/test-skill-integrity.sh",
+        "scripts/verify_fleet_parity.py",
+        "scripts/verify_forge_50.py",
+        "scripts/verify_platform_evidence.py",
+        "scripts/verify_provenance.py",
+        "scripts/verify_public_release.py",
+        "scripts/verify_release_reviews.py",
+        "scripts/verify-sealed-artifacts.mjs",
+        "scripts/verify_runtime_requirements.py",
+        "runtime-requirements.json",
         "tests/test_install.py",
         "tests/test_freshness.py",
+        "tests/test_archipelago_protocol.py",
+        "tests/test_console_lock.py",
+        "tests/test_fleet_parity.py",
+        "tests/test_provenance.py",
+        "tests/test_public_release.py",
+        "tests/test_release_reviews.py",
+        "tests/test_runtime_boundaries.py",
         "tests/test_security_scripts.py",
         "tests/test_skill_integrity.py",
+        "tests/test_supply_chain_intake.py",
     )
     for relative in required_controls:
         path = fixture.repo / relative
@@ -475,6 +644,84 @@ def _prepare_real_content_fixture(fixture: FreshnessFixture) -> None:
 
 
 class FreshnessTests(unittest.TestCase):
+    def test_launcher_pins_current_threshold_implementation_bytes(self) -> None:
+        self.assertEqual(
+            fresh.EXPECTED_TRUST_ROOT_MODULE_SHA256,
+            fresh.sha256_bytes((REPO / "scripts/trust_root.py").read_bytes()),
+        )
+        self.assertEqual(
+            fresh.EXPECTED_EXTERNAL_ROOT_VERIFIER_SHA256,
+            fresh.sha256_bytes((REPO / "scripts/verify_external_root.py").read_bytes()),
+        )
+
+    def test_threshold_receipt_is_required_and_digest_pinned(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = FreshnessFixture(Path(temporary))
+            runner = mock.Mock(side_effect=AssertionError("content runner must not execute"))
+            fixture.threshold_receipt.write_bytes(b"{}\n")
+
+            with self.assertRaisesRegex(fresh.FreshnessError, "threshold receipt bytes differ"):
+                fixture.verify(content_runner=runner)
+            runner.assert_not_called()
+
+    def test_fabricated_threshold_receipt_cannot_bypass_official_reproduction(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = FreshnessFixture(Path(temporary))
+            content_runner = mock.Mock(
+                side_effect=AssertionError("content runner must not execute")
+            )
+
+            with self.assertRaisesRegex(
+                fresh.FreshnessError,
+                "configured external-root verifier refused the threshold inputs",
+            ):
+                fresh.verify_release(
+                    fixture.repo,
+                    fixture.config,
+                    launcher_path=fixture.launcher,
+                    expected_fingerprint=fixture.fingerprint,
+                    now=fixture.now,
+                    content_runner=content_runner,
+                )
+            content_runner.assert_not_called()
+
+    def test_threshold_reproduction_must_match_pinned_receipt_bytes(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = FreshnessFixture(Path(temporary))
+            with self.assertRaisesRegex(
+                fresh.FreshnessError,
+                "output differs from the pinned threshold receipt",
+            ):
+                fixture.verify(
+                    threshold_runner=lambda config, repo: b"fabricated output\n"
+                )
+
+    def test_threshold_receipt_binds_the_content_signing_identity(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = FreshnessFixture(Path(temporary))
+            receipt = json.loads(fixture.threshold_receipt.read_text(encoding="utf-8"))
+            receipt["contentSigning"]["fingerprint"] = "SHA256:" + "A" * 43
+            receipt_data = (
+                json.dumps(receipt, sort_keys=True, separators=(",", ":")) + "\n"
+            ).encode("utf-8")
+            fixture.threshold_receipt.write_bytes(receipt_data)
+            config = fresh.load_canonical_json(
+                fixture.config.read_bytes(), "fixture config", fresh.MAX_CONFIG_BYTES
+            )
+            config["thresholdReceipt"] = {
+                "path": str(fixture.threshold_receipt),
+                "sha256": fresh.sha256_bytes(receipt_data),
+                "size": len(receipt_data),
+            }
+            fixture.config.write_bytes(fresh.canonical_bytes(config))
+            runner = mock.Mock(side_effect=AssertionError("content runner must not execute"))
+
+            with self.assertRaisesRegex(
+                fresh.FreshnessError, "threshold-authorized content-signing fingerprint differs"
+            ):
+                fixture.verify(content_runner=runner)
+            runner.assert_not_called()
+
     def test_signed_index_and_captured_content_are_both_required_for_readiness(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
             fixture = FreshnessFixture(Path(temporary))
@@ -490,6 +737,128 @@ class FreshnessTests(unittest.TestCase):
                 fresh.MAX_CHECKPOINT_BYTES,
             )
             self.assertEqual(checkpoint["indexSHA256"], report["indexSHA256"])
+
+    def test_checkpoint_generation_lock_covers_consumer_completion(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = FreshnessFixture(Path(temporary))
+            installed_generation = fixture.runtime / "installed-generation"
+            old_consumer_entered = threading.Event()
+            release_old_consumer = threading.Event()
+            newer_lock_attempted = threading.Event()
+            newer_lock_acquired = threading.Event()
+            newer_finished = threading.Event()
+            failures: list[BaseException] = []
+            reports: dict[str, dict[str, object]] = {}
+            original_checkpoint_lock = fresh._checkpoint_lock
+
+            @contextlib.contextmanager
+            def observed_checkpoint_lock(path: Path):
+                if threading.current_thread().name == "newer-freshness-run":
+                    newer_lock_attempted.set()
+                with original_checkpoint_lock(path):
+                    if threading.current_thread().name == "newer-freshness-run":
+                        newer_lock_acquired.set()
+                    yield
+
+            def old_consumer(
+                staged: Path, handoff: str, config: dict[str, object]
+            ) -> int:
+                del staged, config
+                old_consumer_entered.set()
+                if not release_old_consumer.wait(10):
+                    raise AssertionError("old consumer was not released by the test")
+                installed_generation.write_text(handoff + "\n", encoding="utf-8")
+                return 0
+
+            def run_old() -> None:
+                try:
+                    reports["old"] = fixture.verify(consumer_runner=old_consumer)
+                except BaseException as exc:  # pragma: no cover - asserted below
+                    failures.append(exc)
+
+            old_thread = threading.Thread(
+                target=run_old,
+                name="old-freshness-run",
+                daemon=True,
+            )
+
+            with mock.patch.object(
+                fresh, "_checkpoint_lock", observed_checkpoint_lock
+            ):
+                old_thread.start()
+                self.assertTrue(
+                    old_consumer_entered.wait(10),
+                    "old run did not reach its consumer",
+                )
+
+                old_digest = fresh.sha256_bytes(fixture.index.read_bytes())
+                fixture.write_index([fixture.entry], sequence=2)
+                fixture.write_config()
+                newer_digest = fresh.sha256_bytes(fixture.index.read_bytes())
+                self.assertNotEqual(old_digest, newer_digest)
+
+                def newer_consumer(
+                    staged: Path, handoff: str, config: dict[str, object]
+                ) -> int:
+                    del staged, config
+                    installed_generation.write_text(handoff + "\n", encoding="utf-8")
+                    return 0
+
+                def run_newer() -> None:
+                    try:
+                        reports["newer"] = fixture.verify(
+                            consumer_runner=newer_consumer
+                        )
+                    except BaseException as exc:  # pragma: no cover - asserted below
+                        failures.append(exc)
+                    finally:
+                        newer_finished.set()
+
+                newer_thread = threading.Thread(
+                    target=run_newer,
+                    name="newer-freshness-run",
+                    daemon=True,
+                )
+                newer_thread.start()
+
+                self.assertTrue(
+                    newer_lock_attempted.wait(10),
+                    "newer run did not reach the generation lock",
+                )
+
+                acquired_while_old_consumer_was_paused = newer_lock_acquired.wait(
+                    0.75
+                )
+                if acquired_while_old_consumer_was_paused:
+                    self.assertTrue(
+                        newer_finished.wait(10),
+                        "newer run acquired the generation lock but did not finish",
+                    )
+
+                release_old_consumer.set()
+                old_thread.join(10)
+                newer_thread.join(10)
+
+            self.assertFalse(old_thread.is_alive())
+            self.assertFalse(newer_thread.is_alive())
+            self.assertEqual(failures, [])
+            self.assertFalse(
+                acquired_while_old_consumer_was_paused,
+                "a newer generation advanced while the older consumer was still active",
+            )
+            self.assertEqual(reports["old"]["indexSHA256"], old_digest)
+            self.assertEqual(reports["newer"]["indexSHA256"], newer_digest)
+            self.assertEqual(
+                installed_generation.read_text(encoding="utf-8"),
+                newer_digest + "\n",
+            )
+            checkpoint = fresh.load_canonical_json(
+                fixture.checkpoint.read_bytes(),
+                "checkpoint",
+                fresh.MAX_CHECKPOINT_BYTES,
+            )
+            self.assertEqual(checkpoint["indexSequence"], 2)
+            self.assertEqual(checkpoint["indexSHA256"], newer_digest)
 
     def test_wrong_index_namespace_fails_before_content_execution(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -929,6 +1298,55 @@ class FreshnessTests(unittest.TestCase):
 
             self.assertEqual(report["consumerExitCode"], 0)
 
+    def test_private_stage_is_rehashed_immediately_before_consumer(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            fixture = FreshnessFixture(Path(temporary))
+            consumer = mock.Mock(return_value=0)
+
+            def mutate_staged(*args: object) -> dict[str, object]:
+                report = FreshnessFixture.content_runner(*args)  # type: ignore[arg-type]
+                staged = args[5]
+                assert isinstance(staged, Path)
+                (staged / "scripts" / "install.py").write_text(
+                    "# changed after content verification\n", encoding="utf-8"
+                )
+                return report
+
+            with self.assertRaisesRegex(
+                fresh.FreshnessError, "staged repository bytes changed before consumption"
+            ):
+                fixture.verify(content_runner=mutate_staged, consumer_runner=consumer)
+            consumer.assert_not_called()
+
+    def test_incomplete_http_body_is_normalized_fail_closed(self) -> None:
+        class Response:
+            def __enter__(self):
+                return self
+
+            def __exit__(self, *args: object) -> None:
+                del args
+
+            def geturl(self) -> str:
+                return "https://example.invalid/releases.json"
+
+            def read(self, maximum: int) -> bytes:
+                del maximum
+                raise http.client.IncompleteRead(b"partial", 100)
+
+        class Opener:
+            def open(self, request: object, timeout: int) -> Response:
+                del request, timeout
+                return Response()
+
+        with mock.patch.object(fresh.urllib.request, "build_opener", return_value=Opener()):
+            with self.assertRaisesRegex(fresh.FreshnessError, "release-index fetch failed"):
+                fresh._fetch_https(
+                    "https://example.invalid/releases.json",
+                    {"example.invalid"},
+                    0,
+                    1024,
+                )
+
     def test_consumer_rejects_root_abbreviation_and_strips_hostile_environment(self) -> None:
         with mock.patch.object(fresh.os, "name", "nt"), mock.patch.dict(
             fresh.os.environ,
@@ -954,6 +1372,8 @@ class FreshnessTests(unittest.TestCase):
                 "target.write_text(json.dumps({'argv': sys.argv, 'env': dict(os.environ)}))\n",
                 encoding="utf-8",
             )
+            parity_script = scripts / "verify_fleet_parity.py"
+            parity_script.write_text(installer.read_text(encoding="utf-8"), encoding="utf-8")
             python = str(Path(os.path.realpath(os.sys.executable)).resolve())
             git = str(Path(shutil.which("git") or "").resolve())
             ssh_keygen = _ssh_keygen_executable()
@@ -963,8 +1383,20 @@ class FreshnessTests(unittest.TestCase):
                     "git": git,
                     "sshKeygen": ssh_keygen,
                 },
+                "_executableSHA256": {
+                    "sshKeygen": fresh.sha256_bytes(Path(ssh_keygen).read_bytes())
+                },
                 "consumerPath": [str(Path(python).parent)],
                 "consumerHome": str(root),
+                "_releaseContext": {
+                    "gitCommit": "a" * 40,
+                    "gitTag": "2.0.4",
+                    "gitTree": "b" * 40,
+                    "indexSHA256": "sha256:" + "c" * 64,
+                    "installInventorySHA256": "sha256:" + "d" * 64,
+                    "manifestSHA256": "sha256:" + "e" * 64,
+                    "release": "2.0.4",
+                },
             }
             abbreviated = argparse.Namespace(
                 command="hook", consumer_args=["--repo-roo", str(root / "rollback")]
@@ -999,12 +1431,40 @@ class FreshnessTests(unittest.TestCase):
                 observed["env"]["IDC_SKILLS_FRESHNESS_HANDOFF"],
                 "sha256:" + "b" * 64,
             )
+            self.assertEqual(observed["env"]["IDC_GUARD_STRICT"], "1")
             for key in hostile:
                 if key not in {"PATH", "HOME", "TMPDIR"}:
                     self.assertNotIn(key, observed["env"])
             self.assertNotIn(str(root / "attacker-bin"), observed["env"]["PATH"])
             self.assertEqual(observed["env"]["HOME"], str(root))
             self.assertNotEqual(observed["env"]["TMPDIR"], hostile["TMPDIR"])
+
+            parity_capture = root / "parity-capture.json"
+            parity_args = argparse.Namespace(
+                command="fleet-parity",
+                consumer_args=["--", "--capture", str(parity_capture)],
+            )
+            with self.assertRaisesRegex(fresh.FreshnessError, "handoff differs"):
+                fresh._run_consumer(
+                    parity_args, staged, "sha256:" + "9" * 64, config
+                )
+            parity_exit = fresh._run_consumer(
+                parity_args, staged, "sha256:" + "c" * 64, config
+            )
+            self.assertEqual(parity_exit, 0)
+            parity_observed = json.loads(parity_capture.read_text(encoding="utf-8"))
+            self.assertEqual(
+                parity_observed["env"]["IDC_SKILLS_PARITY_GIT_COMMIT"],
+                "a" * 40,
+            )
+            self.assertEqual(
+                parity_observed["env"]["IDC_SKILLS_PARITY_INDEX_SHA256"],
+                "sha256:" + "c" * 64,
+            )
+            self.assertEqual(
+                parity_observed["env"]["IDC_SKILLS_PARITY_INSTALL_INVENTORY_SHA256"],
+                "sha256:" + "d" * 64,
+            )
 
     def test_failed_consumer_never_prints_launcher_readiness(self) -> None:
         report = {"consumerExitCode": 7, "readyToRun": True}
@@ -1027,6 +1487,25 @@ class FreshnessTests(unittest.TestCase):
         self.assertEqual(exit_code, 7)
         self.assertNotIn("READY", stdout.getvalue())
         self.assertNotIn("READY", stderr.getvalue())
+
+    def test_unexpected_consumer_exception_is_normalized_without_secret_text(self) -> None:
+        stdout = io.StringIO()
+        stderr = io.StringIO()
+        with (
+            mock.patch.object(
+                fresh,
+                "verify_release",
+                side_effect=RuntimeError("fixture-secret-must-not-leak"),
+            ),
+            contextlib.redirect_stdout(stdout),
+            contextlib.redirect_stderr(stderr),
+        ):
+            exit_code = fresh.main(
+                ["--repo-root", "/unused", "--config", "/unused", "install"]
+            )
+        self.assertEqual(exit_code, 2)
+        self.assertIn("unexpected verifier failure: RuntimeError", stderr.getvalue())
+        self.assertNotIn("fixture-secret", stderr.getvalue())
 
     def test_noncanonical_duplicate_unknown_and_invalid_index_values_fail(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:
@@ -1087,6 +1566,7 @@ class FreshnessTests(unittest.TestCase):
                         fixture.repo,
                         fixture.python,
                         fixture.ssh_keygen,
+                        fresh.sha256_bytes(Path(fixture.ssh_keygen).read_bytes()),
                     ),
                     "readyToRun": False,
                 }

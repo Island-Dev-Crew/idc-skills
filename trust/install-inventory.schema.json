@@ -1,0 +1,128 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:idc-skills:schema:install-inventory:v1",
+  "title": "IDC Skills pre-install expectation inventory v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "authority",
+    "manifest",
+    "release",
+    "schema",
+    "skills",
+    "targets"
+  ],
+  "properties": {
+    "authority": {
+      "const": "pre-install-expectation-only"
+    },
+    "manifest": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["manifestSequence", "sha256", "size"],
+      "properties": {
+        "manifestSequence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9007199254740991
+        },
+        "sha256": {
+          "type": "string",
+          "pattern": "^sha256:[0-9a-f]{64}$"
+        },
+        "size": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 67108864
+        }
+      }
+    },
+    "release": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?$"
+    },
+    "schema": {
+      "const": "idc-skills-install-inventory/v1"
+    },
+    "skills": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["count", "names"],
+      "properties": {
+        "count": {
+          "const": 50
+        },
+        "names": {
+          "type": "array",
+          "minItems": 50,
+          "maxItems": 50,
+          "uniqueItems": true,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "targets": {
+      "type": "array",
+      "minItems": 4,
+      "maxItems": 4,
+      "prefixItems": [
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["label", "releaseParity"],
+          "properties": {
+            "label": {
+              "const": "agents"
+            },
+            "releaseParity": {
+              "const": "required"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["label", "releaseParity"],
+          "properties": {
+            "label": {
+              "const": "claude"
+            },
+            "releaseParity": {
+              "const": "required"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["label", "releaseParity"],
+          "properties": {
+            "label": {
+              "const": "pi"
+            },
+            "releaseParity": {
+              "const": "required"
+            }
+          }
+        },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["label", "releaseParity"],
+          "properties": {
+            "label": {
+              "const": "hermes"
+            },
+            "releaseParity": {
+              "const": "required"
+            }
+          }
+        }
+      ],
+      "items": false
+    }
+  }
+}

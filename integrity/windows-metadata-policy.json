@@ -1,0 +1,10 @@
+{
+  "aclEvidence": "No real Windows NTFS/ACL acceptance evidence is included in the 2.0.4 limited-trust profile; it remains required before any Windows/NTFS or full-assurance claim.",
+  "executablePolicy": "Windows consumers authenticate file bytes and signed POSIX intent but do not claim that NTFS stores POSIX executable bits.",
+  "filesystem": "NTFS",
+  "posixModeAuthority": "The signed integrity manifest is the authenticated portability intent used for deterministic comparison on Windows.",
+  "release": "2.0.4",
+  "residualRisk": "A principal able to rewrite the protected launcher, configuration, checkpoint, runtime, or destination ACL remains outside the repository-only threat boundary.",
+  "schema": "idc-windows-metadata-policy/v1",
+  "status": "deferred-full-assurance-no-windows-acceptance-claim"
+}

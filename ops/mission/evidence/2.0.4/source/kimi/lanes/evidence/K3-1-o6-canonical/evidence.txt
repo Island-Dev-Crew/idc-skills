@@ -1,0 +1,14 @@
+== O6 canonical JSON battery (scripts/skill_integrity.py::_load_canonical_manifest_bytes) ==
+Signature verified over RAW captured bytes; parsed bytes must satisfy data == canonical_bytes(parsed).
+rejected: duplicate top-level key bytes -> manifest JSON is not canonical (re-serialization dedups, byte mismatch)
+rejected: genuinely reordered top-level key bytes -> manifest JSON is not canonical
+rejected: unicode-escaped char in schema string -> schema mismatch / non-canonical
+rejected: skillCount=true (bool-as-int) -> invalid top-level value types (type(x) is not int)
+rejected: manifestSequence=2**80 -> range 1..2^53-1
+accepted-syntax-only: NaN in remoteObservations (in-tree parser lacks parse_constant hook) — field is never
+  semantically compared or consumed; launcher parser rejects NaN via parse_constant. Inert.
+rejected: trailing data / unknown top-level key / posixMode>0o777 / negative size / float size / invalid UTF-8
+size cap: MAX_MANIFEST_BYTES=64MiB, MAX_ANCHOR_BYTES=64KiB, MAX_SIGNATURE_BYTES=1MiB (code: lines 45-48)
+== launcher load_canonical_json ==
+rejects duplicate keys (object_pairs_hook) and non-finite numbers (parse_constant); generic loader defers
+bool/int/key-set semantics to per-schema validators (_exact_keys, _positive_int, _digest) — verified in O5b unit runs.

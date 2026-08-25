@@ -1,0 +1,4 @@
+2d2cf05670dc3dd9591623968a57fe8338951108ccf3a83ec4209804e7848692  /tmp/k30-challenge/forged/integrity/manifest.json
+52a3fa87edb229c2ecf32b28f423ab0bfc016db7654a55d8053812d131401e7a  /tmp/k30-challenge/forged/integrity/manifest.json.sig
+627261d50f93648a86993732e1d11cc0a0a62c1700383cc5a6fecdab2200fb3e  /tmp/k30-challenge/index/releases.json
+e93edf5c685ba1de57fda44aff9e3c12c78f827f74face1c4366e53350038803  /tmp/k30-challenge/index/releases.json.sig

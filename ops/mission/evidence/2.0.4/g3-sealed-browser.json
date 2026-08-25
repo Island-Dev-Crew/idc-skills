@@ -1,0 +1,586 @@
+{
+  "schema": "idc-sealed-browser-evidence/v1",
+  "generatedAt": "2026-08-25T16:39:32.563Z",
+  "enforced": {
+    "network": "all non-local request attempts intercepted and failed",
+    "serviceWorkers": "disabled by ephemeral browser launch and asserted empty",
+    "webrtc": {
+      "ipHandlingPolicy": "disable_non_proxied_udp",
+      "peerConnection": "constructors blocked before artifact scripts; guard installation and zero attempts asserted in-page",
+      "limitation": "the verifier does not claim packet-level capture of WebRTC or ICE traffic"
+    },
+    "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+    "observationMs": 1500
+  },
+  "browser": {
+    "product": "Chrome/151.0.7922.174",
+    "protocolVersion": "1.3",
+    "executable": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
+  },
+  "passed": true,
+  "artifacts": [
+    {
+      "path": "ops/mission/state-of-the-union.html",
+      "label": "2.0.4 mission security heartbeat",
+      "sha256": "sha256:d51fb1636031286960cfd5d9a27d33b34d1bc921528557f1173453fb9f90cc6d",
+      "passed": true,
+      "states": [
+        {
+          "state": {
+            "name": "mobile",
+            "width": 375,
+            "height": 812,
+            "media": "screen"
+          },
+          "passed": true,
+          "attempts": [],
+          "consoleErrors": [],
+          "serviceWorkerEvents": [
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ],
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ]
+          ],
+          "artifactServiceWorkers": [],
+          "page": {
+            "readyState": "complete",
+            "title": "IDC Forge 2.0.4 World-Class Trust and Utility — State of the Union",
+            "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+            "registrationCount": 0,
+            "viewportWidth": 375,
+            "scrollWidth": 360,
+            "horizontalOverflow": false,
+            "overflowingElements": [],
+            "tableWraps": [
+              {
+                "left": 12,
+                "right": 348,
+                "clientWidth": 336,
+                "scrollWidth": 646,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 327,
+                "clientWidth": 294,
+                "scrollWidth": 615,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 327,
+                "clientWidth": 294,
+                "scrollWidth": 638,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 327,
+                "clientWidth": 294,
+                "scrollWidth": 637,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 327,
+                "clientWidth": 294,
+                "scrollWidth": 624,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 327,
+                "clientWidth": 294,
+                "scrollWidth": 661,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 327,
+                "clientWidth": 294,
+                "scrollWidth": 662,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 327,
+                "clientWidth": 294,
+                "scrollWidth": 868,
+                "overflowX": "auto"
+              }
+            ],
+            "bodyTextBytes": 126226,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
+          },
+          "printModeEmulated": false,
+          "rtcLaunchPolicyApplied": true
+        },
+        {
+          "state": {
+            "name": "tablet",
+            "width": 768,
+            "height": 1024,
+            "media": "screen"
+          },
+          "passed": true,
+          "attempts": [],
+          "consoleErrors": [],
+          "serviceWorkerEvents": [
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ]
+          ],
+          "artifactServiceWorkers": [],
+          "page": {
+            "readyState": "complete",
+            "title": "IDC Forge 2.0.4 World-Class Trust and Utility — State of the Union",
+            "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+            "registrationCount": 0,
+            "viewportWidth": 768,
+            "scrollWidth": 753,
+            "horizontalOverflow": false,
+            "overflowingElements": [],
+            "tableWraps": [
+              {
+                "left": 12,
+                "right": 741,
+                "clientWidth": 729,
+                "scrollWidth": 729,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 720,
+                "clientWidth": 687,
+                "scrollWidth": 687,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 720,
+                "clientWidth": 687,
+                "scrollWidth": 687,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 720,
+                "clientWidth": 687,
+                "scrollWidth": 687,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 720,
+                "clientWidth": 687,
+                "scrollWidth": 687,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 720,
+                "clientWidth": 687,
+                "scrollWidth": 687,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 720,
+                "clientWidth": 687,
+                "scrollWidth": 687,
+                "overflowX": "auto"
+              },
+              {
+                "left": 33,
+                "right": 720,
+                "clientWidth": 687,
+                "scrollWidth": 868,
+                "overflowX": "auto"
+              }
+            ],
+            "bodyTextBytes": 126226,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
+          },
+          "printModeEmulated": false,
+          "rtcLaunchPolicyApplied": true
+        },
+        {
+          "state": {
+            "name": "desktop",
+            "width": 1440,
+            "height": 900,
+            "media": "screen"
+          },
+          "passed": true,
+          "attempts": [],
+          "consoleErrors": [],
+          "serviceWorkerEvents": [
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ]
+          ],
+          "artifactServiceWorkers": [],
+          "page": {
+            "readyState": "complete",
+            "title": "IDC Forge 2.0.4 World-Class Trust and Utility — State of the Union",
+            "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+            "registrationCount": 0,
+            "viewportWidth": 1440,
+            "scrollWidth": 1425,
+            "horizontalOverflow": false,
+            "overflowingElements": [],
+            "tableWraps": [
+              {
+                "left": 123,
+                "right": 1303,
+                "clientWidth": 1180,
+                "scrollWidth": 1180,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              }
+            ],
+            "bodyTextBytes": 126226,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
+          },
+          "printModeEmulated": false,
+          "rtcLaunchPolicyApplied": true
+        },
+        {
+          "state": {
+            "name": "print",
+            "width": 1440,
+            "height": 900,
+            "media": "print"
+          },
+          "passed": true,
+          "attempts": [],
+          "consoleErrors": [],
+          "serviceWorkerEvents": [
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ]
+          ],
+          "artifactServiceWorkers": [],
+          "page": {
+            "readyState": "complete",
+            "title": "IDC Forge 2.0.4 World-Class Trust and Utility — State of the Union",
+            "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+            "registrationCount": 0,
+            "viewportWidth": 1440,
+            "scrollWidth": 1425,
+            "horizontalOverflow": false,
+            "overflowingElements": [],
+            "tableWraps": [
+              {
+                "left": 123,
+                "right": 1303,
+                "clientWidth": 1180,
+                "scrollWidth": 1180,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              },
+              {
+                "left": 144,
+                "right": 1282,
+                "clientWidth": 1138,
+                "scrollWidth": 1138,
+                "overflowX": "auto"
+              }
+            ],
+            "bodyTextBytes": 126226,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
+          },
+          "printModeEmulated": true,
+          "rtcLaunchPolicyApplied": true
+        }
+      ]
+    },
+    {
+      "path": "IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html",
+      "label": "2.0.4 flagship release-control report",
+      "sha256": "sha256:9a566bd663a00d4a5280169dc39005f8d00a9f539a0455261bea9fa4e3801eef",
+      "passed": true,
+      "states": [
+        {
+          "state": {
+            "name": "mobile",
+            "width": 375,
+            "height": 812,
+            "media": "screen"
+          },
+          "passed": true,
+          "attempts": [],
+          "consoleErrors": [],
+          "serviceWorkerEvents": [
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ]
+          ],
+          "artifactServiceWorkers": [],
+          "page": {
+            "readyState": "complete",
+            "title": "IDC Skills Forge 2.0.4 · Flagship Release-Control Report",
+            "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+            "registrationCount": 0,
+            "viewportWidth": 375,
+            "scrollWidth": 360,
+            "horizontalOverflow": false,
+            "overflowingElements": [],
+            "tableWraps": [],
+            "bodyTextBytes": 13695,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
+          },
+          "printModeEmulated": false,
+          "rtcLaunchPolicyApplied": true
+        },
+        {
+          "state": {
+            "name": "tablet",
+            "width": 768,
+            "height": 1024,
+            "media": "screen"
+          },
+          "passed": true,
+          "attempts": [],
+          "consoleErrors": [],
+          "serviceWorkerEvents": [
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ]
+          ],
+          "artifactServiceWorkers": [],
+          "page": {
+            "readyState": "complete",
+            "title": "IDC Skills Forge 2.0.4 · Flagship Release-Control Report",
+            "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+            "registrationCount": 0,
+            "viewportWidth": 768,
+            "scrollWidth": 753,
+            "horizontalOverflow": false,
+            "overflowingElements": [],
+            "tableWraps": [],
+            "bodyTextBytes": 13708,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
+          },
+          "printModeEmulated": false,
+          "rtcLaunchPolicyApplied": true
+        },
+        {
+          "state": {
+            "name": "desktop",
+            "width": 1440,
+            "height": 900,
+            "media": "screen"
+          },
+          "passed": true,
+          "attempts": [],
+          "consoleErrors": [],
+          "serviceWorkerEvents": [
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ]
+          ],
+          "artifactServiceWorkers": [],
+          "page": {
+            "readyState": "complete",
+            "title": "IDC Skills Forge 2.0.4 · Flagship Release-Control Report",
+            "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+            "registrationCount": 0,
+            "viewportWidth": 1440,
+            "scrollWidth": 1425,
+            "horizontalOverflow": false,
+            "overflowingElements": [],
+            "tableWraps": [],
+            "bodyTextBytes": 13745,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
+          },
+          "printModeEmulated": false,
+          "rtcLaunchPolicyApplied": true
+        },
+        {
+          "state": {
+            "name": "print",
+            "width": 1440,
+            "height": 900,
+            "media": "print"
+          },
+          "passed": true,
+          "attempts": [],
+          "consoleErrors": [],
+          "serviceWorkerEvents": [
+            [
+              {
+                "registrationId": "0",
+                "scopeURL": "chrome-extension://fignfifoniblkonapihmkfakmlgkbkcf/",
+                "isDeleted": false
+              }
+            ]
+          ],
+          "artifactServiceWorkers": [],
+          "page": {
+            "readyState": "complete",
+            "title": "IDC Skills Forge 2.0.4 · Flagship Release-Control Report",
+            "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
+            "registrationCount": 0,
+            "viewportWidth": 1440,
+            "scrollWidth": 1425,
+            "horizontalOverflow": false,
+            "overflowingElements": [],
+            "tableWraps": [],
+            "bodyTextBytes": 13163,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
+          },
+          "printModeEmulated": true,
+          "rtcLaunchPolicyApplied": true
+        }
+      ]
+    }
+  ]
+}

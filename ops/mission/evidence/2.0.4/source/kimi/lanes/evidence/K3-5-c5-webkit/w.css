@@ -1,0 +1,2 @@
+a { background-image: -webkit-image-set("//127.0.0.1:8971/webkit-imageset.png" 1x); }
+b { background-image: image-set("//127.0.0.1:8971/imageset-ctl.png" 1x); }

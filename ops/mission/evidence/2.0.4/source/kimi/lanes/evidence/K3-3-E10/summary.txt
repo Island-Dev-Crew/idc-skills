@@ -1,0 +1,10 @@
+E10 fail-open probes (all with forged marker, genuine repo):
+malformed JSON => BLOCKED exit 2 (adapter failure JSONDecodeError)
+JSON array     => BLOCKED exit 2 (ValueError)
+empty stdin    => BLOCKED exit 2 (no skill identified)
+>1MiB stdin    => BLOCKED exit 2 (ValueError)
+missing installed root => BLOCKED exit 2
+unreadable installed file (chmod 000) => BLOCKED exit 2
+tampered bytes + stderr fd closed (2>&-) => exit 2 (still blocking)
+tampered bytes + stderr BROKEN PIPE (2> >(exec true)) => exit 120, NOT 2.
+  The blocking print() to stderr raises BrokenPipeError; main's except-Exception handler prints again to the broken pipe and the interpreter exits 120. The hook's own comment states a PreToolUse non-2 exit "may be treated as non-blocking by the receiving harness" => intended-BLOCK collapses to possible ALLOW when the harness stderr pipe is broken. stdout broken pipe on success path => exit 120 as well (authorization had already succeeded; harness sees neither allow JSON nor exit 2).

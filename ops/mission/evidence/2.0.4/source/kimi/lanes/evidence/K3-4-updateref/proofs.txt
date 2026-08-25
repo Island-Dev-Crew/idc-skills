@@ -1,0 +1,8 @@
+== C5 update-ref / tag ==
+guard=0  git update-ref refs/heads/x HEAD~1
+guard=0  git update-ref -d refs/heads/x
+guard=0  git tag -f v9 HEAD~1
+real: update-ref move x: 3b59046e -> c474a5d7
+real: update-ref -d x: exists=NO
+Updated tag 'v9' (was 3b59046)
+real: tag -f clobber: 3b59046e -> 9b6ffc46
