@@ -4,9 +4,11 @@ import datetime as dt
 import hashlib
 import importlib.util
 import json
+import os
 import re
 import shutil
 import subprocess
+import sys
 import tempfile
 import unittest
 from pathlib import Path
@@ -48,6 +50,10 @@ class EgressPolicyTests(unittest.TestCase):
         )
         self.fingerprint = result.stdout.split()[1]
         self.policy_path = self.root / "waivers.json"
+        self.python = Path(sys.executable).resolve()
+        self.ssh_keygen = Path(shutil.which("ssh-keygen") or "").resolve()
+        self.python_digest = "sha256:" + hashlib.sha256(self.python.read_bytes()).hexdigest()
+        self.ssh_keygen_digest = "sha256:" + hashlib.sha256(self.ssh_keygen.read_bytes()).hexdigest()
 
     def tearDown(self) -> None:
         self.temporary.cleanup()
@@ -86,7 +92,13 @@ class EgressPolicyTests(unittest.TestCase):
         )
         return Path(str(self.policy_path) + ".sig")
 
-    def _scan(self, artifact: Path, signature: Path | None = None) -> subprocess.CompletedProcess[str]:
+    def _scan(
+        self,
+        artifact: Path,
+        signature: Path | None = None,
+        *,
+        environment: dict[str, str] | None = None,
+    ) -> subprocess.CompletedProcess[str]:
         args = ["/bin/bash", str(SCAN_PATH)]
         if signature is not None:
             args.extend(
@@ -103,12 +115,27 @@ class EgressPolicyTests(unittest.TestCase):
                     self.revision,
                     "--policy-root",
                     str(self.root),
+                    "--waiver-python",
+                    str(self.python),
+                    "--waiver-python-sha256",
+                    self.python_digest,
+                    "--waiver-ssh-keygen",
+                    str(self.ssh_keygen),
+                    "--waiver-ssh-keygen-sha256",
+                    self.ssh_keygen_digest,
                 ]
             )
         else:
             args.extend(["--policy-root", str(self.root)])
         args.append(str(artifact))
-        return subprocess.run(args, capture_output=True, text=True, check=False, cwd=self.root)
+        return subprocess.run(
+            args,
+            capture_output=True,
+            text=True,
+            check=False,
+            cwd=self.root,
+            env=environment,
+        )
 
     def _waiver_for_output(self, artifact: Path, output: str) -> dict[str, str]:
         match = re.search(r"\[fingerprint=(sha256:[0-9a-f]{64})\]", output)
@@ -165,6 +192,10 @@ class EgressPolicyTests(unittest.TestCase):
                 self.allowed,
                 self.fingerprint,
                 self.revision,
+                self.python,
+                self.python_digest,
+                self.ssh_keygen,
+                self.ssh_keygen_digest,
             )
 
     def test_uncertainty_cannot_be_waived(self) -> None:
@@ -188,6 +219,42 @@ class EgressPolicyTests(unittest.TestCase):
         green = self._scan(artifact, signature)
         self.assertEqual(green.returncode, 0, green.stdout + green.stderr)
         self.assertIn("WAIVED-BINARY", green.stdout)
+
+    def test_signed_scan_ignores_path_shadowed_python(self) -> None:
+        artifact = self.root / "artifact.js"
+        artifact.write_text('fetch("//telemetry.invalid/required")\n', encoding="utf-8")
+        red = self._scan(artifact)
+        waiver = self._waiver_for_output(artifact, red.stdout + red.stderr)
+        signature = self._write_and_sign(self._policy([waiver]))
+        fake_bin = self.root / "fake-python-bin"
+        fake_bin.mkdir()
+        marker = self.root / "path-python-ran"
+        fake_python = fake_bin / "python3"
+        fake_python.write_text(f"#!/bin/sh\nprintf ran > {marker}\nexit 0\n", encoding="utf-8")
+        fake_python.chmod(0o755)
+        environment = dict(os.environ)
+        environment["PATH"] = str(fake_bin) + os.pathsep + environment.get("PATH", "")
+        result = self._scan(artifact, signature, environment=environment)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse(marker.exists(), "PATH-shadowed python3 executed")
+
+    def test_signed_scan_ignores_path_shadowed_ssh_keygen(self) -> None:
+        artifact = self.root / "artifact.js"
+        artifact.write_text('fetch("//telemetry.invalid/required")\n', encoding="utf-8")
+        red = self._scan(artifact)
+        waiver = self._waiver_for_output(artifact, red.stdout + red.stderr)
+        signature = self._write_and_sign(self._policy([waiver]))
+        fake_bin = self.root / "fake-ssh-bin"
+        fake_bin.mkdir()
+        marker = self.root / "path-ssh-keygen-ran"
+        fake_ssh = fake_bin / "ssh-keygen"
+        fake_ssh.write_text(f"#!/bin/sh\nprintf ran > {marker}\nexit 0\n", encoding="utf-8")
+        fake_ssh.chmod(0o755)
+        environment = dict(os.environ)
+        environment["PATH"] = str(fake_bin) + os.pathsep + environment.get("PATH", "")
+        result = self._scan(artifact, signature, environment=environment)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertFalse(marker.exists(), "PATH-shadowed ssh-keygen executed")
 
 
 if __name__ == "__main__":

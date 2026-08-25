@@ -9,6 +9,7 @@ from pathlib import Path
 
 REPO = Path(__file__).resolve().parents[1]
 SCANNER = REPO / "skills/skill-supply-chain-review/scripts/scan-skill.sh"
+SKILL = REPO / "skills/skill-supply-chain-review/SKILL.md"
 
 
 class SupplyChainIntakeTests(unittest.TestCase):
@@ -53,6 +54,12 @@ class SupplyChainIntakeTests(unittest.TestCase):
             self.assertEqual(result.returncode, 0, result.stderr)
             self.assertIn("blob.bin\tbinary-blob", result.stdout)
             self.assertIn("large.txt\toversized", result.stdout)
+
+    def test_documented_exit_contract_distinguishes_findings_from_operational_failure(self) -> None:
+        text = SKILL.read_text(encoding="utf-8")
+        self.assertNotIn("exit 0 always", text)
+        self.assertIn("Operational traversal or capture failure exits `2`", text)
+        self.assertIn("findings themselves exit `0`", text)
 
 
 if __name__ == "__main__":

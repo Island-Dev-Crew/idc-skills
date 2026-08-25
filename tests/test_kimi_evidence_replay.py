@@ -3,13 +3,14 @@ from __future__ import annotations
 import hashlib
 import json
 import subprocess
+import tarfile
 import tempfile
 import unittest
 from pathlib import Path
 
 
 REPO = Path(__file__).resolve().parents[1]
-REPLAY = REPO / "scripts/replay_kimi_evidence.py"
+EMIT = REPO / "scripts/emit_kimi_capture.py"
 
 
 def digest(path: Path) -> str:
@@ -29,12 +30,16 @@ class KimiEvidenceReplayTests(unittest.TestCase):
             "findings": [
                 {
                     "id": "K3-203-TEST",
-                    "fixture": {"path": "fixture.txt", "sha256": fixture_sha},
-                    "execution": {
+                    "fixture": {
+                        "anchor": "candidate-preserved",
+                        "path": "fixture.txt",
+                        "sha256": fixture_sha,
+                    },
+                    "capture": {
+                        "kind": "preserved-observation",
                         "fixtureSha256": fixture_sha,
-                        "outputPath": "output.txt",
-                        "outputSha256": digest(self.output),
-                        "observedExit": 0,
+                        "source": {"type": "local", "path": "output.txt"},
+                        "sha256": digest(self.output),
                     },
                 }
             ]
@@ -47,7 +52,7 @@ class KimiEvidenceReplayTests(unittest.TestCase):
         evidence = self.root / "evidence.json"
         evidence.write_text(json.dumps(self.package), encoding="utf-8")
         return subprocess.run(
-            ["python3", "-B", str(REPLAY), "--id", "K3-203-TEST", "--evidence", str(evidence)],
+            ["python3", "-B", str(EMIT), "--id", "K3-203-TEST", "--evidence", str(evidence)],
             stdout=subprocess.PIPE,
             stderr=subprocess.PIPE,
             check=False,
@@ -57,6 +62,28 @@ class KimiEvidenceReplayTests(unittest.TestCase):
         process = self.run_replay()
         self.assertEqual(process.returncode, 0, process.stderr.decode())
         self.assertEqual(process.stdout, self.output.read_bytes())
+
+    def test_bundle_member_preserved_bytes_replay(self) -> None:
+        bundle = self.root / "source.tar.gz"
+        with tarfile.open(bundle, "w:gz") as archive:
+            archive.add(self.output, arcname="captures/output.txt")
+        self.package["sourceBundle"] = {
+            "path": "source.tar.gz",
+            "sha256": digest(bundle),
+        }
+        self.package["findings"][0]["capture"]["source"] = {
+            "type": "bundle-member",
+            "member": "captures/output.txt",
+        }
+        process = self.run_replay()
+        self.assertEqual(process.returncode, 0, process.stderr.decode())
+        self.assertEqual(process.stdout, self.output.read_bytes())
+
+    def test_asserted_execution_exit_is_rejected(self) -> None:
+        self.package["findings"][0]["execution"] = {"observedExit": 7}
+        process = self.run_replay()
+        self.assertEqual(process.returncode, 2)
+        self.assertIn(b"execution claims are unsupported", process.stderr)
 
     def test_fixture_tamper_is_rejected(self) -> None:
         self.fixture.write_text("changed fixture\n", encoding="utf-8")
@@ -68,7 +95,7 @@ class KimiEvidenceReplayTests(unittest.TestCase):
         self.output.write_text("changed output\n", encoding="utf-8")
         process = self.run_replay()
         self.assertEqual(process.returncode, 2)
-        self.assertIn(b"captured-output digest differs", process.stderr)
+        self.assertIn(b"capture digest differs", process.stderr)
 
     def test_path_escape_is_rejected(self) -> None:
         self.package["findings"][0]["fixture"]["path"] = "../fixture.txt"

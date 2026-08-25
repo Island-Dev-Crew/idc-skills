@@ -11,7 +11,7 @@
     "valid": true,
     "warnings": 13
   },
-  "generatedAt": "2026-08-22T23:24:31Z",
+  "generatedAt": "2026-08-24T02:34:18Z",
   "implementation": {
     "runtimeContractSHA256": "sha256:57e6d27a42cae3d53758de98fdffeb3707dbb7484043317e41b8e03530f7d35b",
     "sameUidBoundary": "advisory residual documented; admin or OS isolation is required for stronger enforcement",
@@ -25,8 +25,12 @@
   "schema": "idc-g4-runtime-evidence/v1",
   "tests": {
     "command": "python3 -B -m unittest tests.test_skill_integrity tests.test_freshness tests.test_runtime_boundaries",
-    "count": 48,
-    "outputSHA256": "sha256:51b61a1bc845112ce73b8b8fbb9943e8cacc04a7287ad289f1204e05b9f44c73",
+    "count": 54,
     "status": "passed"
+  },
+  "constructionRegression": {
+    "command": "python3 -B -m unittest discover -s tests -p 'test_*.py'",
+    "count": 271,
+    "status": "passed after release artifact semantic joins, deterministic archive enforcement, fleet-parity physical-root constraints, strict guard availability bounds, dependency wording, checkpoint-to-consumer generation fencing, publication observer/content-key separation, and runbook command coverage were reconciled"
   }
 }

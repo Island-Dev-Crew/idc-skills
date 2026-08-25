@@ -7,9 +7,9 @@
       "surfaces": ["POSIX wrappers", "shell fixtures"]
     },
     {
-      "name": "python",
-      "pinMechanism": "absolute path and SHA-256 in external freshness configuration; signed minimum 3.10",
-      "status": "required-external-pinned",
+      "name": "python3",
+      "pinMechanism": "signed minimum 3.10; release freshness and signed egress-waiver verification use an absolute digest-pinned interpreter, while direct helpers inherit the caller-selected runtime",
+      "status": "required-version-floor",
       "surfaces": ["freshness launcher", "installer", "validators", "skill helpers"]
     },
     {
@@ -20,9 +20,9 @@
     },
     {
       "name": "ssh-keygen",
-      "pinMechanism": "absolute path and SHA-256 in external freshness configuration, forwarded to every verifier consumer",
+      "pinMechanism": "absolute path and SHA-256 in external freshness, trust-root, publication, review, content-integrity, and signed egress-waiver verification; the owner-operated setup-signing wizard remains PATH-resolved and is not an acceptance verifier",
       "status": "required-external-pinned",
-      "surfaces": ["manifest/index/root signature verification", "release signing"]
+      "surfaces": ["manifest/index/root signature verification", "publication and independent-review receipt verification", "signed egress-waiver verification", "release signing"]
     },
     {
       "name": "node",
@@ -43,16 +43,52 @@
       "surfaces": ["generic self-contained runtime probe", "Archipelago runtime journeys"]
     },
     {
-      "name": "ffmpeg/ffprobe/yt-dlp",
-      "pinMechanism": "absolute resolved tool paths and versions captured in each video evidence packet; no automatic installer",
+      "name": "yt-dlp",
+      "pinMechanism": "resolved version captured in each video evidence packet; no automatic installer",
       "status": "conditional-evidence-pinned",
-      "surfaces": ["video-analysis"]
+      "surfaces": ["video-analysis source acquisition"]
     },
     {
-      "name": "gh/op/curl",
-      "pinMechanism": "optional operator-provided tools; versions and target scope reviewed at use; credentials never stored by the Forge",
+      "name": "ffmpeg",
+      "pinMechanism": "resolved version captured in each video evidence packet; no automatic installer",
+      "status": "conditional-evidence-pinned",
+      "surfaces": ["video-analysis frame extraction"]
+    },
+    {
+      "name": "ffprobe",
+      "pinMechanism": "resolved version captured in each video evidence packet; no automatic installer",
+      "status": "conditional-evidence-pinned",
+      "surfaces": ["video-analysis media validation"]
+    },
+    {
+      "name": "gh",
+      "pinMechanism": "operator-provided CLI; version, authenticated account, and target scope reviewed at use; no automatic installer",
       "status": "conditional-operator-tool",
-      "surfaces": ["wizard", "transport", "research", "signing ceremony"]
+      "surfaces": ["wizard GitHub writes", "transport and release observation"]
+    },
+    {
+      "name": "op",
+      "pinMechanism": "operator-provided password-manager CLI; vault reference and custody boundary reviewed at use; no automatic installer",
+      "status": "conditional-operator-tool",
+      "surfaces": ["research credential retrieval", "wizard secret custody"]
+    },
+    {
+      "name": "curl",
+      "pinMechanism": "operator-provided network client; version and fixed target scope reviewed at use; no automatic installer",
+      "status": "conditional-operator-tool",
+      "surfaces": ["research API", "computer-use readiness probe"]
+    },
+    {
+      "name": "jq",
+      "pinMechanism": "pre-existing executable; strict guard and research paths refuse when unavailable, and gate evidence records the invoked version; no automatic installer",
+      "status": "conditional-evidence-pinned",
+      "surfaces": ["dangerous-Git hook payload extraction and fixtures", "research request/response JSON"]
+    },
+    {
+      "name": "uuidgen",
+      "pinMechanism": "pre-existing operator tool used to mint a research idempotency key; no automatic installer",
+      "status": "conditional-operator-tool",
+      "surfaces": ["research idempotency key"]
     },
     {
       "name": "shellcheck",
@@ -62,8 +98,14 @@
     },
     {
       "name": "shasum",
-      "pinMechanism": "explicit absolute IDC_CONSOLE_SHA256 path; executable identity and version captured in console-lock evidence",
-      "status": "required-evidence-pinned",
+      "pinMechanism": "explicit absolute IDC_CONSOLE_SHA256 path with IDC_CONSOLE_SHA256_KIND=shasum; executable identity and version captured in console-lock evidence",
+      "status": "conditional-evidence-pinned",
+      "surfaces": ["console lock assembly"]
+    },
+    {
+      "name": "sha256sum",
+      "pinMechanism": "GNU alternative selected by explicit absolute IDC_CONSOLE_SHA256 path with IDC_CONSOLE_SHA256_KIND=sha256sum; executable identity and version captured in console-lock evidence",
+      "status": "conditional-evidence-pinned",
       "surfaces": ["console lock assembly"]
     }
   ],

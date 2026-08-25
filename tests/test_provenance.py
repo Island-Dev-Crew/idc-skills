@@ -1,10 +1,14 @@
 from __future__ import annotations
 
 import copy
+import json
 import unittest
 from unittest import mock
 
 from scripts import verify_provenance as provenance
+
+
+REPO = provenance.REPO
 
 
 class ProvenanceTests(unittest.TestCase):
@@ -41,6 +45,37 @@ class ProvenanceTests(unittest.TestCase):
         with mock.patch.object(provenance, "load", side_effect=forged):
             with self.assertRaisesRegex(provenance.ProvenanceError, "modified vendored"):
                 provenance.verify()
+
+    def test_executable_inventory_names_each_actual_tool_family(self) -> None:
+        inventory = json.loads(
+            (REPO / "executable-dependencies.json").read_text(encoding="utf-8")
+        )
+        names = {item["name"] for item in inventory["dependencies"]}
+        self.assertTrue(
+            {
+                "bash",
+                "python3",
+                "git",
+                "ssh-keygen",
+                "node",
+                "jq",
+                "uuidgen",
+                "ffmpeg",
+                "ffprobe",
+                "yt-dlp",
+                "gh",
+                "op",
+                "curl",
+                "shasum",
+                "sha256sum",
+            }.issubset(names)
+        )
+        self.assertFalse({name for name in names if "/" in name})
+        ssh_keygen = next(
+            item for item in inventory["dependencies"] if item["name"] == "ssh-keygen"
+        )
+        self.assertNotIn("every verifier consumer", ssh_keygen["pinMechanism"])
+        self.assertIn("PATH-resolved", ssh_keygen["pinMechanism"])
 
 
 if __name__ == "__main__":

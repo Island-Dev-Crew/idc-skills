@@ -76,9 +76,9 @@
   "shipped_test_material": [
     {
       "path": "skills/self-contained-ship/scripts/test-scan-egress.sh",
-      "lines": 2146,
-      "cases": 607,
-      "sha256": "d4865cd50dae5742468a59dfb435bf281d01e8d9d8bad3b462ca58d3dcb8e275",
+      "lines": 2199,
+      "cases": 619,
+      "sha256": "ce569d0633b50a7054da5ed9c8beb5153ebf9e1ae07b12c8922242b8614dd3c3",
       "status": "signed executable test material; not production runtime and not a completeness proof"
     }
   ],

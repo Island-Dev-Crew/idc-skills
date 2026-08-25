@@ -1362,7 +1362,11 @@ mkdir -p "$T/g3srcsetdata" "$T/g3imagesrcsetdata" "$T/g3pingdata" "$T/g3setsrcse
          "$T/g3metabare" "$T/g3utf16" "$T/g3controlbinary" "$T/g3innerhtml" \
          "$T/g3outerhtml" "$T/g3insertadjacent" "$T/g3docwrite" "$T/g3webkit" \
          "$T/g3xmlstyle" "$T/g3waiveuncert" "$T/g3inlinewaiver" "$T/g3attributionsrc" \
-         "$T/g3oversize" "$T/g3aggregate"
+         "$T/g3oversize" "$T/g3aggregate" \
+         "$T/g4metaquotedbare" "$T/g4metaquotedurl" "$T/g4metaquotedentity" \
+         "$T/g4srcdocprop" "$T/g4formactionprop" "$T/g4imagesrcsetprop" \
+         "$T/g4dataprop" "$T/g4attributionsrcprop" "$T/g4receiverlocationdot" \
+         "$T/g4receiverlocationbracket" "$T/g4callbudget" "$T/g4inlineperfinding"
 printf '<img srcset="data:image/gif;base64,R0lG 1x, %sevil.invalid/srcset.png 2x">\n' "$_pr" \
   > "$T/g3srcsetdata/i.html"
 printf '<link rel="preload" as="image" imagesrcset="data:image/gif;base64,R0lG 1x, %sevil.invalid/preload.png 2x">\n' "$_pr" \
@@ -1403,6 +1407,33 @@ printf 'fetch("%sevil.invalid/content-waiver") // egress-ok\n' "$_pr" \
   > "$T/g3inlinewaiver/a.js"
 printf '<img attributionsrc="%sa.invalid/register %sb.invalid/register">\n' "$_pr" "$_pr" \
   > "$T/g3attributionsrc/i.html"
+printf '<meta http-equiv="refresh" content="0;\047%sevil.invalid/quoted-bare\047">\n' "$_pr" \
+  > "$T/g4metaquotedbare/i.html"
+printf '<meta http-equiv="refresh" content="0;URL=\047%sevil.invalid/quoted-url\047">\n' "$_pr" \
+  > "$T/g4metaquotedurl/i.html"
+printf '<meta http-equiv="refresh" content="0;&quot;%sevil.invalid/quoted-entity&quot;">\n' "$_pr" \
+  > "$T/g4metaquotedentity/i.html"
+# shellcheck disable=SC2016  # literal JavaScript template syntax is the fixture under test
+printf 'frame.srcdoc = `<img src="%sevil.invalid/srcdoc-property">`\n' "$_pr" \
+  > "$T/g4srcdocprop/a.js"
+printf 'button.formAction = "%sevil.invalid/form-action"\n' "$_pr" \
+  > "$T/g4formactionprop/a.js"
+printf 'link.imageSrcset = "data:image/gif;base64,R0lG 1x, %sevil.invalid/image-srcset 2x"\n' "$_pr" \
+  > "$T/g4imagesrcsetprop/a.js"
+printf 'object.data = "%sevil.invalid/object-data"\n' "$_pr" \
+  > "$T/g4dataprop/a.js"
+printf 'image.attributionSrc = "%sa.invalid/one %sb.invalid/two"\n' "$_pr" "$_pr" \
+  > "$T/g4attributionsrcprop/a.js"
+printf 'frames[0].location = "%sevil.invalid/dot-location"\n' "$_pr" \
+  > "$T/g4receiverlocationdot/a.js"
+printf 'frames[0]["location"] = "%sevil.invalid/bracket-location"\n' "$_pr" \
+  > "$T/g4receiverlocationbracket/a.js"
+python3 - "$T/g4callbudget/a.js" <<'PY'
+import pathlib, sys
+pathlib.Path(sys.argv[1]).write_text("fetch(\n" * 2000, encoding="utf-8")
+PY
+printf 'fetch("%sone.invalid/a"); fetch("%stwo.invalid/b") // egress-ok\n' "$_pr" "$_pr" \
+  > "$T/g4inlineperfinding/a.js"
 python3 - "$T/g3oversize/too-large.html" "$T/g3aggregate" <<'PY'
 import pathlib, sys
 pathlib.Path(sys.argv[1]).open("wb").truncate(16 * 1024 * 1024 + 1)
@@ -1492,6 +1523,28 @@ fi
 check_count "every attributionsrc URL is scanned"                     1 2 "$T/g3attributionsrc"
 check "per-file byte ceiling fails explicitly"                        1 "OVERSIZED" "$T/g3oversize"
 check "aggregate byte ceiling fails explicitly"                       1 "OVERSIZED(aggregate)" "$T/g3aggregate"
+
+echo "== 2.0.4 post-review egress regressions =="
+check_count "quoted bare meta-refresh URL is scanned"                  1 1 "$T/g4metaquotedbare"
+check_count "quoted url= meta-refresh URL is scanned"                  1 1 "$T/g4metaquotedurl"
+check_count "entity-decoded quoted meta-refresh URL is scanned"        1 1 "$T/g4metaquotedentity"
+check_count "srcdoc property markup sink is recursively scanned"       1 1 "$T/g4srcdocprop"
+check_count "formAction IDL property is scanned"                       1 1 "$T/g4formactionprop"
+check_count "imageSrcset IDL property is scanned"                      1 1 "$T/g4imagesrcsetprop"
+check_count "object data IDL property is scanned"                      1 1 "$T/g4dataprop"
+check_count "every attributionSrc IDL URL is scanned"                  1 2 "$T/g4attributionsrcprop"
+check_count "arbitrary receiver dot-location assignment is scanned"   1 1 "$T/g4receiverlocationdot"
+check_count "arbitrary receiver bracket-location assignment is scanned" 1 1 "$T/g4receiverlocationbracket"
+check_uncert "unmatched call scan budget fails closed"                 1 "$T/g4callbudget"
+inline_split_out="$(bash "$SCAN" --allow-inline-waivers "$T/g4inlineperfinding" 2>&1)"
+inline_split_rc=$?
+inline_split_egress="$(printf '%s\n' "$inline_split_out" | grep -c '^EGRESS ')"
+inline_split_waived="$(printf '%s\n' "$inline_split_out" | grep -c '^WAIVED-INLINE ')"
+if [ "$inline_split_rc" = "1" ] && [ "$inline_split_egress" = "1" ] && [ "$inline_split_waived" = "1" ]; then
+  ok "one legacy inline marker binds only one finding"
+else
+  no "legacy inline marker was not per-finding (rc=$inline_split_rc egress=$inline_split_egress waived=$inline_split_waived)"
+fi
 
 echo "== 2.0.3-r4 (Codex round-3 exact-head) =="
 check "xmlns cannot launder a real fetch()"      1 "EGRESS"            "$T/nsfetch"

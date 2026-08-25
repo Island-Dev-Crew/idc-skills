@@ -9,6 +9,32 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 
 const REPO = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const EXPECTED_CSP = "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'";
+const WEBRTC_IP_POLICY = "disable_non_proxied_udp";
+const WEBRTC_IP_POLICY_FLAG = `--force-webrtc-ip-handling-policy=${WEBRTC_IP_POLICY}`;
+const RTC_GUARD_SOURCE = `(() => {
+  let attempts = 0;
+  let installed = false;
+  const blocked = function RTCPeerConnection() {
+    attempts += 1;
+    throw new DOMException('RTCPeerConnection is disabled by the sealed-artifact verifier', 'SecurityError');
+  };
+  Object.defineProperty(globalThis, '__idcSealedRtcGuard', {
+    configurable: false,
+    enumerable: false,
+    get: () => Object.freeze({ installed, attempts }),
+  });
+  try {
+    for (const name of ['RTCPeerConnection', 'webkitRTCPeerConnection']) {
+      Object.defineProperty(globalThis, name, {
+        configurable: false,
+        enumerable: false,
+        writable: false,
+        value: blocked,
+      });
+    }
+    installed = true;
+  } catch {}
+})();`;
 
 function usage(message) {
   if (message) console.error(`verify-sealed-artifacts: ${message}`);
@@ -22,6 +48,11 @@ for (let i = 2; i < process.argv.length; i += 1) {
   if (process.argv[i] === "--config" && process.argv[i + 1]) configPath = resolve(process.argv[++i]);
   else if (process.argv[i] === "--output" && process.argv[i + 1]) outputPath = resolve(process.argv[++i]);
   else usage(`unknown or incomplete option ${process.argv[i]}`);
+}
+
+if (typeof globalThis.WebSocket !== "function") {
+  console.error("verify-sealed-artifacts: FAIL — WebSocket is unavailable; use Node 21+ or enable Node's --experimental-websocket support");
+  process.exit(1);
 }
 
 const config = JSON.parse(readFileSync(configPath, "utf8"));
@@ -181,6 +212,11 @@ async function verifyState(port, artifactPath, state, observationMs) {
       cdp.send("Fetch.enable", { patterns: [{ urlPattern: "*" }] }),
       cdp.send("ServiceWorker.enable"),
     ]);
+    await cdp.send("Page.addScriptToEvaluateOnNewDocument", { source: RTC_GUARD_SOURCE });
+    const browserCommandLine = await cdp.send("Browser.getBrowserCommandLine");
+    const rtcLaunchPolicyApplied =
+      Array.isArray(browserCommandLine.arguments) &&
+      browserCommandLine.arguments.includes(WEBRTC_IP_POLICY_FLAG);
     await cdp.send("Emulation.setDeviceMetricsOverride", {
       width: state.width,
       height: state.height,
@@ -241,6 +277,7 @@ async function verifyState(port, artifactPath, state, observationMs) {
             overflowX: getComputedStyle(node).overflowX,
           })),
           bodyTextBytes: new TextEncoder().encode(document.body?.innerText ?? '').length,
+          rtcGuard: globalThis.__idcSealedRtcGuard ?? { installed: false, attempts: null },
         };
       })()`,
       true,
@@ -258,8 +295,22 @@ async function verifyState(port, artifactPath, state, observationMs) {
       page.csp === EXPECTED_CSP &&
       page.viewportWidth === state.width &&
       page.horizontalOverflow === false &&
+      page.overflowingElements.length === 0 &&
+      page.rtcGuard.installed === true &&
+      page.rtcGuard.attempts === 0 &&
+      rtcLaunchPolicyApplied === true &&
       page.bodyTextBytes > 0;
-    return { state, passed, attempts, consoleErrors, serviceWorkerEvents, artifactServiceWorkers, page, printModeEmulated };
+    return {
+      state,
+      passed,
+      attempts,
+      consoleErrors,
+      serviceWorkerEvents,
+      artifactServiceWorkers,
+      page,
+      printModeEmulated,
+      rtcLaunchPolicyApplied,
+    };
   } finally {
     cdp.close();
     await fetch(`http://127.0.0.1:${port}/json/close/${target.id}`, {
@@ -273,6 +324,7 @@ const chrome = spawn(
   chromePath,
   [
     "--headless=new",
+    "--enable-automation",
     "--remote-debugging-port=0",
     `--user-data-dir=${profile}`,
     "--no-first-run",
@@ -285,6 +337,8 @@ const chrome = spawn(
     "--disable-sync",
     "--metrics-recording-only",
     "--no-pings",
+    WEBRTC_IP_POLICY_FLAG,
+    "--enforce-webrtc-ip-permission-check",
     "--allow-file-access-from-files",
     "--host-resolver-rules=MAP * 0.0.0.0, EXCLUDE localhost, EXCLUDE 127.0.0.1",
     "about:blank",
@@ -327,6 +381,11 @@ try {
     enforced: {
       network: "all non-local request attempts intercepted and failed",
       serviceWorkers: "disabled by ephemeral browser launch and asserted empty",
+      webrtc: {
+        ipHandlingPolicy: WEBRTC_IP_POLICY,
+        peerConnection: "constructors blocked before artifact scripts; guard installation and zero attempts asserted in-page",
+        limitation: "the verifier does not claim packet-level capture of WebRTC or ICE traffic",
+      },
       csp: EXPECTED_CSP,
       observationMs: config.observationMs,
     },

@@ -1,6 +1,10 @@
 {
-  "schema": "idc.security-evidence/v1",
+  "schema": "idc.security-evidence/v2",
   "releaseRevision": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
+  "sourceBundle": {
+    "path": "source/kimi/KIMI-K3-IDC-SKILLS-2.0.3-PENTEST.tar.gz",
+    "sha256": "6b471d41a3d7adec021690ceb007e949140ec05061a165674709d6511628e81d"
+  },
   "sourceRoster": {
     "path": "source/kimi/round3-calibration.md",
     "sha256": "93c5d36e266698dda592c834082cba6113570e3e8898eee7bc35c9dfffb8df25"
@@ -51,19 +55,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-0-challenge-c1/forged-install.json",
         "sha256": "cd200c5a11e2ff000c02e06bb763cc7e747273c23af3967580a087a5355d6127"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-001 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-0-challenge-c1/genuine-vs-forged.json",
-        "outputSha256": "71f3e48539756d589de9e901cd85dfac4ba8ecf66c1a1afc7c783114faa70477",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-0-challenge-c1/genuine-vs-forged.json"
+        },
+        "sha256": "71f3e48539756d589de9e901cd85dfac4ba8ecf66c1a1afc7c783114faa70477",
         "fixtureSha256": "cd200c5a11e2ff000c02e06bb763cc7e747273c23af3967580a087a5355d6127"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "public-key fingerprint mismatch"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -83,19 +98,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-8-p2-gitguard/verdicts.txt",
         "sha256": "907bb202ec72a85f4b53aec1a7b00a53e52352ea5bea7989225d52e7bf4e95ae"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-002 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-4-redir/proofs.txt",
-        "outputSha256": "8bd4eddbf3e5446e99fb285470b91202f81c2e545609c32c0831ff79a341514b",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-4-redir/proofs.txt"
+        },
+        "sha256": "8bd4eddbf3e5446e99fb285470b91202f81c2e545609c32c0831ff79a341514b",
         "fixtureSha256": "907bb202ec72a85f4b53aec1a7b00a53e52352ea5bea7989225d52e7bf4e95ae"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "EXECUTED=YES"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -115,19 +141,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-8-p2-gitguard/verdicts.txt",
         "sha256": "907bb202ec72a85f4b53aec1a7b00a53e52352ea5bea7989225d52e7bf4e95ae"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-003 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-4-bangargs/proofs.txt",
-        "outputSha256": "f2b9d1cf82a32af8489b783d3fb3f60bd3040fdb4ad6b69c2b6a9be898916913",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-4-bangargs/proofs.txt"
+        },
+        "sha256": "f2b9d1cf82a32af8489b783d3fb3f60bd3040fdb4ad6b69c2b6a9be898916913",
         "fixtureSha256": "907bb202ec72a85f4b53aec1a7b00a53e52352ea5bea7989225d52e7bf4e95ae"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "bang-alias call-site args"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -147,19 +184,34 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-5-c1-srcset/fixture.html",
         "sha256": "f04479757f2fafe534974b206c66b496ba9850a3449ecf9f7940687d3cc8661d"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-004 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-5-c1-srcset/scan.out",
-        "outputSha256": "f9b42245cdb18665ebd7466c720743a0df886c85440e0ba973f56abec892f15d",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-5-c1-srcset/scan.out"
+        },
+        "sha256": "f9b42245cdb18665ebd7466c720743a0df886c85440e0ba973f56abec892f15d",
         "fixtureSha256": "f04479757f2fafe534974b206c66b496ba9850a3449ecf9f7940687d3cc8661d"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "scan-egress: PASS"
+          },
+          {
+            "target": "fixture",
+            "contains": "srcset-leak.png"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -179,19 +231,34 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-5-c2-meta/m.html",
         "sha256": "add539e1a31b4480f7e3c7a909a2df6181ddef04e060969b2a9c13aeac2d7a7d"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-005 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-5-c2-meta/scan.out",
-        "outputSha256": "f9b42245cdb18665ebd7466c720743a0df886c85440e0ba973f56abec892f15d",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-5-c2-meta/scan.out"
+        },
+        "sha256": "f9b42245cdb18665ebd7466c720743a0df886c85440e0ba973f56abec892f15d",
         "fixtureSha256": "add539e1a31b4480f7e3c7a909a2df6181ddef04e060969b2a9c13aeac2d7a7d"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "scan-egress: PASS"
+          },
+          {
+            "target": "fixture",
+            "contains": "meta-bare"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -211,19 +278,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-5-c3-utf16/u16.html",
         "sha256": "265fbae52662473c4e180fec978cf33e8377f70a92f599d3d0637e39750aa9b8"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-006 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-5-c3-utf16/hits.log",
-        "outputSha256": "861d11196d4d73ad0c4de1b482993ef9a319951e4604eeb4f073560fecffc17e",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-5-c3-utf16/hits.log"
+        },
+        "sha256": "861d11196d4d73ad0c4de1b482993ef9a319951e4604eeb4f073560fecffc17e",
         "fixtureSha256": "265fbae52662473c4e180fec978cf33e8377f70a92f599d3d0637e39750aa9b8"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "/utf16-leak.js"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -243,19 +321,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-5-c4-domwrite/d.js",
         "sha256": "00b3b6f3d248ae10de4491f418799b6b1c0d44d0ac9891971cf8239eeb05c050"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-007 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-5-c4-domwrite/hits.log",
-        "outputSha256": "29076d62bcd157db9287f49eb62f2118b4d9f1ff9103fe5d4c6d667f7a679735",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-5-c4-domwrite/hits.log"
+        },
+        "sha256": "29076d62bcd157db9287f49eb62f2118b4d9f1ff9103fe5d4c6d667f7a679735",
         "fixtureSha256": "00b3b6f3d248ae10de4491f418799b6b1c0d44d0ac9891971cf8239eeb05c050"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "/innerhtml-leak.png"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -281,19 +370,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-5-c7-waiver/u2.ts",
         "sha256": "0a2109127c53e310bb3d8b10c05713fb48b5a5f6384982ba548dbd91a6b3c210"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-008 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-5-c7-waiver/scan.out",
-        "outputSha256": "1cd4d68bd7adbb55defb90b69a97647fb86d3e09e2c2a9b890e96828bc3f6485",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-5-c7-waiver/scan.out"
+        },
+        "sha256": "1cd4d68bd7adbb55defb90b69a97647fb86d3e09e2c2a9b890e96828bc3f6485",
         "fixtureSha256": "0a2109127c53e310bb3d8b10c05713fb48b5a5f6384982ba548dbd91a6b3c210"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "WAIVED /tmp/K3-5/t/c11/u2.ts"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -313,19 +413,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-8-hook/NOTES.txt",
         "sha256": "78a5d1153f7a33d6d2d4c524dcee6c73460ac23a58174f0f0517d0d1ba4bbd92"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-009 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-3-E9/summary.txt",
-        "outputSha256": "1757cb9ae4152dbdc1a7c8e1c4745b0661b174fb0b646e9ff81abc721a94dade",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-3-E9/summary.txt"
+        },
+        "sha256": "1757cb9ae4152dbdc1a7c8e1c4745b0661b174fb0b646e9ff81abc721a94dade",
         "fixtureSha256": "78a5d1153f7a33d6d2d4c524dcee6c73460ac23a58174f0f0517d0d1ba4bbd92"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "first match wins"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": false
       },
       "disposition": {
@@ -345,19 +456,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/K3-3.md",
         "sha256": "f0b9caaa1f8f64b27d70d2e5484af667c40ce0e7c389e21347694c8e344dc87b"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-010 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-3-E7/summary.txt",
-        "outputSha256": "d6d4d4d6b5c401ad81d51a9d352d1d1f93fbd32a78accb9e8607924492438e06",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-3-E7/summary.txt"
+        },
+        "sha256": "d6d4d4d6b5c401ad81d51a9d352d1d1f93fbd32a78accb9e8607924492438e06",
         "fixtureSha256": "f0b9caaa1f8f64b27d70d2e5484af667c40ce0e7c389e21347694c8e344dc87b"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "chmod 644 on installed"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -377,19 +499,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-3-E10/failopen.txt",
         "sha256": "88154fe9659d2b859ef6eb53fd07a3975decbe8d5d807c85761ebfcab045f7f4"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-011 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-3-E10/summary.txt",
-        "outputSha256": "0d27e626295f91e61ff6e3b51d8b55f3a32650549a1fc122157542c7a4aabc20",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-3-E10/summary.txt"
+        },
+        "sha256": "0d27e626295f91e61ff6e3b51d8b55f3a32650549a1fc122157542c7a4aabc20",
         "fixtureSha256": "88154fe9659d2b859ef6eb53fd07a3975decbe8d5d807c85761ebfcab045f7f4"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "BROKEN PIPE"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -409,19 +542,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/K3-3.md",
         "sha256": "f0b9caaa1f8f64b27d70d2e5484af667c40ce0e7c389e21347694c8e344dc87b"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-012 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-3-E11/summary.txt",
-        "outputSha256": "cc75ce493d50262b2c8aab0af03dce2048541ca0ddb85f34fe5156ee90b62baf",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "bundle-member",
+          "member": "KIMI-K3-IDC-SKILLS-2.0.3-PENTEST/evidence/K3-203-012/stdout.txt"
+        },
+        "sha256": "63678cb3dda0f35cd01e8c1b2e5b654d8f0a05065bcbcb38b43550bf637443a6",
         "fixtureSha256": "f0b9caaa1f8f64b27d70d2e5484af667c40ce0e7c389e21347694c8e344dc87b"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "shadow-json-took-over"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": false
       },
       "disposition": {
@@ -441,19 +585,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-2-attacks/scen_g456.py",
         "sha256": "365d4e8ebe3a4af59d84d2592fae8c1ef9fc3c5098a9196e6cfabd6946bd5886"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-013 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-2-attacks/scen_g456.log",
-        "outputSha256": "ba74f333ccb4ebce6a55abeeb7e8d96b9cb93c65de6469c786a76d3de489978f",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-2-attacks/scen_g456.log"
+        },
+        "sha256": "ba74f333ccb4ebce6a55abeeb7e8d96b9cb93c65de6469c786a76d3de489978f",
         "fixtureSha256": "365d4e8ebe3a4af59d84d2592fae8c1ef9fc3c5098a9196e6cfabd6946bd5886"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "IncompleteRead mid-body"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -473,19 +628,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-2-attacks/scen_g7plus.py",
         "sha256": "a786b4da4e310fe325e8f946bea89ca53b4f611cb44a9545a58a2516b44515d5"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-014 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-2-attacks/scen_g7plus.log",
-        "outputSha256": "adafd6c00b82123a7e43a2c519ac832385091446cbd6627d6a9d9383a6df727a",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-2-attacks/scen_g7plus.log"
+        },
+        "sha256": "adafd6c00b82123a7e43a2c519ac832385091446cbd6627d6a9d9383a6df727a",
         "fixtureSha256": "a786b4da4e310fe325e8f946bea89ca53b4f611cb44a9545a58a2516b44515d5"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "consumer raises RuntimeError"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -505,19 +671,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-4-cleanreqforce/proofs.txt",
         "sha256": "44396f1e560f9bdddc882c423246ac207d6545a210457987b65771a0c926aba7"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-015 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-4-cleanreqforce/proofs.txt",
-        "outputSha256": "44396f1e560f9bdddc882c423246ac207d6545a210457987b65771a0c926aba7",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-4-cleanreqforce/proofs.txt"
+        },
+        "sha256": "44396f1e560f9bdddc882c423246ac207d6545a210457987b65771a0c926aba7",
         "fixtureSha256": "44396f1e560f9bdddc882c423246ac207d6545a210457987b65771a0c926aba7"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "gone1 exists=NO"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -537,19 +714,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-4-updateref/proofs.txt",
         "sha256": "d0d765a103c6568dab12189649bd1b3ab1fb1d5cd121d940cc4f17ebce122651"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-016 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-4-updateref/proofs.txt",
-        "outputSha256": "d0d765a103c6568dab12189649bd1b3ab1fb1d5cd121d940cc4f17ebce122651",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-4-updateref/proofs.txt"
+        },
+        "sha256": "d0d765a103c6568dab12189649bd1b3ab1fb1d5cd121d940cc4f17ebce122651",
         "fixtureSha256": "d0d765a103c6568dab12189649bd1b3ab1fb1d5cd121d940cc4f17ebce122651"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "update-ref move x"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -569,19 +757,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-4-brace/proofs.txt",
         "sha256": "ce3b635a77c27189a36f97547dbf3ae2de876b3e88967e4c4c6ad5465ad58e15"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-017 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-4-brace/proofs.txt",
-        "outputSha256": "ce3b635a77c27189a36f97547dbf3ae2de876b3e88967e4c4c6ad5465ad58e15",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-4-brace/proofs.txt"
+        },
+        "sha256": "ce3b635a77c27189a36f97547dbf3ae2de876b3e88967e4c4c6ad5465ad58e15",
         "fixtureSha256": "ce3b635a77c27189a36f97547dbf3ae2de876b3e88967e4c4c6ad5465ad58e15"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "EXECUTED=YES"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -601,19 +800,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-5-c5-webkit/w.css",
         "sha256": "36b6881d1c60f5473035aeee65bf25393fce00ecfaab611dbb02a9bf25c336a9"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-018 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-5-c5-webkit/hits.log",
-        "outputSha256": "0d2177f919bcf963aee0ffdba4b9e616fec8d2c0031a915df1ac1254c6f8feeb",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-5-c5-webkit/hits.log"
+        },
+        "sha256": "0d2177f919bcf963aee0ffdba4b9e616fec8d2c0031a915df1ac1254c6f8feeb",
         "fixtureSha256": "36b6881d1c60f5473035aeee65bf25393fce00ecfaab611dbb02a9bf25c336a9"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "/webkit-imageset.png"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -633,19 +843,34 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-5-c6-xmlstylesheet/x.xml",
         "sha256": "306d2d78274a99534bb1f15246dc2973b6e9c506f3e0feae9a466b2d1ff372d2"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-019 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-5-c6-xmlstylesheet/scan.out",
-        "outputSha256": "f9b42245cdb18665ebd7466c720743a0df886c85440e0ba973f56abec892f15d",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-5-c6-xmlstylesheet/scan.out"
+        },
+        "sha256": "f9b42245cdb18665ebd7466c720743a0df886c85440e0ba973f56abec892f15d",
         "fixtureSha256": "306d2d78274a99534bb1f15246dc2973b6e9c506f3e0feae9a466b2d1ff372d2"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "scan-egress: PASS"
+          },
+          {
+            "target": "fixture",
+            "contains": "xml-stylesheet"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -665,19 +890,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/K3-6.md",
         "sha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-020 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-6-functional/functional-checks.txt",
-        "outputSha256": "67377c352fe7319f29189fdafe0d19353cdb05d53bc7c5e153e979308e8dbb53",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "bundle-member",
+          "member": "KIMI-K3-IDC-SKILLS-2.0.3-PENTEST/evidence/K3-203-020/stdout.txt"
+        },
+        "sha256": "1672e6f8a42c51e8d4354204c66d731f6885452e7eac815b9f9d94493a876062",
         "fixtureSha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "referenced runnable scripts absent from the signed closure"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -697,19 +933,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/K3-6.md",
         "sha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-021 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-6-functional/functional-checks.txt",
-        "outputSha256": "67377c352fe7319f29189fdafe0d19353cdb05d53bc7c5e153e979308e8dbb53",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-6-functional/functional-checks.txt"
+        },
+        "sha256": "67377c352fe7319f29189fdafe0d19353cdb05d53bc7c5e153e979308e8dbb53",
         "fixtureSha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "test-scan-egress.sh: RESULT"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -729,19 +976,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/K3-7.md",
         "sha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-022 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-7-bash/guard-failopen.txt",
-        "outputSha256": "acb66598bd878754ec122712ad7c6ab8b5e56dc933d70be0fc26040d74c9480c",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-7-bash/guard-failopen.txt"
+        },
+        "sha256": "acb66598bd878754ec122712ad7c6ab8b5e56dc933d70be0fc26040d74c9480c",
         "fixtureSha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "guard OPEN"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -761,19 +1019,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/K3-7.md",
         "sha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-023 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-7-setup/anchors.txt",
-        "outputSha256": "95d5446a913e414077fa544800e88b7a327009040cb59db9f4f750b868e36d70",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "bundle-member",
+          "member": "KIMI-K3-IDC-SKILLS-2.0.3-PENTEST/evidence/K3-203-023/stdout.txt"
+        },
+        "sha256": "3c4ce949ea4b6d5a175b975b7ac447ab9d859fa79705ea98986247dd7e1764b3",
         "fixtureSha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "caller PATH"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -793,19 +1062,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/K3-7.md",
         "sha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-024 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-7-python39/summary.txt",
-        "outputSha256": "9fa7f70758c9114a49395fe9fddca85f519d64ce371ec9d81a341d3d9336e660",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-7-python39/summary.txt"
+        },
+        "sha256": "9fa7f70758c9114a49395fe9fddca85f519d64ce371ec9d81a341d3d9336e660",
         "fixtureSha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "3.12: 101/101 OK"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -825,19 +1105,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/K3-6.md",
         "sha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-025 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-6-scans/extref-parity-notes.txt",
-        "outputSha256": "734e8a37cb11585b0cf378857949cbfa21eb03731da8558d2f6f4e46774b98dd",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-6-scans/extref-parity-notes.txt"
+        },
+        "sha256": "734e8a37cb11585b0cf378857949cbfa21eb03731da8558d2f6f4e46774b98dd",
         "fixtureSha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "manifest enumerates 12 external references"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -857,19 +1148,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-2-attacks/scen_g7plus.py",
         "sha256": "a786b4da4e310fe325e8f946bea89ca53b4f611cb44a9545a58a2516b44515d5"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-026 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-2-attacks/scen_g7plus.log",
-        "outputSha256": "adafd6c00b82123a7e43a2c519ac832385091446cbd6627d6a9d9383a6df727a",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-2-attacks/scen_g7plus.log"
+        },
+        "sha256": "adafd6c00b82123a7e43a2c519ac832385091446cbd6627d6a9d9383a6df727a",
         "fixtureSha256": "a786b4da4e310fe325e8f946bea89ca53b4f611cb44a9545a58a2516b44515d5"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "[GAP-OBSERVED]"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": false
       },
       "disposition": {
@@ -889,19 +1191,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/evidence/K3-3-E2/marker.txt",
         "sha256": "8c52f9e7fc947a5a2ee22d8526234cce3c82ebde7a5ff760fd9104014b6e90ac"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-027 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-3-E2/install-forged.json",
-        "outputSha256": "91bd26ea785c3c91b0b785fa1d60706255440e8b8b1195eb9ded91de2bd489f5",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-3-E2/install-forged.json"
+        },
+        "sha256": "91bd26ea785c3c91b0b785fa1d60706255440e8b8b1195eb9ded91de2bd489f5",
         "fixtureSha256": "8c52f9e7fc947a5a2ee22d8526234cce3c82ebde7a5ff760fd9104014b6e90ac"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "\"authority\": \"content-only\""
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -921,19 +1234,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/K3-6.md",
         "sha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-028 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-6-scans/k3-6-independent-url-scan.txt",
-        "outputSha256": "bf3c01c830272c6bb84bc386c6d2c8d47217db565754a6cd03afe9c5efbaf403",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-6-scans/k3-6-independent-url-scan.txt"
+        },
+        "sha256": "bf3c01c830272c6bb84bc386c6d2c8d47217db565754a6cd03afe9c5efbaf403",
         "fixtureSha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "research/SKILL.md:44:https://deepapi.co/v1/research/deep"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -953,19 +1277,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/K3-6.md",
         "sha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-029 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-6-functional/functional-checks.txt",
-        "outputSha256": "67377c352fe7319f29189fdafe0d19353cdb05d53bc7c5e153e979308e8dbb53",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "bundle-member",
+          "member": "KIMI-K3-IDC-SKILLS-2.0.3-PENTEST/evidence/K3-203-029/stdout.txt"
+        },
+        "sha256": "bf3c01c830272c6bb84bc386c6d2c8d47217db565754a6cd03afe9c5efbaf403",
         "fixtureSha256": "3670945acb20b22e2052eef6338d0d9d8b49759e6ed26a8700dd3dd9fa471496"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "video-analysis/SKILL.md:20:https://youtu.be/ID"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -985,19 +1320,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/K3-7.md",
         "sha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-030 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-7-publication/release.json",
-        "outputSha256": "e012ef97e733297955030bb1f7a1dbc0b99ffa7c608e744bcfa7a139c71b303a",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-7-publication/release.json"
+        },
+        "sha256": "e012ef97e733297955030bb1f7a1dbc0b99ffa7c608e744bcfa7a139c71b303a",
         "fixtureSha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "\"tag_name\": \"2.0.3\""
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": true
       },
       "disposition": {
@@ -1023,19 +1369,30 @@
         }
       ],
       "fixture": {
+        "anchor": "candidate-preserved",
         "path": "source/kimi/lanes/K3-7.md",
         "sha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
       },
-      "execution": {
-        "command": "python3 -B scripts/replay_kimi_evidence.py --id K3-203-031 --evidence ops/mission/evidence/2.0.4/evidence.json",
-        "expectedExit": 0,
-        "observedExit": 0,
-        "outputPath": "source/kimi/lanes/evidence/K3-7-filemode/nofm2.json",
-        "outputSha256": "5fec3f40f900f66e0bddc4a924edcf8a10e851f33eaceaa6edf0aad7f90aa3d4",
+      "capture": {
+        "kind": "preserved-observation",
+        "source": {
+          "type": "local",
+          "path": "source/kimi/lanes/evidence/K3-7-filemode/nofm2.json"
+        },
+        "sha256": "5fec3f40f900f66e0bddc4a924edcf8a10e851f33eaceaa6edf0aad7f90aa3d4",
         "fixtureSha256": "390eccc013e9136088b417cdf89af0d27c7f9a064206246643670dff3e16e4a9"
       },
+      "semanticBinding": {
+        "description": "The listed exact sentinel occurs in the named preserved UTF-8 bytes; this is byte emission, not a claim that a command was executed.",
+        "assertions": [
+          {
+            "target": "capture",
+            "contains": "repositoryFiles differs from the signed manifest"
+          }
+        ]
+      },
       "discriminator": {
-        "description": "The original fixture and captured output are present byte-for-byte, hash-bound to this record, and the cited released blob/range resolves. Replay validates those bindings; candidate regression tests are separate downstream gates.",
+        "description": "The release source range resolves, the candidate-preserved fixture and preserved capture digest-match, and each semantic sentinel is present. Candidate regression tests are separate downstream gates.",
         "passed": false
       },
       "disposition": {

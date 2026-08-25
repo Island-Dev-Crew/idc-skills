@@ -1,6 +1,6 @@
 {
   "schema": "idc-g3-egress-evidence/v1",
-  "generatedAt": "2026-08-22T22:40:04Z",
+  "generatedAt": "2026-08-23T16:55:50Z",
   "scope": "G3 static egress parser, waiver authority, and resource ceilings",
   "redBeforeGreen": [
     {
@@ -33,16 +33,16 @@
     {
       "command": "bash skills/self-contained-ship/scripts/test-scan-egress.sh",
       "exit": 0,
-      "observed": "RESULT pass=607 fail=0",
-      "scriptSha256": "sha256:97aaab58a9c94ed352df7ad07b364ca414725a6b84d4fc3561e23f1286dd1c95",
-      "testSha256": "sha256:d4865cd50dae5742468a59dfb435bf281d01e8d9d8bad3b462ca58d3dcb8e275"
+      "observed": "RESULT pass=619 fail=0",
+      "scriptSha256": "sha256:0b233e122cfe858a45e0d38185feb90bf93e27d547afe7ea47eb629c7b7adda9",
+      "testSha256": "sha256:ce569d0633b50a7054da5ed9c8beb5153ebf9e1ae07b12c8922242b8614dd3c3"
     },
     {
       "command": "python3 -B -m unittest tests.test_egress_policy",
       "exit": 0,
-      "observed": "Ran 6 tests; OK",
-      "verifierSha256": "sha256:cfade509fbd9eaef20247f7c6816fb388ddae3c9c2b7a840bc233ff7978d7760",
-      "testSha256": "sha256:59266e1616bfac45540987be4ff9af3b5571ca3f58bfd5f373b4b6867efa2d74"
+      "observed": "Ran 8 tests; OK",
+      "verifierSha256": "sha256:6e3a67c07a5178a1e862f94a3cbe981261b022033dfad871e1497e38487288a5",
+      "testSha256": "sha256:6aca27178729c4d84c11c9ff0a0bae610890f2e6e84855bffa4c9c8394fb0234"
     },
     {
       "command": "shellcheck skills/self-contained-ship/scripts/scan-egress.sh skills/self-contained-ship/scripts/test-scan-egress.sh",
@@ -72,5 +72,5 @@
     "aggregateBytes": 67108864,
     "oversizeDisposition": "explicit non-zero fail before whole-file parsing"
   },
-  "boundary": "This is a bounded static language model and signed-exemption gate, not a browser sandbox or proof that runtime-built URLs are impossible. The separate sealed-browser evidence is required."
+  "boundary": "This is a bounded static language model and signed-exemption gate, not a browser sandbox or proof that runtime-built URLs are impossible. The separate sealed-browser evidence is required. The sealed harness blocks WebRTC constructors and launches Chrome with a restrictive WebRTC IP policy, but it does not provide packet-level ICE capture; that residual remains explicit."
 }

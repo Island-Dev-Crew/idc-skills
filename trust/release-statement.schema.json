@@ -23,7 +23,7 @@
     "signed": {
       "type": "object",
       "additionalProperties": false,
-      "required": ["_type", "artifacts", "expires", "git", "release", "releaseSequence", "rootVersion", "schema"],
+      "required": ["_type", "artifacts", "contentSigning", "expires", "git", "release", "releaseSequence", "rootVersion", "schema"],
       "properties": {
         "_type": {"const": "release"},
         "artifacts": {
@@ -36,6 +36,16 @@
             "installInventory": {"$ref": "#/$defs/artifact"},
             "manifest": {"$ref": "#/$defs/artifact"},
             "registry": {"$ref": "#/$defs/artifact"}
+          }
+        },
+        "contentSigning": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["allowedSignersSHA256", "fingerprint", "publicKeySHA256"],
+          "properties": {
+            "allowedSignersSHA256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"},
+            "fingerprint": {"type": "string", "pattern": "^SHA256:[A-Za-z0-9+/]{43}$"},
+            "publicKeySHA256": {"type": "string", "pattern": "^sha256:[0-9a-f]{64}$"}
           }
         },
         "expires": {"type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}Z$"},

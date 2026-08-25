@@ -30,9 +30,9 @@
                 "additionalProperties": false,
                 "$comment": "Routing rule: a failed gate returns to the earliest stage whose output the failure falsifies.",
                 "properties": {
-                  "gate": { "type": "string" },
+                  "gate": { "type": "string", "pattern": "^P[0-9]{1,6}-G[0-6]$" },
                   "fromGate": { "enum": ["G0", "G1", "G2", "G3", "G4", "G5", "G6"] },
-                  "toStage": { "enum": ["S0", "S1", "S2", "S3", "S4", "S5", "S6"] },
+                  "toStage": { "enum": ["S0", "S1", "S2", "S3", "S4", "S5", "S6", "S7"] },
                   "reason": { "type": "string" },
                   "at": { "type": "string", "format": "date-time" },
                   "resolvedAt": { "type": "string", "format": "date-time" }

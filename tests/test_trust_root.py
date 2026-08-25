@@ -2,10 +2,14 @@ from __future__ import annotations
 
 import copy
 import datetime as dt
+import gzip
+import io
 import json
 import shutil
 import subprocess
 import tempfile
+import time
+import tarfile
 import unittest
 from pathlib import Path
 
@@ -17,6 +21,64 @@ GIT = Path(shutil.which("git") or "/usr/bin/git")
 BUILD_TRUST = Path(__file__).resolve().parents[1] / "scripts" / "build_trust_metadata.py"
 VERIFY_EXTERNAL = Path(__file__).resolve().parents[1] / "scripts" / "verify_external_root.py"
 NOW = dt.datetime(2026, 8, 22, 12, 0, tzinfo=dt.timezone.utc)
+
+
+def canonical_release_index(value: object) -> bytes:
+    return (
+        json.dumps(value, ensure_ascii=False, allow_nan=False, sort_keys=True, indent=2)
+        + "\n"
+    ).encode("utf-8")
+
+
+def deterministic_release_archive(
+    release: str, files: dict[str, tuple[bytes, int]]
+) -> bytes:
+    tar_buffer = io.BytesIO()
+    with tarfile.open(fileobj=tar_buffer, mode="w", format=tarfile.PAX_FORMAT) as archive:
+        for relative in sorted(files):
+            data, mode = files[relative]
+            info = tarfile.TarInfo(f"idc-skills-{release}/{relative}")
+            info.size = len(data)
+            info.mode = mode
+            info.mtime = 0
+            info.uid = 0
+            info.gid = 0
+            info.uname = ""
+            info.gname = ""
+            archive.addfile(info, io.BytesIO(data))
+    compressed = io.BytesIO()
+    with gzip.GzipFile(
+        filename="", fileobj=compressed, mode="wb", compresslevel=9, mtime=0
+    ) as stream:
+        stream.write(tar_buffer.getvalue())
+    return compressed.getvalue()
+
+
+def fixture_registry(names: list[str]) -> dict[str, object]:
+    return {
+        "anchor": "fixture evidence law",
+        "buildOrder": names,
+        "bundleName": "idc-skills-forge",
+        "dualHarness": "fixture dual harness boundary",
+        "harnessContract": "docs/harness-support.json",
+        "manifestSequence": 2,
+        "name": "idc-skills-forge",
+        "promotesTo": "Island-Dev-Crew",
+        "release": "2.0.4",
+        "skills": [
+            {
+                "invocation": "model",
+                "name": name,
+                "path": name,
+                "provenance": "fixture provenance",
+                "summary": "fixture summary",
+                "triggers": ["fixture trigger"],
+            }
+            for name in names
+        ],
+        "staging": "Navigata1/idc-skills-forge",
+        "version": 1,
+    }
 
 
 class TrustRootTests(unittest.TestCase):
@@ -270,9 +332,109 @@ class TrustRootTests(unittest.TestCase):
         final_envelope, final_root = trust.update_root_chain(
             initial, root, [update], ssh_keygen=SSH_KEYGEN, now=NOW
         )
-        checkpoint = trust.canonical_json(trust.root_checkpoint(final_envelope, final_root))
+        checkpoint = trust.canonical_json(
+            trust.root_checkpoint(
+                final_envelope,
+                final_root,
+                release_sequence=1,
+                signed_statement_digest="sha256:" + "1" * 64,
+            )
+        )
         with self.assertRaisesRegex(trust.TrustError, "rollback against external checkpoint"):
-            trust.validate_root_checkpoint(checkpoint, initial, root)
+            trust.validate_root_checkpoint(
+                checkpoint,
+                initial,
+                root,
+                release_sequence=1,
+                signed_statement_digest="sha256:" + "1" * 64,
+            )
+
+    def test_external_checkpoint_rejects_release_sequence_rollback(self) -> None:
+        initial, root = self.load_initial()
+        checkpoint = trust.canonical_json(
+            trust.root_checkpoint(
+                initial,
+                root,
+                release_sequence=3,
+                signed_statement_digest="sha256:" + "3" * 64,
+            )
+        )
+        with self.assertRaisesRegex(trust.TrustError, "release-sequence rollback"):
+            trust.validate_root_checkpoint(
+                checkpoint,
+                initial,
+                root,
+                release_sequence=2,
+                signed_statement_digest="sha256:" + "2" * 64,
+            )
+
+    def test_external_checkpoint_rejects_same_sequence_statement_equivocation(self) -> None:
+        initial, root = self.load_initial()
+        checkpoint = trust.canonical_json(
+            trust.root_checkpoint(
+                initial,
+                root,
+                release_sequence=2,
+                signed_statement_digest="sha256:" + "1" * 64,
+            )
+        )
+        with self.assertRaisesRegex(trust.TrustError, "release equivocation"):
+            trust.validate_root_checkpoint(
+                checkpoint,
+                initial,
+                root,
+                release_sequence=2,
+                signed_statement_digest="sha256:" + "2" * 64,
+            )
+
+    def test_trust_clis_import_under_python_isolated_mode(self) -> None:
+        for script in (BUILD_TRUST, VERIFY_EXTERNAL):
+            completed = subprocess.run(
+                ["python3", "-I", "-B", str(script), "--help"],
+                text=True,
+                capture_output=True,
+                check=False,
+            )
+            self.assertEqual(completed.returncode, 0, f"{script}: {completed.stderr}")
+
+    def test_root_checkpoint_updates_are_serialized_across_processes(self) -> None:
+        helper = "\n".join(
+            (
+                "import sys, time",
+                "from pathlib import Path",
+                "from scripts.verify_external_root import _checkpoint_lock",
+                "with _checkpoint_lock(Path(sys.argv[1])):",
+                "    print('locked', flush=True)",
+                "    time.sleep(float(sys.argv[2]))",
+            )
+        )
+        checkpoint = self.external / "serialized-checkpoint.json"
+        environment = {"PYTHONPATH": str(Path(__file__).resolve().parents[1])}
+        first = subprocess.Popen(
+            ["python3", "-B", "-c", helper, str(checkpoint), "0.6"],
+            text=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            env=environment,
+        )
+        first_line = first.stdout.readline().strip()
+        if first_line != "locked":
+            _, first_stderr = first.communicate(timeout=3)
+            self.fail(f"first lock process did not acquire the lock: {first_stderr}")
+        started = time.monotonic()
+        second = subprocess.run(
+            ["python3", "-B", "-c", helper, str(checkpoint), "0"],
+            text=True,
+            capture_output=True,
+            check=False,
+            env=environment,
+        )
+        elapsed = time.monotonic() - started
+        first_stdout, first_stderr = first.communicate(timeout=3)
+        self.assertEqual(first.returncode, 0, first_stderr)
+        self.assertEqual(second.returncode, 0, second.stderr)
+        self.assertEqual(second.stdout.strip(), "locked")
+        self.assertGreaterEqual(elapsed, 0.45)
 
     def test_skipped_rotation_is_rejected(self) -> None:
         skipped = self.make_root(
@@ -340,27 +502,151 @@ class TrustRootTests(unittest.TestCase):
                 now=NOW,
             )
 
-    def prepare_release(self, *, tree_override: str | None = None) -> dict[str, object]:
+    def prepare_release(
+        self,
+        *,
+        tree_override: str | None = None,
+        tag_kind: str = "annotated",
+        inventory_release_override: str | None = None,
+        index_release_override: str | None = None,
+        index_launcher_override: str | None = None,
+    ) -> dict[str, object]:
         subprocess.run(["git", "-C", str(self.repo), "init", "-q"], check=True)
         subprocess.run(["git", "-C", str(self.repo), "config", "user.name", "IDC Test"], check=True)
         subprocess.run(["git", "-C", str(self.repo), "config", "user.email", "test@example.invalid"], check=True)
-        (self.repo / "tracked.txt").write_text("candidate\n", encoding="utf-8")
-        subprocess.run(["git", "-C", str(self.repo), "add", "tracked.txt"], check=True)
-        subprocess.run(["git", "-C", str(self.repo), "commit", "-qm", "candidate"], check=True)
-        subprocess.run(["git", "-C", str(self.repo), "tag", "2.0.4"], check=True)
-        commit = subprocess.check_output(["git", "-C", str(self.repo), "rev-parse", "HEAD"], text=True).strip()
-        tree = subprocess.check_output(["git", "-C", str(self.repo), "rev-parse", "HEAD^{tree}"], text=True).strip()
         artifacts = {}
         for name in ("archive", "freshnessIndex", "installInventory", "manifest", "registry"):
             path = self.external / f"{name}.bin"
             path.write_bytes((name + " exact bytes\n").encode())
             artifacts[name] = path
+        content_public_key = self.external / "content-signing.pub"
+        content_public_key.write_text(self.keys["new1"][2] + "\n", encoding="utf-8")
+        content_allowed_signers = self.external / "content-allowed-signers"
+        content_allowed_signers.write_text(
+            f"idc-skills {self.keys['new1'][2]}\n", encoding="utf-8"
+        )
+        tracked_data = b"candidate\n"
+        launcher_data = b"fixture launcher\n"
+        verifier_data = b"fixture verifier\n"
+        skill_names = [f"skill-{index:02d}" for index in range(50)]
+        launcher_digest = trust.sha256_bytes(launcher_data)
+        verifier_digest = trust.sha256_bytes(verifier_data)
+        registry_data = trust.canonical_registry(fixture_registry(skill_names))
+        artifacts["registry"].write_bytes(registry_data)
+        manifest_value = {
+            "manifestSequence": 2,
+            "profile": "release",
+            "release": "2.0.4",
+            "repositoryFiles": {
+                "bootstrap/idc_verify_fresh.py": {
+                    "posixMode": 0o644,
+                    "sha256": launcher_digest,
+                    "size": len(launcher_data),
+                },
+                "keys/allowed_signers": {
+                    "posixMode": 0o644,
+                    "sha256": trust.sha256_bytes(content_allowed_signers.read_bytes()),
+                    "size": content_allowed_signers.stat().st_size,
+                },
+                "keys/idc-skills-signing.pub": {
+                    "posixMode": 0o644,
+                    "sha256": trust.sha256_bytes(content_public_key.read_bytes()),
+                    "size": content_public_key.stat().st_size,
+                },
+                "scripts/skill_integrity.py": {
+                    "posixMode": 0o755,
+                    "sha256": verifier_digest,
+                    "size": len(verifier_data),
+                },
+                "skills/registry.json": {
+                    "posixMode": 0o644,
+                    "sha256": trust.sha256_bytes(registry_data),
+                    "size": len(registry_data),
+                },
+                "tracked.txt": {
+                    "posixMode": 0o644,
+                    "sha256": trust.sha256_bytes(tracked_data),
+                    "size": len(tracked_data),
+                }
+            },
+            "schema": trust.MANIFEST_SCHEMA,
+            "skillCount": 50,
+            "skillNames": skill_names,
+        }
+        manifest_data = trust.canonical_manifest(manifest_value)
+        artifacts["manifest"].write_bytes(manifest_data)
+        repository_files = {
+            "bootstrap/idc_verify_fresh.py": launcher_data,
+            "integrity/manifest.json": manifest_data,
+            "integrity/manifest.json.sig": b"fixture manifest signature\n",
+            "keys/allowed_signers": content_allowed_signers.read_bytes(),
+            "keys/idc-skills-signing.pub": content_public_key.read_bytes(),
+            "scripts/skill_integrity.py": verifier_data,
+            "skills/registry.json": registry_data,
+            "tracked.txt": tracked_data,
+        }
+        for relative, data in repository_files.items():
+            destination = self.repo / relative
+            destination.parent.mkdir(parents=True, exist_ok=True)
+            destination.write_bytes(data)
+        (self.repo / "scripts/skill_integrity.py").chmod(0o755)
+        subprocess.run(["git", "-C", str(self.repo), "add", "-A"], check=True)
+        subprocess.run(["git", "-C", str(self.repo), "commit", "-qm", "candidate"], check=True)
+        if tag_kind == "annotated":
+            subprocess.run(
+                ["git", "-C", str(self.repo), "tag", "-a", "-m", "release", "2.0.4"],
+                check=True,
+            )
+        elif tag_kind == "lightweight":
+            subprocess.run(["git", "-C", str(self.repo), "tag", "2.0.4"], check=True)
+        elif tag_kind != "absent":
+            self.fail(f"unknown test tag kind: {tag_kind}")
+        commit = subprocess.check_output(["git", "-C", str(self.repo), "rev-parse", "HEAD"], text=True).strip()
+        tree = subprocess.check_output(["git", "-C", str(self.repo), "rev-parse", "HEAD^{tree}"], text=True).strip()
+        archive_files = {
+            relative: (
+                data,
+                0o755 if relative == "scripts/skill_integrity.py" else 0o644,
+            )
+            for relative, data in repository_files.items()
+        }
+        artifacts["archive"].write_bytes(
+            deterministic_release_archive("2.0.4", archive_files)
+        )
+        artifacts["freshnessIndex"].write_bytes(
+            canonical_release_index(
+                {
+                    "generatedAt": "2026-08-22T11:00:00Z",
+                    "indexSequence": 2,
+                    "releases": [
+                        {
+                            "gitCommit": commit,
+                            "launcherSHA256": index_launcher_override
+                            or launcher_digest,
+                            "manifestSHA256": trust.sha256_bytes(manifest_data),
+                            "manifestSequence": 2,
+                            "release": index_release_override or "2.0.4",
+                            "verifierSHA256": verifier_digest,
+                        }
+                    ],
+                    "schema": "idc-skills-release-index/v1",
+                    "validUntil": "2026-09-01T11:00:00Z",
+                }
+            )
+        )
+        inventory_value = trust.build_install_inventory(manifest_data)
+        if inventory_release_override is not None:
+            inventory_value["release"] = inventory_release_override
+        artifacts["installInventory"].write_bytes(trust.canonical_json(inventory_value))
         signed = {
             "_type": "release",
             "artifacts": {
                 name: {"sha256": trust.sha256_file(path), "size": path.stat().st_size}
                 for name, path in artifacts.items()
             },
+            "contentSigning": trust.content_signing_record(
+                content_public_key, content_allowed_signers
+            ),
             "expires": "2030-01-01T00:00:00Z",
             "git": {"commit": commit, "tag": "2.0.4", "tree": tree_override or tree},
             "release": "2.0.4",
@@ -373,6 +659,16 @@ class TrustRootTests(unittest.TestCase):
             trust.canonical_json(self.signed_envelope(signed, ["new1", "new2"], trust.RELEASE_NAMESPACE))
         )
         return {"artifacts": artifacts, "statement": statement_path, "signed": signed}
+
+    def test_release_statement_requires_content_signing_identity(self) -> None:
+        prepared = self.prepare_release()
+        missing = copy.deepcopy(prepared["signed"])
+        del missing["contentSigning"]
+        envelope = trust.ParsedEnvelope(
+            value={}, signed=missing, signed_bytes=trust.canonical_json(missing), digest=""
+        )
+        with self.assertRaisesRegex(trust.TrustError, "keys differ"):
+            trust.parse_release(envelope)
 
     def verify_prepared_release(self, prepared: dict[str, object]) -> dict[str, object]:
         update = self.make_valid_rotation()
@@ -397,6 +693,170 @@ class TrustRootTests(unittest.TestCase):
         self.assertTrue(result["eligibleForContentVerification"])
         self.assertFalse(result["readyToInstall"])
         self.assertEqual(result["release"], "2.0.4")
+        self.assertEqual(result["contentSigning"], prepared["signed"]["contentSigning"])
+
+    def test_release_statement_rejects_lightweight_tag(self) -> None:
+        prepared = self.prepare_release(tag_kind="lightweight")
+        with self.assertRaisesRegex(trust.TrustError, "annotated tag"):
+            self.verify_prepared_release(prepared)
+
+    def test_release_statement_rejects_semantically_mismatched_install_inventory(self) -> None:
+        prepared = self.prepare_release(inventory_release_override="9.9.9")
+        with self.assertRaisesRegex(trust.TrustError, "signed manifest expectation"):
+            self.verify_prepared_release(prepared)
+
+    def test_release_statement_rejects_semantically_mismatched_freshness_index(self) -> None:
+        prepared = self.prepare_release(index_release_override="9.9.9")
+        with self.assertRaisesRegex(trust.TrustError, "release index newest release"):
+            self.verify_prepared_release(prepared)
+
+    def test_release_statement_rejects_index_launcher_not_bound_by_manifest(self) -> None:
+        prepared = self.prepare_release(
+            index_launcher_override="sha256:" + "d" * 64
+        )
+        with self.assertRaisesRegex(trust.TrustError, "launcher digest"):
+            self.verify_prepared_release(prepared)
+
+    def test_checkpoint_identity_ignores_equivalent_signature_order(self) -> None:
+        prepared = self.prepare_release()
+        update = self.make_valid_rotation()
+        first = trust.verify_external_release(
+            repo=self.repo,
+            trusted_root_path=self.root1,
+            trusted_root_digest=trust.sha256_file(self.root1),
+            root_updates=[update],
+            statement_path=prepared["statement"],
+            artifacts=prepared["artifacts"],
+            ssh_keygen=SSH_KEYGEN,
+            ssh_keygen_digest=trust.sha256_file(SSH_KEYGEN.resolve()),
+            git=GIT,
+            git_digest=trust.sha256_file(GIT.resolve()),
+            now=NOW,
+        )
+        envelope = json.loads(prepared["statement"].read_text(encoding="utf-8"))
+        envelope["signatures"].reverse()
+        prepared["statement"].write_bytes(trust.canonical_json(envelope))
+
+        second = trust.verify_external_release(
+            repo=self.repo,
+            trusted_root_path=self.root1,
+            trusted_root_digest=trust.sha256_file(self.root1),
+            root_updates=[update],
+            statement_path=prepared["statement"],
+            artifacts=prepared["artifacts"],
+            ssh_keygen=SSH_KEYGEN,
+            ssh_keygen_digest=trust.sha256_file(SSH_KEYGEN.resolve()),
+            git=GIT,
+            git_digest=trust.sha256_file(GIT.resolve()),
+            root_checkpoint_data=trust.canonical_json(first["rootCheckpoint"]),
+            now=NOW,
+        )
+        self.assertEqual(first["rootCheckpoint"], second["rootCheckpoint"])
+
+    def test_checkpoint_binds_intermediate_root_across_forward_rotation(self) -> None:
+        root2a = self.make_root(
+            self.external / "2a.root.json",
+            version=2,
+            root_family="new",
+            release_family="new",
+            signers=["old1", "old2", "new1", "new2"],
+        )
+        root3a = self.make_root(
+            self.external / "3a.root.json",
+            version=3,
+            root_family="new",
+            release_family="new",
+            signers=["new1", "new2"],
+        )
+        root2b = self.make_root(
+            self.external / "2b.root.json",
+            version=2,
+            root_family="attacker",
+            release_family="attacker",
+            signers=["old1", "old2", "attacker1", "attacker2"],
+        )
+        root3b = self.make_root(
+            self.external / "3b.root.json",
+            version=3,
+            root_family="attacker",
+            release_family="attacker",
+            signers=["attacker1", "attacker2"],
+        )
+        initial_envelope, initial_root = self.load_initial()
+        checkpoint_envelope, checkpoint_root = trust.update_root_chain(
+            initial_envelope,
+            initial_root,
+            [root2a],
+            ssh_keygen=SSH_KEYGEN,
+            now=NOW,
+        )
+        checkpoint = trust.canonical_json(
+            trust.root_checkpoint(
+                checkpoint_envelope,
+                checkpoint_root,
+                release_sequence=2,
+                signed_statement_digest="sha256:" + "2" * 64,
+            )
+        )
+
+        prepared = self.prepare_release()
+        prepared["signed"]["releaseSequence"] = 3
+        prepared["signed"]["rootVersion"] = 3
+        prepared["statement"].write_bytes(
+            trust.canonical_json(
+                self.signed_envelope(
+                    prepared["signed"], ["new1", "new2"], trust.RELEASE_NAMESPACE
+                )
+            )
+        )
+        legitimate = trust.verify_external_release(
+            repo=self.repo,
+            trusted_root_path=self.root1,
+            trusted_root_digest=trust.sha256_file(self.root1),
+            root_updates=[root2a, root3a],
+            statement_path=prepared["statement"],
+            artifacts=prepared["artifacts"],
+            ssh_keygen=SSH_KEYGEN,
+            ssh_keygen_digest=trust.sha256_file(SSH_KEYGEN.resolve()),
+            git=GIT,
+            git_digest=trust.sha256_file(GIT.resolve()),
+            root_checkpoint_data=checkpoint,
+            now=NOW,
+        )
+        signed_statement_digest = trust.sha256_bytes(
+            trust.load_envelope(prepared["statement"], "release statement").signed_bytes
+        )
+        self.assertEqual(legitimate["rootCheckpoint"]["version"], 3)
+        self.assertEqual(
+            legitimate["rootCheckpoint"]["signedStatementSHA256"],
+            signed_statement_digest,
+        )
+
+        attacker_statement = self.external / "attacker-release-statement.json"
+        attacker_statement.write_bytes(
+            trust.canonical_json(
+                self.signed_envelope(
+                    prepared["signed"], ["attacker1", "attacker2"], trust.RELEASE_NAMESPACE
+                )
+            )
+        )
+        with self.assertRaisesRegex(
+            trust.TrustError, "root equivocation against external checkpoint at version 2"
+        ):
+            trust.verify_external_release(
+                repo=self.repo,
+                trusted_root_path=self.root1,
+                trusted_root_digest=trust.sha256_file(self.root1),
+                root_updates=[root2b, root3b],
+                statement_path=attacker_statement,
+                artifacts=prepared["artifacts"],
+                ssh_keygen=SSH_KEYGEN,
+                ssh_keygen_digest=trust.sha256_file(SSH_KEYGEN.resolve()),
+                git=GIT,
+                git_digest=trust.sha256_file(GIT.resolve()),
+                root_checkpoint_data=checkpoint,
+                now=NOW,
+            )
 
     def test_cli_persists_checkpoint_and_rejects_withheld_root(self) -> None:
         prepared = self.prepare_release()
@@ -435,6 +895,39 @@ class TrustRootTests(unittest.TestCase):
         prepared = self.prepare_release()
         prepared["artifacts"]["archive"].write_bytes(b"substituted archive\n")
         with self.assertRaisesRegex(trust.TrustError, "archive artifact differs"):
+            self.verify_prepared_release(prepared)
+
+    def test_threshold_signed_archive_with_extra_member_is_rejected(self) -> None:
+        prepared = self.prepare_release()
+        manifest_data = prepared["artifacts"]["manifest"].read_bytes()
+        identity = trust.parse_manifest_identity(manifest_data)
+        files = {
+            relative: (
+                (self.repo / relative).read_bytes(),
+                record["posixMode"],
+            )
+            for relative, record in identity["repositoryFiles"].items()
+        }
+        files["integrity/manifest.json"] = (manifest_data, 0o644)
+        files["integrity/manifest.json.sig"] = (
+            (self.repo / "integrity/manifest.json.sig").read_bytes(),
+            0o644,
+        )
+        files["unexpected.txt"] = (b"not in the signed tree\n", 0o644)
+        archive = prepared["artifacts"]["archive"]
+        archive.write_bytes(deterministic_release_archive("2.0.4", files))
+        prepared["signed"]["artifacts"]["archive"] = {
+            "sha256": trust.sha256_file(archive),
+            "size": archive.stat().st_size,
+        }
+        prepared["statement"].write_bytes(
+            trust.canonical_json(
+                self.signed_envelope(
+                    prepared["signed"], ["new1", "new2"], trust.RELEASE_NAMESPACE
+                )
+            )
+        )
+        with self.assertRaisesRegex(trust.TrustError, "inventory count differs|extra member"):
             self.verify_prepared_release(prepared)
 
     def test_tag_tree_mismatch_is_rejected(self) -> None:

@@ -54,6 +54,10 @@ jobs:
       # This repository-owned workflow is intentionally content-only. A
       # whole-tree readiness check must be required from outside candidate
       # code (pinned org workflow/action/runner policy).
+      - name: Pin the OpenSSH verifier used by content reacceptance
+        shell: bash
+        run: python -B scripts/ci_tool_pins.py
+
       - name: Content-reaccept all fifty skills and installer profiles
         env:
           IDC_SKILLS_FRESHNESS_HANDOFF: sha256:0000000000000000000000000000000000000000000000000000000000000000
@@ -77,6 +81,7 @@ jobs:
             scripts/setup-signing-wizard.sh \
             scripts/test-skill-integrity.sh \
             skills/agent-guardrails/scripts/block-dangerous-git.sh \
+            skills/agent-guardrails/scripts/block-dangerous-git-strict.sh \
             skills/agent-guardrails/scripts/test-block-dangerous-git.sh \
             skills/self-contained-ship/scripts/scan-egress.sh \
             skills/self-contained-ship/scripts/test-scan-egress.sh \
@@ -89,6 +94,7 @@ jobs:
             scripts/setup-signing-wizard.sh \
             scripts/test-skill-integrity.sh \
             skills/agent-guardrails/scripts/block-dangerous-git.sh \
+            skills/agent-guardrails/scripts/block-dangerous-git-strict.sh \
             skills/agent-guardrails/scripts/test-block-dangerous-git.sh \
             skills/self-contained-ship/scripts/scan-egress.sh \
             skills/self-contained-ship/scripts/test-scan-egress.sh \

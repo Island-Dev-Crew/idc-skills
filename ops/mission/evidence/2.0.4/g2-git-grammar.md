@@ -42,3 +42,34 @@ Observed after literal-fixture annotations: zero findings.
 - `IDC_GUARD_STRICT=1`: unsupported dynamic grammar, a missing command, and a missing classifier dependency block with exit `2`.
 - ordinary mode: preserves the documented compatibility fail-open for a malformed payload or missing interpreter.
 - neither mode is a shell sandbox; renamed binaries, unrecognized wrappers, repository/global aliases, and PowerShell remain outside the declared model and require repository/OS controls.
+
+## 2026-08-23 construction re-run after K3-204 reconciliation
+
+The original RED record above is preserved as chronology. On the repaired,
+uncommitted construction tree based on `28edb946a84b7da85f8a38807b9a2def2f5aae31`,
+the expanded matrix reports `RESULT pass=395 fail=0`. It adds the K3-204
+editor/helper execution surfaces, destructive plumbing commands, named-file
+descriptor redirections, `coproc`, parameter-spliced command dispatch, and
+resource ceilings. `tests.test_git_guard_grammar` remains 7/7.
+
+`skills/agent-guardrails/scripts/block-dangerous-git-strict.sh` is now the
+durable installed strict entrypoint; it exports `IDC_GUARD_STRICT=1` and
+delegates to the classifier in the same installed directory. Bash syntax and
+ShellCheck are green for the classifier, strict wrapper, and fixture matrix.
+This is construction evidence, not an exact signed-head platform acceptance
+record.
+
+## 2026-08-24 VERIFY-1 availability regression
+
+Claude's conditional review identified an availability bypass in the strict
+entrypoint: an attacker-controlled command string could make the classifier
+spend unbounded time in shell-grammar analysis. The retained RED fixture feeds
+a 96 KiB payload and requires strict mode to reject it before parsing in under
+five seconds. The bounded control fixture feeds 48 KiB and proves ordinary
+strict classification remains available below the ceiling.
+
+The GREEN implementation enforces a 64 KiB maximum command-string size before
+grammar analysis. The native Bash matrix remains `RESULT pass=395 fail=0`, and
+`python3 -B -m unittest -v tests.test_git_guard_grammar` reports 9/9. The bound
+is an enforced availability limit for the command-string classifier; it is not
+a general shell sandbox or a promise to classify arbitrarily large scripts.

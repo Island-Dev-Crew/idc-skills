@@ -64,9 +64,48 @@ MAX_TOTAL_BYTES=67108864
 usage() {
   echo "usage: scan-egress.sh [--allow-inline-waivers] [--allow-binary <glob>]..." >&2
   echo "       [--waiver-policy FILE --waiver-signature FILE --waiver-allowed-signers FILE" >&2
-  echo "        --waiver-fingerprint SHA256:... --revision 40HEX --policy-root DIR]" >&2
+  echo "        --waiver-fingerprint SHA256:... --revision 40HEX --policy-root DIR" >&2
+  echo "        --waiver-python ABSOLUTE --waiver-python-sha256 sha256:..." >&2
+  echo "        --waiver-ssh-keygen ABSOLUTE --waiver-ssh-keygen-sha256 sha256:...]" >&2
   echo "       <file-or-dir> ..." >&2
   exit 2
+}
+
+sha256_file() { # <regular-file>; trusted hash utility is selected from fixed system paths, not PATH
+  local output digest
+  if [ -x /usr/bin/sha256sum ]; then
+    output="$(/usr/bin/sha256sum -- "$1" 2>/dev/null)" || return 1
+  elif [ -x /bin/sha256sum ]; then
+    output="$(/bin/sha256sum -- "$1" 2>/dev/null)" || return 1
+  elif [ -x /usr/bin/shasum ]; then
+    output="$(/usr/bin/shasum -a 256 -- "$1" 2>/dev/null)" || return 1
+  else
+    return 1
+  fi
+  digest="${output%% *}"
+  [[ "$digest" =~ ^[0-9a-f]{64}$ ]] || return 1
+  printf '%s' "$digest"
+}
+
+validate_pinned_executable() { # <label> <absolute-path> <sha256:digest>
+  local label="$1" path="$2" expected="$3" observed
+  case "$path" in /*) ;; *) echo "scan-egress: $label path must be absolute — FAIL CLOSED" >&2; return 1 ;; esac
+  [[ "$expected" =~ ^sha256:[0-9a-f]{64}$ ]] || {
+    echo "scan-egress: $label digest must use sha256:<64-lowercase-hex> — FAIL CLOSED" >&2
+    return 1
+  }
+  if [ -L "$path" ] || [ ! -f "$path" ] || [ ! -x "$path" ]; then
+    echo "scan-egress: $label must be a non-symlink executable regular file — FAIL CLOSED" >&2
+    return 1
+  fi
+  observed="$(sha256_file "$path")" || {
+    echo "scan-egress: cannot hash pinned $label with a fixed system utility — FAIL CLOSED" >&2
+    return 1
+  }
+  if [ "sha256:$observed" != "$expected" ]; then
+    echo "scan-egress: pinned $label digest mismatch — FAIL CLOSED" >&2
+    return 1
+  fi
 }
 
 # Neutralize control bytes (NUL/ESC/LF/tab/DEL, all of C0 + 0x7F) in an UNTRUSTED path or diagnostic
@@ -119,6 +158,10 @@ waiver_allowed_signers=""
 waiver_fingerprint=""
 waiver_revision=""
 policy_root=""
+waiver_python=""
+waiver_python_sha256=""
+waiver_ssh_keygen=""
+waiver_ssh_keygen_sha256=""
 while [ "$#" -gt 0 ]; do
   case "$1" in
     --allow-inline-waivers) allow_inline=1; shift ;;
@@ -136,6 +179,14 @@ while [ "$#" -gt 0 ]; do
     --revision=*) waiver_revision="${1#*=}"; shift ;;
     --policy-root) shift; [ "$#" -ge 1 ] || usage; policy_root="$1"; shift ;;
     --policy-root=*) policy_root="${1#*=}"; shift ;;
+    --waiver-python) shift; [ "$#" -ge 1 ] || usage; waiver_python="$1"; shift ;;
+    --waiver-python=*) waiver_python="${1#*=}"; shift ;;
+    --waiver-python-sha256) shift; [ "$#" -ge 1 ] || usage; waiver_python_sha256="$1"; shift ;;
+    --waiver-python-sha256=*) waiver_python_sha256="${1#*=}"; shift ;;
+    --waiver-ssh-keygen) shift; [ "$#" -ge 1 ] || usage; waiver_ssh_keygen="$1"; shift ;;
+    --waiver-ssh-keygen=*) waiver_ssh_keygen="${1#*=}"; shift ;;
+    --waiver-ssh-keygen-sha256) shift; [ "$#" -ge 1 ] || usage; waiver_ssh_keygen_sha256="$1"; shift ;;
+    --waiver-ssh-keygen-sha256=*) waiver_ssh_keygen_sha256="${1#*=}"; shift ;;
     --) shift; while [ "$#" -gt 0 ]; do targets+=("$1"); shift; done ;;
     -*) echo "scan-egress: unknown option: $1" >&2; usage ;;
     *) targets+=("$1"); shift ;;
@@ -156,22 +207,38 @@ if [ "$signed_policy_fields" -eq 5 ] && [ -z "$policy_root" ]; then
   echo "scan-egress: signed waiver mode requires --policy-root" >&2
   usage
 fi
+waiver_tool_fields=0
+for tool_value in "$waiver_python" "$waiver_python_sha256" \
+                  "$waiver_ssh_keygen" "$waiver_ssh_keygen_sha256"; do
+  [ -n "$tool_value" ] && waiver_tool_fields=$((waiver_tool_fields + 1))
+done
+if [ "$signed_policy_fields" -eq 5 ] && [ "$waiver_tool_fields" -ne 4 ]; then
+  echo "scan-egress: signed waiver mode requires all four pinned-tool arguments" >&2
+  usage
+fi
+if [ "$signed_policy_fields" -eq 0 ] && [ "$waiver_tool_fields" -ne 0 ]; then
+  echo "scan-egress: pinned waiver tools are valid only with complete signed waiver mode" >&2
+  usage
+fi
 
 verified_policy=""
+scan_python="python3"
 if [ "$signed_policy_fields" -eq 5 ]; then
-  command -v python3 >/dev/null 2>&1 || {
-    echo "scan-egress: python3 not found; cannot verify signed waiver policy — FAIL CLOSED" >&2
-    exit 1
-  }
+  validate_pinned_executable "waiver python" "$waiver_python" "$waiver_python_sha256" || exit 1
+  validate_pinned_executable "waiver ssh-keygen" "$waiver_ssh_keygen" "$waiver_ssh_keygen_sha256" || exit 1
   script_dir="$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd -P)" || exit 1
   verified_policy="$(mktemp)" || exit 1
   trap 'if [ -n "${verified_policy:-}" ]; then rm -f -- "$verified_policy"; fi' EXIT HUP INT TERM
-  if ! python3 "$script_dir/verify-egress-policy.py" \
+  if ! "$waiver_python" -I "$script_dir/verify-egress-policy.py" \
       --policy "$waiver_policy" \
       --signature "$waiver_signature" \
       --allowed-signers "$waiver_allowed_signers" \
       --expected-fingerprint "$waiver_fingerprint" \
-      --revision "$waiver_revision" > "$verified_policy"; then
+      --revision "$waiver_revision" \
+      --python "$waiver_python" \
+      --python-sha256 "$waiver_python_sha256" \
+      --ssh-keygen "$waiver_ssh_keygen" \
+      --ssh-keygen-sha256 "$waiver_ssh_keygen_sha256" > "$verified_policy"; then
     echo "scan-egress: signed waiver policy rejected — FAIL CLOSED" >&2
     exit 1
   fi
@@ -179,6 +246,9 @@ if [ "$signed_policy_fields" -eq 5 ]; then
     echo "scan-egress: policy root is not an accessible directory — FAIL CLOSED" >&2
     exit 1
   }
+  # Keep the authenticated interpreter in custody for every later scanner helper. A hostile PATH
+  # must not regain control after the detached-signature verifier itself has been pinned.
+  scan_python="$waiver_python"
 elif [ -n "$policy_root" ]; then
   policy_root="$(CDPATH='' cd -- "$policy_root" && pwd -P)" || {
     echo "scan-egress: policy root is not an accessible directory — FAIL CLOSED" >&2
@@ -266,7 +336,7 @@ benign=0
 # command substitution breaks bash's parser (same residual the git guard documents). python3 stdout
 # is captured to a temp file; a non-zero python exit (a crash) FAILS CLOSED.
 if [ "${#files[@]}" -gt 0 ]; then
-  if ! command -v python3 >/dev/null 2>&1; then
+  if ! command -v "$scan_python" >/dev/null 2>&1; then
     echo "scan-egress: python3 not found; cannot certify text files — FAIL CLOSED" >&2
     exit 1
   fi
@@ -279,7 +349,7 @@ if [ "${#files[@]}" -gt 0 ]; then
   SCAN_EGRESS_POLICY_ROOT="$policy_root" \
   SCAN_EGRESS_MAX_FILE_BYTES="$MAX_FILE_BYTES" \
   SCAN_EGRESS_MAX_TOTAL_BYTES="$MAX_TOTAL_BYTES" \
-  python3 - >"$sc_out" 2>"$sc_err" <<'PY'
+  "$scan_python" -I - >"$sc_out" 2>"$sc_err" <<'PY'
 import re, os, bisect, html, hashlib, json, stat, unicodedata
 
 paths = [p for p in open(os.environ["SCAN_EGRESS_FILELIST"], "rb").read().split(b"\0") if p]
@@ -1763,21 +1833,37 @@ def literal_segment(mask, spans, start, end):
     return span
 
 
-def call_args(mask, spans, open_pos):
+def call_args(mask, spans, open_pos, state=None):
     # Return [(segment_start, segment_end, literal-or-None), ...] for one call. Delimiters inside
     # comments/strings are already spaces, so nested syntax cannot split a top-level argument.
+    # A shared state memoizes results and caps aggregate character visits. Once an adversarial set
+    # of unmatched openers exhausts that linear budget, its first unresolved opener becomes UNCERT
+    # at the caller and every later lookup returns in O(1), keeping the gate fail-closed and bounded.
+    if state is not None and open_pos in state["cache"]:
+        return state["cache"][open_pos]
     args = []
     seg = open_pos + 1
     depth = 0
     i = seg
     while i < len(mask):
+        if state is not None:
+            if state["remaining"] <= 0:
+                if state["uncertain_at"] is None:
+                    state["uncertain_at"] = open_pos
+                result = ([], None)
+                state["cache"][open_pos] = result
+                return result
+            state["remaining"] -= 1
         ch = mask[i]
         if ch in "([{":
             depth += 1
         elif ch == ")":
             if depth == 0:
                 args.append((seg, i, literal_segment(mask, spans, seg, i)))
-                return args, i
+                result = (args, i)
+                if state is not None:
+                    state["cache"][open_pos] = result
+                return result
             depth -= 1
         elif ch in "]}":
             if depth:
@@ -1786,7 +1872,10 @@ def call_args(mask, spans, open_pos):
             args.append((seg, i, literal_segment(mask, spans, seg, i)))
             seg = i + 1
         i += 1
-    return [], None
+    result = ([], None)
+    if state is not None:
+        state["cache"][open_pos] = result
+    return result
 
 
 def span_value_hits(span, mapping, hits, allow_multiple=False):
@@ -1977,6 +2066,22 @@ def scan_js(source, mapping, hits, depth=0):
     plain_identifier = r'[A-Za-z_$][A-Za-z0-9_$]*'
     group_open = r'(?:\(\s*)*'
     group_close = r'(?:\s*\))*'
+    call_scan_state = {
+        "remaining": min(max(len(code) * 4, 4096), 262144),
+        "cache": {},
+        "uncertain_at": None,
+        "reported": False,
+    }
+
+    def bounded_call_args(open_pos):
+        args, close = call_args(code, spans, open_pos, call_scan_state)
+        if (call_scan_state["uncertain_at"] == open_pos and
+                not call_scan_state["reported"]):
+            raw = map_offset(mapping, open_pos)
+            if raw is not None:
+                hits[raw] = "uncertain"
+            call_scan_state["reported"] = True
+        return args, close
 
     def namespace_argument_value(argument):
         """Classify the nullable namespace argument without executing JavaScript."""
@@ -2063,7 +2168,7 @@ def scan_js(source, mapping, hits, depth=0):
     if document_is_ambiguous:
         created_candidates = []
     for created in created_candidates:
-        args, close = call_args(code, spans, created.end() - 1)
+        args, close = bounded_call_args(created.end() - 1)
         if (close is None or not args or not args[0][2] or
                 args[0][2].get("dynamic")):
             continue
@@ -2147,7 +2252,7 @@ def scan_js(source, mapping, hits, depth=0):
     for setter_match in type_setter.finditer(code):
         if setter_match.group("object") not in script_events:
             continue
-        args, call_close = call_args(code, spans, setter_match.end() - 1)
+        args, call_close = bounded_call_args(setter_match.end() - 1)
         setter_name = decode_javascript_identifier(setter_match.group("setter")).lower()
         expected_args = 3 if setter_name == "setattributens" else 2
         if not static_call_arguments(args, expected_args):
@@ -2223,8 +2328,7 @@ def scan_js(source, mapping, hits, depth=0):
         call_tail = re.match(group_close + r'\s*(?:\?\.\s*)?\(', code[close + 1:])
         if not call_tail:
             continue
-        args, call_close = call_args(
-            code, spans, close + 1 + call_tail.end() - 1)
+        args, call_close = bounded_call_args(close + 1 + call_tail.end() - 1)
         ns_member = member_name in {"setAttributeNS", "removeAttributeNS"}
         expected_args = (3 if member_name == "setAttributeNS" else
                          2 if member_name == "removeAttributeNS" else
@@ -2279,7 +2383,7 @@ def scan_js(source, mapping, hits, depth=0):
     for remover_match in type_remover.finditer(code):
         if remover_match.group("object") not in script_events:
             continue
-        args, call_close = call_args(code, spans, remover_match.end() - 1)
+        args, call_close = bounded_call_args(remover_match.end() - 1)
         remover_name = decode_javascript_identifier(remover_match.group("remover")).lower()
         expected_args = 2 if remover_name == "removeattributens" else 1
         if not static_call_arguments(args, expected_args):
@@ -2374,6 +2478,14 @@ def scan_js(source, mapping, hits, depth=0):
 
     def scan_fetching_member(name, span, member_start, allow_multiple=False,
                              script_kind_override=None):
+        name = {
+            "formAction": "formaction",
+            "imageSrcset": "imagesrcset",
+            "attributionSrc": "attributionsrc",
+        }.get(name, name)
+        allow_multiple = allow_multiple or name in {
+            "srcset", "imagesrcset", "ping", "attributionsrc"
+        }
         script_kind = (script_kind_override if name == "src" and script_kind_override else
                        tracked_script_kind(member_start) if name == "src" else None)
         if script_kind == "classic":
@@ -2389,10 +2501,11 @@ def scan_js(source, mapping, hits, depth=0):
         else:
             grammars = {"src": ("html", "js", "classic-js"),
                         "href": ("html", "css"),
-                        "action": ("html",), "formaction": ("html",)}
+                        "action": ("html",), "formaction": ("html",),
+                        "data": ("html",), "location": ("html",)}
         for grammar in grammars.get(name, ()):
             scan_span_data(span, mapping, hits, depth, grammar)
-        if name in {"src", "href", "action", "formaction"}:
+        if name in {"src", "href", "action", "formaction", "data", "location"}:
             scan_span_javascript_url(span, mapping, hits, depth)
         span_value_hits(span, mapping, hits, allow_multiple)
 
@@ -2405,7 +2518,7 @@ def scan_js(source, mapping, hits, depth=0):
         r')' + group_close + r'\s*(?:\?\.\s*)?\('
     )
     for m in call.finditer(code):
-        args, _ = call_args(code, spans, m.end() - 1)
+        args, _ = bounded_call_args(m.end() - 1)
         if not args:
             continue
         api_name = decode_javascript_identifier(m.group("api")).lower()
@@ -2451,7 +2564,7 @@ def scan_js(source, mapping, hits, depth=0):
                     group_close + r'\s*(?:\?\.\s*)?\('), "html"),
     ):
         for m in rx.finditer(code):
-            args, _ = call_args(code, spans, m.end() - 1)
+            args, _ = bounded_call_args(m.end() - 1)
             if args and args[0][2]:
                 span = args[0][2]
                 if data_grammar:
@@ -2462,7 +2575,7 @@ def scan_js(source, mapping, hits, depth=0):
     # XHR-like `.open("METHOD", URL)`, while leaving an unrelated one-argument `db.open(URL)` clean.
     for m in re.finditer(r'\.\s*' + identifiers("open") + group_close +
                          r'\s*(?:\?\.\s*)?\(', code):
-        args, _ = call_args(code, spans, m.end() - 1)
+        args, _ = bounded_call_args(m.end() - 1)
         if len(args) >= 2 and args[0][2] and args[1][2]:
             method = span_runtime_value(args[0][2], mapping)[0].upper()
             if method in {"GET", "HEAD", "POST", "PUT", "PATCH", "DELETE", "OPTIONS", "CONNECT", "TRACE"}:
@@ -2484,13 +2597,54 @@ def scan_js(source, mapping, hits, depth=0):
             span_value_hits(span, mapping, hits)
 
     # Dot property assignments and location.href/direct location assignments.
-    prop = identifiers("srcset", "src", "href", "action", "formaction", "poster",
-                       "background", "cite", "ping")
+    prop = identifiers(
+        "srcset", "src", "href", "action", "formaction", "formAction", "poster",
+        "background", "cite", "ping", "imageSrcset", "data", "attributionSrc", "location"
+    )
     for m in re.finditer(r'\.\s*(?P<prop>' + prop + r')\s*=', code):
         span = next_literal(code, spans, m.end())
         if span:
             name = decode_javascript_identifier(m.group("prop"))
             scan_fetching_member(name, span, m.start())
+
+    # A static bracketed reflected property is the same sink on every receiver expression. Walk
+    # literal spans rather than searching from each `[` so malformed brackets cannot create a new
+    # quadratic scan. This also covers `frames[0]["location"] = ...` without pretending to prove
+    # the receiver's runtime type.
+    bracket_fetch_names = {
+        "srcset", "src", "href", "action", "formaction", "formAction", "poster",
+        "background", "cite", "ping", "imageSrcset", "data", "attributionSrc", "location"
+    }
+    for key_span in spans:
+        if key_span.get("dynamic"):
+            continue
+        member_name = span_runtime_value(key_span, mapping)[0]
+        if member_name not in bracket_fetch_names:
+            continue
+        cursor = key_span["start"] - 1
+        while cursor >= 0 and code[cursor].isspace():
+            cursor -= 1
+        while cursor >= 0 and code[cursor] == "(":
+            cursor -= 1
+            while cursor >= 0 and code[cursor].isspace():
+                cursor -= 1
+        if cursor < 0 or code[cursor] != "[":
+            continue
+        open_pos = cursor
+        value_end = grouped_literal_end(code, open_pos + 1, key_span)
+        if value_end is None:
+            continue
+        close = value_end
+        while close < len(code) and code[close].isspace():
+            close += 1
+        if close >= len(code) or code[close] != "]":
+            continue
+        assign = re.match(r'\s*=', code[close + 1:])
+        if not assign:
+            continue
+        span = next_literal(code, spans, close + 1 + assign.end())
+        if span:
+            scan_fetching_member(member_name, span, open_pos)
     for m in re.finditer(r'(?<![A-Za-z0-9_$\.])' + identifiers("location") + r'\s*=', code):
         span = next_literal(code, spans, m.end())
         if span:
@@ -2528,7 +2682,7 @@ def scan_js(source, mapping, hits, depth=0):
         elif member_name in {"assign", "replace"}:
             tail = re.match(group_close + r'\s*(?:\?\.\s*)?\(', code[close + 1:])
             if tail:
-                args, _ = call_args(code, spans, close + 1 + tail.end() - 1)
+                args, _ = bounded_call_args(close + 1 + tail.end() - 1)
                 if args and args[0][2]:
                     span = args[0][2]
                     scan_span_data(span, mapping, hits, depth, "html")
@@ -2575,8 +2729,8 @@ def scan_js(source, mapping, hits, depth=0):
                         call_tail = re.match(
                             group_close + r'\s*(?:\?\.\s*)?\(', code[close2 + 1:])
                         if call_tail:
-                            args, _ = call_args(code, spans,
-                                                close2 + 1 + call_tail.end() - 1)
+                            args, _ = bounded_call_args(
+                                close2 + 1 + call_tail.end() - 1)
                             if args and args[0][2]:
                                 span = args[0][2]
                                 scan_span_data(span, mapping, hits, depth, "html")
@@ -2601,8 +2755,8 @@ def scan_js(source, mapping, hits, depth=0):
                         else:
                             call_tail = re.match(r'\s*\(', code[member_end:])
                             if call_tail:
-                                args, _ = call_args(code, spans,
-                                                    member_end + call_tail.end() - 1)
+                                args, _ = bounded_call_args(
+                                    member_end + call_tail.end() - 1)
                                 if args and args[0][2]:
                                     span = args[0][2]
                                     scan_span_data(span, mapping, hits, depth, "html")
@@ -2622,7 +2776,7 @@ def scan_js(source, mapping, hits, depth=0):
             continue
         if prop_name in {"fetch", "open", "WebSocket", "EventSource", "sendBeacon",
                           "Worker", "SharedWorker", "importScripts"}:
-            args, _ = call_args(code, spans, close + 1 + tail.end() - 1)
+            args, _ = bounded_call_args(close + 1 + tail.end() - 1)
             api_name = prop_name
             if api_name == "importScripts":
                 for _, _, span in args:
@@ -2661,7 +2815,7 @@ def scan_js(source, mapping, hits, depth=0):
         call_tail = re.match(group_close + r'\s*(?:\?\.\s*)?\(', code[close + 1:])
         if not call_tail:
             return
-        args, _ = call_args(code, spans, close + 1 + call_tail.end() - 1)
+        args, _ = bounded_call_args(close + 1 + call_tail.end() - 1)
         namespace_member = member_name == "setAttributeNS"
         namespace_kind = namespace_argument_kind(args[0]) if namespace_member and args else "null"
         name_i, value_i = (1, 2) if namespace_member else (0, 1)
@@ -2707,7 +2861,7 @@ def scan_js(source, mapping, hits, depth=0):
 
     # String-to-markup sinks parse their literal values as HTML. Recursively scan the static value
     # instead of treating a network path inside it as inert JavaScript prose.
-    markup_prop = identifiers("innerHTML", "outerHTML")
+    markup_prop = identifiers("innerHTML", "outerHTML", "srcdoc")
     for m in re.finditer(r'\.\s*(?P<prop>' + markup_prop + r')\s*=', code):
         span = assigned_literal(m.end())
         if span:
@@ -2716,7 +2870,7 @@ def scan_js(source, mapping, hits, depth=0):
 
     for m in re.finditer(r'\.\s*' + identifiers("insertAdjacentHTML") + group_close +
                          r'\s*(?:\?\.\s*)?\(', code):
-        args, _ = call_args(code, spans, m.end() - 1)
+        args, _ = bounded_call_args(m.end() - 1)
         if len(args) >= 2 and args[1][2]:
             value, value_map = span_runtime_value(args[1][2], mapping)
             scan_srcdoc(value, value_map, hits, depth + 1)
@@ -2727,7 +2881,7 @@ def scan_js(source, mapping, hits, depth=0):
         r'\s*(?:\?\.\s*)?\('
     )
     for m in document_write.finditer(code):
-        args, _ = call_args(code, spans, m.end() - 1)
+        args, _ = bounded_call_args(m.end() - 1)
         for _, _, span in args:
             if span:
                 value, value_map = span_runtime_value(span, mapping)
@@ -2737,7 +2891,7 @@ def scan_js(source, mapping, hits, depth=0):
     setter = identifiers("setAttributeNS", "setAttribute")
     for m in re.finditer(r'\.\s*(?P<setter>' + setter + r')' + group_close +
                          r'\s*(?:\?\.\s*)?\(', code):
-        args, _ = call_args(code, spans, m.end() - 1)
+        args, _ = bounded_call_args(m.end() - 1)
         setter_name = decode_javascript_identifier(m.group("setter")).lower()
         namespace_member = setter_name == "setattributens"
         namespace_kind = namespace_argument_kind(args[0]) if namespace_member and args else "null"
@@ -2769,6 +2923,22 @@ def scan_css(source, mapping, hits, depth=0):
     css_scan_code, css_scan_map = decode_css_escapes(
         css_code, range(len(css_code)), allow_line_continuation=False,
         code_context=True)
+    call_scan_state = {
+        "remaining": min(max(len(css_code) * 4, 4096), 262144),
+        "cache": {},
+        "uncertain_at": None,
+        "reported": False,
+    }
+
+    def bounded_css_call_args(open_pos):
+        args, close = call_args(css_code, spans, open_pos, call_scan_state)
+        if (call_scan_state["uncertain_at"] == open_pos and
+                not call_scan_state["reported"]):
+            raw = map_offset(mapping, open_pos)
+            if raw is not None:
+                hits[raw] = "uncertain"
+            call_scan_state["reported"] = True
+        return args, close
 
     def raw_boundary(decoded_offset):
         return css_scan_map[decoded_offset] if decoded_offset < len(css_scan_map) else len(css_code)
@@ -2784,7 +2954,7 @@ def scan_css(source, mapping, hits, depth=0):
         raw_open = css_scan_map[m.end() - 1]
         if re.search(r'(?ai)\bnew\s*$', css_scan_code[:m.start()]):
             continue
-        args, close = call_args(css_code, spans, raw_open)
+        args, close = bounded_css_call_args(raw_open)
         if close is None:
             continue
         if m.group("fn").lower() == "url":
@@ -2871,7 +3041,15 @@ def meta_refresh_target(content, content_map):
         start += marker.end()
     while start < len(content) and content[start].isspace():
         start += 1
-    return content[start:], content_map[start:]
+    end = len(content)
+    while end > start and content[end - 1].isspace():
+        end -= 1
+    if start < end and content[start] in "\"'":
+        quote = content[start]
+        start += 1
+        if end > start and content[end - 1] == quote:
+            end -= 1
+    return content[start:end], content_map[start:end]
 
 
 def scan_xml_stylesheet(source, mapping, hits):
@@ -3206,15 +3384,28 @@ for pb in paths:
     def in_ns(off):
         return any(a <= off < b for a, b in ns)
 
+    # Legacy inline compatibility is deliberately one-marker/one-finding. Bind each trailing marker
+    # to only the nearest preceding waivable finding on its runtime line; it cannot blanket-waive a
+    # second URL on that line, cross a decoded line boundary, waive UNCERT, or affect an NS URI.
+    inline_targets_by_marker = {}
+    if ALLOW_INLINE_WAIVERS:
+        for candidate in sorted(hits):
+            if hits[candidate] == "uncertain" or in_ns(candidate):
+                continue
+            _, candidate_body, candidate_line_start = loc(candidate)
+            marker = WAIVER.search(candidate_body)
+            if not marker:
+                continue
+            marker_offset = candidate_line_start + marker.start()
+            if candidate >= marker_offset or any(
+                    candidate < barrier <= marker_offset
+                    for barrier in DECODED_WAIVER_BARRIERS):
+                continue
+            inline_targets_by_marker[(candidate_line_start, marker_offset)] = candidate
+    inline_waiver_targets = set(inline_targets_by_marker.values())
+
     for off in sorted(hits):
         ln, body, line_start = loc(off)
-        waiver_match = WAIVER.search(body)
-        waiver_crosses_decoded_line = bool(
-            waiver_match and any(
-                off < barrier <= line_start + waiver_match.start()
-                for barrier in DECODED_WAIVER_BARRIERS
-            )
-        )
         relative_path, finding_fingerprint = finding_identity(
             path, file_digest, off, "uncertain" if hits[off] == "uncertain" else "egress")
         signed_match = bool(
@@ -3230,7 +3421,7 @@ for pb in paths:
                        (("UNCERT", "violations") if hits[off] == "uncertain" else
                         (("WAIVED", "waived") if signed_match else
                          (("WAIVED-INLINE", "waived") if
-                          ALLOW_INLINE_WAIVERS and waiver_match and not waiver_crosses_decoded_line else
+                          off in inline_waiver_targets else
                           ("EGRESS", "violations"))))
         if cls == "benign":
             benign += 1
@@ -3335,8 +3526,8 @@ is_waived_binary() {  # <path>
 # in an active HTML/JS/CSS/XML context before any glob can waive it. Return 0=egress, 1=not a
 # text-like binary candidate/no modeled egress, 2=probable text that could not be decoded safely.
 binary_text_egress() { # <path>
-  command -v python3 >/dev/null 2>&1 || return 2
-  python3 - "$1" "$MAX_FILE_BYTES" <<'PY'
+  command -v "$scan_python" >/dev/null 2>&1 || return 2
+  "$scan_python" -I - "$1" "$MAX_FILE_BYTES" <<'PY'
 import pathlib, re, sys
 
 path = pathlib.Path(sys.argv[1])
@@ -3370,8 +3561,8 @@ PY
 }
 
 binary_policy_identity() { # <path> -> "<signed-match 0|1> <fingerprint> <file-sha256>"
-  command -v python3 >/dev/null 2>&1 || return 2
-  python3 - "$1" "$MAX_FILE_BYTES" "$policy_root" "$verified_policy" <<'PY'
+  command -v "$scan_python" >/dev/null 2>&1 || return 2
+  "$scan_python" -I - "$1" "$MAX_FILE_BYTES" "$policy_root" "$verified_policy" <<'PY'
 import hashlib, json, os, pathlib, sys, unicodedata
 
 path = pathlib.Path(sys.argv[1])

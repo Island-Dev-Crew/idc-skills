@@ -12,7 +12,13 @@ GUARD = REPO / "skills/agent-guardrails/scripts/block-dangerous-git.sh"
 
 
 class GitGuardGrammarTests(unittest.TestCase):
-    def run_guard(self, command: str | None, *, strict: bool = False) -> subprocess.CompletedProcess[str]:
+    def run_guard(
+        self,
+        command: str | None,
+        *,
+        strict: bool = False,
+        timeout: float | None = None,
+    ) -> subprocess.CompletedProcess[str]:
         payload = {} if command is None else {"tool_input": {"command": command}}
         env = {
             "PATH": os.environ.get("PATH", "/usr/bin:/bin"),
@@ -28,6 +34,7 @@ class GitGuardGrammarTests(unittest.TestCase):
             capture_output=True,
             env=env,
             check=False,
+            timeout=timeout,
         )
 
     def test_push_redirection_forms_receive_same_block(self) -> None:
@@ -85,6 +92,25 @@ class GitGuardGrammarTests(unittest.TestCase):
         self.assertIn("strict guard BLOCK", strict.stderr)
         self.assertEqual(advisory.returncode, 0)
         self.assertIn("advisory guard OPEN", advisory.stderr)
+
+    def test_strict_mode_short_circuits_oversized_command(self) -> None:
+        command = "git status # " + ("A" * (96 * 1024))
+        try:
+            result = self.run_guard(command, strict=True, timeout=5.0)
+        except subprocess.TimeoutExpired:
+            self.fail("strict guard did not fail closed within five seconds for oversized input")
+
+        self.assertEqual(result.returncode, 2)
+        self.assertIn("command exceeds the bounded strict grammar", result.stderr)
+
+    def test_strict_mode_remains_available_below_command_ceiling(self) -> None:
+        command = "git status # " + ("A" * (48 * 1024))
+        try:
+            result = self.run_guard(command, strict=True, timeout=5.0)
+        except subprocess.TimeoutExpired:
+            self.fail("strict guard exceeded five seconds below its documented command ceiling")
+
+        self.assertEqual(result.returncode, 0)
 
     def test_safe_commands_remain_available_in_strict_mode(self) -> None:
         for command in ("git status", "git diff", "git restore README.md"):

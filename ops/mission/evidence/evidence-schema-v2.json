@@ -1,0 +1,200 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://islanddevcrew.com/schemas/idc-security-evidence-v2.json",
+  "title": "IDC Security Evidence Package v2 Schema Aid",
+  "$comment": "scripts/validate_evidence.py is authoritative. This aid cannot enforce duplicate-key rejection, symlink ancestry, stable bounded reads, Git blob identity, tar safety, digests, or semantic substring occurrence.",
+  "type": "object",
+  "required": [
+    "schema",
+    "releaseRevision",
+    "sourceBundle",
+    "sourceRoster",
+    "expectedFindingIds",
+    "findings"
+  ],
+  "properties": {
+    "schema": { "const": "idc.security-evidence/v2" },
+    "releaseRevision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+    "sourceBundle": { "$ref": "#/$defs/digestPath" },
+    "sourceRoster": { "$ref": "#/$defs/digestPath" },
+    "expectedFindingIds": {
+      "type": "array",
+      "maxItems": 128,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/findingId" }
+    },
+    "findings": {
+      "type": "array",
+      "maxItems": 128,
+      "items": { "$ref": "#/$defs/finding" }
+    }
+  },
+  "additionalProperties": false,
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[0-9a-f]{64}$" },
+    "findingId": { "type": "string", "pattern": "^K3-203-[0-9]{3}$" },
+    "boundedText": { "type": "string", "minLength": 1, "maxLength": 16384 },
+    "safePath": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1024,
+      "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$"
+    },
+    "digestPath": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "properties": {
+        "path": { "$ref": "#/$defs/safePath" },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "sourceLocation": {
+      "type": "object",
+      "required": ["revision", "path", "startLine", "endLine"],
+      "properties": {
+        "revision": { "type": "string", "pattern": "^[0-9a-f]{40}$" },
+        "path": { "$ref": "#/$defs/safePath" },
+        "startLine": { "type": "integer", "minimum": 1 },
+        "endLine": { "type": "integer", "minimum": 1 }
+      },
+      "additionalProperties": false
+    },
+    "fixture": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["anchor", "path", "sha256"],
+          "properties": {
+            "anchor": { "const": "candidate-preserved" },
+            "path": { "$ref": "#/$defs/safePath" },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["anchor", "member", "sha256"],
+          "properties": {
+            "anchor": { "const": "source-bundle" },
+            "member": { "$ref": "#/$defs/safePath" },
+            "sha256": { "$ref": "#/$defs/sha256" }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "captureSource": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": ["type", "path"],
+          "properties": {
+            "type": { "const": "local" },
+            "path": { "$ref": "#/$defs/safePath" }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": ["type", "member"],
+          "properties": {
+            "type": { "const": "bundle-member" },
+            "member": { "$ref": "#/$defs/safePath" }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "capture": {
+      "type": "object",
+      "required": ["kind", "source", "sha256", "fixtureSha256"],
+      "properties": {
+        "kind": { "const": "preserved-observation" },
+        "source": { "$ref": "#/$defs/captureSource" },
+        "sha256": { "$ref": "#/$defs/sha256" },
+        "fixtureSha256": { "$ref": "#/$defs/sha256" }
+      },
+      "additionalProperties": false
+    },
+    "semanticAssertion": {
+      "type": "object",
+      "required": ["target", "contains"],
+      "properties": {
+        "target": { "enum": ["fixture", "capture"] },
+        "contains": { "type": "string", "minLength": 1, "maxLength": 4096 }
+      },
+      "additionalProperties": false
+    },
+    "semanticBinding": {
+      "type": "object",
+      "required": ["description", "assertions"],
+      "properties": {
+        "description": { "$ref": "#/$defs/boundedText" },
+        "assertions": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": { "$ref": "#/$defs/semanticAssertion" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "finding": {
+      "type": "object",
+      "required": [
+        "id",
+        "title",
+        "sourceLocations",
+        "fixture",
+        "capture",
+        "semanticBinding",
+        "discriminator",
+        "disposition"
+      ],
+      "properties": {
+        "id": { "$ref": "#/$defs/findingId" },
+        "title": { "$ref": "#/$defs/boundedText" },
+        "sourceLocations": {
+          "type": "array",
+          "minItems": 1,
+          "maxItems": 16,
+          "items": { "$ref": "#/$defs/sourceLocation" }
+        },
+        "fixture": { "$ref": "#/$defs/fixture" },
+        "capture": { "$ref": "#/$defs/capture" },
+        "semanticBinding": { "$ref": "#/$defs/semanticBinding" },
+        "discriminator": {
+          "type": "object",
+          "required": ["description", "passed"],
+          "properties": {
+            "description": { "$ref": "#/$defs/boundedText" },
+            "passed": { "type": "boolean" }
+          },
+          "additionalProperties": false
+        },
+        "disposition": {
+          "type": "object",
+          "required": ["status", "rationale"],
+          "properties": {
+            "status": {
+              "enum": [
+                "accepted-residual",
+                "confirmed",
+                "false-positive",
+                "fixed",
+                "held",
+                "open",
+                "theoretical",
+                "unverified"
+              ]
+            },
+            "rationale": { "$ref": "#/$defs/boundedText" }
+          },
+          "additionalProperties": false
+        }
+      },
+      "additionalProperties": false
+    }
+  }
+}

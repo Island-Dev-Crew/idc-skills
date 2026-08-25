@@ -9,7 +9,7 @@
   "properties": {
     "schemaVersion": { "const": "1.0" },
     "planLock": { "type": "string", "description": "idea id + plan freeze timestamp, or path to plan.lock.json" },
-    "phaseId": { "type": "string", "pattern": "^P[0-9]+$" },
+    "phaseId": { "type": "string", "pattern": "^P[0-9]{1,6}$" },
     "emittedAt": { "type": "string", "format": "date-time" },
     "projectLane": { "enum": ["bugfix", "refactor", "feature", "greenfield", "design", "infra", "research"] },
     "executionPath": { "enum": ["fast", "standard", "deep"] },

@@ -13,6 +13,7 @@ REPO = Path(__file__).resolve().parents[1]
 ASSEMBLER = REPO / "console/assemble.sh"
 GIT = str(Path(shutil.which("git") or "").resolve())
 SHA256 = str(Path(shutil.which("shasum") or "").resolve())
+SHA256SUM = str(Path(shutil.which("sha256sum") or "").resolve())
 
 
 class ConsoleLockTests(unittest.TestCase):
@@ -29,10 +30,20 @@ class ConsoleLockTests(unittest.TestCase):
         subprocess.run([GIT, "-C", str(root), "add", "."], check=True)
         subprocess.run([GIT, "-C", str(root), "commit", "-qm", "fixture"], check=True)
 
-    def run_assembler(self, root: Path) -> subprocess.CompletedProcess[str]:
+    def run_assembler(
+        self,
+        root: Path,
+        *,
+        sha256: str = SHA256,
+        sha256_kind: str | None = "shasum",
+    ) -> subprocess.CompletedProcess[str]:
         environment = os.environ.copy()
         environment["IDC_CONSOLE_GIT"] = GIT
-        environment["IDC_CONSOLE_SHA256"] = SHA256
+        environment["IDC_CONSOLE_SHA256"] = sha256
+        if sha256_kind is not None:
+            environment["IDC_CONSOLE_SHA256_KIND"] = sha256_kind
+        else:
+            environment.pop("IDC_CONSOLE_SHA256_KIND", None)
         return subprocess.run(
             ["/bin/bash", str(root / "console/assemble.sh")],
             cwd=root,
@@ -60,6 +71,40 @@ class ConsoleLockTests(unittest.TestCase):
                 + body
             )
             self.assertEqual((root / "console/console.lock").read_bytes(), expected)
+
+    @unittest.skipUnless(shutil.which("sha256sum"), "GNU sha256sum is required")
+    def test_gnu_sha256sum_contract_is_supported_explicitly(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.fixture(root)
+            result = self.run_assembler(
+                root, sha256=SHA256SUM, sha256_kind="sha256sum"
+            )
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn(hashlib.sha256(b"first\nsecond\n").hexdigest(), result.stdout)
+
+    @unittest.skipUnless(shutil.which("sha256sum"), "GNU sha256sum is required")
+    def test_gnu_sha256sum_is_portable_without_basename_guessing(self) -> None:
+        with tempfile.TemporaryDirectory() as temporary:
+            root = Path(temporary)
+            self.fixture(root)
+            result = self.run_assembler(root, sha256=SHA256SUM, sha256_kind=None)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            self.assertIn(hashlib.sha256(b"first\nsecond\n").hexdigest(), result.stdout)
+
+    def test_skill_delegates_to_hardened_assembler_and_names_actual_blocks(self) -> None:
+        skill = (REPO / "skills/console-as-code/SKILL.md").read_text(encoding="utf-8")
+        for block in (
+            "00-boot.md",
+            "10-covenants.md",
+            "20-mission.md",
+            "30-seats.md",
+        ):
+            self.assertIn(block, skill)
+        self.assertNotIn("20-lanes.md", skill)
+        self.assertIn("./console/assemble.sh", skill)
+        self.assertIn("IDC_CONSOLE_SHA256_KIND", skill)
+        self.assertNotIn("blocks=(console/blocks/*.md)", skill)
 
     def test_ignored_untracked_block_is_rejected(self) -> None:
         with tempfile.TemporaryDirectory() as temporary:

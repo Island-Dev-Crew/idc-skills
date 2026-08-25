@@ -35,7 +35,7 @@ from pathlib import Path
 from typing import Any, Callable, Iterator, Mapping, Sequence
 
 
-CONFIG_SCHEMA = "idc-skills-freshness-config/v1"
+CONFIG_SCHEMA = "idc-skills-freshness-config/v3"
 INDEX_SCHEMA = "idc-skills-release-index/v1"
 CHECKPOINT_SCHEMA = "idc-skills-freshness-checkpoint/v1"
 REPORT_SCHEMA = "idc-skills-freshness-report/v1"
@@ -44,6 +44,12 @@ INDEX_NAMESPACE = "idc-skills-release-index-v1"
 MANIFEST_NAMESPACE = "file"
 SIGN_IDENTITY = "idc-skills"
 EXPECTED_SIGNING_FINGERPRINT = "SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA"
+EXPECTED_EXTERNAL_ROOT_VERIFIER_SHA256 = (
+    "sha256:8bc90f03f059753e45d07d12df38358cfc6c9244809e95e8b0d10138608af728"
+)
+EXPECTED_TRUST_ROOT_MODULE_SHA256 = (
+    "sha256:3ea9fcedcdca6ac643f44bd66aeb0556178537eb4d8c0f7e7ae63b58b99b9c47"
+)
 MAX_INDEX_BYTES = 4 * 1024 * 1024
 MAX_CONFIG_BYTES = 128 * 1024
 MAX_CHECKPOINT_BYTES = 4 * 1024 * 1024
@@ -53,12 +59,15 @@ MAX_ANCHOR_BYTES = 64 * 1024
 MAX_VERIFIER_BYTES = 4 * 1024 * 1024
 MAX_REPOSITORY_FILE_BYTES = 64 * 1024 * 1024
 MAX_EXECUTABLE_BYTES = 256 * 1024 * 1024
+MAX_THRESHOLD_ARGUMENTS = 64
+MAX_THRESHOLD_ARGUMENT_BYTES = 4096
 MAX_SEQUENCE = (1 << 53) - 1
 MAX_CLOCK_SKEW_SECONDS = 300
 MAX_INDEX_LIFETIME_SECONDS = 31 * 24 * 60 * 60
 SHA256_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
 COMMIT_RE = re.compile(r"[0-9a-f]{40}\Z")
 RELEASE_RE = re.compile(r"[0-9]+\.[0-9]+\.[0-9]+(?:[-+][0-9A-Za-z.-]+)?\Z")
+FINGERPRINT_RE = re.compile(r"SHA256:[A-Za-z0-9+/]{43}\Z")
 
 
 class FreshnessError(RuntimeError):
@@ -126,6 +135,173 @@ def _digest(value: Any, label: str) -> str:
     if not isinstance(value, str) or SHA256_RE.fullmatch(value) is None:
         raise FreshnessError(f"{label} must be a lowercase sha256 digest")
     return value
+
+
+def _threshold_json(data: bytes) -> dict[str, Any]:
+    try:
+        value = json.loads(
+            data.decode("utf-8"),
+            object_pairs_hook=_unique_object,
+            parse_constant=_reject_constant,
+        )
+    except FreshnessError:
+        raise
+    except (UnicodeDecodeError, json.JSONDecodeError) as exc:
+        raise FreshnessError(f"invalid threshold receipt: {exc}") from exc
+    if not isinstance(value, dict):
+        raise FreshnessError("threshold receipt must be a JSON object")
+    expected = (json.dumps(value, sort_keys=True, separators=(",", ":")) + "\n").encode(
+        "utf-8"
+    )
+    if data != expected:
+        raise FreshnessError("threshold receipt is not canonical JSON")
+    return value
+
+
+def _root_record(value: Any, label: str) -> Mapping[str, Any]:
+    if not isinstance(value, dict):
+        raise FreshnessError(f"{label} must be an object")
+    _exact_keys(value, {"sha256", "version"}, label)
+    _digest(value["sha256"], f"{label}.sha256")
+    _positive_int(value["version"], f"{label}.version")
+    return value
+
+
+def _artifact_record(value: Any, label: str) -> Mapping[str, Any]:
+    if not isinstance(value, dict):
+        raise FreshnessError(f"{label} must be an object")
+    _exact_keys(value, {"sha256", "size"}, label)
+    _digest(value["sha256"], f"{label}.sha256")
+    _positive_int(value["size"], f"{label}.size")
+    return value
+
+
+def _parse_threshold_receipt(data: bytes) -> dict[str, Any]:
+    value = _threshold_json(data)
+    _exact_keys(
+        value,
+        {
+            "artifacts",
+            "contentSigning",
+            "eligibleForContentVerification",
+            "externalTrustVerified",
+            "finalRoot",
+            "git",
+            "initialRoot",
+            "readyToInstall",
+            "release",
+            "releaseSequence",
+            "rootCheckpoint",
+            "schema",
+            "signedStatementSHA256",
+            "statementSHA256",
+        },
+        "threshold receipt",
+    )
+    if value["schema"] != "idc-skills-external-verification/v1":
+        raise FreshnessError("threshold receipt schema differs")
+    if (
+        value["externalTrustVerified"] is not True
+        or value["eligibleForContentVerification"] is not True
+        or value["readyToInstall"] is not False
+    ):
+        raise FreshnessError("threshold receipt authority state differs")
+    initial_root = _root_record(value["initialRoot"], "threshold receipt.initialRoot")
+    final_root = _root_record(value["finalRoot"], "threshold receipt.finalRoot")
+    if final_root["version"] < initial_root["version"]:
+        raise FreshnessError("threshold receipt root version regresses")
+    if not isinstance(value["release"], str) or RELEASE_RE.fullmatch(value["release"]) is None:
+        raise FreshnessError("threshold receipt release differs")
+    release_sequence = _positive_int(
+        value["releaseSequence"], "threshold receipt.releaseSequence"
+    )
+    statement_digest = _digest(
+        value["statementSHA256"], "threshold receipt.statementSHA256"
+    )
+    signed_statement_digest = _digest(
+        value["signedStatementSHA256"],
+        "threshold receipt.signedStatementSHA256",
+    )
+    git = value["git"]
+    if not isinstance(git, dict):
+        raise FreshnessError("threshold receipt.git must be an object")
+    _exact_keys(git, {"commit", "tag", "tree"}, "threshold receipt.git")
+    if (
+        not isinstance(git["commit"], str)
+        or COMMIT_RE.fullmatch(git["commit"]) is None
+        or not isinstance(git["tree"], str)
+        or COMMIT_RE.fullmatch(git["tree"]) is None
+        or git["tag"] != value["release"]
+    ):
+        raise FreshnessError("threshold receipt Git identity differs")
+    artifacts = value["artifacts"]
+    if not isinstance(artifacts, dict):
+        raise FreshnessError("threshold receipt.artifacts must be an object")
+    artifact_names = {"archive", "freshnessIndex", "installInventory", "manifest", "registry"}
+    _exact_keys(artifacts, artifact_names, "threshold receipt.artifacts")
+    for name in artifact_names:
+        _artifact_record(artifacts[name], f"threshold receipt.artifacts.{name}")
+    content = value["contentSigning"]
+    if not isinstance(content, dict):
+        raise FreshnessError("threshold receipt.contentSigning must be an object")
+    _exact_keys(
+        content,
+        {"allowedSignersSHA256", "fingerprint", "publicKeySHA256"},
+        "threshold receipt.contentSigning",
+    )
+    _digest(
+        content["allowedSignersSHA256"],
+        "threshold receipt.contentSigning.allowedSignersSHA256",
+    )
+    _digest(content["publicKeySHA256"], "threshold receipt.contentSigning.publicKeySHA256")
+    if not isinstance(content["fingerprint"], str) or FINGERPRINT_RE.fullmatch(
+        content["fingerprint"]
+    ) is None:
+        raise FreshnessError("threshold receipt content-signing fingerprint differs")
+    checkpoint = value["rootCheckpoint"]
+    if not isinstance(checkpoint, dict):
+        raise FreshnessError("threshold receipt.rootCheckpoint must be an object")
+    _exact_keys(
+        checkpoint,
+        {
+            "releaseSequence",
+            "rootSHA256",
+            "schema",
+            "signedStatementSHA256",
+            "version",
+        },
+        "threshold receipt.rootCheckpoint",
+    )
+    if (
+        checkpoint["schema"] != "idc-skills-root-checkpoint/v3"
+        or checkpoint["version"] != final_root["version"]
+        or checkpoint["rootSHA256"] != final_root["sha256"]
+        or checkpoint["releaseSequence"] != release_sequence
+        or checkpoint["signedStatementSHA256"] != signed_statement_digest
+    ):
+        raise FreshnessError("threshold receipt checkpoint facts differ")
+    return value
+
+
+def _capture_threshold_receipt(
+    value: Any, *, repo_root: Path
+) -> tuple[Path, bytes, dict[str, Any]]:
+    if not isinstance(value, dict):
+        raise FreshnessError("thresholdReceipt must be an object")
+    _exact_keys(value, {"path", "sha256", "size"}, "thresholdReceipt")
+    if not isinstance(value["path"], str):
+        raise FreshnessError("thresholdReceipt.path must be absolute")
+    path = Path(value["path"])
+    if not path.is_absolute() or _path_is_within(path, repo_root):
+        raise FreshnessError("threshold receipt must be absolute and outside the repository")
+    expected_digest = _digest(value["sha256"], "thresholdReceipt.sha256")
+    expected_size = _positive_int(value["size"], "thresholdReceipt.size")
+    data = _read_regular_snapshot(
+        path, "threshold receipt", MAX_CONFIG_BYTES, require_single_link=True
+    )
+    if len(data) != expected_size or sha256_bytes(data) != expected_digest:
+        raise FreshnessError("threshold receipt bytes differ from protected configuration")
+    return path, data, _parse_threshold_receipt(data)
 
 
 def _is_relative_to(path: Path, parent: Path) -> bool:
@@ -657,6 +833,131 @@ def _validate_executable_directory(value: Any, label: str, repo_root: Path) -> s
     return str(resolved)
 
 
+def _validate_external_file_record(
+    value: Any,
+    label: str,
+    repo_root: Path,
+    *,
+    maximum: int,
+) -> str:
+    if not isinstance(value, dict):
+        raise FreshnessError(f"{label} must be a file record")
+    _exact_keys(value, {"path", "sha256"}, label)
+    if not isinstance(value["path"], str):
+        raise FreshnessError(f"{label}.path must be an absolute path string")
+    expected_digest = _digest(value["sha256"], f"{label}.sha256")
+    path = Path(value["path"])
+    if not path.is_absolute() or path.is_symlink():
+        raise FreshnessError(f"{label} must be an absolute non-symlink file")
+    try:
+        resolved = path.resolve(strict=True)
+        metadata = resolved.stat()
+    except OSError as exc:
+        raise FreshnessError(f"cannot inspect {label}: {path}: {exc}") from exc
+    if _path_is_within(resolved, repo_root) or not stat.S_ISREG(metadata.st_mode):
+        raise FreshnessError(f"{label} must be a regular file outside the repository")
+    if metadata.st_nlink != 1:
+        raise FreshnessError(f"{label} must be a single-link regular file")
+    if os.name != "nt" and (
+        metadata.st_uid not in {0, os.geteuid()} or metadata.st_mode & 0o022
+    ):
+        raise FreshnessError(f"{label} must be owner-controlled and not group/world writable")
+    data = _read_regular_snapshot(
+        resolved,
+        label,
+        maximum,
+        require_single_link=True,
+    )
+    if sha256_bytes(data) != expected_digest:
+        raise FreshnessError(f"{label} digest differs from protected configuration")
+    return str(resolved)
+
+
+def _validate_threshold_arguments(
+    value: Any,
+    *,
+    repo_root: Path,
+    git: str,
+    git_sha256: str,
+    ssh_keygen: str,
+    ssh_keygen_sha256: str,
+) -> list[str]:
+    if (
+        not isinstance(value, list)
+        or not value
+        or len(value) > MAX_THRESHOLD_ARGUMENTS
+        or len(value) % 2
+        or any(
+            not isinstance(item, str)
+            or not item
+            or "\x00" in item
+            or len(item.encode("utf-8")) > MAX_THRESHOLD_ARGUMENT_BYTES
+            for item in value
+        )
+    ):
+        raise FreshnessError("threshold verifier arguments must be bounded flag/value pairs")
+    allowed = {
+        "--archive",
+        "--freshness-index",
+        "--git",
+        "--git-sha256",
+        "--install-inventory",
+        "--manifest",
+        "--registry",
+        "--release-statement",
+        "--repo",
+        "--root-checkpoint",
+        "--root-update",
+        "--ssh-keygen",
+        "--ssh-keygen-sha256",
+        "--trusted-root",
+        "--trusted-root-sha256",
+    }
+    required = allowed - {"--root-update"}
+    observed: dict[str, list[str]] = {}
+    for index in range(0, len(value), 2):
+        flag, argument = value[index : index + 2]
+        if flag not in allowed or argument.startswith("--"):
+            raise FreshnessError("threshold verifier arguments contain an unsupported flag or value")
+        observed.setdefault(flag, []).append(argument)
+    if set(observed) - {"--root-update"} != required or any(
+        len(items) != 1 for flag, items in observed.items() if flag != "--root-update"
+    ):
+        raise FreshnessError("threshold verifier arguments do not name the exact required inputs")
+    if len(observed.get("--root-update", [])) > 32:
+        raise FreshnessError("threshold verifier root-update chain exceeds 32 versions")
+
+    def resolved(value: str, label: str) -> Path:
+        path = Path(value)
+        if not path.is_absolute():
+            raise FreshnessError(f"{label} must be absolute")
+        try:
+            return path.resolve(strict=True)
+        except OSError as exc:
+            raise FreshnessError(f"cannot resolve {label}: {exc}") from exc
+
+    if resolved(observed["--repo"][0], "threshold --repo") != repo_root:
+        raise FreshnessError("threshold verifier repository differs from the candidate")
+    if resolved(observed["--git"][0], "threshold --git") != Path(git):
+        raise FreshnessError("threshold verifier Git executable differs")
+    if observed["--git-sha256"][0] != git_sha256:
+        raise FreshnessError("threshold verifier Git digest differs")
+    if resolved(observed["--ssh-keygen"][0], "threshold --ssh-keygen") != Path(
+        ssh_keygen
+    ):
+        raise FreshnessError("threshold verifier ssh-keygen executable differs")
+    if observed["--ssh-keygen-sha256"][0] != ssh_keygen_sha256:
+        raise FreshnessError("threshold verifier ssh-keygen digest differs")
+    trusted_root = resolved(observed["--trusted-root"][0], "threshold --trusted-root")
+    if _path_is_within(trusted_root, repo_root):
+        raise FreshnessError("threshold verifier trusted root must remain outside the repository")
+    _digest(observed["--trusted-root-sha256"][0], "threshold --trusted-root-sha256")
+    checkpoint = Path(observed["--root-checkpoint"][0])
+    if not checkpoint.is_absolute() or _path_is_within(checkpoint, repo_root):
+        raise FreshnessError("threshold verifier root checkpoint must remain outside the repository")
+    return list(value)
+
+
 def parse_config(data: bytes, *, repo_root: Path, config_path: Path) -> dict[str, Any]:
     value = load_canonical_json(data, "freshness configuration", MAX_CONFIG_BYTES)
     _exact_keys(
@@ -669,6 +970,8 @@ def parse_config(data: bytes, *, repo_root: Path, config_path: Path) -> dict[str
             "minimumIndexSequence",
             "minimumManifestSequence",
             "requireGitCommit",
+            "thresholdReceipt",
+            "thresholdVerification",
             "executables",
             "consumerPath",
             "consumerHome",
@@ -679,6 +982,12 @@ def parse_config(data: bytes, *, repo_root: Path, config_path: Path) -> dict[str
         raise FreshnessError(f"freshness configuration schema must be {CONFIG_SCHEMA!r}")
     if value["requireGitCommit"] is not True:
         raise FreshnessError("requireGitCommit must be true for release authority")
+    threshold_path, threshold_data, threshold_receipt = _capture_threshold_receipt(
+        value["thresholdReceipt"], repo_root=repo_root
+    )
+    value["_thresholdReceiptPath"] = threshold_path
+    value["_thresholdReceiptData"] = threshold_data
+    value["_thresholdReceipt"] = threshold_receipt
     executables = value["executables"]
     if not isinstance(executables, dict):
         raise FreshnessError("executables must be an object")
@@ -699,6 +1008,60 @@ def parse_config(data: bytes, *, repo_root: Path, config_path: Path) -> dict[str
         ),
     }
     value["_executableSHA256"] = executable_digests
+    threshold_verification = value["thresholdVerification"]
+    if not isinstance(threshold_verification, dict):
+        raise FreshnessError("thresholdVerification must be an object")
+    _exact_keys(
+        threshold_verification,
+        {"arguments", "trustModule", "verifier"},
+        "thresholdVerification",
+    )
+    verifier_record = threshold_verification["verifier"]
+    trust_module_record = threshold_verification["trustModule"]
+    if (
+        not isinstance(verifier_record, dict)
+        or verifier_record.get("sha256") != EXPECTED_EXTERNAL_ROOT_VERIFIER_SHA256
+        or not isinstance(trust_module_record, dict)
+        or trust_module_record.get("sha256") != EXPECTED_TRUST_ROOT_MODULE_SHA256
+    ):
+        raise FreshnessError(
+            "threshold verifier or trust module differs from the launcher-pinned implementation"
+        )
+    threshold_verifier = _validate_external_file_record(
+        verifier_record,
+        "thresholdVerification.verifier",
+        repo_root,
+        maximum=MAX_VERIFIER_BYTES,
+    )
+    threshold_trust_module = _validate_external_file_record(
+        trust_module_record,
+        "thresholdVerification.trustModule",
+        repo_root,
+        maximum=MAX_VERIFIER_BYTES,
+    )
+    if not os.access(threshold_verifier, os.X_OK):
+        raise FreshnessError("threshold verifier is not executable")
+    if (
+        Path(threshold_verifier).name != "verify_external_root.py"
+        or Path(threshold_trust_module).name != "trust_root.py"
+        or Path(threshold_verifier).parent != Path(threshold_trust_module).parent
+    ):
+        raise FreshnessError(
+            "threshold verifier and trust module must be adjacent canonical files"
+        )
+    threshold_arguments = _validate_threshold_arguments(
+        threshold_verification["arguments"],
+        repo_root=repo_root,
+        git=value["executables"]["git"],
+        git_sha256=executable_digests["git"],
+        ssh_keygen=value["executables"]["sshKeygen"],
+        ssh_keygen_sha256=executable_digests["sshKeygen"],
+    )
+    value["thresholdVerification"] = {
+        "arguments": threshold_arguments,
+        "trustModule": threshold_trust_module,
+        "verifier": threshold_verifier,
+    }
     try:
         if not os.path.samefile(sys.executable, value["executables"]["python"]):
             raise FreshnessError(
@@ -1227,6 +1590,82 @@ ContentRunner = Callable[
     [bytes, bytes, bytes, bytes, bytes, Path, str, str, str], dict[str, Any]
 ]
 ConsumerRunner = Callable[[Path, str, Mapping[str, Any]], int]
+ThresholdRunner = Callable[[Mapping[str, Any], Path], bytes]
+
+
+def _run_threshold_verifier(config: Mapping[str, Any], repo_root: Path) -> bytes:
+    verification = config["thresholdVerification"]
+    verifier = Path(verification["verifier"])
+    trust_module = Path(verification["trustModule"])
+    verifier_data = _read_regular_snapshot(
+        verifier,
+        "threshold verifier",
+        MAX_VERIFIER_BYTES,
+        require_single_link=True,
+    )
+    trust_module_data = _read_regular_snapshot(
+        trust_module,
+        "threshold trust module",
+        MAX_VERIFIER_BYTES,
+        require_single_link=True,
+    )
+    if (
+        sha256_bytes(verifier_data) != EXPECTED_EXTERNAL_ROOT_VERIFIER_SHA256
+        or sha256_bytes(trust_module_data) != EXPECTED_TRUST_ROOT_MODULE_SHA256
+    ):
+        raise FreshnessError("threshold verifier implementation changed before execution")
+    executable_directories = [
+        Path(config["executables"][name]).parent
+        for name in ("python", "git", "sshKeygen")
+    ]
+    with tempfile.TemporaryDirectory(prefix="idc-threshold-reproduce-") as temporary:
+        temporary_root = Path(temporary)
+        staged_verifier = temporary_root / "verify_external_root.py"
+        staged_trust_module = temporary_root / "trust_root.py"
+        staged_verifier.write_bytes(verifier_data)
+        staged_trust_module.write_bytes(trust_module_data)
+        staged_verifier.chmod(0o700)
+        staged_trust_module.chmod(0o600)
+        try:
+            process = subprocess.run(
+                [
+                    config["executables"]["python"],
+                    "-I",
+                    "-B",
+                    str(staged_verifier),
+                    *verification["arguments"],
+                ],
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                check=False,
+                timeout=120,
+                cwd=temporary_root,
+                env=_temporary_verification_environment(
+                    executable_directories,
+                    temporary_root,
+                ),
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            raise FreshnessError(
+                f"configured external-root verifier could not run: {type(exc).__name__}"
+            ) from exc
+    if process.returncode != 0:
+        raise FreshnessError("configured external-root verifier refused the threshold inputs")
+    if len(process.stdout) > MAX_CONFIG_BYTES:
+        raise FreshnessError("configured external-root verifier output exceeds the receipt bound")
+    return process.stdout
+
+
+def _require_threshold_reproduction(
+    config: Mapping[str, Any],
+    repo_root: Path,
+    runner: ThresholdRunner,
+) -> None:
+    reproduced = runner(config, repo_root)
+    if reproduced != config["_thresholdReceiptData"]:
+        raise FreshnessError(
+            "configured external-root verifier output differs from the pinned threshold receipt"
+        )
 
 
 def _require_content_ready(
@@ -1254,11 +1693,12 @@ def verify_release(
     config_path: Path,
     *,
     launcher_path: Path | None = None,
-    expected_fingerprint: str = EXPECTED_SIGNING_FINGERPRINT,
+    expected_fingerprint: str | None = None,
     mode: str = "release",
     now: dt.datetime | None = None,
     clock: Callable[[], dt.datetime] | None = None,
     content_runner: ContentRunner = _run_content_verifier,
+    threshold_runner: ThresholdRunner = _run_threshold_verifier,
     consumer_runner: ConsumerRunner | None = None,
 ) -> dict[str, Any]:
     if mode not in {"release", "ci", "operator", "offline"}:
@@ -1293,10 +1733,18 @@ def verify_release(
                     f"{label} must be owner-controlled and not group/world writable"
                 )
     config = parse_config(config_data, repo_root=repo_root, config_path=config_path)
+    _require_threshold_reproduction(config, repo_root, threshold_runner)
     python_executable = config["executables"]["python"]
     git_executable = config["executables"]["git"]
     ssh_keygen = config["executables"]["sshKeygen"]
     ssh_keygen_sha256 = config["_executableSHA256"]["sshKeygen"]
+    threshold_receipt = config["_thresholdReceipt"]
+    threshold_fingerprint = threshold_receipt["contentSigning"]["fingerprint"]
+    if expected_fingerprint is not None and expected_fingerprint != threshold_fingerprint:
+        raise FreshnessError(
+            "threshold-authorized content-signing fingerprint differs from the external launcher pin"
+        )
+    expected_fingerprint = threshold_fingerprint
 
     public_path = repo_root / "keys" / "idc-skills-signing.pub"
     allowed_path = repo_root / "keys" / "allowed_signers"
@@ -1304,6 +1752,13 @@ def verify_release(
     verifier_path = repo_root / "scripts" / "skill_integrity.py"
     public_data = _read_regular_snapshot(public_path, "public signing key", MAX_ANCHOR_BYTES)
     allowed_data = _read_regular_snapshot(allowed_path, "allowed_signers", MAX_ANCHOR_BYTES)
+    if (
+        sha256_bytes(public_data)
+        != threshold_receipt["contentSigning"]["publicKeySHA256"]
+        or sha256_bytes(allowed_data)
+        != threshold_receipt["contentSigning"]["allowedSignersSHA256"]
+    ):
+        raise FreshnessError("threshold-authorized content-signing bytes differ")
     validate_anchor(public_data, allowed_data, expected_fingerprint, ssh_keygen)
     manifest_data = _read_regular_snapshot(manifest_path, "integrity manifest", MAX_MANIFEST_BYTES)
     manifest_signature = _read_regular_snapshot(
@@ -1318,6 +1773,13 @@ def verify_release(
         ssh_keygen,
     )
     manifest = parse_manifest(manifest_data)
+    threshold_manifest = threshold_receipt["artifacts"]["manifest"]
+    if (
+        threshold_manifest["sha256"] != sha256_bytes(manifest_data)
+        or threshold_manifest["size"] != len(manifest_data)
+        or threshold_receipt["release"] != manifest["release"]
+    ):
+        raise FreshnessError("manifest differs from the threshold-authorized release")
     for relative, data, label in (
         ("bootstrap/idc_verify_fresh.py", launcher_data, "freshness launcher"),
         ("scripts/skill_integrity.py", verifier_data, "content verifier"),
@@ -1371,6 +1833,12 @@ def verify_release(
         }
 
     index_data, index_signature = capture_index_source(config)
+    threshold_index = threshold_receipt["artifacts"]["freshnessIndex"]
+    if (
+        threshold_index["sha256"] != sha256_bytes(index_data)
+        or threshold_index["size"] != len(index_data)
+    ):
+        raise FreshnessError("freshness index differs from the threshold-authorized release")
     index_digest = sha256_bytes(index_data)
     verify_signature(
         index_data,
@@ -1405,6 +1873,8 @@ def verify_release(
             manifest_data,
             manifest_signature,
         )
+    if threshold_receipt["git"]["commit"] != expected_entry["gitCommit"]:
+        raise FreshnessError("Git commit differs from the threshold-authorized release")
     if entry != expected_entry:
         raise FreshnessError("repository release tuple does not equal the newest signed index entry")
 
@@ -1471,6 +1941,29 @@ def verify_release(
         final_config = parse_config(
             config_data, repo_root=repo_root, config_path=config_path
         )
+        _require_threshold_reproduction(final_config, repo_root, threshold_runner)
+        if (
+            final_config["_thresholdReceiptData"] != config["_thresholdReceiptData"]
+            or _read_regular_snapshot(
+                config["_thresholdReceiptPath"],
+                "threshold receipt",
+                MAX_CONFIG_BYTES,
+                require_single_link=True,
+            )
+            != config["_thresholdReceiptData"]
+        ):
+            raise FreshnessError("threshold receipt changed during verification")
+        final_config["_releaseContext"] = {
+            "gitCommit": threshold_receipt["git"]["commit"],
+            "gitTag": threshold_receipt["git"]["tag"],
+            "gitTree": threshold_receipt["git"]["tree"],
+            "indexSHA256": index_digest,
+            "installInventorySHA256": threshold_receipt["artifacts"][
+                "installInventory"
+            ]["sha256"],
+            "manifestSHA256": sha256_bytes(manifest_data),
+            "release": manifest["release"],
+        }
 
         checkpoint_value = _checkpoint_value(index, index_digest)
         with _checkpoint_lock(checkpoint_path):
@@ -1482,24 +1975,30 @@ def verify_release(
             )
             _write_checkpoint(checkpoint_path, checkpoint_value)
 
-        if consumer_runner is not None:
-            current_time = (
-                now
-                if now is not None
-                else (clock or (lambda: dt.datetime.now(dt.timezone.utc)))()
-            )
-            parse_index(index_data, now=current_time)
-            _verify_staged_repository(
-                staged_repo, manifest, manifest_data, manifest_signature
-            )
-            consumer_exit_code = consumer_runner(
-                staged_repo, index_digest, final_config
-            )
+            # The checkpoint is also the cross-process generation fence for
+            # consumers. Keep its exclusive lock through the child action so
+            # an older, already-verified run cannot resume after a newer run
+            # and overwrite the newer installed generation. A newer run may
+            # perform preflight work concurrently, but it cannot transition
+            # or consume until the active generation has completed.
+            if consumer_runner is not None:
+                current_time = (
+                    now
+                    if now is not None
+                    else (clock or (lambda: dt.datetime.now(dt.timezone.utc)))()
+                )
+                parse_index(index_data, now=current_time)
+                _verify_staged_repository(
+                    staged_repo, manifest, manifest_data, manifest_signature
+                )
+                consumer_exit_code = consumer_runner(
+                    staged_repo, index_digest, final_config
+                )
 
-        if consumer_runner is None:
-            _verify_staged_repository(
-                staged_repo, manifest, manifest_data, manifest_signature
-            )
+            if consumer_runner is None:
+                _verify_staged_repository(
+                    staged_repo, manifest, manifest_data, manifest_signature
+                )
 
         report = {
             "schema": REPORT_SCHEMA,
@@ -1583,6 +2082,53 @@ def _run_consumer(
     environment["IDC_SKILLS_SSH_KEYGEN_SHA256"] = config["_executableSHA256"][
         "sshKeygen"
     ]
+    if args.command == "fleet-parity":
+        context = config.get("_releaseContext")
+        if not isinstance(context, dict) or set(context) != {
+            "gitCommit",
+            "gitTag",
+            "gitTree",
+            "indexSHA256",
+            "installInventorySHA256",
+            "manifestSHA256",
+            "release",
+        }:
+            raise FreshnessError("fleet parity release context is unavailable")
+        if (
+            not all(isinstance(value, str) for value in context.values())
+            or COMMIT_RE.fullmatch(context["gitCommit"]) is None
+            or COMMIT_RE.fullmatch(context["gitTree"]) is None
+            or RELEASE_RE.fullmatch(context["release"]) is None
+            or context["gitTag"] != context["release"]
+            or any(
+                SHA256_RE.fullmatch(context[field]) is None
+                for field in (
+                    "indexSHA256",
+                    "installInventorySHA256",
+                    "manifestSHA256",
+                )
+            )
+        ):
+            raise FreshnessError("fleet parity release context is invalid")
+        if context["indexSHA256"] != handoff:
+            raise FreshnessError(
+                "fleet parity handoff differs from the release-index digest"
+            )
+        names = {
+            "gitCommit": "IDC_SKILLS_PARITY_GIT_COMMIT",
+            "gitTag": "IDC_SKILLS_PARITY_GIT_TAG",
+            "gitTree": "IDC_SKILLS_PARITY_GIT_TREE",
+            "indexSHA256": "IDC_SKILLS_PARITY_INDEX_SHA256",
+            "installInventorySHA256": "IDC_SKILLS_PARITY_INSTALL_INVENTORY_SHA256",
+            "manifestSHA256": "IDC_SKILLS_PARITY_MANIFEST_SHA256",
+            "release": "IDC_SKILLS_PARITY_RELEASE",
+        }
+        for key, variable in names.items():
+            environment[variable] = context[key]
+    # Consumers launched through this externally pinned authority inherit the
+    # fail-closed Git grammar. Bare installations remain advisory unless their
+    # own launcher makes the same explicit composition choice.
+    environment["IDC_GUARD_STRICT"] = "1"
     bootstrap = (
         "import runpy,sys;"
         "scripts=sys.argv[1];script=sys.argv[2];argv=sys.argv[3:];"

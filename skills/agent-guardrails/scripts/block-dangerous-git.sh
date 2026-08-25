@@ -17,8 +17,9 @@
 # concatenation (posix tokenizer), honors shell comments (`git status # ... git push` -> the push
 # is comment text), decodes bundled short flags (`-df` == `-d -f`) WITHOUT mistaking an attached
 # option value for flags (`checkout -bfeature` creates a branch, not a force), decodes forced branch
-# (re)creation (`checkout -B`, `switch -C`) AND forced ref updates (`branch -f/-M/-C`, which move or
-# clobber refs destructively), and whole-tree pathspecs (`.`, `./`, `./.`, `:/`, `*`, `**`, pathless
+# (re)creation (`checkout -B`, `switch -C`), forced/deleted refs (`branch -f/-M/-C`, `tag -f/-d`,
+# `update-ref`), plumbing worktree discards (`read-tree --reset/-m -u`, `checkout-index -f -a`),
+# and whole-tree pathspecs (`.`, `./`, `./.`, `:/`, `*`, `**`, pathless
 # `:(top)`, and EVERY exclude-magic spec — `:!x`, `:^x`, `:(exclude)x`, `:(top,exclude)x` — because an
 # exclude-only pathspec means "everything EXCEPT x" = a whole-tree discard). Every non-literal
 # wildcard restore/checkout also blocks conservatively (`?*`, `[a-z]*`, `:(glob)**/*`); explicit
@@ -27,9 +28,10 @@
 # Concrete single-file restores/checkouts stay intentionally ALLOWED (`restore README.md`, `restore --worktree
 # README.md`, `checkout HEAD -- README.md`) and their magic pathspecs (`:(top)README.md`,
 # `:/README.md`). It reaches git through more leading
-# grammar — a redirection (`>/x git push`), an fd-duplication (`2>&1 git push`, `>&2 git push`), a
-# `+=`/array assignment (`VAR+=x git push`, `A[0]=x git push`), `!`, a `{ }` group, an `if/then`,
-# `|&`, and recognized wrappers (`command -p`, `nice -n 5`, `env --unset X`, `exec -a name`,
+# grammar — a redirection (`>/x git push`), numeric/named-fd plumbing (`2>&1 git push`,
+# `{fd}>/x git push`), a `+=`/array assignment (`VAR+=x git push`, `A[0]=x git push`), `!`, a
+# `{ }` group, `if/then`, `coproc`, `|&`, and recognized wrappers (`command -p`, `nice -n 5`,
+# `env --unset X`, `exec -a name`,
 # `env -S 'git push'` — env's split-string VALUE is word-split and re-classified, both GNU and BSD
 # execute it) — while treating a pure query (`command -v git`, bundled `command -pv git`) as no
 # invocation. It resolves alias DEFINITIONS to a blocked op (`-c alias.x=push`, glued
@@ -44,34 +46,38 @@
 # then argv-ordered `-c`/`--config-env`, last duplicate wins), case-fold alias names, and apply visible
 # assignments plus `env -u/-i` before classification. Linear lists have exact carried state;
 # conditional/pipeline/subshell syntax conservatively retains old and updated variants, capped at 32,
-# so a skipped safe override cannot launder inherited danger. Malformed/oversized runtime config is
-# an explicit block, with 256-entry/64-KiB parser bounds; values are parsed as data and never evaluated.
-# Alias expansion is recursive, bounded by a depth cap (deeper chains block as evasion) and a cycle
-# set (git refuses a pure alias loop, so it allows).
+# so a skipped safe override cannot launder inherited danger. Executable config values (editors,
+# pagers, helpers, filters, diff/merge drivers, hooks) block across every modeled config layer;
+# persistent `git config` writes to those keys block while reads/removals remain usable. Git-specific
+# executable environment variables are checked only at subcommands that can invoke them. Malformed or
+# oversized runtime config blocks with 256-entry/64-KiB bounds; values remain inert data. Alias
+# expansion is recursive, bounded by a depth cap (deeper chains block as evasion) and a cycle set.
 #
-# It is NOT a sandbox and CANNOT be one. Documented residuals a string classifier cannot
-# close (keep a real OS/repo-level control underneath — this is one layer):
-#   - dynamic/indirect invocation or state: `C=git; $C push`, `$(printf push)`, `eval "git push"`,
-#     sourced files, and shell functions,
-#     `sh -c "git push"`, a renamed/copied git binary, base64-then-decode
+# It is NOT a sandbox and CANNOT be one. In advisory mode, documented residuals a string classifier
+# cannot close include (keep a real OS/repo-level control underneath — this is one layer):
+#   - dynamic/indirect invocation or state: `C=git; $C push`, parameter expansion, `$(printf push)`,
+#     `eval "git push"`, sourced files, shell functions, `sh -c "git push"`, a renamed/copied git
+#     binary, and base64-then-decode
 #   - command substitution used to ASSEMBLE a subcommand token (`git $(echo)push` rejoins at
 #     runtime), and command substitution INSIDE double quotes (`"$(git push)"`)
 #   - git reached only via an UNRECOGNIZED wrapper (`xargs -I{} git push`, a shell function) or an
 #     abbreviated GLOBAL value-option in separate form (`git --git-di /x push`)
-#   - an alias stored in repo/global/system config (rather than one of the inspected runtime-config
-#     environment/argv layers), then invoked later
-#   - malformed hook payloads / missing interpreters: extraction fails or python3/jq is
-#     absent -> guard OPENS (announces it, allows), by design, so a parse error cannot wedge
-#     every command.
+#   - aliases or executable values already stored in repo/global/system config (rather than one of
+#     the inspected runtime-config environment/argv layers), then invoked later
+#   - destructive operations outside the named authority boundary: rebase/commit --amend/filter-branch,
+#     stash drop/clear, reflog-expire plus pruning GC, rm -f, and symbolic-ref
+# Malformed hook payloads, missing interpreters, transport/classifier errors, and unsupported dynamic
+# grammar OPEN only in advisory mode. `IDC_GUARD_STRICT=1` blocks those failures, unquoted parameter
+# expansion in a Git invocation, variable subcommand dispatch, command substitution, nested shells,
+# eval/source/functions, brace expansion, and commands over the 64-KiB strict grammar bound.
 # Conservative OVER-blocks (SAFE direction — the human runs it): a heredoc BODY line that is itself a
 # git command (`cat <<EOF`/`git push`/`EOF`) is blocked (segmentation can't tell heredoc data from a
 # command without a full parser); `git push --dry-run` is blocked ON PURPOSE (still contacts the
 # remote — an authority boundary); a wildcard pathspec is blocked even when it would match only a
 # subtree (use `:(literal)` for a wildcard-named file); aliasing a discard-capable subcommand
 # (`alias.co=checkout`) is blocked as the evasion pattern even though `checkout <branch>` alone is safe.
-# Requires `jq` (payload) and `python3` (classifier); if either is missing the guard fails
-# OPEN rather than wedging the agent — wire it only where both exist, and never as the only
-# barrier.
+# Requires `jq` (payload) and `python3` (classifier). Missing dependencies OPEN in advisory mode and
+# BLOCK in strict mode; wire this only where both exist, and never as the only barrier.
 #
 # NOTE: intentionally `set -uo pipefail` WITHOUT `-e`: the classifier exits 2 to signal a
 # block, and under `set -e` that non-zero would abort the wrapper before the verdict is
@@ -102,11 +108,11 @@ if ! command -v python3 >/dev/null 2>&1; then
   exit 0
 fi
 
-# The command is passed via the environment (stdin here is the heredoc program). The
-# classifier prints its own two-line block message to stderr and exits 2, or exits 0 to
-# allow. It self-guards EVERY internal error into a fail-OPEN (exit 0 + note), so a
-# classifier bug can never wedge the agent and this wrapper only ever sees a clean 0/2.
-BLOCK_DANGEROUS_GIT_CMD="$cmd" python3 - <<'PY'
+# The command travels on fd 3 because stdin carries the heredoc program. Keeping attacker-sized
+# command text out of argv/environment avoids MAX_ARG_STRLEN/E2BIG fail-open. Process substitution
+# starts the writer concurrently, so a command larger than a pipe buffer cannot deadlock the hook;
+# a NUL terminator lets Python detect a truncated writer (shell variables themselves cannot hold NUL).
+python3 - 3< <(builtin printf '%s\0' "$cmd") <<'PY'
 import os
 import re
 import shlex
@@ -117,9 +123,6 @@ VALUE_OPTS = {
     "-C", "-c", "--git-dir", "--work-tree", "--namespace",
     "--super-prefix", "--exec-path", "--config-env", "--attr-source",
 }
-# subcommands the guard treats as an authority boundary (mutate history / working tree / remote).
-# `switch` is the modern equivalent of `checkout <branch>` and can discard changes with -f/--discard-changes.
-GUARDED_SUBS = {"push", "checkout", "restore", "switch", "reset", "clean", "branch"}
 # subcommands that are dangerous the moment they are aliased under a new name, even with no args in
 # the alias VALUE (the destructive args are supplied at call time): `alias.co=checkout` then `git co .`.
 ALIAS_DANGEROUS_BARE = {"push", "checkout", "restore", "switch"}
@@ -165,6 +168,7 @@ LONG_ARG = {
     "restore": {"source", "conflict", "pathspec-from-file"},
     "switch": {"create", "force-create", "conflict", "orphan"},
     "reset": {"pathspec-from-file"},
+    "checkout-index": {"prefix", "stage"},
     "branch": {
         "set-upstream-to", "contains", "no-contains", "merged", "no-merged",
         "sort", "points-at", "format",
@@ -173,7 +177,7 @@ LONG_ARG = {
 # shell reserved words that can lead a segment before the real command word (`then git push`).
 SHELL_KEYWORDS = {
     "if", "then", "else", "elif", "fi", "do", "done", "while", "until",
-    "for", "case", "esac", "select", "function",
+    "for", "case", "esac", "select", "function", "coproc",
 }
 # a redirection token: optional fd number then a >/>>/<{1,3} operator (incl. herestring <<<),
 # target possibly glued.
@@ -186,6 +190,11 @@ MAX_ALIAS_DEPTH = 8
 # ceiling is a positive block reason, not an exception that could fall into the wrapper's fail-open.
 MAX_RUNTIME_CONFIG_ENTRIES = 256
 MAX_RUNTIME_CONFIG_BYTES = 65536
+# Strict callers prefer an explicit stop to spending unbounded time in unsupported shell grammar.
+# The 64-KiB ceiling is checked before separator/token parsing; crossing it is an immediate block,
+# so attacker-sized safe-looking text cannot turn a PreToolUse hook into a parser stall. The
+# advisory classifier has no command-size policy and still receives the bytes over fd 3.
+MAX_STRICT_COMMAND_BYTES = 65536
 # Cross-segment shell state is exact for a linear `;`/newline list. Conditional, pipeline, loop,
 # background, and subshell syntax can leave either the old or the visibly updated exported state in
 # force. Retain both possibilities, but bound the conservative state lattice so adversarial command
@@ -201,6 +210,51 @@ ENV_ASSIGN_RE = re.compile(r"^([A-Za-z_][A-Za-z0-9_+]*?)=(.*)$", re.DOTALL)
 
 BACKTICK = chr(96)
 STRICT = os.environ.get("IDC_GUARD_STRICT", "").lower() in {"1", "true", "yes", "on"}
+UNQUOTED_PARAM_MARKER = "__IDC_UNQUOTED_PARAMETER_EXPANSION__"
+QUOTED_PARAM_MARKER = "__IDC_QUOTED_PARAMETER_EXPANSION__"
+# Git either runs these values directly or feeds them to a shell/helper dispatcher. Runtime config
+# is an attacker-controlled execution surface even when the visible subcommand itself looks safe.
+# Names are lower-case because Git config keys are case-insensitive and the effective map folds them.
+EXEC_CONFIG_EXACT = {
+    "core.alternaterefscommand", "core.askpass", "core.editor", "core.fsmonitor",
+    "core.gitproxy", "core.hookspath", "core.pager", "core.sshcommand",
+    "credential.helper", "diff.external", "diff.guitool", "diff.tool", "gc.recentobjectshook",
+    "gpg.program", "gpg.ssh.defaultkeycommand", "help.browser", "interactive.difffilter",
+    "man.viewer", "merge.guitool", "merge.tool", "sendemail.cccmd", "sendemail.headercmd",
+    "sendemail.sendmailcmd", "sendemail.tocmd", "sequence.editor", "uploadpack.packobjectshook",
+    "web.browser",
+}
+EXEC_CONFIG_PATTERNS = (
+    r"browser\..+\.cmd",
+    r"credential\..+\.helper",
+    r"diff\..+\.(?:command|textconv)",
+    r"difftool\..+\.(?:cmd|path)",
+    r"filter\..+\.(?:clean|smudge|process)",
+    r"gpg\..+\.program",
+    r"guitool\..+\.cmd",
+    r"man\..+\.(?:cmd|path)",
+    r"merge\..+\.driver",
+    r"mergetool\..+\.(?:cmd|path)",
+    r"pager\..+",
+    r"remote\..+\.(?:receivepack|uploadpack)",
+    r"sendemail\..+\.(?:cccmd|headercmd|sendmailcmd|tocmd)",
+    r"tar\..+\.command",
+    r"trailer\..+\.(?:cmd|command)",
+)
+
+try:
+    with os.fdopen(3, "rb") as command_stream:
+        command_wire = command_stream.read()
+    if not command_wire.endswith(b"\0"):
+        raise ValueError("truncated command transport")
+    COMMAND = command_wire[:-1].decode("utf-8", "surrogateescape")
+except Exception as exc:
+    mode = "BLOCK" if STRICT else "OPEN"
+    sys.stderr.write(
+        "block-dangerous-git: command transport error (%s) (%s guard %s)\n"
+        % (exc.__class__.__name__, "strict" if STRICT else "advisory", mode)
+    )
+    sys.exit(2 if STRICT else 0)
 
 
 def is_git_word(tok):
@@ -363,6 +417,22 @@ def argv_danger(tokens):
         return "git push"
     if sub == "reset":
         return "git reset --hard" if has_long_opt(option_rest, "hard") else None
+    if sub == "read-tree":
+        update = "u" in flags or has_long_opt(option_rest, "update")
+        reset_or_merge = (
+            "m" in flags
+            or has_long_opt(option_rest, "merge")
+            or has_long_opt(option_rest, "reset")
+        )
+        if update and reset_or_merge:
+            return "git read-tree --reset/--merge with -u (whole-worktree discard)"
+        return None
+    if sub == "checkout-index":
+        force = "f" in flags or has_long_opt(option_rest, "force")
+        all_paths = "a" in flags or has_long_opt(option_rest, "all")
+        if force and all_paths:
+            return "git checkout-index --force --all (whole-worktree overwrite)"
+        return None
     if sub == "clean":
         force = "f" in flags or has_long_opt(option_rest, "force")
         dry = "n" in flags or has_long_opt(option_rest, "dry-run")
@@ -373,7 +443,12 @@ def argv_danger(tokens):
         return "git update-ref (forced ref mutation)"
     if sub == "tag":
         force = "f" in flags or has_long_opt(option_rest, "force")
-        return "git tag --force (clobbers a tag ref)" if force else None
+        delete = "d" in flags or has_long_opt(option_rest, "delete")
+        if force:
+            return "git tag --force (clobbers a tag ref)"
+        if delete:
+            return "git tag --delete (deletes a tag ref)"
+        return None
     if sub == "branch":
         force = "f" in flags or has_long_opt(option_rest, "force")
         delete = "d" in flags or has_long_opt(option_rest, "delete")
@@ -482,6 +557,77 @@ def alias_name(s):
     return s.split(".", 1)[1].lower()
 
 
+def is_exec_valued_config(key, value=""):
+    """Whether Git can execute this config value as a program, shell command, hook, or helper."""
+    folded = key.lower()
+    stripped = value.strip()
+    if not stripped:
+        return False
+    # Per-command pager values are booleans as well as commands. Boolean values only select Git's
+    # ordinary pager policy; they are not themselves dispatched to a shell.
+    if re.fullmatch(r"pager\..+", folded) and stripped.lower() in {
+        "0", "1", "false", "no", "off", "on", "true", "yes",
+    }:
+        return False
+    # smtpServer is normally a host/IP, but Git's backwards-compatible absolute-path form executes
+    # a sendmail-like binary. The dedicated sendmailCmd keys above are always executable values.
+    if folded == "sendemail.smtpserver" or re.fullmatch(
+        r"sendemail\..+\.smtpserver", folded
+    ):
+        return stripped.startswith(("/", "\\\\")) or bool(
+            re.match(r"^[A-Za-z]:[\\/]", stripped)
+        )
+    if folded in EXEC_CONFIG_EXACT:
+        return True
+    if any(re.fullmatch(pattern, folded) for pattern in EXEC_CONFIG_PATTERNS):
+        return True
+    # Ordinary submodule update strategies are enum-like; only the documented leading-bang form is
+    # a custom command. Keeping that distinction avoids blocking checkout/rebase/merge strategies.
+    if re.fullmatch(r"submodule\..+\.update", folded):
+        return value.lstrip().startswith("!")
+    return False
+
+
+def persistent_exec_config_definition(tokens):
+    """Block `git config` writes that arm an executable config key; leave reads/removals usable."""
+    sub_idx = find_subcommand(tokens)
+    if sub_idx is None or tokens[sub_idx] != "config":
+        return None
+    args = tokens[sub_idx + 1:]
+    non_writes = {
+        "get", "get-all", "get-regexp", "get-urlmatch", "list", "unset", "unset-all",
+        "remove-section", "rename-section", "--get", "--get-all", "--get-regexp",
+        "--get-urlmatch", "--list", "--unset", "--unset-all", "--remove-section",
+        "--rename-section", "--get-color", "--get-colorbool",
+    }
+    if any(arg in non_writes for arg in args):
+        return None
+    value_options = {"-f", "--file", "--blob", "--type", "--default"}
+    positional = []
+    i = 0
+    while i < len(args):
+        arg = args[i]
+        if arg in value_options:
+            i += 2
+            continue
+        if arg.startswith("--file=") or arg.startswith("--blob=") or arg.startswith("--type="):
+            i += 1
+            continue
+        if arg.startswith("-"):
+            i += 1
+            continue
+        positional.append(arg)
+        i += 1
+    if positional and positional[0] in {"set", "add", "replace-all"}:
+        positional = positional[1:]
+    if len(positional) < 2:
+        return None
+    key, value = positional[0], positional[1]
+    if is_exec_valued_config(key, value):
+        return "persistent git config writes an executable value (%s)" % key.lower()
+    return None
+
+
 def alias_defs(tokens, depth=0, alias_context=None, config_env=None):
     # Persistent alias DEFINITIONS live only when `config` is the actual SUBCOMMAND. Runtime
     # `-c`/`--config-env` definitions are resolved together, in argv order, by
@@ -507,6 +653,29 @@ def alias_defs(tokens, depth=0, alias_context=None, config_env=None):
                     return "alias injection (config alias to a blocked op)"
                 break
     return None
+
+
+def drop_redirection_fd_prefix(out):
+    """Remove a glued numeric or Bash `{name}` fd allocator before a redirection operator."""
+    k = 0
+    while k < len(out) and len(out[-1 - k]) == 1 and out[-1 - k].isdigit():
+        k += 1
+    before = out[-1 - k][-1] if len(out) > k else ""
+    if k and (before == "" or before in " \t\n;&|()" or before == BACKTICK):
+        del out[len(out) - k:]
+        return
+
+    start = len(out)
+    while (
+        start > 0
+        and len(out[start - 1]) == 1
+        and out[start - 1] not in " \t\n;&|()"
+        and out[start - 1] != BACKTICK
+    ):
+        start -= 1
+    candidate = "".join(out[start:])
+    if re.fullmatch(r"\{[A-Za-z_][A-Za-z0-9_]*\}", candidate):
+        del out[start:]
 
 
 def normalize_separators(s):
@@ -581,12 +750,7 @@ def normalize_separators(s):
             while j < n and (s[j].isdigit() or s[j] == "-"):
                 j += 1
             numeric = j > i + 2 and (j >= n or s[j] in " \t\n;&|()" or s[j] == BACKTICK)
-            k = 0
-            while k < len(out) and len(out[-1 - k]) == 1 and out[-1 - k].isdigit():
-                k += 1
-            before = out[-1 - k][-1] if len(out) > k else ""
-            if k and (before == "" or before in " \t\n;&|()" or before == BACKTICK):
-                del out[len(out) - k:]              # the fd prefix was its own word -> drop it
+            drop_redirection_fd_prefix(out)
             if numeric:
                 out.append(" ")
                 i = j
@@ -602,12 +766,7 @@ def normalize_separators(s):
             # glued fd-digit prefix (so `2>|`/`9>|` leave no orphan `2`/`9` command word) exactly as
             # the fd-dup branch does, then rewrite to a plain ` > ` so the redirection skipper eats
             # the target token. A SPACE-separated digit (`echo 2 >|x`) is a real arg and is untouched.
-            k = 0
-            while k < len(out) and len(out[-1 - k]) == 1 and out[-1 - k].isdigit():
-                k += 1
-            before = out[-1 - k][-1] if len(out) > k else ""
-            if k and (before == "" or before in " \t\n;&|()" or before == BACKTICK):
-                del out[len(out) - k:]
+            drop_redirection_fd_prefix(out)
             out.append(" ")
             out.append(REDIR_SENTINEL)
             out.append(" ")
@@ -619,12 +778,7 @@ def normalize_separators(s):
             # whether it touches the decisive Git token (`push>/dev/null`, `git</dev/null push`).
             # Replace the complete operator with one sentinel; the post-tokenization pass removes
             # that sentinel and exactly one target before Git argv classification.
-            k = 0
-            while k < len(out) and len(out[-1 - k]) == 1 and out[-1 - k].isdigit():
-                k += 1
-            before = out[-1 - k][-1] if len(out) > k else ""
-            if k and (before == "" or before in " \t\n;&|()" or before == BACKTICK):
-                del out[len(out) - k:]
+            drop_redirection_fd_prefix(out)
             j = i + 1
             while j < n and s[j] in "<>":
                 j += 1
@@ -722,17 +876,58 @@ def has_unquoted_brace_expansion(command):
     return False
 
 
+def annotate_parameter_expansions(command):
+    """Mark shell parameter expansions without evaluating them, preserving single-quote literals."""
+    out = []
+    quote = None
+    i = 0
+    while i < len(command):
+        char = command[i]
+        if quote == "'":
+            out.append(char)
+            if char == "'":
+                quote = None
+            i += 1
+            continue
+        if char == "\\" and quote != "'" and i + 1 < len(command):
+            out.extend((char, command[i + 1]))
+            i += 2
+            continue
+        if char in ("'", '"'):
+            if quote is None:
+                quote = char
+            elif quote == char:
+                quote = None
+            out.append(char)
+            i += 1
+            continue
+        if char == "$" and i + 1 < len(command):
+            nxt = command[i + 1]
+            # $(...) and arithmetic are handled by strict_grammar_issue; $'...'/ $"..." are quote
+            # operators rather than parameter expansions and normalize_separators handles them.
+            if nxt not in ("(", "'", '"') and (nxt == "{" or re.match(r"[A-Za-z0-9_@*#?$!\-]", nxt)):
+                out.append(QUOTED_PARAM_MARKER if quote == '"' else UNQUOTED_PARAM_MARKER)
+        out.append(char)
+        i += 1
+    return "".join(out)
+
+
 def strict_grammar_issue(command):
     """Name dynamic shell forms that the release grammar cannot prove safe."""
     if not STRICT:
         return None
+    if len(command.encode("utf-8", "surrogateescape")) > MAX_STRICT_COMMAND_BYTES:
+        return "command exceeds the bounded strict grammar"
     if "$(" in command or BACKTICK in command:
         return "dynamic command substitution is unsupported in strict mode"
     if re.search(r"(^|[;&|()\n][ \t]*)(?:eval|source|\.|bash|sh|zsh|fish)[ \t]+", command):
         return "dynamic shell evaluation or sourced code is unsupported in strict mode"
     if re.search(r"(^|[;&|()\n][ \t]*)(?:[A-Za-z_][A-Za-z0-9_]*=\S+[ \t;]*)*\$[A-Za-z_]", command):
         return "variable command dispatch is unsupported in strict mode"
-    if re.search(r"\bfunction[ \t]+[A-Za-z_]|[A-Za-z_][A-Za-z0-9_]*[ \t]*\(\)[ \t]*\{", command):
+    # The word boundary on both function-name forms is load-bearing. Without it, the second
+    # alternative restarts a greedy identifier match at every byte of one long token and turns a
+    # strict PreToolUse check quadratic before the shell tokenizer ever sees the command.
+    if re.search(r"\bfunction[ \t]+[A-Za-z_]|\b[A-Za-z_][A-Za-z0-9_]*[ \t]*\(\)[ \t]*\{", command):
         return "shell function definition is unsupported in strict mode"
     return None
 
@@ -750,6 +945,16 @@ def command_word_index(tokens):
     assign = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*(?:\[[^]]*\])?\+?=")
     while i < n:
         t = tokens[i]
+        if t == "coproc":
+            i += 1
+            # Bash's named form is `coproc NAME { command; }`; NAME is grammar, not the command.
+            if (
+                i + 1 < n
+                and re.fullmatch(r"[A-Za-z_][A-Za-z0-9_]*", tokens[i])
+                and tokens[i + 1] == "{"
+            ):
+                i += 1
+            continue
         if t in ("!", "{", "}") or t in SHELL_KEYWORDS:  # leading shell grammar -> look past it
             i += 1
             continue
@@ -1239,6 +1444,64 @@ def command_config_alias_map(git_slice, eff, lower):
     return out, None
 
 
+def executable_git_environment_danger(git_slice, eff):
+    """Recognize Git-specific environment variables at commands that can execute their values."""
+    idx = find_subcommand(git_slice)
+    if idx is None:
+        return None
+    sub = git_slice[idx]
+    rest = git_slice[idx + 1:]
+
+    editor_suppressed = any(
+        token == "--no-edit"
+        or token in ("-m", "-F", "-C")
+        or (token.startswith("-m") and token != "-m")
+        or token.startswith("--message=")
+        or token.startswith("--file=")
+        or token.startswith("--reuse-message=")
+        or token.startswith("--fixup=")
+        or token.startswith("--squash=")
+        for token in rest
+    )
+    editor_command = (
+        (sub == "commit" and not editor_suppressed)
+        or (sub == "merge" and not editor_suppressed)
+        or (sub == "tag" and not editor_suppressed and any(t in ("-a", "-s", "-u") for t in rest))
+        or (sub == "config" and any(t in ("-e", "--edit") for t in rest))
+        or (sub == "notes" and any(t in ("edit", "append") for t in rest))
+    )
+    if editor_command:
+        for name in ("GIT_EDITOR", "VISUAL", "EDITOR"):
+            if eff.get(name, ""):
+                return "Git may execute %s for this subcommand" % name
+
+    interactive_rebase = sub == "rebase" and (
+        any(token.startswith("-i") and not token.startswith("--") for token in rest)
+        or has_long_opt(rest, "interactive")
+    )
+    if interactive_rebase:
+        for name in ("GIT_SEQUENCE_EDITOR", "GIT_EDITOR", "VISUAL", "EDITOR"):
+            if eff.get(name, ""):
+                return "Git may execute %s for interactive rebase" % name
+
+    global_args = git_slice[1:idx]
+    if "-p" in global_args or has_long_opt(global_args, "paginate"):
+        for name in ("GIT_PAGER", "PAGER"):
+            if eff.get(name, ""):
+                return "Git may execute %s under explicit pagination" % name
+    if eff.get("GIT_EXTERNAL_DIFF", "") and sub in {"diff", "log", "show", "format-patch"}:
+        return "Git may execute GIT_EXTERNAL_DIFF for this subcommand"
+
+    network_subs = {"clone", "fetch", "pull", "push", "ls-remote", "submodule"}
+    if sub in network_subs:
+        for name in (
+            "GIT_SSH", "GIT_SSH_COMMAND", "GIT_ASKPASS", "SSH_ASKPASS", "GIT_PROXY_COMMAND",
+        ):
+            if eff.get(name, ""):
+                return "Git may execute %s for this network subcommand" % name
+    return None
+
+
 def git_invocation_danger(git_slice, inherited, depth=0, seen=None, config_env=None):
     # Classify ONE git invocation (git_slice[0] is the git word), resolving an INVOKED alias
     # RECURSIVELY the way git itself expands nested aliases: the alias name is replaced by the
@@ -1260,6 +1523,12 @@ def git_invocation_danger(git_slice, inherited, depth=0, seen=None, config_env=N
     config_map, issue = effective_git_config_map(git_slice, config_env)
     if issue:
         return issue
+    for key, value in config_map.items():
+        if is_exec_valued_config(key, value):
+            return "effective runtime config supplies an executable value (%s)" % key
+    reason = executable_git_environment_danger(git_slice, config_env)
+    if reason:
+        return reason
     direct_idx = find_subcommand(git_slice)
     if direct_idx is not None and git_slice[direct_idx] == "clean":
         require_force = config_map.get("clean.requireforce")
@@ -1272,6 +1541,9 @@ def git_invocation_danger(git_slice, inherited, depth=0, seen=None, config_env=N
             return "effective runtime-config alias resolves to a blocked op"
     # A persistent `git config alias...` mutation is a separate subcommand surface.
     reason = alias_defs(git_slice, depth, amap, config_env)
+    if reason:
+        return reason
+    reason = persistent_exec_config_definition(git_slice)
     if reason:
         return reason
     # 2) An alias INVOKED here: expand it while retaining call-site args. Alias names are
@@ -1304,8 +1576,27 @@ def classify_segment(tokens, depth=0, base_env=None):
     if tokens is None:
         return "ambiguous or missing shell redirection target"
     ci = command_word_index(tokens)
-    if ci is None or not is_git_word(tokens[ci]):
+    if ci is None:
         return None
+    if STRICT and (
+        UNQUOTED_PARAM_MARKER in tokens[ci] or QUOTED_PARAM_MARKER in tokens[ci]
+    ):
+        return "parameter-dispatched command word is unsupported in strict mode"
+    if not is_git_word(tokens[ci]):
+        return None
+    if STRICT:
+        if any(UNQUOTED_PARAM_MARKER in token for token in tokens):
+            return "unquoted parameter expansion in a Git invocation is unsupported in strict mode"
+        cleaned = [
+            token.replace(UNQUOTED_PARAM_MARKER, "").replace(QUOTED_PARAM_MARKER, "")
+            for token in tokens
+        ]
+        clean_git_slice = cleaned[ci:]
+        sub_idx = find_subcommand(clean_git_slice)
+        raw_git_slice = tokens[ci:]
+        if sub_idx is not None and QUOTED_PARAM_MARKER in raw_git_slice[sub_idx]:
+            return "parameter-dispatched Git subcommand is unsupported in strict mode"
+        tokens = cleaned
     git_slice = tokens[ci:]
     eff, issue = effective_environment(tokens, ci, base_env)
     if issue:
@@ -1328,7 +1619,8 @@ def classify(command, depth=0, initial_env=None):
         "exported": set(initial),
         "allexport": False,
     }
-    segs, complex_flow = segments(command)
+    prepared = annotate_parameter_expansions(command) if STRICT else command
+    segs, complex_flow = segments(prepared)
     states = [initial_state]
     for seg in segs:
         # A destructive invocation feasible under ANY carried shell state is enough to block.
@@ -1357,10 +1649,14 @@ def classify(command, depth=0, initial_env=None):
 
 
 try:
-    reason = classify(os.environ.get("BLOCK_DANGEROUS_GIT_CMD", ""))
-except Exception as exc:                             # never crash the agent's command on a guard bug
-    sys.stderr.write("block-dangerous-git: classifier error (%s) (guard OPEN)\n" % exc.__class__.__name__)
-    sys.exit(0)
+    reason = classify(COMMAND)
+except Exception as exc:
+    mode = "BLOCK" if STRICT else "OPEN"
+    sys.stderr.write(
+        "block-dangerous-git: classifier error (%s) (%s guard %s)\n"
+        % (exc.__class__.__name__, "strict" if STRICT else "advisory", mode)
+    )
+    sys.exit(2 if STRICT else 0)
 
 if reason:
     sys.stderr.write(
@@ -1376,7 +1672,11 @@ if [ "$rc" -eq 2 ]; then
   exit 2
 fi
 if [ "$rc" -ne 0 ]; then
-  echo "block-dangerous-git: classifier unavailable rc=$rc (guard OPEN)" >&2
+  if [ "$strict" -eq 1 ]; then
+    echo "block-dangerous-git: classifier unavailable rc=$rc (strict guard BLOCK)" >&2
+    exit 2
+  fi
+  echo "block-dangerous-git: classifier unavailable rc=$rc (advisory guard OPEN)" >&2
   exit 0
 fi
 exit 0

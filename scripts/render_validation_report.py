@@ -6,14 +6,42 @@ from __future__ import annotations
 import argparse
 import html
 import json
+import unicodedata
 from pathlib import Path
 from typing import Any, Sequence
 
 from verify_validation_records import ValidationError, _load_object, validate_records
 
 
+def _display_text(value: object) -> str:
+    text = str(value)
+    return "".join(
+        character
+        for character in text
+        if character in "\t\n" or unicodedata.category(character) not in {"Cc", "Cf"}
+    )
+
+
 def e(value: object) -> str:
-    return html.escape(str(value), quote=True)
+    return html.escape(_display_text(value), quote=True)
+
+
+def _json_for_html(value: object) -> str:
+    """Keep JSON semantics while removing literal control/format bytes from HTML."""
+    serialized = json.dumps(value, ensure_ascii=False, separators=(",", ":"))
+    safe: list[str] = []
+    for character in serialized:
+        if unicodedata.category(character) not in {"Cc", "Cf"}:
+            safe.append(character)
+            continue
+        codepoint = ord(character)
+        if codepoint <= 0xFFFF:
+            safe.append(f"\\u{codepoint:04x}")
+            continue
+        codepoint -= 0x10000
+        safe.append(f"\\u{0xD800 + (codepoint >> 10):04x}")
+        safe.append(f"\\u{0xDC00 + (codepoint & 0x3FF):04x}")
+    return html.escape("".join(safe), quote=True)
 
 
 def render(payload: dict[str, Any]) -> str:
@@ -36,7 +64,7 @@ def render(payload: dict[str, Any]) -> str:
   <div class="confidence">confidence {e(record['confidence'])}/10</div>
 </article>'''
         )
-    embedded = html.escape(json.dumps(records, ensure_ascii=False, separators=(",", ":")))
+    embedded = _json_for_html(records)
     return f'''<!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Forge 50 validation record · release candidate {release}</title>

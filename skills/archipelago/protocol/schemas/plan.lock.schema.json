@@ -29,7 +29,7 @@
         "additionalProperties": false,
         "$comment": "Shape mirrors mission-control state.json phases[] so kickoff is a copy, not a translation.",
         "properties": {
-          "id": { "type": "string", "pattern": "^P[0-9]+$" },
+          "id": { "type": "string", "pattern": "^P[0-9]{1,6}$" },
           "title": { "type": "string" },
           "goal": { "type": "string" },
           "sessionsEstimate": { "type": "string" },
@@ -41,7 +41,7 @@
               "required": ["id", "title", "command"],
               "additionalProperties": false,
               "properties": {
-                "id": { "type": "string" },
+                "id": { "type": "string", "pattern": "^P[0-9]{1,6}-G[0-6]$" },
                 "title": { "type": "string" },
                 "command": { "type": "string", "$comment": "Shell-agnostic, runnable from repo root by a stranger. No '&&' (PowerShell 5.1 parse error)." }
               }

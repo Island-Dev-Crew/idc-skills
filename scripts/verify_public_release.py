@@ -4,6 +4,8 @@
 from __future__ import annotations
 
 import argparse
+import base64
+import binascii
 import datetime as dt
 import hashlib
 import json
@@ -12,12 +14,30 @@ import re
 import stat
 import subprocess
 import sys
+import tempfile
 from pathlib import Path
 from typing import Any, Mapping, Sequence
 from urllib.parse import urlparse
 
+SCRIPT_DIRECTORY = Path(__file__).resolve().parent
+if str(SCRIPT_DIRECTORY) not in sys.path:
+    sys.path.insert(0, str(SCRIPT_DIRECTORY))
 
-SCHEMA = "idc-public-release-evidence/v1"
+from trust_root import (
+    RELEASE_NAMESPACE,
+    TrustError,
+    load_trusted_root,
+    parse_envelope_bytes,
+    parse_release,
+    update_root_chain,
+    verify_role_threshold,
+)
+
+
+SCHEMA = "idc-public-release-evidence/v2"
+OBSERVER_AUTHORITY_SCHEMA = "idc-publication-observer-authority/v1"
+OBSERVATION_SCHEMA = "idc-publication-observation/v1"
+OBSERVER_NAMESPACE = "idc-publication-observation-v1"
 HEX40 = re.compile(r"[0-9a-f]{40}\Z")
 SHA256 = re.compile(r"sha256:[0-9a-f]{64}\Z")
 MAX_RECORD = 512 * 1024
@@ -75,6 +95,58 @@ def outside(path: Path, repo: Path, label: str) -> None:
     raise PublicationError(f"{label} must remain outside the candidate repository")
 
 
+def validate_tool(
+    path: Path,
+    expected_sha256: str,
+    repo: Path,
+    label: str,
+) -> Path:
+    if not path.is_absolute() or path.is_symlink():
+        raise PublicationError(f"{label} must be an absolute non-symlink executable")
+    resolved = path.resolve(strict=True)
+    outside(resolved, repo, label)
+    metadata = resolved.stat()
+    if (
+        not stat.S_ISREG(metadata.st_mode)
+        or not os.access(resolved, os.X_OK)
+    ):
+        raise PublicationError(f"{label} must be a regular executable")
+    if os.name != "nt" and metadata.st_nlink != 1 and metadata.st_uid != 0:
+        raise PublicationError(
+            f"{label} must be single-link unless it is a root-owned system executable"
+        )
+    if os.name != "nt" and (
+        metadata.st_uid not in {0, os.geteuid()} or metadata.st_mode & 0o022
+    ):
+        raise PublicationError(
+            f"{label} must be owner-controlled and not group/world writable"
+        )
+    data = snapshot(resolved, label, 128 * 1024 * 1024)
+    if not SHA256.fullmatch(expected_sha256) or digest(data) != expected_sha256:
+        raise PublicationError(f"{label} executable digest differs")
+    return resolved
+
+
+def controlled_external_bytes(
+    path: Path,
+    repo: Path,
+    label: str,
+    ceiling: int,
+) -> bytes:
+    outside(path, repo, label)
+    data = snapshot(path, label, ceiling)
+    metadata = path.stat()
+    if metadata.st_nlink != 1:
+        raise PublicationError(f"{label} must be a single-link regular file")
+    if os.name != "nt" and (
+        metadata.st_uid not in {0, os.geteuid()} or metadata.st_mode & 0o022
+    ):
+        raise PublicationError(
+            f"{label} must be owner-controlled and not group/world writable"
+        )
+    return data
+
+
 def receipt(value: Any, repo: Path, label: str) -> bytes:
     record = exact(value, {"path", "sha256", "size"}, label)
     path = Path(record["path"])
@@ -100,7 +172,202 @@ def structured_receipt(
     return payload
 
 
-def timestamp(value: Any, label: str) -> None:
+def observation_payload(record: Mapping[str, Any]) -> dict[str, Any]:
+    """Return the exact public-observation facts an external witness signs."""
+    threshold = record["threshold"]
+    github = record["github"]
+    site = record["site"]
+    second = record["secondChannel"]
+    return {
+        "candidate": record["candidate"],
+        "channels": {
+            "github": {
+                "releaseURL": github["releaseURL"],
+                "repository": github["repository"],
+            },
+            "second": {
+                "kind": second["kind"],
+                "locator": second["locator"],
+            },
+            "site": {
+                "landingURL": site["landingURL"],
+                "rootDigestURL": site["rootDigestURL"],
+            },
+        },
+        "receipts": {
+            "githubRelease": github["releaseReceipt"]["sha256"],
+            "githubTag": github["tagVerificationReceipt"]["sha256"],
+            "secondChannel": second["receipt"]["sha256"],
+            "siteAdministration": site["administrationReceipt"]["sha256"],
+            "siteLanding": site["landingReceipt"]["sha256"],
+            "siteRootDigest": site["rootDigestReceipt"]["sha256"],
+            "thresholdVerification": threshold["verificationReceipt"]["sha256"],
+        },
+        "releaseStatementSHA256": threshold["releaseStatement"]["sha256"],
+        "root": record["root"],
+        "schema": OBSERVATION_SCHEMA,
+    }
+
+
+def _ssh_key_blob_id(public: str, label: str) -> str:
+    parts = public.split()
+    if len(parts) != 2 or parts[0] != "ssh-ed25519":
+        raise PublicationError(f"{label} must be one comment-free ssh-ed25519 key")
+    try:
+        blob = base64.b64decode(parts[1], validate=True)
+    except (binascii.Error, ValueError) as exc:
+        raise PublicationError(f"{label} key body is not canonical base64") from exc
+    if not blob or base64.b64encode(blob).decode("ascii") != parts[1]:
+        raise PublicationError(f"{label} key body is not canonical base64")
+    return hashlib.sha256(blob).hexdigest()
+
+
+def _ssh_fingerprint_blob_id(fingerprint: str, label: str) -> str:
+    if not isinstance(fingerprint, str) or not fingerprint.startswith("SHA256:"):
+        raise PublicationError(f"{label} must be a canonical SHA256 fingerprint")
+    encoded = fingerprint.removeprefix("SHA256:")
+    try:
+        fingerprint_bytes = base64.b64decode(encoded + "=", validate=True)
+    except (binascii.Error, ValueError) as exc:
+        raise PublicationError(
+            f"{label} must be a canonical SHA256 fingerprint"
+        ) from exc
+    canonical = base64.b64encode(fingerprint_bytes).decode("ascii").rstrip("=")
+    if len(fingerprint_bytes) != hashlib.sha256().digest_size or canonical != encoded:
+        raise PublicationError(f"{label} must be a canonical SHA256 fingerprint")
+    return fingerprint_bytes.hex()
+
+
+def load_observer_authority(
+    path: Path,
+    expected_sha256: str,
+    repo: Path,
+) -> Mapping[str, Any]:
+    data = controlled_external_bytes(path, repo, "publication observer authority", MAX_RECORD)
+    if not SHA256.fullmatch(expected_sha256) or digest(data) != expected_sha256:
+        raise PublicationError("publication observer authority digest differs from the external pin")
+    value = json.loads(data, object_pairs_hook=reject_duplicates)
+    exact(
+        value,
+        {"allowedSigners", "family", "independent", "principal", "schema"},
+        "publication observer authority",
+    )
+    if value["schema"] != OBSERVER_AUTHORITY_SCHEMA or value["independent"] is not True:
+        raise PublicationError("publication observer authority schema or independence differs")
+    principal = value["principal"]
+    family = value["family"]
+    if (
+        not isinstance(principal, str)
+        or not principal.strip()
+        or not isinstance(family, str)
+        or not family.strip()
+        or family.strip().casefold()
+        in {"idc", "island dev crew", "island-dev-crew", "openai"}
+    ):
+        raise PublicationError("publication observer must be an independent named authority")
+    allowed = exact(
+        value["allowedSigners"],
+        {"path", "sha256", "size"},
+        "publication observer allowed_signers",
+    )
+    allowed_path = Path(allowed["path"])
+    allowed_data = controlled_external_bytes(
+        allowed_path,
+        repo,
+        "publication observer allowed_signers",
+        64 * 1024,
+    )
+    if allowed["sha256"] != digest(allowed_data) or allowed["size"] != len(allowed_data):
+        raise PublicationError("publication observer allowed_signers bytes differ")
+    try:
+        lines = [line for line in allowed_data.decode("ascii").splitlines() if line.strip()]
+    except UnicodeDecodeError as exc:
+        raise PublicationError("publication observer allowed_signers must be ASCII") from exc
+    if len(lines) != 1:
+        raise PublicationError("publication observer allowed_signers must contain exactly one key")
+    parts = lines[0].split()
+    if len(parts) != 3 or parts[0] != principal or parts[1] != "ssh-ed25519":
+        raise PublicationError(
+            "publication observer allowed_signers must be '<principal> ssh-ed25519 <key>'"
+        )
+    key_id = _ssh_key_blob_id(" ".join(parts[1:]), "publication observer")
+    return {
+        "allowedSigners": allowed_data,
+        "family": family.strip().casefold(),
+        "keyId": key_id,
+        "principal": principal,
+    }
+
+
+def verify_observer_attestation(
+    record: Mapping[str, Any],
+    repo: Path,
+    authority: Mapping[str, Any],
+    ssh_keygen: Path,
+) -> None:
+    attestation = exact(
+        record["observerAttestation"],
+        {"path", "sha256", "signature", "size"},
+        "publication observer attestation",
+    )
+    data = receipt(
+        {key: attestation[key] for key in ("path", "sha256", "size")},
+        repo,
+        "publication observer attestation",
+    )
+    payload = json.loads(data, object_pairs_hook=reject_duplicates)
+    expected = observation_payload(record)
+    if payload != expected or data != (json.dumps(
+        expected,
+        ensure_ascii=False,
+        allow_nan=False,
+        sort_keys=True,
+        separators=(",", ":"),
+    ) + "\n").encode("utf-8"):
+        raise PublicationError("publication observer attestation facts differ")
+    signature_record = exact(
+        attestation["signature"],
+        {"path", "sha256", "size"},
+        "publication observer signature",
+    )
+    signature_data = receipt(
+        signature_record, repo, "publication observer signature"
+    )
+    with tempfile.TemporaryDirectory(prefix="idc-publication-observer-") as temporary:
+        temporary_root = Path(temporary)
+        allowed_path = temporary_root / "allowed_signers"
+        signature_path = temporary_root / "observation.sig"
+        allowed_path.write_bytes(authority["allowedSigners"])
+        signature_path.write_bytes(signature_data)
+        try:
+            process = subprocess.run(
+                [
+                    str(ssh_keygen),
+                    "-Y",
+                    "verify",
+                    "-f",
+                    str(allowed_path),
+                    "-I",
+                    authority["principal"],
+                    "-n",
+                    OBSERVER_NAMESPACE,
+                    "-s",
+                    str(signature_path),
+                ],
+                input=data,
+                stdout=subprocess.DEVNULL,
+                stderr=subprocess.DEVNULL,
+                check=False,
+                timeout=10,
+                env={"PATH": str(ssh_keygen.parent), "LC_ALL": "C"},
+            )
+        except (OSError, subprocess.TimeoutExpired) as exc:
+            raise PublicationError(f"publication observer signature could not be verified: {exc}") from exc
+    if process.returncode != 0:
+        raise PublicationError("publication observer signature is invalid")
+
+
+def timestamp(value: Any, label: str) -> dt.datetime:
     if not isinstance(value, str):
         raise PublicationError(f"{label} must be a timestamp")
     try:
@@ -109,18 +376,30 @@ def timestamp(value: Any, label: str) -> None:
         raise PublicationError(f"{label} must be a timestamp") from exc
     if parsed.tzinfo is None:
         raise PublicationError(f"{label} must include a timezone")
+    return parsed.astimezone(dt.timezone.utc)
+
+
+def recent_timestamp(value: Any, label: str, now: dt.datetime) -> dt.datetime:
+    parsed = timestamp(value, label)
+    if parsed > now + dt.timedelta(minutes=5) or parsed < now - dt.timedelta(hours=24):
+        raise PublicationError(f"{label} is outside the 24-hour release evidence window")
+    return parsed
 
 
 def https(value: Any, label: str, expected_host: str | None = None) -> str:
     if not isinstance(value, str):
         raise PublicationError(f"{label} must be HTTPS")
     parsed = urlparse(value)
+    try:
+        port = parsed.port
+    except ValueError as exc:
+        raise PublicationError(f"{label} must be credential-free HTTPS") from exc
     if (
         parsed.scheme != "https"
         or not parsed.hostname
         or parsed.username
         or parsed.password
-        or parsed.port not in (None, 443)
+        or port not in (None, 443)
         or parsed.params
         or parsed.fragment
     ):
@@ -131,19 +410,23 @@ def https(value: Any, label: str, expected_host: str | None = None) -> str:
 
 
 def git_run(git: Path, repo: Path, *arguments: str) -> str:
-    process = subprocess.run(
-        [str(git), "-C", str(repo), "-c", "core.autocrlf=false", "-c", "core.hooksPath=/dev/null", *arguments],
-        text=True,
-        capture_output=True,
-        check=False,
-        env={
-            "GIT_CONFIG_NOSYSTEM": "1",
-            "GIT_CONFIG_GLOBAL": os.devnull,
-            "GIT_NO_REPLACE_OBJECTS": "1",
-            "LC_ALL": "C",
-            "PATH": str(git.parent),
-        },
-    )
+    try:
+        process = subprocess.run(
+            [str(git), "-C", str(repo), "-c", "core.autocrlf=false", "-c", "core.hooksPath=/dev/null", *arguments],
+            text=True,
+            capture_output=True,
+            check=False,
+            env={
+                "GIT_CONFIG_NOSYSTEM": "1",
+                "GIT_CONFIG_GLOBAL": os.devnull,
+                "GIT_NO_REPLACE_OBJECTS": "1",
+                "LC_ALL": "C",
+                "PATH": str(git.parent),
+            },
+            timeout=10,
+        )
+    except (OSError, subprocess.TimeoutExpired) as exc:
+        raise PublicationError(f"Git command could not run: {exc}") from exc
     if process.returncode != 0:
         raise PublicationError(f"Git command failed: {' '.join(arguments)}")
     return process.stdout.strip()
@@ -152,7 +435,21 @@ def git_run(git: Path, repo: Path, *arguments: str) -> str:
 def release_payload(data: bytes) -> Mapping[str, Any]:
     envelope = json.loads(data, object_pairs_hook=reject_duplicates)
     exact(envelope, {"signatures", "signed"}, "release statement envelope")
-    signed = exact(envelope["signed"], {"_type", "artifacts", "expires", "git", "release", "releaseSequence", "rootVersion", "schema"}, "release statement")
+    signed = exact(
+        envelope["signed"],
+        {
+            "_type",
+            "artifacts",
+            "contentSigning",
+            "expires",
+            "git",
+            "release",
+            "releaseSequence",
+            "rootVersion",
+            "schema",
+        },
+        "release statement",
+    )
     if signed["schema"] != "idc-skills-release-statement/v1" or signed["_type"] != "release":
         raise PublicationError("release statement schema differs")
     return signed
@@ -165,15 +462,42 @@ def verify(
     git_sha256: str,
     canonical_repository: str,
     site_host: str,
+    *,
+    trusted_root: Path,
+    trusted_root_sha256: str,
+    ssh_keygen: Path,
+    ssh_keygen_sha256: str,
+    observer_authority: Path,
+    observer_authority_sha256: str,
+    now: dt.datetime | None = None,
 ) -> dict[str, Any]:
+    current_time = (now or dt.datetime.now(dt.timezone.utc)).astimezone(dt.timezone.utc)
     repo = repo.resolve(strict=True)
     outside(record_path, repo, "publication record")
-    if not git.is_absolute() or not os.access(git, os.X_OK):
-        raise PublicationError("Git must be an absolute executable")
-    if not SHA256.fullmatch(git_sha256) or digest(snapshot(git, "Git executable", 128 * 1024 * 1024)) != git_sha256:
-        raise PublicationError("Git executable digest differs")
+    git = validate_tool(git, git_sha256, repo, "Git")
+    ssh_keygen = validate_tool(
+        ssh_keygen, ssh_keygen_sha256, repo, "ssh-keygen"
+    )
+    observer = load_observer_authority(
+        observer_authority,
+        observer_authority_sha256,
+        repo,
+    )
     record = json.loads(snapshot(record_path, "publication record", MAX_RECORD), object_pairs_hook=reject_duplicates)
-    exact(record, {"candidate", "github", "root", "schema", "secondChannel", "site", "threshold"}, "publication record")
+    exact(
+        record,
+        {
+            "candidate",
+            "github",
+            "observerAttestation",
+            "root",
+            "schema",
+            "secondChannel",
+            "site",
+            "threshold",
+        },
+        "publication record",
+    )
     if record["schema"] != SCHEMA:
         raise PublicationError("publication record schema differs")
     candidate = exact(record["candidate"], {"commit", "tag", "tree"}, "candidate")
@@ -192,6 +516,8 @@ def verify(
         raise PublicationError("candidate checkout does not match the release tag")
     if git_run(git, repo, "status", "--porcelain=v1", "--untracked-files=all"):
         raise PublicationError("candidate repository is dirty")
+    if git_run(git, repo, "ls-files", "--others", "--ignored", "--exclude-standard"):
+        raise PublicationError("candidate repository contains an ignored payload")
 
     root = exact(record["root"], {"sha256", "version"}, "root")
     if type(root["version"]) is not int or root["version"] < 1 or not SHA256.fullmatch(root["sha256"]):
@@ -201,6 +527,57 @@ def verify(
     signed = release_payload(statement_data)
     if signed["release"] != candidate["tag"] or signed["rootVersion"] != root["version"] or signed["git"] != candidate:
         raise PublicationError("threshold release statement candidate differs")
+    try:
+        root_envelope, root_value = load_trusted_root(
+            trusted_root,
+            repo_root=repo,
+            ssh_keygen=ssh_keygen,
+            pinned_digest=trusted_root_sha256,
+        )
+        root_envelope, root_value = update_root_chain(
+            root_envelope,
+            root_value,
+            [],
+            ssh_keygen=ssh_keygen,
+            now=current_time,
+        )
+        if root_envelope.digest != root["sha256"] or root_value["version"] != root["version"]:
+            raise PublicationError("trusted root differs from the publication record")
+        separation_key_ids = {
+            _ssh_key_blob_id(key["keyval"]["public"], "trusted root key")
+            for key in root_value["keys"].values()
+        }
+        statement_envelope = parse_envelope_bytes(statement_data, "release statement")
+        parsed_release = parse_release(statement_envelope)
+        verify_role_threshold(
+            statement_envelope,
+            root_value,
+            "release",
+            RELEASE_NAMESPACE,
+            ssh_keygen,
+            "release signature threshold",
+        )
+        separation_key_ids.add(
+            _ssh_fingerprint_blob_id(
+                parsed_release["contentSigning"]["fingerprint"],
+                "release content-signing fingerprint",
+            )
+        )
+        if observer["keyId"] in separation_key_ids:
+            raise PublicationError(
+                "publication observer signing key must be disjoint from root, release, "
+                "and content-signing keys"
+            )
+    except TrustError as exc:
+        raise PublicationError(str(exc)) from exc
+    if parsed_release != signed:
+        raise PublicationError("release statement parser disagreement")
+    verify_observer_attestation(record, repo, observer, ssh_keygen)
+    release_expiry = dt.datetime.strptime(
+        parsed_release["expires"], "%Y-%m-%dT%H:%M:%SZ"
+    ).replace(tzinfo=dt.timezone.utc)
+    if release_expiry <= current_time:
+        raise PublicationError("release statement is expired")
     threshold_receipt = structured_receipt(
         threshold["verificationReceipt"],
         repo,
@@ -208,7 +585,11 @@ def verify(
         "idc-threshold-verification-receipt/v1",
         {"candidate", "externalTrustVerified", "root", "statementSHA256", "verifiedAt"},
     )
-    timestamp(threshold_receipt["verifiedAt"], "threshold verification receipt verifiedAt")
+    recent_timestamp(
+        threshold_receipt["verifiedAt"],
+        "threshold verification receipt verifiedAt",
+        current_time,
+    )
     if (
         threshold_receipt["candidate"] != candidate
         or threshold_receipt["root"] != root
@@ -252,7 +633,9 @@ def verify(
         "idc-github-release-receipt/v1",
         {"assets", "candidate", "observedAt", "releaseURL", "repository"},
     )
-    timestamp(release_receipt["observedAt"], "GitHub release receipt observedAt")
+    recent_timestamp(
+        release_receipt["observedAt"], "GitHub release receipt observedAt", current_time
+    )
     if (
         release_receipt["repository"] != canonical_repository
         or release_receipt["releaseURL"] != github["releaseURL"]
@@ -267,7 +650,9 @@ def verify(
         "idc-tag-verification-receipt/v1",
         {"candidate", "observedAt", "tagObject", "verified"},
     )
-    timestamp(tag_receipt["observedAt"], "tag verification receipt observedAt")
+    recent_timestamp(
+        tag_receipt["observedAt"], "tag verification receipt observedAt", current_time
+    )
     if tag_receipt["candidate"] != candidate or tag_receipt["tagObject"] != local_tag or tag_receipt["verified"] is not True:
         raise PublicationError("tag verification receipt facts differ")
 
@@ -283,7 +668,9 @@ def verify(
         "idc-site-administration-receipt/v1",
         {"attestedAt", "githubAdministration", "independent", "siteAdministration"},
     )
-    timestamp(administration["attestedAt"], "site administration receipt attestedAt")
+    recent_timestamp(
+        administration["attestedAt"], "site administration receipt attestedAt", current_time
+    )
     if (
         administration["independent"] is not True
         or not isinstance(administration["githubAdministration"], str)
@@ -293,14 +680,23 @@ def verify(
         or administration["githubAdministration"].strip().casefold() == administration["siteAdministration"].strip().casefold()
     ):
         raise PublicationError("site administration separation differs")
-    landing_data = receipt(site["landingReceipt"], repo, "site landing receipt")
-    try:
-        landing_text = landing_data.decode("utf-8")
-    except UnicodeDecodeError as exc:
-        raise PublicationError("site landing receipt is not UTF-8") from exc
-    required_landing_facts = (candidate["tag"], candidate["commit"], candidate["tree"], root["sha256"], github["releaseURL"])
-    if any(fact not in landing_text for fact in required_landing_facts):
-        raise PublicationError("site landing receipt omits an exact release fact")
+    landing = structured_receipt(
+        site["landingReceipt"],
+        repo,
+        "site landing receipt",
+        "idc-site-landing-receipt/v2",
+        {"candidate", "landingURL", "observedAt", "releaseURL", "root"},
+    )
+    recent_timestamp(
+        landing["observedAt"], "site landing receipt observedAt", current_time
+    )
+    if (
+        landing["candidate"] != candidate
+        or landing["root"] != root
+        or landing["releaseURL"] != github["releaseURL"]
+        or landing["landingURL"] != site["landingURL"]
+    ):
+        raise PublicationError("site landing receipt release facts differ")
     root_data = receipt(site["rootDigestReceipt"], repo, "site root digest receipt")
     if root_data.decode("ascii", errors="strict").strip() != root["sha256"]:
         raise PublicationError("site root digest receipt differs")
@@ -317,7 +713,9 @@ def verify(
         "idc-second-channel-receipt/v1",
         {"kind", "locator", "observedAt", "rootSHA256", "verified"},
     )
-    timestamp(second_receipt["observedAt"], "second trust channel receipt observedAt")
+    recent_timestamp(
+        second_receipt["observedAt"], "second trust channel receipt observedAt", current_time
+    )
     if (
         second_receipt["kind"] != second["kind"]
         or second_receipt["locator"] != second["locator"]
@@ -333,7 +731,8 @@ def verify(
         "root": root,
         "assets": len(observed_assets),
         "channels": ["github", "company-site", second["kind"]],
-        "authority": "captured-external-publication-evidence",
+        "authority": "externally-pinned-signed-publication-observation",
+        "observerFamily": observer["family"],
     }
 
 
@@ -345,10 +744,29 @@ def main(argv: Sequence[str] | None = None) -> int:
     parser.add_argument("--git-sha256", required=True)
     parser.add_argument("--canonical-repository", required=True)
     parser.add_argument("--site-host", required=True)
+    parser.add_argument("--trusted-root", required=True, type=Path)
+    parser.add_argument("--trusted-root-sha256", required=True)
+    parser.add_argument("--ssh-keygen", required=True, type=Path)
+    parser.add_argument("--ssh-keygen-sha256", required=True)
+    parser.add_argument("--observer-authority", required=True, type=Path)
+    parser.add_argument("--observer-authority-sha256", required=True)
     parser.add_argument("--json", action="store_true")
     args = parser.parse_args(argv)
     try:
-        report = verify(args.record, args.repo_root, args.git, args.git_sha256, args.canonical_repository, args.site_host)
+        report = verify(
+            args.record,
+            args.repo_root,
+            args.git,
+            args.git_sha256,
+            args.canonical_repository,
+            args.site_host,
+            trusted_root=args.trusted_root,
+            trusted_root_sha256=args.trusted_root_sha256,
+            ssh_keygen=args.ssh_keygen,
+            ssh_keygen_sha256=args.ssh_keygen_sha256,
+            observer_authority=args.observer_authority,
+            observer_authority_sha256=args.observer_authority_sha256,
+        )
     except (OSError, UnicodeError, json.JSONDecodeError, PublicationError) as exc:
         if args.json:
             print(json.dumps({"pass": False, "error": str(exc)}, sort_keys=True))

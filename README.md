@@ -4,7 +4,7 @@
 
 > *"In the multitude of counsellors there is safety."* — Proverbs 11:14
 
-This is the **staging forge** (`Navigata1/idc-skills-forge`). The registry remains at the shipped `2.0.3` identity while the `2.0.4` candidate is under evidence-gated construction; no candidate language is a public-ready, tagged, or promoted claim. Skills are validated here by live fleet use, then the golden fusion is promoted to `Island-Dev-Crew` as official, each carrying its validation record. A skill is proven by lanes running it, not by its author's confidence.
+This is the canonical Forge source (`Island-Dev-Crew/idc-skills`). Version 2.0.4 is the stable **limited-trust, public content-authenticated** profile: one owner-held Forge key signs the exact release manifest, and first-contact consumers compare its full fingerprint and immutable release identity through two publications outside GitHub before verification. It does not claim the still-open production 2-of-3, completed Kimi, Windows/NTFS, freshness-authorized fleet, disjoint publication-observer, `PUBLIC RELEASE VERIFIED`, or full `readyToRun=true` gates. Read the exact [2.0.4 claim boundary](docs/2.0.4-release-scope.md). A skill is proven by evidence for its stated scope, not by its author's confidence.
 
 **Cross-harness by contract, not assumption:** the canonical source is preserved once, while each harness gets a documented loader path, metadata profile, and evidence tier. The current matrix covers fifteen surfaces, including Codex, Claude Code, claude.ai, Cursor, VS Code, Amp, Kimi, Antigravity, OpenClaw, Grok, Buzz, Pi, and Hermes. A shared folder proves byte distribution; it does not by itself prove invocation semantics. See the [human-readable matrix](docs/harness-support.md) and its [machine-readable contract](docs/harness-support.json).
 
@@ -81,7 +81,7 @@ The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust
 
 ## Install
 
-The dependency-free Python installer works from PowerShell, Command Prompt, and POSIX shells. The 2.0.4 candidate requires Python 3.10 or newer; CI exercises Python 3.12 on real macOS, Windows, and Linux runners, while POSIX entrypoints retain a Bash 3.2 floor. The protocol routes installation through an independently installed freshness launcher; the repository's own verifier can prove signed content, but it cannot prove that its whole tree was not rolled back. Targets remain explicit so the external write set is visible before execution:
+The dependency-free Python installer works from PowerShell, Command Prompt, and POSIX shells. Version 2.0.4 requires Python 3.10 or newer; CI exercises Python 3.12 on macOS, Windows, and Linux runners, while POSIX entrypoints retain a Bash 3.2 floor. CI runner coverage is not independent Windows/NTFS acceptance, which remains deferred. The full-authority protocol routes installation through an independently installed freshness launcher; the repository's own verifier can prove signed content, but it cannot prove that its whole tree was not rolled back. Targets remain explicit so the external write set is visible before execution:
 
 ```text
 python scripts/validate_skills.py
@@ -92,7 +92,13 @@ python scripts/validate_skills.py
 
 The launcher source is tracked at [`bootstrap/idc_verify_fresh.py`](bootstrap/idc_verify_fresh.py), but that in-tree copy is deliberately non-authoritative and refuses to run from a checkout. The reviewed bytes must be installed outside the repository with an external canonical configuration, signed live release index, exact first-run index digest, protected checkpoint, and an external clean-environment process wrapper; candidate-controlled `scripts/install.sh` cannot bootstrap trust. Only this launcher emits `readyToRun=true`; `scripts/skill_integrity.py` emits the narrower `contentReady`. See the [full deployment, schema, threat boundary, and release ceremony](integrity/README.md).
 
-The native fleet aliases are `agents=~/.agents/skills`, `claude=~/.claude/skills` when that directory exists, `pi=~/.pi/agent/skills` when it exists, and the legacy Hermes topology `hermes=~/.hermes/skills`. Use `--custom-target name=path` only after the [support contract](docs/harness-support.md) establishes that the receiving harness loads that path. Native installs preserve canonical bytes and, on POSIX filesystems, executable modes; Windows authenticates the same signed mode intent but does not pretend NTFS stores POSIX mode bits. The separate [Windows metadata policy](integrity/windows-metadata-policy.json) requires a real NTFS/ACL evidence record before release acceptance. Every install preflights selected destinations, replaces one skill directory atomically, and verifies exact signed manifests after freshness passes. Both Claude.ai export modes stage selected skills against the authenticated per-file map and build ZIPs only from that verified snapshot. A whole multi-target run is not rollback-atomic after an unexpected I/O failure.
+The scoped 2.0.4 release makes `contentReady` independently checkable after the
+Forge fingerprint is compared out of band. It does not make the production
+freshness launcher return `readyToRun=true`. An owner who installs verified
+2.0.4 content under an explicit local policy is accepting that narrower trust
+boundary; the release must not relabel that choice as freshness authority.
+
+The native fleet aliases are `agents=~/.agents/skills`, `claude=~/.claude/skills` when that directory exists, `pi=~/.pi/agent/skills` when it exists, and the legacy Hermes topology `hermes=~/.hermes/skills`. Use `--custom-target name=path` only after the [support contract](docs/harness-support.md) establishes that the receiving harness loads that path. Native installs preserve canonical bytes and, on POSIX filesystems, executable modes; Windows authenticates the same signed mode intent but does not pretend NTFS stores POSIX mode bits. The separate [Windows metadata policy](integrity/windows-metadata-policy.json) requires real NTFS/ACL evidence before any Windows/NTFS or full-assurance claim; 2.0.4 makes neither. Every install preflights selected destinations, replaces one skill directory atomically, and verifies exact signed manifests after freshness passes. Both Claude.ai export modes stage selected skills against the authenticated per-file map and build ZIPs only from that verified snapshot. A whole multi-target run is not rollback-atomic after an unexpected I/O failure.
 
 claude.ai is a compatibility export, not a native install. The current profile fails closed because 48 canonical descriptions exceed the documented 200-character upload limit and thirteen user-only skills have no documented explicit-only equivalent. The historical supplied snapshot can still be reproduced without changing the canonical tree, but nesting extension keys under `metadata` preserves values only—not invocation behavior:
 
@@ -106,11 +112,13 @@ The five-check content gate binds every byte of all 50 skill trees, the registry
 
 GitHub is the canonical source-code and immutable-release channel. The company
 site is the human-facing discovery and trust witness: it should publish the
-exact release tag, commit, tree, root-metadata digest, threshold fingerprint,
-archive and manifest digests, verification recipe, report, and security contact,
-then point to the canonical GitHub release. A second independently administered
-DNSSEC or transparency channel must publish the same initial-root digest. The
-website must not become a mutable second copy of the skill tree.
+exact `2.0.4` tag, commit, tree, full Forge content-signing fingerprint,
+manifest digest, verification recipe, report, and security contact, then point
+to the canonical GitHub release. A second independently administered DNSSEC or
+transparency channel must publish those same scoped trust values. The website
+must not become a mutable second copy of the skill tree. Root-metadata,
+threshold-release, and observer values belong only to the deferred full-profile
+ceremony and must not be implied by the 2.0.4 witnesses.
 
 The [2.0.4 flagship release-control report](IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html)
 shows the trust topology, exact G0–G6 status, remaining external gates, and the

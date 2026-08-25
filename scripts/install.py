@@ -734,7 +734,19 @@ def _remove_path(path: Path) -> None:
     if path.is_symlink() or path.is_file():
         path.unlink()
     elif path.exists():
-        shutil.rmtree(path)
+        def retry_writable(function: object, failed_path: str, _exc_info: object) -> None:
+            failed = Path(failed_path)
+            for candidate in (failed.parent, failed):
+                if candidate.is_symlink() or not candidate.exists():
+                    continue
+                current_mode = stat.S_IMODE(candidate.stat().st_mode)
+                writable_mode = current_mode | stat.S_IWUSR
+                if candidate.is_dir():
+                    writable_mode |= stat.S_IXUSR
+                candidate.chmod(writable_mode)
+            function(failed_path)  # type: ignore[operator]
+
+        shutil.rmtree(path, onerror=retry_writable)
 
 
 def _transactional_copy(
@@ -755,6 +767,7 @@ def _transactional_copy(
     backup = target_root / f".{destination.name}.backup-{uuid.uuid4().hex}"
     moved_old = False
     moved_new = False
+    committed = False
     try:
         shutil.copytree(source, staged, symlinks=True, copy_function=shutil.copy2)
         staged_manifest = tree_manifest(staged)
@@ -785,6 +798,7 @@ def _transactional_copy(
                         f"installed copy differs from signed manifest for {source.name}: "
                         + "; ".join(signed_failures)
                     )
+            committed = True
         except BaseException:
             if moved_new and destination.exists():
                 _remove_path(destination)
@@ -793,16 +807,41 @@ def _transactional_copy(
                 os.replace(backup, destination)
                 moved_old = False
             raise
-        if moved_old:
-            _remove_path(backup)
-            moved_old = False
     finally:
         if moved_old and backup.exists() and not destination.exists():
             os.replace(backup, destination)
+        cleanup_error: OSError | None = None
         if backup.exists():
-            _remove_path(backup)
+            try:
+                _remove_path(backup)
+            except OSError as exc:
+                cleanup_error = exc
+                if committed:
+                    try:
+                        os.replace(backup, staging_root / "backup")
+                    except OSError:
+                        pass
         if staging_root.exists():
-            shutil.rmtree(staging_root)
+            try:
+                _remove_path(staging_root)
+            except OSError as exc:
+                if committed:
+                    try:
+                        staging_root.rmdir()
+                    except OSError:
+                        pass
+                elif cleanup_error is None:
+                    cleanup_error = exc
+        if committed:
+            leftovers = [path for path in (backup, staging_root) if path.exists()]
+            if leftovers:
+                print(
+                    "install warning: verified swap committed but cleanup left "
+                    + ", ".join(str(path) for path in leftovers),
+                    file=sys.stderr,
+                )
+        if cleanup_error is not None and not committed:
+            raise cleanup_error
 
 
 def _sync_skill(
@@ -1184,6 +1223,7 @@ def _replace_export(staged: Path, output: Path, expected: TreeManifest) -> None:
     backup = output.parent / f".{output.name}.backup-{uuid.uuid4().hex}"
     moved_old = False
     moved_new = False
+    committed = False
     try:
         if output.is_symlink():
             raise InstallError(f"refusing to replace symlinked export output: {output}")
@@ -1195,6 +1235,7 @@ def _replace_export(staged: Path, output: Path, expected: TreeManifest) -> None:
             moved_new = True
             if tree_manifest(output).sha256 != expected.sha256:
                 raise InstallError("written export failed byte verification")
+            committed = True
         except BaseException:
             if moved_new and output.exists():
                 _remove_path(output)
@@ -1203,14 +1244,19 @@ def _replace_export(staged: Path, output: Path, expected: TreeManifest) -> None:
                 os.replace(backup, output)
                 moved_old = False
             raise
-        if moved_old:
-            _remove_path(backup)
-            moved_old = False
     finally:
         if moved_old and backup.exists() and not output.exists():
             os.replace(backup, output)
         if backup.exists():
-            _remove_path(backup)
+            try:
+                _remove_path(backup)
+            except OSError:
+                if not committed:
+                    raise
+                try:
+                    os.replace(backup, staged.parent / "backup")
+                except OSError:
+                    pass
 
 
 def _run_profile_export(
@@ -1295,7 +1341,16 @@ def _run_profile_export(
                 _replace_export(payload, output, expected)
             finally:
                 if sibling_stage.exists():
-                    shutil.rmtree(sibling_stage)
+                    try:
+                        _remove_path(sibling_stage)
+                    except OSError:
+                        if output.exists() and tree_manifest(output).sha256 == expected.sha256:
+                            try:
+                                sibling_stage.rmdir()
+                            except OSError:
+                                pass
+                        else:
+                            raise
             final_differences = differences if actual else ()
             skill_result = SkillResult(
                 "<export>",

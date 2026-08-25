@@ -54,7 +54,7 @@ python3 <archipelago-skill-dir>/protocol/scripts/run_runtime_probes.py
 python3 <archipelago-skill-dir>/protocol/scripts/dogfood_lanes.py
 ```
 
-Kickoff *consumes* the locks. It validates both contracts, captures their stable repository bytes, and records their SHA-256 digests. Every later loop action rejects lock drift or any gate id, title, or command that differs from the approved `plan.lock`. It also refuses a plan that doesn't govern this idea, a blocked verdict, a symlink/out-of-repository lock, or overwriting an existing mission, because **the repo is the memory**: a cold agent session with zero context can resume from the tree alone.
+Kickoff *consumes* the locks. It validates both contracts, captures their stable repository bytes, and records their SHA-256 digests. Gate ids use the path-safe form `P<1-6 ASCII digits>-G<0-6>`. Every later loop action rejects lock drift, an unsafe gate id, or any gate id, title, or command that differs from the approved `plan.lock`. It also refuses a plan that doesn't govern this idea, a blocked verdict, a symlink/out-of-repository lock, or overwriting an existing mission, because **the repo is the memory**: a cold agent session with zero context can resume from the tree alone.
 
 ## Honest boundaries
 
@@ -62,8 +62,9 @@ Kickoff *consumes* the locks. It validates both contracts, captures their stable
 - `loop.py status` and `loop.py verify-ledger` both exit nonzero on a broken ledger. Use `verify-ledger` in CI because its output surface is narrow and purpose-built.
 - Runtime evidence proves the app worked *in that run, on that machine*, and no more.
 - Bare `validate_contracts.py` validates only the bundled examples. Mission gates must pass the explicit idea/plan paths and confirm both filenames appear. The dependency-free local validator covers the schema keywords used by the vendored contracts; it does not claim general JSON Schema 2020-12 conformance.
-- Gate evidence uses a unique nanosecond filename, so reruns retain prior raw output instead of overwriting it. The ledger is still local and tamper-evident rather than a hosted notary.
+- Gate evidence uses a unique nanosecond filename, so reruns retain prior raw output instead of overwriting it. Before command launch, the loop exclusively creates and fsyncs that file and appends a fsynced `gate-start` ledger entry. It concurrently drains stdout/stderr into a 1 MiB evidence-output cap, recording any truncation, and enforces a 300-second ceiling with process-group termination; `IDC_ARCHIPELAGO_GATE_TIMEOUT_SECONDS` may lower but never raise that ceiling. A timeout is a failed gate. The ledger is still local and tamper-evident rather than a hosted notary.
 - Gate commands are intentionally executable authority. `plan.lock.hitl` must represent the human approval for those exact hash-bound command strings; never kickoff a plan received from an untrusted source. If a repository carries `ops/mission/render-sotu.mjs`, rendering additionally requires `IDC_ARCHIPELAGO_NODE` to be an absolute executable and `IDC_ARCHIPELAGO_NODE_SHA256` to match its bytes; the loop does not discover Node from `PATH`.
+- `loop.py fail --route` accepts only declared stages `S0` through `S7` and refuses a target later than the mission's current stage. A failure can keep work at the current stage or return to an earlier one; it cannot advance the mission.
 - Gate falsifiability (that a gate command can actually fail) is an author responsibility: the tooling validates schema shape, not whether a gate is decorative. Catch no-op gates (`exit 0` and the like) in G-review.
 
 ## Where this sits in the archipelago

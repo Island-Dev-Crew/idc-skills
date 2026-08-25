@@ -32,6 +32,7 @@ NAMESPACE = "idc-egress-waiver"
 MAX_POLICY_BYTES = 4 * 1024 * 1024
 MAX_SIGNATURE_BYTES = 1024 * 1024
 MAX_ANCHOR_BYTES = 64 * 1024
+MAX_EXECUTABLE_BYTES = 256 * 1024 * 1024
 SHA256_RE = re.compile(r"sha256:[0-9a-f]{64}\Z")
 REVISION_RE = re.compile(r"[0-9a-f]{40}\Z")
 FINGERPRINT_RE = re.compile(r"SHA256:[A-Za-z0-9+/]{43}\Z")
@@ -209,7 +210,35 @@ def validate_allowed_signers(data: bytes, expected_fingerprint: str) -> None:
         raise PolicyError(f"allowed-signers fingerprint mismatch: expected {expected_fingerprint}, got {observed}")
 
 
-def verify_signature(policy: bytes, signature: bytes, allowed_signers: bytes) -> None:
+def _pinned_executable(path: Path, expected_digest: str, label: str) -> Path:
+    if not path.is_absolute():
+        raise PolicyError(f"{label} path must be absolute")
+    if SHA256_RE.fullmatch(expected_digest) is None:
+        raise PolicyError(f"{label} digest must use sha256:<64-lowercase-hex>")
+    try:
+        metadata = path.lstat()
+    except OSError as exc:
+        raise PolicyError(f"cannot inspect pinned {label}: {exc}") from exc
+    if stat.S_ISLNK(metadata.st_mode) or not stat.S_ISREG(metadata.st_mode):
+        raise PolicyError(f"pinned {label} must be a non-symlink regular file")
+    if not os.access(path, os.X_OK):
+        raise PolicyError(f"pinned {label} is not executable")
+    if metadata.st_mode & (stat.S_IWGRP | stat.S_IWOTH):
+        raise PolicyError(f"pinned {label} must not be group/world writable")
+    observed = "sha256:" + hashlib.sha256(
+        _snapshot(path, f"pinned {label}", MAX_EXECUTABLE_BYTES)
+    ).hexdigest()
+    if observed != expected_digest:
+        raise PolicyError(f"pinned {label} digest differs from protected configuration")
+    return path
+
+
+def verify_signature(
+    policy: bytes,
+    signature: bytes,
+    allowed_signers: bytes,
+    ssh_keygen: Path,
+) -> None:
     try:
         with tempfile.TemporaryDirectory(prefix="idc-egress-policy-") as temporary:
             root = Path(temporary)
@@ -221,7 +250,7 @@ def verify_signature(policy: bytes, signature: bytes, allowed_signers: bytes) ->
             os.chmod(sig, 0o600)
             process = subprocess.run(
                 [
-                    "ssh-keygen",
+                    str(ssh_keygen),
                     "-Y",
                     "verify",
                     "-f",
@@ -237,8 +266,8 @@ def verify_signature(policy: bytes, signature: bytes, allowed_signers: bytes) ->
                 capture_output=True,
                 check=False,
             )
-    except FileNotFoundError as exc:
-        raise PolicyError("ssh-keygen is required for waiver signature verification") from exc
+    except OSError as exc:
+        raise PolicyError(f"pinned ssh-keygen could not run: {exc}") from exc
     if process.returncode != 0:
         detail = (process.stderr or process.stdout).decode("utf-8", errors="replace").strip()
         raise PolicyError(f"waiver signature invalid: {detail}")
@@ -250,6 +279,10 @@ def verify(
     allowed_signers_path: Path,
     expected_fingerprint: str,
     revision: str,
+    python: Path,
+    python_digest: str,
+    ssh_keygen: Path,
+    ssh_keygen_digest: str,
     now: dt.datetime | None = None,
 ) -> bytes:
     if REVISION_RE.fullmatch(revision) is None:
@@ -257,8 +290,18 @@ def verify(
     policy = _snapshot(policy_path, "waiver policy", MAX_POLICY_BYTES)
     signature = _snapshot(signature_path, "waiver signature", MAX_SIGNATURE_BYTES)
     allowed_signers = _snapshot(allowed_signers_path, "waiver allowed-signers", MAX_ANCHOR_BYTES)
+    pinned_python = _pinned_executable(python, python_digest, "python")
+    try:
+        same_python = os.path.samefile(pinned_python, Path(sys.executable))
+    except OSError as exc:
+        raise PolicyError(f"cannot compare running Python with its pin: {exc}") from exc
+    if not same_python:
+        raise PolicyError("running Python differs from the pinned waiver interpreter")
+    pinned_ssh_keygen = _pinned_executable(
+        ssh_keygen, ssh_keygen_digest, "ssh-keygen"
+    )
     validate_allowed_signers(allowed_signers, expected_fingerprint)
-    verify_signature(policy, signature, allowed_signers)
+    verify_signature(policy, signature, allowed_signers, pinned_ssh_keygen)
     load_policy(policy, revision, now or dt.datetime.now(dt.timezone.utc))
     return policy
 
@@ -270,6 +313,10 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("--allowed-signers", required=True, type=Path)
     parser.add_argument("--expected-fingerprint", required=True)
     parser.add_argument("--revision", required=True)
+    parser.add_argument("--python", required=True, type=Path)
+    parser.add_argument("--python-sha256", required=True)
+    parser.add_argument("--ssh-keygen", required=True, type=Path)
+    parser.add_argument("--ssh-keygen-sha256", required=True)
     args = parser.parse_args(argv)
     try:
         sys.stdout.buffer.write(
@@ -279,6 +326,10 @@ def main(argv: list[str] | None = None) -> int:
                 args.allowed_signers,
                 args.expected_fingerprint,
                 args.revision,
+                args.python,
+                args.python_sha256,
+                args.ssh_keygen,
+                args.ssh_keygen_sha256,
             )
         )
     except PolicyError as exc:

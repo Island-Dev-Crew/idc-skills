@@ -1,14 +1,19 @@
 {
   "schema": "idc-sealed-browser-evidence/v1",
-  "generatedAt": "2026-08-23T00:07:18.962Z",
+  "generatedAt": "2026-08-25T16:39:32.563Z",
   "enforced": {
     "network": "all non-local request attempts intercepted and failed",
     "serviceWorkers": "disabled by ephemeral browser launch and asserted empty",
+    "webrtc": {
+      "ipHandlingPolicy": "disable_non_proxied_udp",
+      "peerConnection": "constructors blocked before artifact scripts; guard installation and zero attempts asserted in-page",
+      "limitation": "the verifier does not claim packet-level capture of WebRTC or ICE traffic"
+    },
     "csp": "default-src 'none'; base-uri 'none'; form-action 'none'; frame-src 'none'; object-src 'none'; connect-src 'none'; font-src 'none'; img-src data: blob:; media-src data: blob:; script-src 'unsafe-inline'; style-src 'unsafe-inline'; worker-src 'none'",
     "observationMs": 1500
   },
   "browser": {
-    "product": "Chrome/151.0.7922.170",
+    "product": "Chrome/151.0.7922.174",
     "protocolVersion": "1.3",
     "executable": "/Applications/Google Chrome.app/Contents/MacOS/Google Chrome"
   },
@@ -17,7 +22,7 @@
     {
       "path": "ops/mission/state-of-the-union.html",
       "label": "2.0.4 mission security heartbeat",
-      "sha256": "sha256:ff05f2a64d1ed58d44992ae5949d7ab8acf717076c37d81efbf3b45552ebebee",
+      "sha256": "sha256:d51fb1636031286960cfd5d9a27d33b34d1bc921528557f1173453fb9f90cc6d",
       "passed": true,
       "states": [
         {
@@ -61,7 +66,7 @@
                 "left": 12,
                 "right": 348,
                 "clientWidth": 336,
-                "scrollWidth": 649,
+                "scrollWidth": 646,
                 "overflowX": "auto"
               },
               {
@@ -114,9 +119,14 @@
                 "overflowX": "auto"
               }
             ],
-            "bodyTextBytes": 107221
+            "bodyTextBytes": 126226,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
           },
-          "printModeEmulated": false
+          "printModeEmulated": false,
+          "rtcLaunchPolicyApplied": true
         },
         {
           "state": {
@@ -205,9 +215,14 @@
                 "overflowX": "auto"
               }
             ],
-            "bodyTextBytes": 107221
+            "bodyTextBytes": 126226,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
           },
-          "printModeEmulated": false
+          "printModeEmulated": false,
+          "rtcLaunchPolicyApplied": true
         },
         {
           "state": {
@@ -296,9 +311,14 @@
                 "overflowX": "auto"
               }
             ],
-            "bodyTextBytes": 107221
+            "bodyTextBytes": 126226,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
           },
-          "printModeEmulated": false
+          "printModeEmulated": false,
+          "rtcLaunchPolicyApplied": true
         },
         {
           "state": {
@@ -387,16 +407,21 @@
                 "overflowX": "auto"
               }
             ],
-            "bodyTextBytes": 107221
+            "bodyTextBytes": 126226,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
           },
-          "printModeEmulated": true
+          "printModeEmulated": true,
+          "rtcLaunchPolicyApplied": true
         }
       ]
     },
     {
       "path": "IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html",
       "label": "2.0.4 flagship release-control report",
-      "sha256": "sha256:e137b72c9c48d46996fcb4088642a31f7a881a7941d983709fafc480a76a87e4",
+      "sha256": "sha256:9a566bd663a00d4a5280169dc39005f8d00a9f539a0455261bea9fa4e3801eef",
       "passed": true,
       "states": [
         {
@@ -429,9 +454,14 @@
             "horizontalOverflow": false,
             "overflowingElements": [],
             "tableWraps": [],
-            "bodyTextBytes": 9887
+            "bodyTextBytes": 13695,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
           },
-          "printModeEmulated": false
+          "printModeEmulated": false,
+          "rtcLaunchPolicyApplied": true
         },
         {
           "state": {
@@ -463,9 +493,14 @@
             "horizontalOverflow": false,
             "overflowingElements": [],
             "tableWraps": [],
-            "bodyTextBytes": 9900
+            "bodyTextBytes": 13708,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
           },
-          "printModeEmulated": false
+          "printModeEmulated": false,
+          "rtcLaunchPolicyApplied": true
         },
         {
           "state": {
@@ -497,9 +532,14 @@
             "horizontalOverflow": false,
             "overflowingElements": [],
             "tableWraps": [],
-            "bodyTextBytes": 9937
+            "bodyTextBytes": 13745,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
           },
-          "printModeEmulated": false
+          "printModeEmulated": false,
+          "rtcLaunchPolicyApplied": true
         },
         {
           "state": {
@@ -531,9 +571,14 @@
             "horizontalOverflow": false,
             "overflowingElements": [],
             "tableWraps": [],
-            "bodyTextBytes": 9412
+            "bodyTextBytes": 13163,
+            "rtcGuard": {
+              "installed": true,
+              "attempts": 0
+            }
           },
-          "printModeEmulated": true
+          "printModeEmulated": true,
+          "rtcLaunchPolicyApplied": true
         }
       ]
     }

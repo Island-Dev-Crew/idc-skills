@@ -1,6 +1,6 @@
 ---
 name: console-as-code
-description: Assemble an agent's operating prompt from versioned blocks living in the repo — BOOT, covenants, lane definitions — stamped with the assembly SHA, instead of hand-pasting from chat. Use when a fleet's operating prompt drifts between machines, when the user mentions "console-as-code", "prompt drift", "prompt assembler", "BOOT block", or wants the control plane versioned. Differentiator - IDC-native; makes every operating prompt an auditable, SHA-stamped artifact so the same console assembles identically on every seat.
+description: Assemble an agent's operating prompt from versioned blocks living in the repo — BOOT, covenants, mission loop, and seat definitions — stamped with the assembly SHA, instead of hand-pasting from chat. Use when a fleet's operating prompt drifts between machines, when the user mentions "console-as-code", "prompt drift", "prompt assembler", "BOOT block", or wants the control plane versioned. Differentiator - IDC-native; makes every operating prompt an auditable, SHA-stamped artifact so the same console assembles identically on every seat.
 ---
 
 # Console as Code: the prompt is an artifact
@@ -16,52 +16,31 @@ console/
   blocks/
     00-boot.md           # the wake sequence
     10-covenants.md      # the standing rules (no authority without evidence, …)
-    20-lanes.md          # lane definitions the fleet coordinates on
+    20-mission.md        # the forge mission loop
     30-seats.md          # named seats and their families
   console.lock           # the assembled console + its stamp (generated, committed)
   assemble.sh            # concatenates blocks in order, stamps the SHA
 ```
 
-Each block is a single source of truth for one concern (BOOT, covenants, lanes, seats). The console is their ordered concatenation. The **stamp** is the SHA-256 of the assembled text plus the git commit the blocks came from, so "which console was this seat running?" is answerable to the byte.
+Each block is a single source of truth for one concern (BOOT, covenants, mission, seats). The console is their ordered concatenation. The **stamp** records the SHA-256 of the assembled text plus the exact Git tree object containing the blocks, so "which console was this seat running?" is answerable to the byte.
 
 ## Assemble
 
 ```bash
-# Refuse to run outside a git repo — there is nothing to stamp against.
-git rev-parse --is-inside-work-tree >/dev/null 2>&1 \
-  || { echo "refusing to assemble: not a git repository — run \`git init\` and commit the blocks first" >&2; exit 1; }
-# Refuse to stamp a dirty tree: a commit id that does NOT contain these exact blocks
-# would be a lying stamp — the reader who checks it out and re-assembles gets a
-# different SHA. Fail closed instead. (This is the evidence discipline, mechanized.)
-git diff --quiet && git diff --cached --quiet \
-  || { echo "refusing to assemble: uncommitted block changes — commit the blocks first" >&2; exit 1; }
-# Refuse on UNTRACKED blocks: the `git diff` gates above are blind to files git
-# is not tracking, yet `cat blocks/*.md` bakes an un-added block into the lock and
-# stamps it at a clean HEAD that does NOT contain it — a lying stamp on the
-# add-case (adding a block is the natural way a console grows). Fail closed.
-untracked=$(git ls-files --others --exclude-standard -- console/blocks/)
-[ -z "$untracked" ] \
-  || { echo "refusing to assemble: untracked block(s) — git add and commit them first: $untracked" >&2; exit 1; }
-# Refuse on case-folded block name collisions — a case-insensitive filesystem
-# (default macOS) collapses differently-cased names to one inode, so the same
-# blocks/ directory would silently assemble to a different console on such a seat.
-# Ask git, not the working tree: git's index stays case-sensitive and reports both
-# entries even where the checkout already collapsed them — `ls` on a collapsed tree
-# sees one file and never fires, missing the exact seat this guard exists for.
-dupes=$(git ls-files 'console/blocks/*.md' | xargs -n1 basename | tr 'A-Z' 'a-z' | sort | uniq -d)
-[ -z "$dupes" ] \
-  || { echo "refusing to assemble: case-folded block name collision — $dupes" >&2; exit 1; }
-# concatenate blocks in one cross-seat byte order, stamp the result
-export LC_ALL=C
-blocks=(console/blocks/*.md)
-cat "${blocks[@]}" > console/console.assembled
-SHA=$(shasum -a 256 console/console.assembled | cut -d' ' -f1)
-GIT=$(git rev-parse --short HEAD)
-{ echo "<!-- console.lock — assembled from $GIT — sha256:$SHA -->"; cat console/console.assembled; } \
-  > console/console.lock
-rm console/console.assembled
-echo "assembled console: sha256:$SHA @ $GIT"
+# macOS / BSD Perl shasum contract
+IDC_CONSOLE_GIT=/absolute/path/to/git \
+IDC_CONSOLE_SHA256=/absolute/path/to/shasum \
+IDC_CONSOLE_SHA256_KIND=shasum \
+./console/assemble.sh
+
+# GNU coreutils alternative
+IDC_CONSOLE_GIT=/absolute/path/to/git \
+IDC_CONSOLE_SHA256=/absolute/path/to/sha256sum \
+IDC_CONSOLE_SHA256_KIND=sha256sum \
+./console/assemble.sh
 ```
+
+`console/assemble.sh` is the executable contract. It reads sorted exact `HEAD` blobs rather than a worktree glob; rejects dirty, untracked, ignored, skip-worktree, assume-unchanged, case-colliding, non-Markdown, and unsupported Git objects; and requires explicit absolute Git and SHA-tool paths. By default it safely probes the two supported SHA-256 interfaces; set `IDC_CONSOLE_SHA256_KIND` to `shasum` or `sha256sum` to require one explicitly.
 
 The `console.lock` is committed. A seat boots from `console.lock`, never from a chat paste. When a block changes, re-assemble: the stamp changes, and the diff on `console.lock` shows exactly what every seat's console will now say.
 
@@ -69,11 +48,11 @@ The `console.lock` is committed. A seat boots from `console.lock`, never from a 
 
 - **Blocks are the single source of truth.** Never edit `console.lock` by hand; edit a block and re-assemble. A hand-edit breaks the stamp's promise (the lock no longer equals its blocks).
 - **The stamp is the identity.** When a result is reported, name the console stamp that produced it, the way a [`cross-family-review`](../cross-family-review/SKILL.md) verdict names its head. "Which console?" is then never a guess.
-- **One block, one concern.** BOOT, covenants, lanes, seats stay separate files, so a covenant change is a one-block diff, not a needle in a pasted wall of text. Filenames must be unique case-insensitively; `assemble.sh` refuses to build otherwise, since case-insensitive filesystems collapse them to one file.
+- **One block, one concern.** BOOT, covenants, mission, and seats stay separate files, so a covenant change is a one-block diff, not a needle in a pasted wall of text. Filenames must be unique case-insensitively; `assemble.sh` refuses to build otherwise, since case-insensitive filesystems collapse them to one file.
 - **Ground the fleet's vocabulary here.** The blocks are where the [`CONTEXT.md`](../../CONTEXT.md) ubiquitous language lives for the operating prompt, so every seat speaks one tongue: the drift cure at the word level, not just the block level.
 - **The stamp proves integrity, not safety.** It attests the assembled text byte-matches the committed blocks, not that the blocks are safe content. Because the console becomes an agent's operating prompt, commit access to a block is a prompt-injection surface; review block diffs with the same scrutiny as any other prompt change.
 
-These rules are **advisory**: nothing mechanically blocks a hand-edit of `console.lock`; the only detection is recomputing the stamp from the blocks and comparing (the dirty-tree gate, the untracked-block gate, and the case-fold guard above are the *enforced* steps: all three fail closed and exit non-zero). State that plainly; a stamp whose blocks were bypassed is exactly the unverified-worn-as-verified failure the archipelago forbids. A seat that wants this mechanized rather than advisory can recompute `shasum -a 256` over the blocks at boot and compare to the embedded stamp before trusting the console.
+These rules are **advisory**: nothing mechanically blocks a hand-edit of `console.lock`; detection requires rerunning the hardened assembler and comparing the generated lock. Its dirty-tree, untracked/ignored-entry, index-flag, case-fold, object-shape, and digest checks are the **enforced** steps: they fail closed and exit non-zero. State that plainly; a stamp whose blocks were bypassed is exactly the unverified-worn-as-verified failure the archipelago forbids.
 
 ## Where this plugs in
 
