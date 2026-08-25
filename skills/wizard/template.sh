@@ -56,7 +56,10 @@ open_url() {
   fi
   normalized="${parsed%%$'\n'*}"
   host="${parsed#*$'\n'}"; host="${host%%$'\n'*}"
-  [ -n "$normalized" ] && [ -n "$host" ] || { printf '  %sURL parser returned no authority%s\n' "$GARNET" "$RESET" >&2; return 2; }
+  if [ -z "$normalized" ] || [ -z "$host" ]; then
+    printf '  %sURL parser returned no authority%s\n' "$GARNET" "$RESET" >&2
+    return 2
+  fi
   for allowed in $WIZARD_ALLOWED_HOSTS; do
     [ "$host" = "$allowed" ] && break
   done

@@ -2214,8 +2214,8 @@
     },
     "skills/wizard/template.sh": {
       "posixMode": 420,
-      "sha256": "sha256:83c9c0d9a087f606617f10f6655ca7abec730aa590079214a46e71b6fffd8cc7",
-      "size": 8534
+      "sha256": "sha256:3f59703bf0853256d083480e289dcd745ac9923ff2eaf450d2340a005ca7ee3f",
+      "size": 8547
     },
     "skills/workspace-audit/SKILL.md": {
       "posixMode": 420,
@@ -8864,7 +8864,7 @@
           "classification": "informational",
           "occurrences": [
             {
-              "line": 178,
+              "line": 181,
               "path": "template.sh"
             }
           ],
@@ -8890,8 +8890,8 @@
         },
         "template.sh": {
           "posixMode": 420,
-          "sha256": "sha256:83c9c0d9a087f606617f10f6655ca7abec730aa590079214a46e71b6fffd8cc7",
-          "size": 8534
+          "sha256": "sha256:3f59703bf0853256d083480e289dcd745ac9923ff2eaf450d2340a005ca7ee3f",
+          "size": 8547
         }
       },
       "networkCommands": [
@@ -8925,7 +8925,7 @@
         },
         {
           "kind": "browser-open",
-          "line": 178,
+          "line": 181,
           "path": "template.sh",
           "preview": "open_url \"https://dashboard.example.com/developers/api-keys\"",
           "sha256": "sha256:6f11198d674511d6f9fc1dd4eec9b7dbb5ca65e268bed52e64b35d263df92b8a"
