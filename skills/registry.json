@@ -1,7 +1,7 @@
 {
   "version": 1,
-  "release": "2.0.4",
-  "manifestSequence": 2,
+  "release": "2.0.5",
+  "manifestSequence": 3,
   "name": "idc-skills-forge",
   "bundleName": "idc-skills-forge",
   "staging": "Navigata1/idc-skills-forge",

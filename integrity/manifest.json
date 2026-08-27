@@ -120,8 +120,8 @@
       "size": 1238
     },
     "CHANGELOG.md": {
-      "sha256": "sha256:664415a052b1b71fb5c21e7b14181a82797f2bc3928ba09aa4b36a61b0197b8b",
-      "size": 10972
+      "sha256": "sha256:c717297ed2fc7296581681d62a346b19e6b2af54a3e866589cbd6d9d5c8e0d07",
+      "size": 13237
     },
     "CONTEXT.md": {
       "sha256": "sha256:d76252202de4147ffc7c4d061a3feec9b5ac76b418e89d698ff3e0bed3a23f7a",
@@ -136,8 +136,8 @@
       "size": 41914
     },
     "README.md": {
-      "sha256": "sha256:fa7ad8a74762e01f4975ce9633189b9d6a9086ffd17d467d9ccaa04c92259096",
-      "size": 22621
+      "sha256": "sha256:385cfa5ea3ba919d7d463722ab70c1d5efb3114bff14e21c6b1f870034a6e16f",
+      "size": 11283
     },
     "THIRD-PARTY-NOTICES.md": {
       "sha256": "sha256:be54368cbd2a9b7d4bfc812f3fb2544d43172609600914c04578268c44ae0324",
@@ -272,7 +272,7 @@
       "size": 8421
     },
     "skills/registry.json": {
-      "sha256": "sha256:a9c696a4c72e2c7364ee41fe628d895677d84835216e3cb4fc0c1f9d35e6d405",
+      "sha256": "sha256:a206335e29b1f26c1eb30fe4cc9eb8eef559ceb7976a055831ca7af3a7293cd8",
       "size": 33552
     },
     "tests/test_archipelago_protocol.py": {
@@ -328,13 +328,13 @@
       "size": 6388
     }
   },
-  "manifestSequence": 2,
+  "manifestSequence": 3,
   "policy": {
     "path": "integrity/policy.json",
     "sha256": "sha256:f0635ac1343fd7f4d472b6976f4c41eaf26180c479b3f492db327fa4aba7457f"
   },
   "profile": "release",
-  "release": "2.0.4",
+  "release": "2.0.5",
   "remoteObservations": [],
   "repositoryFiles": {
     ".gitattributes": {
@@ -359,8 +359,8 @@
     },
     "CHANGELOG.md": {
       "posixMode": 420,
-      "sha256": "sha256:664415a052b1b71fb5c21e7b14181a82797f2bc3928ba09aa4b36a61b0197b8b",
-      "size": 10972
+      "sha256": "sha256:c717297ed2fc7296581681d62a346b19e6b2af54a3e866589cbd6d9d5c8e0d07",
+      "size": 13237
     },
     "CLAUDE.md": {
       "posixMode": 420,
@@ -376,6 +376,11 @@
       "posixMode": 420,
       "sha256": "sha256:d76252202de4147ffc7c4d061a3feec9b5ac76b418e89d698ff3e0bed3a23f7a",
       "size": 4040
+    },
+    "CONTRIBUTING.md": {
+      "posixMode": 420,
+      "sha256": "sha256:91c56091721a2749e8b490446ba8f05c732127386972ef7f4c86237772cc1323",
+      "size": 2404
     },
     "IDC-Skills-2.0.2-Gap-Analysis-and-Integrity-Review-v1-2026-08-19.html": {
       "posixMode": 420,
@@ -399,13 +404,28 @@
     },
     "README.md": {
       "posixMode": 420,
-      "sha256": "sha256:fa7ad8a74762e01f4975ce9633189b9d6a9086ffd17d467d9ccaa04c92259096",
-      "size": 22621
+      "sha256": "sha256:385cfa5ea3ba919d7d463722ab70c1d5efb3114bff14e21c6b1f870034a6e16f",
+      "size": 11283
+    },
+    "SECURITY.md": {
+      "posixMode": 420,
+      "sha256": "sha256:937f07fb97e46c4a09a1433bed984c12822962886b4bd9d4d11d71422d0c0a0d",
+      "size": 2202
     },
     "THIRD-PARTY-NOTICES.md": {
       "posixMode": 420,
       "sha256": "sha256:be54368cbd2a9b7d4bfc812f3fb2544d43172609600914c04578268c44ae0324",
       "size": 3827
+    },
+    "assets/forge-50/README.md": {
+      "posixMode": 420,
+      "sha256": "sha256:44f37c8219a74a8096510a81a5a5ab9add05d8fa853d39e15526988d93fdbca4",
+      "size": 1132
+    },
+    "assets/forge-50/hero-welded-constellation.webp": {
+      "posixMode": 420,
+      "sha256": "sha256:ea134718cce4b0218f83c749754ae64f6ba7b872d402061b87ec58bdf57b7e8a",
+      "size": 255176
     },
     "bootstrap/idc_verify_fresh.py": {
       "posixMode": 420,
@@ -447,15 +467,35 @@
       "sha256": "sha256:a7cd211b8a5f8678ae9e627b0818477c28209f168b2ff159f867752a117cdd30",
       "size": 3793
     },
+    "docs/2.0.5-release-scope.md": {
+      "posixMode": 420,
+      "sha256": "sha256:aeaecbf1ed8a8223f7a04922b89340d17e3ea9cccca4f56a119bbb4bc52f5ac3",
+      "size": 5102
+    },
     "docs/HANDOFF-2.0.0.md": {
       "posixMode": 420,
       "sha256": "sha256:e7b29ca4ad74874184e666e4e78be83fe0bb99be99b16ae47c99b94c82de0feb",
       "size": 16716
     },
+    "docs/README.md": {
+      "posixMode": 420,
+      "sha256": "sha256:4ae04580913d51416d7bcf6867e881428a268ca6b2e49e3310f9ac7232a4e160",
+      "size": 2369
+    },
     "docs/STATE-2.0.3-hardening.md": {
       "posixMode": 420,
       "sha256": "sha256:76e21afe41406f9b955b53a87b1964b4bd203a52a533644a6b88b4788cd35316",
       "size": 3538
+    },
+    "docs/catalog.md": {
+      "posixMode": 420,
+      "sha256": "sha256:22e3080acbc2c6433721c2ae84378e05e442517a4f5016c90965590a42a15e43",
+      "size": 26210
+    },
+    "docs/getting-started.md": {
+      "posixMode": 420,
+      "sha256": "sha256:59ad6b54a680589b2d35c89e7dbcb71a2c0b101bd140ed4ae75294d70fd3cdc8",
+      "size": 5380
     },
     "docs/harness-support.json": {
       "posixMode": 420,
@@ -486,6 +526,11 @@
       "posixMode": 420,
       "sha256": "sha256:a25fbd5b266068028393e8f7e61c8a356b74b8f946fa4eb8ebf1d82bc8d84799",
       "size": 68151
+    },
+    "docs/verification.md": {
+      "posixMode": 420,
+      "sha256": "sha256:3a91eee4713e0a6fc7a303f55d9ba49ca8648cfcb525139a9e20232ccb011ded",
+      "size": 3582
     },
     "docs/walkthrough.html": {
       "posixMode": 420,
@@ -1442,6 +1487,11 @@
       "sha256": "sha256:f49a60ae5953fb06a5b34e7e2605d978317ba5bef4f4173dae3096b7b5ecf181",
       "size": 5945
     },
+    "scripts/render_catalog.py": {
+      "posixMode": 420,
+      "sha256": "sha256:fae18cf13f21b018c19e9cc29c1afe9e040b7cf3678dc568ab7c64137f5c1de6",
+      "size": 8714
+    },
     "scripts/render_validation_report.py": {
       "posixMode": 420,
       "sha256": "sha256:eeee39cd09066cb6335fdfd44074c3fa2b73d8bf8d7c244976c4a51fa7a41fab",
@@ -2019,7 +2069,7 @@
     },
     "skills/registry.json": {
       "posixMode": 420,
-      "sha256": "sha256:a9c696a4c72e2c7364ee41fe628d895677d84835216e3cb4fc0c1f9d35e6d405",
+      "sha256": "sha256:a206335e29b1f26c1eb30fe4cc9eb8eef559ceb7976a055831ca7af3a7293cd8",
       "size": 33552
     },
     "skills/research/SKILL.md": {
@@ -2322,6 +2372,11 @@
       "sha256": "sha256:56c80ab0478bc77dcd1802d70d5a85c15b7036b2ea89264020c4e742d6eee7cc",
       "size": 2818
     },
+    "tests/test_public_front_door.py": {
+      "posixMode": 420,
+      "sha256": "sha256:3f74cfd8e574ee86b5f8fea6247fd9210f27b71cca3bd7e1986fec5ebcfe119c",
+      "size": 7744
+    },
     "tests/test_public_release.py": {
       "posixMode": 420,
       "sha256": "sha256:6c0f309c413c27ce4c8d44e136749e23fd4fdf21bf34d8320b2b737b4aa9e3bd",
@@ -2329,7 +2384,7 @@
     },
     "tests/test_release_artifacts.py": {
       "posixMode": 420,
-      "sha256": "sha256:b7835f24c2c941e5a46af82a3199bb7567ad8466bf66a5e4f905ae838eb11279",
+      "sha256": "sha256:da7be6a601d8cf0dc72e23e9d39be21ad257d712f7e1689dadaacfbb09a6af0a",
       "size": 33244
     },
     "tests/test_release_reviews.py": {
