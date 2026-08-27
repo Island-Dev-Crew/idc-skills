@@ -1,5 +1,41 @@
 # Changelog
 
+## 2.0.5 — 2026-08-27 (evidence-routed public front door)
+
+This release gives Forge 50 a public entrance built around outcomes rather than
+an undifferentiated inventory. It preserves the 2.0.4 security implementation
+and its limited-trust assurance boundary while issuing a new immutable release
+identity, manifest sequence, owner signature, and external witnesses for the
+changed tracked tree. The exact claim boundary is normative in
+[`docs/2.0.5-release-scope.md`](docs/2.0.5-release-scope.md).
+
+- Selected H1, “Welded Constellation,” as the owner-approved Outcome
+  Archipelago identity and shipped one bounded, metadata-free local WebP with
+  exact source and transformation provenance.
+- Rebuilt the README around the entrance “Velocity, welded to proof,” three
+  direct actions, five outcome routes, three inspectable power-user loops, a
+  concise trust boundary, and explicit separation of content authentication
+  from freshness authority.
+- Added a deterministic complete catalog generated from the canonical
+  registry, with five editorial routes covering 25 unique starting points and
+  all 50 islands retained in exact build order.
+- Added public documentation for safe acquisition, independently anchored
+  content verification, target-harness evidence, vulnerability reporting,
+  contribution discipline, and historical-versus-current artifact routing.
+- Added front-door tests for catalog determinism, all-50 coverage, route
+  uniqueness, heading structure, local targets, selected copy, unsupported
+  exclusivity claims, and exact WebP dimensions, size, and chunk closure.
+- Removed unsupported global uniqueness language and avoided turning the dated
+  15-surface harness matrix into a universal compatibility claim.
+- Advanced `manifestSequence` from 2 to 3 so the changed release cannot reuse
+  the 2.0.4 manifest identity. No skill body, installer, guard, egress,
+  threshold-root, freshness, or release-verifier implementation changed.
+
+Release promotion requires the owner-held content signature, clean-clone
+reproduction, protected macOS/Linux CI, fresh exact-head independent
+acceptance, new versioned HTTPS and DNSSEC witnesses, an immutable annotated
+tag, exact release assets, and post-publication comparison of all channels.
+
 ## 2.0.4 — 2026-08-25 (stable limited-trust, content-authenticated release)
 
 This release delivers the hardened Forge 50 under a deliberately bounded

@@ -1,148 +1,189 @@
-# IDC Skills · The Forge
+<div align="center">
 
-**An archipelago of agent skills.** Each skill is an island; the repo is the navigable chain that connects them. Fused from David Ondrej's and Matt Pocock's public canons (through Pocock v1.2) and Jake Van Clief's Interpretable Context Methodology, welded to the discipline Island Development Crew earned shipping agent-built software: **no authority without evidence — the skills demonstrate their own discipline.**
+<sub>IDC SKILLS · THE FORGE</sub>
 
-> *"In the multitude of counsellors there is safety."* — Proverbs 11:14
+# Forge 50
 
-This is the canonical Forge source (`Island-Dev-Crew/idc-skills`). Version 2.0.4 is the stable **limited-trust, public content-authenticated** profile: one owner-held Forge key signs the exact release manifest, and first-contact consumers compare its full fingerprint and immutable release identity through two publications outside GitHub before verification. It does not claim the still-open production 2-of-3, completed Kimi, Windows/NTFS, freshness-authorized fleet, disjoint publication-observer, `PUBLIC RELEASE VERIFIED`, or full `readyToRun=true` gates. Read the exact [2.0.4 claim boundary](docs/2.0.4-release-scope.md). A skill is proven by evidence for its stated scope, not by its author's confidence.
+**Velocity, welded to proof.**
 
-**Cross-harness by contract, not assumption:** the canonical source is preserved once, while each harness gets a documented loader path, metadata profile, and evidence tier. The current matrix covers fifteen surfaces, including Codex, Claude Code, claude.ai, Cursor, VS Code, Amp, Kimi, Antigravity, OpenClaw, Grok, Buzz, Pi, and Hermes. A shared folder proves byte distribution; it does not by itself prove invocation semantics. See the [human-readable matrix](docs/harness-support.md) and its [machine-readable contract](docs/harness-support.json).
+Fifty fused agent skills for building, researching, operating, verifying, and shipping—designed to increase velocity without loosening quality, control, or security boundaries.
 
----
+[**Find my route**](#choose-your-outcome) · [Inspect the proof](#inspect-the-proof) · [Install safely](docs/getting-started.md)
 
-## The chain — fifty islands, in build order
+</div>
 
-The order is the bootstrap: island 1 authors the rest and rests on island 2 (the universal levers); the crown ships with a week of receipts; the ICM cluster (22–28) is the workspace architecture the whole chain routes within; twelve islands are IDC's own.
+![Five shape-coded island clusters linked to a luminous central forge, representing Forge 50's connected outcome routes.](assets/forge-50/hero-welded-constellation.webp)
 
-| # | Island | Kind | What it does |
-|---|--------|------|--------------|
-| 1 | [`idc-skill-authoring`](skills/idc-skill-authoring/SKILL.md) | canon | Authors every island — skill anatomy, invocation, the Codex sidecar, fleet distribution, evidence discipline. |
-| 2 | [`writing-for-agents`](skills/writing-for-agents/SKILL.md) | fusion · v1.2 | The universal levers for any agent doc — pointers, the two loads, hierarchy, leading words, pruning. The canon points here. |
-| 3 | [`cross-family-review`](skills/cross-family-review/SKILL.md) | 👑 crown | A different model family reviews a diff at an exact head; the verdict names its seats and voids on move. The author never reviews their own work. |
-| 4 | [`worktree-fleet`](skills/worktree-fleet/SKILL.md) | fusion | Worktrees for same-machine parallelism — adopted for drafts, forbidden for evidence. The version that knows when *not* to use itself. |
-| 5 | [`grill`](skills/grill/SKILL.md) | fusion · v1.2 | Relentless interview in three modes (ambush · drill · batch), rounds with emoji-scan, emitting decisions as ADRs. |
-| 6 | [`wayfinder`](skills/wayfinder/SKILL.md) | adapt · earned | Plan work too big for one session as a map of decision tickets — resolve decisions one at a time until the way is clear. |
-| 7 | [`agent-guardrails`](skills/agent-guardrails/SKILL.md) | fusion | Four mechanical layers — shell · git · commit · data — under the whole fleet. |
-| 8 | [`handoff`](skills/handoff/SKILL.md) | fusion | State-based handoff + the wake protocol: re-read verdicts and register from the tree before trusting the summary. |
-| 9 | [`lane-claim`](skills/lane-claim/SKILL.md) | 💠 IDC-only | Declare-and-halt coordination across machines — the collisions worktrees can't touch. |
-| 10 | [`transport-complete`](skills/transport-complete/SKILL.md) | fusion | Pushed-and-verified-live or not done — a health check for the exact SHA. |
-| 11 | [`spec-pipeline`](skills/spec-pipeline/SKILL.md) | fusion | Spec → tracer tickets → implement at seams → optional persistent goal loop. |
-| 12 | [`prototype`](skills/prototype/SKILL.md) | adapt · earned | Throwaway code that answers one design question — a shareable HTML demo or switchable UI variants. The prototype is a primary source. |
-| 13 | [`research`](skills/research/SKILL.md) | fusion | Primary-source investigation; every claim sourced or flagged unverified. |
-| 14 | [`finding-register`](skills/finding-register/SKILL.md) | 💠 IDC-only | Findings enumerated at a SHA (not a count), provenance both ways, id swept before allocation. |
-| 15 | [`deep-modules`](skills/deep-modules/SKILL.md) | adapt | The deep-module vocabulary + the boundary rules that make entry points the only way in. |
-| 16 | [`domain-modeling`](skills/domain-modeling/SKILL.md) | adapt · earned | Actively sharpen the ubiquitous language — challenge terms, invent edge cases, write the glossary as it crystallises. |
-| 17 | [`diagnose`](skills/diagnose/SKILL.md) | adapt | The loop before the theory; performance judged by operation counts, not wall-clock. |
-| 18 | [`archipelago`](skills/archipelago/SKILL.md) | Jon's | The evidence-gated build protocol — gates that must be able to fail, band caps you can't talk past. |
-| 19 | [`domain-wire`](skills/domain-wire/SKILL.md) | 💠 IDC-native | Wire a domain the IDC way — three-lane model, one canonical, siblings 308, graduation in the same commit. |
-| 20 | [`console-as-code`](skills/console-as-code/SKILL.md) | 💠 IDC-native | Assemble the operating prompt from versioned, SHA-stamped in-repo blocks — the cure for prompt drift. |
-| 21 | [`evidence-packet`](skills/evidence-packet/SKILL.md) | 💠 IDC-native | The byte-verifiable packet a reviewer recomputes — acceptance on evidence the author cannot fake. |
-| 22 | [`job-to-be-done`](skills/job-to-be-done/SKILL.md) | 🧭 ICM-native | The pre-build triage — should this be built or automated at all? 90/10, augment don't just automate. |
-| 23 | [`folder-workspace`](skills/folder-workspace/SKILL.md) | 🧭 ICM-native | Folders as agent architecture, routed by a three-layer map so one agent becomes the agent each task needs. Layer 0. |
-| 24 | [`workspace-scaffold`](skills/workspace-scaffold/SKILL.md) | 🧭 ICM-native | Generate an ICM workspace from a brief — then prove a fresh agent routes through it. Ships `scaffold.sh`. |
-| 25 | [`data-source-map`](skills/data-source-map/SKILL.md) | 🧭 ICM-native | Wire an external data source (SQL, BigQuery, Drive) via a markdown descriptor — a map to live data, not a copy. Jake's OKF. |
-| 26 | [`productionize-opinion`](skills/productionize-opinion/SKILL.md) | 🧭 ICM-native | Distill your transcripts and decisions into durable workspace context that carries your voice. Mines you, not the web. |
-| 27 | [`skill-tune`](skills/skill-tune/SKILL.md) | 🧭 ICM-native | Empirically improve a skill — keep an edit only when a measured score rises. Band caps, for markdown. |
-| 28 | [`workspace-audit`](skills/workspace-audit/SKILL.md) | 🧭 ICM-native | The map is a claim, the tree is the evidence — catch drift between them. Ships `audit.sh`. |
-| 29 | [`wizard`](skills/wizard/SKILL.md) | fusion · v1.2 | Generate an interactive bash wizard for human-only steps — dashboards, credentials, CI secrets. Ships `template.sh`. |
-| 30 | [`to-questionnaire`](skills/to-questionnaire/SKILL.md) | fusion · v1.2 | Turn a decision you can't answer alone into a questionnaire for the one person who can. The inverse of grill. |
-| 31 | [`wait-what`](skills/wait-what/SKILL.md) | fusion · v1.2 | Re-pitch a message that didn't land — plain language, grounded in the project's own words. |
-| 32 | [`short`](skills/short/SKILL.md) | adopt | Compress the current answer. |
-| 33 | [`teach`](skills/teach/SKILL.md) | adopt | A stateful multi-session teaching workspace. |
-| 34 | [`gauntlet-loop`](skills/gauntlet-loop/SKILL.md) | fusion · earned | Convert any task into a fan-out of builders + blind critics against a falsifiable bar. The lightweight cousin of archipelago. |
-| 35 | [`video-analysis`](skills/video-analysis/SKILL.md) | 💠 IDC-native | Two channels — the transcript (what was said) + frames (what was shown); every claim cited to a line or a frame. |
-| 36 | [`arch-survey`](skills/arch-survey/SKILL.md) | adapt · earned | Proactively survey a codebase for refactor opportunities — churn hot-spots + the deletion test, ranked. |
-| 37 | [`merge-resolve`](skills/merge-resolve/SKILL.md) | adapt · earned | Resolve a merge/rebase by tracing each hunk to its intent; keep both, record the trade-off, never abort. |
-| 38 | [`issue-triage`](skills/issue-triage/SKILL.md) | adapt · earned | Move an inbound queue of issues you didn't create through a triage state machine to agent-ready briefs. |
-| 39 | [`agent-schedule`](skills/agent-schedule/SKILL.md) | adapt · earned | Run an unattended agent on a wall-clock — and verify it actually fired before trusting it. |
-| 40 | [`prose-craft`](skills/prose-craft/SKILL.md) | fusion · earned | Author original prose in two phases — explore fragments and coin the leading word, then build grounded beats. |
-| 41 | [`model-routing`](skills/model-routing/SKILL.md) | ⛰ earned | Route a task to the cheapest model that clears its cognitive-demand floor — the only island that picks the model a step runs on. |
-| 42 | [`delegated-authority-prompt`](skills/delegated-authority-prompt/SKILL.md) | ⛰ earned | The inverse of grill — front-load the answers and grant decision rights, bounded by stop-condition tripwires. |
-| 43 | [`batch-sample-curate`](skills/batch-sample-curate/SKILL.md) | ⛰ earned | Draw N candidates from a stochastic generator and curate to the best on a scored keep/cut ledger. |
-| 44 | [`self-contained-ship`](skills/self-contained-ship/SKILL.md) | ⛰ earned | Prove an artifact ships with zero external requests — every asset inlined, a sealed-load runtime rung that phones home to nobody. |
-| 45 | [`computer-use-smoke`](skills/computer-use-smoke/SKILL.md) | ⛰ earned | Drive a real UI through a smoke path and assert outcomes — the band-4 runtime evidence archipelago demands. |
-| 46 | [`skill-supply-chain-review`](skills/skill-supply-chain-review/SKILL.md) | ⛰ earned | Audit a third-party skill before you adopt it — the adoption gate a fusion-built forge needs. |
-| 47 | [`ai-humanizer`](skills/ai-humanizer/SKILL.md) | ⛰ earned | Detect and score AI-writing tells (0-100) with a bundled scorer — a de-slop pass with byte-verifiable before/after. |
-| 48 | [`exposure-audit`](skills/exposure-audit/SKILL.md) | adapt · earned | Read-only exposure audit of a machine or repo against a named CVE/advisory → a structured report. |
-| 49 | [`skill-duel`](skills/skill-duel/SKILL.md) | 💠 IDC-native | Run an incumbent vs a challenger on identical gauntlet cases — swap only on a strict win. The 50-cap governor. |
-| 50 | [`connected-fix-prompt`](skills/connected-fix-prompt/SKILL.md) | fusion · earned | Compose N findings into one dependency-ordered fix mandate — root before symptom, single correct-order pass. |
+<div align="center">
 
-## The ICM cluster — folder as workspace
+| REGISTERED SKILLS | OPENAI SIDECARS | RELEASE LINE | CONTENT INTEGRITY | FULL FRESHNESS |
+|:---:|:---:|:---:|:---:|:---:|
+| **50** | **50** | **2.0.5** | **signed · 5/5** | **deferred** |
 
-Islands 22–28 fuse Jake Van Clief's **Interpretable Context Methodology** — folders and markdown as agent architecture, not agent swarms — with the forge's evidence discipline. ICM and the forge reached the same thesis from opposite directions: *the repo is the memory.* ICM got there from folder/context architecture; the archipelago from evidence/review. The cluster spans one loop — **triage** (should we build it?) → **architect** (`folder-workspace`) → **scaffold** (generate it) → **wire** (`data-source-map` — external data via a descriptor) → **capture** (`productionize-opinion`) → **tune** (empirically improve the markdown) → **audit** (does the map still match the tree?). The weld throughout: the map is an *auditable routing contract*, a `skill-tune` edit survives only on a measured gain, and a distilled opinion is marked distilled-vs-verified. `folder-workspace` is layer 0 — the ground every other island routes within.
+<sub>The immutable tag and versioned external witnesses bind the exact release identity. “Signed · 5/5” means <code>contentReady</code>, not <code>readyToRun=true</code>.</sub>
 
-## The moat, stated plainly
+</div>
 
-Twelve islands are IDC's own. **Five exist nowhere else** — the IDC-origin islands: [`lane-claim`](skills/lane-claim/SKILL.md) and [`finding-register`](skills/finding-register/SKILL.md) (💠 IDC-only), plus [`domain-wire`](skills/domain-wire/SKILL.md), [`console-as-code`](skills/console-as-code/SKILL.md), [`evidence-packet`](skills/evidence-packet/SKILL.md) (💠 IDC-native). **Seven more ship nowhere else *in this welded form*** — the ICM cluster (six from 1.3.0 plus [`data-source-map`](skills/data-source-map/SKILL.md), the external-data leaf earned in 1.3.1 — seven in all): [`job-to-be-done`](skills/job-to-be-done/SKILL.md), [`folder-workspace`](skills/folder-workspace/SKILL.md), [`workspace-scaffold`](skills/workspace-scaffold/SKILL.md), [`data-source-map`](skills/data-source-map/SKILL.md), [`productionize-opinion`](skills/productionize-opinion/SKILL.md), [`skill-tune`](skills/skill-tune/SKILL.md), [`workspace-audit`](skills/workspace-audit/SKILL.md) — where Jake Van Clief's public methodology is fused with the forge's evidence law so the map is an auditable contract, not a convenience. Add the review-ceremony layer inside the otherwise-fused [`cross-family-review`](skills/cross-family-review/SKILL.md). Anyone can fuse public repos. Only IDC ships the review ceremony with receipts, the doctrine that wires a 73-deed estate, and ICM welded to *no authority without evidence*. **That is the product.**
+Forge 50 is a navigable system of independent agent skills. Use one island for a focused job or connect several into an inspectable loop. The shared law is simple: **no authority without evidence**. A claim is not complete until a red-capable check produces something another person can inspect.
 
-## Design palette
+The canonical source and immutable releases live in this repository. The company site and DNSSEC record are external identity witnesses; neither is a second copy of the skill tree.
 
-The archipelago wears the Iron Canvas palette — OLED `#0a0a0f`, garnet · rust · gold · jade · steel — with a faceted-gem motif. The landing experience is a journey across the chain, not a file listing: see [`docs/index.html`](docs/index.html), the full seven-act tour in [`docs/walkthrough.html`](docs/walkthrough.html), and [`docs/report.html`](docs/report.html) — now generated from machine-readable records for all 50 registry islands. Reacceptance fails unless the registry, source records, embedded records, visible cards, and aggregate report bytes are the deterministic expected output. Repo-as-artifact, matching the thesis.
+## Choose your outcome
 
-## Install
+**Choose the outcome. Bring the right discipline.** These five routes are editorial starting points—not popularity rankings or blanket certifications. Every listed skill is independently addressable; successful execution remains task-, dependency-, platform-, and harness-specific. Each loop is a recommended composition.
 
-The dependency-free Python installer provides entrypoints for PowerShell, Command Prompt, and POSIX shells. Version 2.0.4 requires Python 3.10 or newer; CI exercises Python 3.12 on macOS and Linux runners, while POSIX entrypoints retain a Bash 3.2 floor. Windows entrypoints are experimental in this release, and independent Windows/NTFS acceptance remains deferred. The full-authority protocol routes installation through an independently installed freshness launcher; the repository's own verifier can prove signed content, but it cannot prove that its whole tree was not rolled back. Targets remain explicit so the external write set is visible before execution:
+### Build
 
-```text
-python scripts/validate_skills.py
-/trusted/runtime/python3 -I -B /trusted/bin/idc-verify-fresh --repo-root /absolute/idc-skills --config /trusted/etc/idc-skills-freshness.json verify
-/trusted/runtime/python3 -I -B /trusted/bin/idc-verify-fresh --repo-root /absolute/idc-skills --config /trusted/etc/idc-skills-freshness.json install -- --target agents --json
-/trusted/runtime/python3 -I -B /trusted/bin/idc-verify-fresh --repo-root /absolute/idc-skills --config /trusted/etc/idc-skills-freshness.json install -- --target agents --verify-only --json
+Turn an idea into a scoped, testable implementation without confusing motion with progress.
+
+**Start here:** [`job-to-be-done`](skills/job-to-be-done/SKILL.md) · [`idc-skill-authoring`](skills/idc-skill-authoring/SKILL.md) · [`prototype`](skills/prototype/SKILL.md) · [`spec-pipeline`](skills/spec-pipeline/SKILL.md) · [`gauntlet-loop`](skills/gauntlet-loop/SKILL.md)
+
+**Power-user loop:** `job-to-be-done → prototype → spec-pipeline → gauntlet-loop`
+
+### Research
+
+Replace plausible answers with sourced findings and context that survives the session.
+
+**Start here:** [`grill`](skills/grill/SKILL.md) · [`research`](skills/research/SKILL.md) · [`video-analysis`](skills/video-analysis/SKILL.md) · [`data-source-map`](skills/data-source-map/SKILL.md) · [`productionize-opinion`](skills/productionize-opinion/SKILL.md)
+
+**Power-user loop:** `grill → research/video-analysis → data-source-map → productionize-opinion`
+
+### Operate
+
+Coordinate agents and recurring work without losing ownership or control-plane history.
+
+**Start here:** [`console-as-code`](skills/console-as-code/SKILL.md) · [`lane-claim`](skills/lane-claim/SKILL.md) · [`worktree-fleet`](skills/worktree-fleet/SKILL.md) · [`model-routing`](skills/model-routing/SKILL.md) · [`agent-schedule`](skills/agent-schedule/SKILL.md)
+
+**Power-user loop:** `console-as-code → lane-claim → worktree-fleet/model-routing → agent-schedule`
+
+### Verify & Ship
+
+Turn “it works” into recomputable evidence, independent review, and exact-revision transport proof.
+
+**Start here:** [`computer-use-smoke`](skills/computer-use-smoke/SKILL.md) · [`evidence-packet`](skills/evidence-packet/SKILL.md) · [`cross-family-review`](skills/cross-family-review/SKILL.md) · [`self-contained-ship`](skills/self-contained-ship/SKILL.md) · [`transport-complete`](skills/transport-complete/SKILL.md)
+
+**Power-user loop:** `computer-use-smoke → evidence-packet → cross-family-review → self-contained-ship → transport-complete`
+
+### Architect
+
+Shape repository, domain, and module boundaries so agents navigate an explicit system.
+
+**Start here:** [`arch-survey`](skills/arch-survey/SKILL.md) · [`deep-modules`](skills/deep-modules/SKILL.md) · [`folder-workspace`](skills/folder-workspace/SKILL.md) · [`workspace-scaffold`](skills/workspace-scaffold/SKILL.md) · [`archipelago`](skills/archipelago/SKILL.md)
+
+**Power-user loop:** `arch-survey → deep-modules → folder-workspace/workspace-scaffold → archipelago`
+
+[Browse the complete 50-skill catalog →](docs/catalog.md)
+
+## Three loops worth learning first
+
+### Idea to implementation
+
+`job-to-be-done → prototype → spec-pipeline → gauntlet-loop`
+
+Use this when the request sounds buildable but the value, design answer, or acceptance bar is still fuzzy. The chain narrows the bet, tests one uncertainty, defines implementation seams, and iterates against a falsifiable rubric. It does **not** prove production fitness or authorize release.
+
+### Runtime proof to live revision
+
+`computer-use-smoke → evidence-packet → cross-family-review → transport-complete`
+
+Use this when a working change needs observable UI evidence, a recomputable packet, a different-family review, and proof that the accepted SHA reached its destination. A successful transport check does **not** expand the scope of the reviewer’s verdict.
+
+### Hot spot to governed architecture
+
+`arch-survey → deep-modules → folder-workspace → archipelago`
+
+Use this when churn points to a structural problem rather than an isolated bug. The chain finds the seam, deepens its interface, makes the repository map explicit, and governs the build. It does **not** make architecture quality automatic; the chosen seam and evidence still need judgment.
+
+## Install safely
+
+The safe path begins outside the checkout: compare the tag, commit, tree, manifest digest, and signing fingerprint with the immutable release and both external witnesses. Do not execute repository code until that identity comparison agrees.
+
+After the identity comparison, run the repository's structural checks:
+
+```bash
+python3 -I -B scripts/validate_skills.py --json
+python3 -I -B scripts/verify_forge_50.py --json
 ```
 
-The launcher source is tracked at [`bootstrap/idc_verify_fresh.py`](bootstrap/idc_verify_fresh.py), but that in-tree copy is deliberately non-authoritative and refuses to run from a checkout. The reviewed bytes must be installed outside the repository with an external canonical configuration, signed live release index, exact first-run index digest, protected checkpoint, and an external clean-environment process wrapper; candidate-controlled `scripts/install.sh` cannot bootstrap trust. Only this launcher emits `readyToRun=true`; `scripts/skill_integrity.py` emits the narrower `contentReady`. See the [full deployment, schema, threat boundary, and release ceremony](integrity/README.md).
+Those commands execute repository-controlled Python. They establish registry/frontmatter and Forge-50 record closure for the identified checkout; they are not a sandbox and do not independently authenticate the checkout, prove loader behavior, or authorize installation.
 
-The scoped 2.0.4 release makes `contentReady` independently checkable after the
-Forge fingerprint is compared out of band. It does not make the production
-freshness launcher return `readyToRun=true`. An owner who installs verified
-2.0.4 content under an explicit local policy is accepting that narrower trust
-boundary; the release must not relabel that choice as freshness authority.
+The current public profile supports independently anchored signed-content verification. Authoritative mutating installation is deliberately routed through an independently installed freshness launcher and protected configuration; a clone cannot appoint itself as its own freshness authority. Start with the [safe evaluation and installation guide](docs/getting-started.md), then use the [harness support contract](docs/harness-support.md) for the exact target surface.
 
-The native fleet aliases are `agents=~/.agents/skills`, `claude=~/.claude/skills` when that directory exists, `pi=~/.pi/agent/skills` when it exists, and the legacy Hermes topology `hermes=~/.hermes/skills`. Use `--custom-target name=path` only after the [support contract](docs/harness-support.md) establishes that the receiving harness loads that path. Native installs preserve canonical bytes and, on POSIX filesystems, executable modes; Windows authenticates the same signed mode intent but does not pretend NTFS stores POSIX mode bits. The separate [Windows metadata policy](integrity/windows-metadata-policy.json) requires real NTFS/ACL evidence before any Windows/NTFS or full-assurance claim; 2.0.4 makes neither. Every install preflights selected destinations, replaces one skill directory atomically, and verifies exact signed manifests after freshness passes. Both Claude.ai export modes stage selected skills against the authenticated per-file map and build ZIPs only from that verified snapshot. A whole multi-target run is not rollback-atomic after an unexpected I/O failure.
+Keep these evidence layers separate:
 
-claude.ai is a compatibility export, not a native install. The current profile fails closed because 48 canonical descriptions exceed the documented 200-character upload limit and thirteen user-only skills have no documented explicit-only equivalent. The historical supplied snapshot can still be reproduced without changing the canonical tree, but nesting extension keys under `metadata` preserves values only—not invocation behavior:
+1. byte distribution;
+2. loader discovery;
+3. explicit invocation;
+4. implicit-invocation policy;
+5. successful execution.
 
-```text
-/trusted/runtime/python3 -I -B /trusted/bin/idc-verify-fresh --repo-root /absolute/idc-skills --config /trusted/etc/idc-skills-freshness.json export-claude-ai-snapshot -- --output .exports/claude-ai --json
-```
+A green result at one layer is not evidence that the next layer passed.
 
-The five-check content gate binds every byte of all 50 skill trees, the registry and security controls, every discovered external reference and network-command occurrence, and reviewed fetch/execute exceptions to a detached OpenSSH signature from the stable 1Password-held Forge key. The separate index signature uses a domain-separated namespace and binds release sequence, raw manifest digest, verifier digest, launcher digest, and final Git commit. Neither result is a sandbox or a full execution trace.
+## Inspect the proof
 
-## Release trust and public source
+Forge 50 2.0.5 is a **limited-trust, public content-authenticated** release. Its front door is new; its assurance boundary remains deliberately narrower than full freshness authority.
 
-GitHub is the canonical source-code and immutable-release channel. The company
-site is the human-facing discovery and trust witness: it should publish the
-exact `2.0.4` tag, commit, tree, full Forge content-signing fingerprint,
-manifest digest, verification recipe, report, and security contact, then point
-to the canonical GitHub release. A second independently administered DNSSEC or
-transparency channel must publish those same scoped trust values. The website
-must not become a mutable second copy of the skill tree. Root-metadata,
-threshold-release, and observer values belong only to the deferred full-profile
-ceremony and must not be implied by the 2.0.4 witnesses.
+| Bound value | 2.0.5 authority |
+|---|---|
+| Immutable release | [`2.0.5`](https://github.com/Island-Dev-Crew/idc-skills/releases/tag/2.0.5) |
+| Manifest sequence | `3` |
+| Forge key fingerprint | `SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA` |
+| Company witness | [`/.well-known/idc-skills/2.0.5.json`](https://islanddevcrew.com/.well-known/idc-skills/2.0.5.json) |
+| DNSSEC witness | `_idc-skills-2-0-5.islanddevcrew.com` |
+| Commit, tree, manifest, and fingerprint | Compare the immutable release with both external witnesses |
+| Manifest signature SHA-256 | Compare the release asset with the company JSON witness |
 
-The [2.0.4 flagship release-control report](IDC-Skills-Forge-2.0.4-Flagship-Release-Control-Report.html)
-shows the trust topology, exact G0–G6 status, remaining external gates, and the
-recommended GitHub + company site + independent witness architecture. The
-[external threshold trust protocol](trust/README.md) defines the root ceremony
-and bootstrap boundary; [release evidence formats](docs/release-acceptance-evidence.md)
-define the receipts that may close G6. A verifier can prove captured facts are
-internally consistent; it cannot create independent custody or review.
+The tracked README does not appoint its own commit or tree. The immutable GitHub release and both out-of-repository witnesses carry the tag, commit, tree, manifest digest, and fingerprint so a changed tree cannot inherit an earlier identity. The DNS record does not carry the detached-signature digest; compare that value between the release asset and company JSON witness. Read the [verification guide](docs/verification.md) and the exact [2.0.5 claim boundary](docs/2.0.5-release-scope.md) before using stronger language.
 
-Run the external launcher's `reaccept` command for the full fifty-island validator, signed content check, installer, deterministic export, 50-record registry/report gate, and no-source-drift gate. Current direct installer, hook, and reacceptance routes reject an absent syntactic handoff marker, but that marker is forgeable defense-in-depth, not launcher authentication; only the independently pinned launcher is an authoritative entrypoint. `scripts/install.sh` delegates only when `IDC_SKILLS_FRESHNESS_PYTHON`, `IDC_SKILLS_FRESHNESS_LAUNCHER`, and `IDC_SKILLS_FRESHNESS_CONFIG` name the externally pinned runtime, launcher, and policy. Repository-owned CI tests content and the launcher attack fixtures; whole-tree CI readiness still requires an organization-controlled required check outside candidate code. See [`skills/idc-skill-authoring`](skills/idc-skill-authoring/SKILL.md) §5 for authoring guidance.
+What this profile does **not** claim:
 
-## Provenance
+- production 2-of-3 root or release-role custody;
+- completed eleven-lane Kimi acceptance;
+- independent Windows/NTFS acceptance;
+- freshness-authorized four-root fleet parity;
+- a disjoint publication-observer attestation; or
+- full `readyToRun=true` authority.
 
-The fusion recipe is `IDC-SKILLS-FUSION-REPORT-v1`. The immutable archive hashes, exact David Ondrej and Matt Pocock source commits, live comparison heads, per-island lineage pointer, and the one honestly unresolved historical ICM commit are recorded in [`provenance.json`](provenance.json). Required upstream MIT notices are preserved in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md). Release **1.5.0** added six earned islands after a full re-review of the David-Ondrej and Matt-Pocock source canons; release **1.4.0** added `gauntlet-loop`; release **1.3.1** added `data-source-map`, `prototype`, `wayfinder`, and `domain-modeling`; release **1.3.0** added the ICM-native cluster; release **1.2.0** folded in Matt Pocock's v1.2 writing and productivity material plus IDC-native islands. The Garnet ceremony layer is IDC-authored; this repository does not independently certify the external operational history that informed it.
+## The full archipelago
 
-## Pipeline — staging to official
+The catalog is ordered deliberately: authoring and review foundations come first, the ICM workspace cluster occupies 22–28, and shipping/governance skills close the chain. The complete index exposes all 50 skills with their exact job, invocation mode, and recorded lineage.
 
-1. **Author** under the `idc-skill-authoring` canon.
-2. **Stage** here in `Navigata1/idc-skills-forge`.
-3. **Vet in live fleet use** — evidence of use, not declaration of quality.
-4. **Promote** the validated golden fusion to `Island-Dev-Crew`, each island carrying its validation record.
+- [Complete catalog](docs/catalog.md)
+- [Shared composition law](CONTEXT.md)
+- [Validation snapshot with named residuals · historical evidence epochs](docs/report.html)
+- [Harness support contract](docs/harness-support.md)
+- [Public documentation map](docs/README.md)
+
+## Why Forge 50 exists
+
+Forge 50 fuses public work from David Ondrej, Matt Pocock, and Jake Van Clief with IDC-authored islands and field discipline. IDC’s contribution is not a claim to other people’s work; it is the weld: a shared evidence law, exact-head review ceremony, cross-machine coordination, recomputable packets, and a fifty-seat system that composes without turning every skill into one giant prompt.
+
+The repository’s [`provenance.json`](provenance.json) records source archives, exact commits where available, per-island lineage, and the unresolved historical ICM commit rather than inventing a pin. Required upstream notices remain in [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
+
+## Trust boundary
+
+The signed manifest binds tracked bytes, declared control files, POSIX-mode intent, external-reference observations, and reviewed fetch/execute exceptions. It does not certify benevolent intent, sandbox an agent, prevent same-user post-check mutation, or turn a repository-controlled verifier into an external freshness root.
+
+For the deeper model:
+
+- [`integrity/README.md`](integrity/README.md) — content integrity and external freshness boundary;
+- [`trust/README.md`](trust/README.md) — deferred threshold-root ceremony;
+- [`docs/release-acceptance-evidence.md`](docs/release-acceptance-evidence.md) — full-profile evidence format;
+- [`SECURITY.md`](SECURITY.md) — vulnerability reporting and disclosure boundaries.
+
+## Contributing
+
+Start with [`CONTRIBUTING.md`](CONTRIBUTING.md). Skill changes must follow [`skills/idc-skill-authoring/SKILL.md`](skills/idc-skill-authoring/SKILL.md), preserve provenance, and bring red-capable evidence. A new skill does not expand the fixed fifty by assertion; it must displace an incumbent under the repository’s governance.
 
 ## License
 
-MIT — see [LICENSE](LICENSE) and [third-party notices](THIRD-PARTY-NOTICES.md).
+MIT — see [`LICENSE`](LICENSE) and [`THIRD-PARTY-NOTICES.md`](THIRD-PARTY-NOTICES.md).
 
-— **Island Development Crew** · Huntsville, AL · *No authority without evidence.* · Roll Tide 💎
+---
+
+<div align="center">
+
+**Island Development Crew** · Huntsville, Alabama
+*No authority without evidence.*
+
+</div>
