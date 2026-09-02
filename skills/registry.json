@@ -59,7 +59,8 @@
     "ai-humanizer",
     "exposure-audit",
     "skill-duel",
-    "connected-fix-prompt"
+    "connected-fix-prompt",
+    "garnet-evidence"
   ],
   "skills": [
     {
@@ -745,6 +746,20 @@
         "batch these findings"
       ],
       "path": "connected-fix-prompt"
+    },
+    {
+      "name": "garnet-evidence",
+      "path": "garnet-evidence",
+      "invocation": "model",
+      "provenance": "IDC-NATIVE — derived from evidence-packet (the Contributor-Road packet) and bound to the Garnet 0.8.1 CLI (check / diff-caps --machine / build --deterministic / seal); Omarchy 4.0.0.alpha skill seam quoted from migrations 1786098807.sh and 1786539345.sh; v0.1, staged for displacement review",
+      "summary": "Assemble a Garnet evidence packet — garnet check on every changed source, garnet diff-caps base-vs-head read as no-widening, a deterministic build manifest, an in-toto seal (UNSIGNED without cosign), and the Garnet repo verification ladder — each rung captured with its exit code, an absent tool recorded as unverified, the bundle rolled into packet.sha256 for a reviewer's recompute. Includes the verbatim Omarchy four-directory symlink install.",
+      "triggers": [
+        "evidence packet",
+        "prove this change",
+        "garnet evidence",
+        "diff-caps packet",
+        "garnet ladder"
+      ]
     }
   ]
 }

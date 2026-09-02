@@ -1,0 +1,3 @@
+interface:
+  display_name: "Garnet Evidence"
+  short_description: "A recomputable Garnet evidence packet - check, diff-caps, build, seal, ladder"

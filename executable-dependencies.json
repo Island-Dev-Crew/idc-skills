@@ -107,6 +107,18 @@
       "pinMechanism": "GNU alternative selected by explicit absolute IDC_CONSOLE_SHA256 path with IDC_CONSOLE_SHA256_KIND=sha256sum; executable identity and version captured in console-lock evidence",
       "status": "conditional-evidence-pinned",
       "surfaces": ["console lock assembly"]
+    },
+    {
+      "name": "garnet",
+      "pinMechanism": "operator-provided Garnet 0.8.1 CLI resolved from PATH; `garnet version` is captured as a rung in every packet, and an absent binary is recorded as EXIT=127 STATUS=tool-absent (unverified), never installed",
+      "status": "conditional-operator-tool",
+      "surfaces": ["garnet-evidence check, diff-caps, build, and seal rungs"]
+    },
+    {
+      "name": "cargo",
+      "pinMechanism": "operator-provided Rust toolchain resolved from PATH; fmt and test output captured with exit codes in the packet, and an absent binary is recorded as EXIT=127 STATUS=tool-absent (unverified); no network installation is performed",
+      "status": "conditional-operator-tool",
+      "surfaces": ["garnet-evidence project-ladder rungs"]
     }
   ],
   "networkInstallPolicy": "No skill helper may install or fetch an executable at invocation. Conditional tools must already exist under an operator-reviewed or lockfile-pinned environment.",
