@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-08-21T17:46:09Z",
-  "indexSequence": 1,
+  "generatedAt": "2026-09-09T14:48:57Z",
+  "indexSequence": 3,
   "releases": [
     {
       "gitCommit": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
@@ -9,8 +9,24 @@
       "manifestSequence": 1,
       "release": "2.0.3",
       "verifierSHA256": "sha256:0f61c8dc24b627dc46c33c3e8c1e82ffd302bd620851bdfbecf6cda13e60bc47"
+    },
+    {
+      "gitCommit": "c03480b32a26a4756277438507d09769f854d2c2",
+      "launcherSHA256": "sha256:94ea1b3238d58462dc7663d7fe59a60d955067ae38f6996061a2b38fded5592f",
+      "manifestSHA256": "sha256:b11be23e7c03299c2b761f4231b8afc71b31a4710257a5fbec95ab6952259b99",
+      "manifestSequence": 2,
+      "release": "2.0.4",
+      "verifierSHA256": "sha256:7c414f57a3735d027178cb101e464584166143efa59925ff4f89b72a37ea8f12"
+    },
+    {
+      "gitCommit": "68ce34a032484529104b570d417e29ac8156b080",
+      "launcherSHA256": "sha256:94ea1b3238d58462dc7663d7fe59a60d955067ae38f6996061a2b38fded5592f",
+      "manifestSHA256": "sha256:0899bbc69e38807f7b2a8caf5dc449c6a57dca978dec8e3bd139194d6a2f1c74",
+      "manifestSequence": 4,
+      "release": "2.0.5",
+      "verifierSHA256": "sha256:7c414f57a3735d027178cb101e464584166143efa59925ff4f89b72a37ea8f12"
     }
   ],
   "schema": "idc-skills-release-index/v1",
-  "validUntil": "2026-09-20T17:46:09Z"
+  "validUntil": "2026-10-09T14:48:57Z"
 }
