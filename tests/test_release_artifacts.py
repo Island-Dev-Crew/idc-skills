@@ -429,7 +429,7 @@ class ReleaseArtifactBuilderTests(unittest.TestCase):
     def test_registry_parser_accepts_the_committed_producer_format(self) -> None:
         registry = trust.parse_registry((REPO / "skills/registry.json").read_bytes())
         self.assertEqual(registry["release"], "2.0.5")
-        self.assertEqual(registry["manifestSequence"], 3)
+        self.assertEqual(registry["manifestSequence"], 4)
         self.assertEqual(len(registry["skills"]), 50)
 
     def test_trust_and_freshness_parsers_share_release_index_contract(self) -> None:

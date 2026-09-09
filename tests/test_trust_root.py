@@ -510,6 +510,8 @@ class TrustRootTests(unittest.TestCase):
         inventory_release_override: str | None = None,
         index_release_override: str | None = None,
         index_launcher_override: str | None = None,
+        index_generated_at: str = "2026-08-22T11:00:00Z",
+        index_valid_until: str = "2026-09-01T11:00:00Z",
     ) -> dict[str, object]:
         subprocess.run(["git", "-C", str(self.repo), "init", "-q"], check=True)
         subprocess.run(["git", "-C", str(self.repo), "config", "user.name", "IDC Test"], check=True)
@@ -616,7 +618,7 @@ class TrustRootTests(unittest.TestCase):
         artifacts["freshnessIndex"].write_bytes(
             canonical_release_index(
                 {
-                    "generatedAt": "2026-08-22T11:00:00Z",
+                    "generatedAt": index_generated_at,
                     "indexSequence": 2,
                     "releases": [
                         {
@@ -630,7 +632,7 @@ class TrustRootTests(unittest.TestCase):
                         }
                     ],
                     "schema": "idc-skills-release-index/v1",
-                    "validUntil": "2026-09-01T11:00:00Z",
+                    "validUntil": index_valid_until,
                 }
             )
         )
@@ -859,7 +861,16 @@ class TrustRootTests(unittest.TestCase):
             )
 
     def test_cli_persists_checkpoint_and_rejects_withheld_root(self) -> None:
-        prepared = self.prepare_release()
+        # This test runs verify_external_root.py as a real subprocess on the REAL wall clock,
+        # so the freshness-index validity window must be open *now*. The index parser caps
+        # validity at 31 days, so a far-future literal is not an option; derive the window
+        # from the live clock here. In-process tests inject now=NOW and keep the frozen
+        # fixture dates. (A hard-coded 2026-09-01 validUntil lapsed and turned the suite red.)
+        live_now = dt.datetime.now(dt.timezone.utc).replace(microsecond=0)
+        prepared = self.prepare_release(
+            index_generated_at=(live_now - dt.timedelta(hours=1)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+            index_valid_until=(live_now + dt.timedelta(days=30)).strftime("%Y-%m-%dT%H:%M:%SZ"),
+        )
         update = self.make_valid_rotation()
         checkpoint = self.external / "state" / "root-checkpoint.json"
         checkpoint.parent.mkdir(mode=0o700)
