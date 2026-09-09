@@ -18,7 +18,7 @@ Forge 50 2.0.5 is a **limited-trust, public content-authenticated** release.
 ```text
 repository  Island-Dev-Crew/idc-skills
 tag         2.0.5
-sequence    3
+sequence    4
 fingerprint SHA256:LBkF4ekX2Z1XQ08gjjExnku92wAgmyFA04YJqPiczbA
 ```
 

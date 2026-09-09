@@ -1,6 +1,6 @@
 # Changelog
 
-## 2.0.5 — 2026-08-27 (evidence-routed public front door)
+## 2.0.5 — 2026-09-09 (evidence-routed public front door)
 
 This release gives Forge 50 a public entrance built around outcomes rather than
 an undifferentiated inventory. It preserves the 2.0.4 security implementation
@@ -27,9 +27,21 @@ changed tracked tree. The exact claim boundary is normative in
   exclusivity claims, and exact WebP dimensions, size, and chunk closure.
 - Removed unsupported global uniqueness language and avoided turning the dated
   15-surface harness matrix into a universal compatibility claim.
-- Advanced `manifestSequence` from 2 to 3 so the changed release cannot reuse
-  the 2.0.4 manifest identity. No skill body, installer, guard, egress,
+- Advanced `manifestSequence` from 2 to 4 so the changed release cannot reuse
+  the 2.0.4 manifest identity. Sequence 3 was assigned to a pre-release 2.0.5
+  candidate that was corrected before tagging and was never indexed or
+  released; skipping it prevents any same-sequence equivocation for anyone who
+  cloned that candidate. No skill body, installer, guard, egress,
   threshold-root, freshness, or release-verifier implementation changed.
+- Fixed a time-dependent test fixture. `test_trust_root`'s CLI verification
+  test runs `verify_external_root.py` on the real clock against a freshness
+  index whose hard-coded `validUntil` (2026-09-01) had lapsed, turning the
+  full suite red after that date; the subprocess test now derives its index
+  window from the live clock while in-process tests keep the frozen fixture.
+- Activated the external freshness index for the shipped line: `releases.json`
+  now records 2.0.4 and 2.0.5 (index sequences 2 and 3) with their launcher and
+  verifier digests, so the documented `idc-verify-fresh` install route can
+  authorize the current release instead of only 2.0.3.
 
 Release promotion requires the owner-held content signature, clean-clone
 reproduction, protected macOS/Linux CI, fresh exact-head independent
