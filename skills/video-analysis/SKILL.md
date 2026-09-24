@@ -16,12 +16,15 @@ Auto-transcripts drop all visual signal and mangle names: a real capture rendere
 [scripts/grab.sh](scripts/grab.sh) takes a URL, a frame count, and an out-dir; it writes `transcript.txt` and `frames/f_NNN.jpg`, choosing the frame cadence as count ÷ duration so the frames spread evenly across the whole runtime.
 
 ```bash
-<this-skill-dir>/scripts/grab.sh <video-url> [frame-count] [out-dir] [dedup]
-# e.g. grab.sh https://youtu.be/ID 250 ./va-talk      # 250-frame cadence, near-duplicates dropped
-# e.g. grab.sh https://youtu.be/ID 250 ./va-talk 0    # keep the raw cadence (no dedup)
+<this-skill-dir>/scripts/grab.sh <video-url> [frame-count] [out-dir] [dedup] [max-height]
+# e.g. grab.sh https://youtu.be/ID 500 ./va-talk           # 500-frame cadence, near-duplicates dropped
+# e.g. grab.sh https://youtu.be/ID 500 ./va-talk 0         # keep the raw cadence (no dedup)
+# e.g. grab.sh https://youtu.be/ID 500 ./va-talk 1 1080    # fine visual detail: capture up to 1080p
 ```
 
 Needs `yt-dlp`, `ffmpeg` (ships `ffprobe`), and `python3`; the script fails loudly if any is missing.
+
+**`max-height` sets the capture resolution (default 480).** Raise it to 1080 when the detail you need is fine: thin type, grain, particle effects, hairline UI strokes, motion-design craft. Higher resolution means larger downloads and heavier frames.
 
 **Dedup keeps only informative frames.** By default the script samples at the cadence, then `mpdecimate` drops any frame too visually similar to the last *kept* one, so a held slide sampled 60 times collapses to the one frame where it appeared, and the frame count reported is *informative frames*, not raw cadence. This is a **pixel-level** near-duplicate drop, not a semantic one: it removes visually-static repeats (held slides, a paused screen), but two frames that differ visually yet say the same thing still both survive; judging *relevance* stays yours. On a genuinely dynamic video (a moving whiteboard, constant camera motion) almost nothing is a duplicate and the set stays dense; that is correct, not a failure. Pass `dedup=0` to keep the raw cadence when you want a fixed, evenly-timed sample.
 
@@ -29,9 +32,9 @@ Needs `yt-dlp`, `ffmpeg` (ships `ffprobe`), and `python3`; the script fails loud
 
 The cadence is count ÷ duration, so the count is really *how much visual detail do I need to not miss anything?*
 
-- **~60:** a talking head with almost nothing on screen.
-- **~100:** a normal explainer with occasional slides.
-- **250+:** dense visual content: whiteboards being drawn, code being typed, fast UI, rapid cuts. When a single moment carries the point (a full architecture diagram appears once), sample dense enough to land on it.
+- **~120:** a talking head with almost nothing on screen.
+- **~200:** a normal explainer with occasional slides.
+- **500+:** dense visual content: whiteboards being drawn, code being typed, fast UI, rapid cuts, motion graphics. When a single moment carries the point (a full architecture diagram appears once), sample dense enough to land on it.
 
 A frame every few seconds still misses a one-frame flash, so state that the frames are a sample, not the whole video. The count is a target, not a guarantee; `fps=count÷duration` may land a few frames over.
 

@@ -1,15 +1,19 @@
 #!/usr/bin/env bash
 # grab.sh — pull a video's transcript AND sample frames (the two channels an analysis needs).
-# Usage: grab.sh <video-url> [frame-count] [out-dir] [dedup]
-#   frame-count default 100; 250+ for dense visual content (whiteboards, code, fast UI); ~60 for a talking head.
+# Usage: grab.sh <video-url> [frame-count] [out-dir] [dedup] [max-height]
+#   frame-count default 200; 500+ for dense visual content (whiteboards, code, fast UI); ~120 for a talking head.
+#   max-height default 480; 1080 for fine visual detail (type, grain, particles, motion-design craft).
 # Writes <out-dir>/transcript.txt and <out-dir>/frames/f_NNN.jpg. Fails closed on missing deps / failed download.
 set -euo pipefail
 
-URL="${1:?usage: grab.sh <video-url> [frame-count=100] [out-dir] [dedup=1]}"
-N="${2:-100}"
+URL="${1:?usage: grab.sh <video-url> [frame-count=200] [out-dir] [dedup=1] [max-height=480]}"
+N="${2:-200}"
 case "$N" in ''|*[!0-9]*) echo "frame-count must be a positive integer" >&2; exit 2 ;; esac
 [ "$N" -ge 1 ] || { echo "frame-count must be >= 1" >&2; exit 2; }
 DEDUP="${4:-1}"   # 1 = drop near-duplicate frames that carry no new information; 0 = keep the raw cadence
+H="${5:-480}"
+case "$H" in ''|*[!0-9]*) echo "max-height must be a positive integer" >&2; exit 2 ;; esac
+{ [ "$H" -ge 144 ] && [ "$H" -le 4320 ]; } || { echo "max-height must be between 144 and 4320" >&2; exit 2; }
 
 for t in yt-dlp ffmpeg ffprobe python3; do
   command -v "$t" >/dev/null 2>&1 || { echo "missing dependency: $t (install yt-dlp + ffmpeg)" >&2; exit 3; }
@@ -50,8 +54,9 @@ else
   echo "  no captions available — frames only; say so in the analysis" >&2
 fi
 
-echo "[2/4] video (<=480p)…"
-yt-dlp -f 'best[height<=480]/bestvideo[height<=480]+bestaudio/best' --no-playlist \
+echo "[2/4] video (<=${H}p)…"
+# Adaptive video+audio first: a pre-merged 'best' stream can sit far below the cap and would win otherwise.
+yt-dlp -f "bv*[height<=$H]+ba/b[height<=$H]/b" --no-playlist \
   -o "$OUT/source.%(ext)s" "$URL" >/dev/null \
   || { echo "download failed — check the URL and network" >&2; exit 4; }
 if find "$OUT" -maxdepth 1 -type f -name '*.part' -print -quit | grep -q .; then
