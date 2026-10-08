@@ -1,6 +1,6 @@
 {
-  "generatedAt": "2026-09-09T14:48:57Z",
-  "indexSequence": 3,
+  "generatedAt": "2026-10-07T06:16:01Z",
+  "indexSequence": 4,
   "releases": [
     {
       "gitCommit": "26b9285c1fe11a3ef875a34ff30faa0275eddf24",
@@ -28,5 +28,5 @@
     }
   ],
   "schema": "idc-skills-release-index/v1",
-  "validUntil": "2026-10-09T14:48:57Z"
+  "validUntil": "2026-11-06T06:16:01Z"
 }
